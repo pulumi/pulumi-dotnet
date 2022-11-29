@@ -1,0 +1,1 @@
+## Pulumi protobuf file definitions

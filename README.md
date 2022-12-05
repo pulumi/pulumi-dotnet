@@ -68,19 +68,16 @@ And finally, `pulumi preview` and `pulumi up` as you would any other Pulumi proj
 ## Building
 
 ```bash
-cd ./build
 dotnet run build-sdk
 ```
 
 ## Running tests for the Pulumi SDK
 ```bash
-cd ./build
 dotnet run test-sdk
 ```
 
 ## Running tests for the Pulumi Automation SDK
 ```bash
-cd ./build
 dotnet run test-automation-sdk
 ```
 

@@ -95,6 +95,6 @@ let main(args: string[]) : int =
     | [| "test-language-plugin" |] -> testLanguagePlugin()
     | [| "test-sdk" |] -> testPulumiSdk()
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
-    | otherwise -> printfn "%A" otherwise
+    | otherwise -> printfn "Unknown build arguments provided %A" otherwise
 
     0

@@ -54,6 +54,24 @@ let buildSdk() =
     if Shell.Exec("dotnet", "build --configuration Release", sdk) <> 0
     then failwith "build failed"
 
+let cleanLanguagePlugin() = 
+    let plugin = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
+    if File.Exists plugin then File.Delete plugin
+
+let buildLanguagePlugin() = 
+    cleanLanguagePlugin()
+    printfn "Building pulumi-language-dotnet Plugin"
+    if Shell.Exec("go", "build", Path.Combine(repositoryRoot, "pulumi-language-dotnet")) <> 0
+    then failwith "Building pulumi-language-dotnet failed"
+    let output = Path.Combine(repositoryRoot, "pulumi-language-dotnet", "pulumi-dotnet")
+    printfn $"Built binary {output}"
+
+let testLanguagePlugin() = 
+    cleanLanguagePlugin()
+    printfn "Testing pulumi-language-dotnet Plugin"
+    if Shell.Exec("go", "test", Path.Combine(repositoryRoot, "pulumi-language-dotnet")) <> 0
+    then failwith "Testing pulumi-language-dotnet failed"
+
 let testPulumiSdk() = 
     cleanSdk()
     restoreSdk()
@@ -73,6 +91,8 @@ let main(args: string[]) : int =
     match args with
     | [| "clean-sdk" |] -> cleanSdk()
     | [| "build-sdk" |] -> buildSdk()
+    | [| "build-language-plugin" |] -> buildLanguagePlugin()
+    | [| "test-language-plugin" |] -> testLanguagePlugin()
     | [| "test-sdk" |] -> testPulumiSdk()
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
     | otherwise -> printfn "%A" otherwise

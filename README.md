@@ -65,7 +65,7 @@ $ pulumi config set aws:region us-west-2
 
 And finally, `pulumi preview` and `pulumi up` as you would any other Pulumi project.
 
-## Building
+## Building the SDK
 
 ```bash
 dotnet run build-sdk
@@ -79,6 +79,18 @@ dotnet run test-sdk
 ## Running tests for the Pulumi Automation SDK
 ```bash
 dotnet run test-automation-sdk
+```
+
+## Building the language plugin
+
+```bash
+dotnet run build-language-plugin
+```
+
+## Testing the language plugin
+
+```bash
+dotnet run test-language-plugin
 ```
 
 ## Public API Changes

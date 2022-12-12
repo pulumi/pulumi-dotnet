@@ -432,6 +432,11 @@
             cref="T:System.String"/> in other cases.
             </summary>
         </member>
+        <member name="T:Pulumi.OutputJsonConverter">
+            <summary>
+            Internal class used for Output.JsonSerialize.
+            </summary>
+        </member>
         <member name="T:Pulumi.Output">
             <summary>
             Useful static utility methods for both creating and working with <see cref="T:Pulumi.Output`1"/>s.
@@ -490,6 +495,12 @@
             If any of the <see cref="T:Pulumi.Input`1"/>s or <see cref="T:Pulumi.Output`1"/>s are not known, the
             final result will be not known.  Similarly, if any of the <see cref="T:Pulumi.Input`1"/>s or
             <see cref="T:Pulumi.Output`1"/>s are secrets, then the final result will be a secret.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Output.JsonSerialize``1(Pulumi.Output{``0},System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Uses <see cref="M:System.Text.Json.JsonSerializer.SerializeAsync``1(System.IO.Stream,``0,System.Text.Json.JsonSerializerOptions,System.Threading.CancellationToken)"/> to serialize the given <see
+            cref="T:Pulumi.Output`1"/> value into a JSON string.
             </summary>
         </member>
         <member name="M:Pulumi.Output.Tuple``8(Pulumi.Input{``0},Pulumi.Input{``1},Pulumi.Input{``2},Pulumi.Input{``3},Pulumi.Input{``4},Pulumi.Input{``5},Pulumi.Input{``6},Pulumi.Input{``7})">
@@ -584,7 +595,7 @@
             <see cref="T:Pulumi.Output`1"/>s are a key part of how Pulumi tracks dependencies between <see
             cref="T:Pulumi.Resource"/>s. Because the values of outputs are not available until resources are
             created, these are represented using the special <see cref="T:Pulumi.Output`1"/>s type, which
-            internally represents two things: an eventually available value of the output and 
+            internally represents two things: an eventually available value of the output and
             the dependency on the source(s) of the output value.
             In fact, <see cref="T:Pulumi.Output`1"/>s is quite similar to <see cref="T:System.Threading.Tasks.Task`1"/>.
             Additionally, they carry along dependency information.
@@ -1227,6 +1238,21 @@
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin.
+            <para/>
+            Similar to the earlier <see cref="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/>, but supports passing input values
+            and returns an Output value.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
         <member name="M:Pulumi.DeploymentInstance.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -1234,6 +1260,18 @@
             <para/>
             The result of <see cref="M:Pulumi.DeploymentInstance.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
             result value of the provider plugin.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
+            result value of the provider plugin which is expected to be a dictionary with single value.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
@@ -1294,6 +1332,18 @@
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
+        <member name="M:Pulumi.IDeployment.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
+            result value of the provider plugin that returns a bag of properties with a single value that is returned.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
         <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -1301,6 +1351,18 @@
             <para/>
             The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin that returns a bag of properties with a single value that is returned.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
@@ -5454,6 +5516,44 @@
             the current inputs to this resource (only applicable for Read)
             </summary>
         </member>
+        <member name="T:Pulumirpc.GetMappingRequest">
+            <summary>
+            GetMappingRequest allows providers to return ecosystem specific information to allow the provider to be
+            converted from a source markup to Pulumi. It's expected that provider bridges that target a given ecosystem
+            (e.g. Terraform, Kubernetes) would also publish a conversion plugin to convert markup from that ecosystem
+            to Pulumi, using the bridged providers.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetMappingRequest.KeyFieldNumber">
+            <summary>Field number for the "key" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetMappingRequest.Key">
+            <summary>
+            the conversion key for the mapping being requested.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.GetMappingResponse">
+            <summary>
+            GetMappingResponse returns convert plugin specific data for this provider. This will normally be human
+            readable JSON, but the engine doesn't mandate any form.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetMappingResponse.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetMappingResponse.Provider">
+            <summary>
+            the provider key this is mapping for. For example the Pulumi provider "terraform-template" would return "template" for this.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetMappingResponse.DataFieldNumber">
+            <summary>Field number for the "data" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetMappingResponse.Data">
+            <summary>
+            the conversion plugin specific data.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceProvider">
             <summary>
             ResourceProvider is a service that understands how to create, read, update, or delete resources for types defined
@@ -5609,6 +5709,15 @@
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.Attach(Pulumirpc.PluginAttach,Grpc.Core.ServerCallContext)">
             <summary>
             Attach sends the engine address to an already running plugin.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.GetMapping(Pulumirpc.GetMappingRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
+            response (not an error) if it doesn't have a mapping for the given key.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -6263,6 +6372,46 @@
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.AttachAsync(Pulumirpc.PluginAttach,Grpc.Core.CallOptions)">
             <summary>
             Attach sends the engine address to an already running plugin.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMapping(Pulumirpc.GetMappingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
+            response (not an error) if it doesn't have a mapping for the given key.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMapping(Pulumirpc.GetMappingRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
+            response (not an error) if it doesn't have a mapping for the given key.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingAsync(Pulumirpc.GetMappingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
+            response (not an error) if it doesn't have a mapping for the given key.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingAsync(Pulumirpc.GetMappingRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
+            response (not an error) if it doesn't have a mapping for the given key.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>

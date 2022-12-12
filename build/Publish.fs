@@ -15,11 +15,24 @@ let env (variableName: string) =
     then None
     else Some value
 
+let projectName (dir: string) = DirectoryInfo(dir).Name
+
+[<RequireQualifiedAccess>]
 type PublishResult =
-    { projectDir: string; success: bool; error: string }
-    member this.ProjectName() = DirectoryInfo(this.projectDir).Name
-    static member Failed(projectDir, error) = { projectDir = projectDir; success = false; error = error }
-    static member Ok(projectDir) = { projectDir = projectDir; success = true; error = "" }
+    | Ok of project:string
+    | Failed of project:string * error: string
+    | AlreadyPublished of project:string
+    
+    member this.ProjectName() =
+        match this with
+        | Ok project -> projectName project
+        | Failed (project, error) -> projectName project
+        | AlreadyPublished project -> projectName project
+
+    member this.HasErrored() =
+        match this with
+        | Failed _ -> true
+        | otherwise -> false
 
 let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) : PublishResult =
     let buildNugetCmd = String.concat " " [
@@ -63,7 +76,7 @@ let publishSdks (projectDirs: string list) =
                 for projectDir in projectDirs do
                     let projectName = DirectoryInfo(projectDir).Name
                     if Nuget.exists projectName pulumiVersion then
-                        PublishResult.Ok(projectDir)
+                        PublishResult.AlreadyPublished(projectDir)
                     else
                         publishSdk projectDir pulumiVersion nugetApiKey
             ]

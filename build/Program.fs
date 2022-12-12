@@ -2,6 +2,7 @@
 open System.Linq
 open Fake.IO
 open Fake.Core
+open Publish
 
 /// Recursively tries to find the parent of a file starting from a directory
 let rec findParent (directory: string) (fileToFind: string) = 
@@ -53,9 +54,11 @@ let buildSdk() =
     then failwith "build failed"
 
 let publishSdks() =
+    // prepare
     cleanSdk()
     restoreSdk()
-    let publishResults = Publish.publishSdks [
+    // perform the publishing (idempotent)
+    let publishResults = publishSdks [
         pulumiSdk
         pulumiAutomationSdk
         pulumiFSharp
@@ -65,16 +68,19 @@ let publishSdks() =
     | Error errorMsg -> printfn $"{errorMsg}"
     | Ok results ->
         for result in results do
-            if result.success then
-                printfn $"Project '{result.ProjectName()}' has been published"
-            else
-                printfn $"Project '{result.ProjectName()}' failed to publish the nuget package: {result.error}"
-        
-        let anyProjectFailed = results |> List.exists (fun result -> not result.success)
+            match result with
+            | PublishResult.Ok project ->
+                printfn $"Project '{projectName project}' has been published"
+            | PublishResult.Failed(project, error) ->
+                printfn $"Project '{projectName project}' failed to publish the nuget package: {error}"
+            | PublishResult.AlreadyPublished project ->
+                printfn $"Project '{projectName project}' has already been published"
+
+        let anyProjectFailed = results |> List.exists (fun result -> result.HasErrored())
         if anyProjectFailed then
             let failedProjectsAtPublishing =
                 results
-                |> List.where (fun result -> not result.success)
+                |> List.where (fun result -> result.HasErrored())
                 |> List.map (fun result -> result.ProjectName())
             
             failwith $"Some nuget packages were not published: {failedProjectsAtPublishing}"

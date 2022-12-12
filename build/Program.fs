@@ -53,6 +53,8 @@ let buildSdk() =
     then failwith "build failed"
 
 let publishSdks() =
+    cleanSdk()
+    restoreSdk()
     let publishResults = Publish.publishSdks [
         pulumiSdk
         pulumiAutomationSdk
@@ -64,9 +66,9 @@ let publishSdks() =
     | Ok results ->
         for result in results do
             if result.success then
-                printfn $"Project {result.ProjectName()} has been published"
+                printfn $"Project '{result.ProjectName()}' has been published"
             else
-                printfn $"Project {result.ProjectName()} failed to publish the nuget package: {result.error}"
+                printfn $"Project '{result.ProjectName()}' failed to publish the nuget package: {result.error}"
         
         let anyProjectFailed = results |> List.exists (fun result -> not result.success)
         if anyProjectFailed then

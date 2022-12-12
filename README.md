@@ -89,6 +89,9 @@ dotnet run build-language-plugin
 
 # Testing the language plugin
 dotnet run test-language-plugin
+
+# Sync proto files from pulumi/pulumi
+dotnet run sync-proto-files
 ```
 
 ## Public API Changes

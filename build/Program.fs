@@ -117,6 +117,15 @@ let testPulumiAutomationSdk() =
     if Shell.Exec("dotnet", "test --configuration Release", pulumiAutomationSdkTests) <> 0
     then failwith "automation tests failed"
 
+let syncProtoFiles() = GitSync.repository {
+    remoteRepository = "https://github.com/pulumi/pulumi.git"
+    localRepositoryPath = repositoryRoot
+    folders = [
+        { sourcePath = [ "proto"; "pulumi" ]; destinationPath = [ "proto"; "pulumi" ] }
+        { sourcePath = [ "proto"; "google"; "protobuf" ]; destinationPath = [ "proto"; "google"; "protobuf" ] }
+    ]
+}
+
 [<EntryPoint>]
 let main(args: string[]) : int = 
     match args with
@@ -127,6 +136,7 @@ let main(args: string[]) : int =
     | [| "test-sdk" |] -> testPulumiSdk()
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
     | [| "publish-sdks" |] -> publishSdks()
+    | [| "sync-proto-files" |] -> syncProtoFiles()
     | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 
     0

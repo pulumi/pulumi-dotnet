@@ -1,0 +1,48 @@
+name: Release Actions
+
+permissions:
+  # To create a PR
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        description: "GitHub ref to use"
+        type: string
+      version:
+        required: true
+        description: "Version to produce"
+        type: string
+      branch_from_ref:
+        required: false
+        description: "Commit to branch from, if not the tag"
+        type: string
+      release-notes:
+        required: true
+        description: "Release notes to publish"
+        type: string
+
+env:
+  PULUMI_VERSION: ${{ inputs.version }}
+  GITHUB_REF: ${{ inputs.ref }}
+  NUGET_PUBLISH_KEY: ${{ secrets.NUGET_PUBLISH_KEY }}
+
+jobs:
+  publish-dotnet-sdk:
+    name: Publish dotnet SDK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Set up DotNet 6.0.x
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+        with:
+          dotnet-version: 6.0.x
+          dotnet-quality: ga
+      - name: Publish Packages
+        run: dotnet run publish-sdks

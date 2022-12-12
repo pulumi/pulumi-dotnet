@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Program.fs" />
+    <Compile Include="build\Publish.fs" />
+    <Compile Include="build\Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

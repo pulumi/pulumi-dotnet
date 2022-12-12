@@ -14,7 +14,6 @@ let rec findParent (directory: string) (fileToFind: string) =
 let repositoryRoot = findParent __SOURCE_DIRECTORY__ "README.md";
 
 let sdk = Path.Combine(repositoryRoot, "sdk")
-
 let pulumiSdk = Path.Combine(sdk, "Pulumi")
 let pulumiSdkTests = Path.Combine(sdk, "Pulumi.Tests")
 let pulumiAutomationSdk = Path.Combine(sdk, "Pulumi.Automation")
@@ -40,7 +39,6 @@ let cleanSdk() =
         Shell.deleteDir (Path.Combine(project, "bin"))
         Shell.deleteDir (Path.Combine(project, "obj"))
 
-
 /// Runs `dotnet restore` against the solution file without using cache
 let restoreSdk() = 
     printfn "Restoring Pulumi SDK packages"
@@ -53,6 +51,31 @@ let buildSdk() =
     printfn "Building Pulumi SDK"
     if Shell.Exec("dotnet", "build --configuration Release", sdk) <> 0
     then failwith "build failed"
+
+let publishSdks() =
+    let publishResults = Publish.publishSdks [
+        pulumiSdk
+        pulumiAutomationSdk
+        pulumiFSharp
+    ]
+    
+    match publishResults with
+    | Error errorMsg -> printfn $"{errorMsg}"
+    | Ok results ->
+        for result in results do
+            if result.success then
+                printfn $"Project {result.ProjectName()} has been published"
+            else
+                printfn $"Project {result.ProjectName()} failed to publish the nuget package: {result.error}"
+        
+        let anyProjectFailed = results |> List.exists (fun result -> not result.success)
+        if anyProjectFailed then
+            let failedProjectsAtPublishing =
+                results
+                |> List.where (fun result -> not result.success)
+                |> List.map (fun result -> result.ProjectName())
+            
+            failwith $"Some nuget packages were not published: {failedProjectsAtPublishing}"
 
 let cleanLanguagePlugin() = 
     let plugin = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
@@ -95,6 +118,7 @@ let main(args: string[]) : int =
     | [| "test-language-plugin" |] -> testLanguagePlugin()
     | [| "test-sdk" |] -> testPulumiSdk()
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
-    | otherwise -> printfn "Unknown build arguments provided %A" otherwise
+    | [| "publish-sdks" |] -> publishSdks()
+    | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 
     0

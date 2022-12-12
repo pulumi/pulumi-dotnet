@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using Pulumi;
 using Pulumi.Aws.S3;
 
-Deployment.RunAsync(() =>
+return await Deployment.RunAsync(() =>
 {
     // Create the bucket, and make it public.
     var bucket = new Bucket(name, new () 
@@ -65,31 +65,29 @@ $ pulumi config set aws:region us-west-2
 
 And finally, `pulumi preview` and `pulumi up` as you would any other Pulumi project.
 
-## Building the SDK
+## Development and Testing
+
+### Prerequisites
+- Dotnet [SDK v6+](https://dotnet.microsoft.com/download/dotnet/6.0) installed on your machine.
+- Go 1.19 or later (for building and testing `pulumi-language-dotnet`)
+- The Pulumi CLI (for running automation tests) 
+
+Then you can run one of the following commands:
 
 ```bash
+# Build the Pulumi SDK
 dotnet run build-sdk
-```
 
-## Running tests for the Pulumi SDK
-```bash
+# Running tests for the Pulumi SDK
 dotnet run test-sdk
-```
 
-## Running tests for the Pulumi Automation SDK
-```bash
+# Running tests for the Pulumi Automation SDK
 dotnet run test-automation-sdk
-```
 
-## Building the language plugin
-
-```bash
+# Building the language plugin
 dotnet run build-language-plugin
-```
 
-## Testing the language plugin
-
-```bash
+# Testing the language plugin
 dotnet run test-language-plugin
 ```
 

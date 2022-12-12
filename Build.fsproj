@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="build\Nuget.fs" />
     <Compile Include="build\Publish.fs" />
     <Compile Include="build\Program.fs" />
   </ItemGroup>
@@ -13,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Fake.Core.Environment" Version="5.23.1" />
     <PackageReference Include="Fake.Core.Target" Version="5.23.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
 </Project>

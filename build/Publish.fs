@@ -50,7 +50,7 @@ let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) : Pu
             else
                 PublishResult.Ok(projectDir)
 
-let publishSdks (projects: string list) =
+let publishSdks (projectDirs: string list) =
     match env NUGET_PUBLISH_KEY with
     | None -> Error $"Missing environment variable {NUGET_PUBLISH_KEY} required to publish SDKs"
     | Some nugetApiKey ->
@@ -58,5 +58,12 @@ let publishSdks (projects: string list) =
         | None -> Error $"Missing environment variable {PULUMI_VERSION} required to publish SDKs"
         | Some pulumiVersion ->
             // found both a Pulumi version and a Nuget API key
-            // use them to publish the SDKs
-            Ok [ for projectDir in projects do publishSdk projectDir pulumiVersion nugetApiKey ]
+            // use them to publish the SDKs if they are not already on Nuget
+            Ok [
+                for projectDir in projectDirs do
+                    let projectName = DirectoryInfo(projectDir).Name
+                    if Nuget.exists projectName pulumiVersion then
+                        PublishResult.Ok(projectDir)
+                    else
+                        publishSdk projectDir pulumiVersion nugetApiKey
+            ]

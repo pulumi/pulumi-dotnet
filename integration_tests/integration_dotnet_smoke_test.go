@@ -61,8 +61,6 @@ func TestStackReferenceDotnet(t *testing.T) {
 
 // Test remote component construction in .NET.
 func TestConstructDotnet(t *testing.T) {
-	t.Parallel()
-
 	testDir := "construct_component"
 	componentDir := "testcomponent-go"
 	expectedResourceCount := 8

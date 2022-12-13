@@ -21,7 +21,7 @@ using Pulumi.Aws.S3;
 return await Deployment.RunAsync(() =>
 {
     // Create the bucket, and make it public.
-    var bucket = new Bucket(name, new () 
+    var bucket = new Bucket("media", new () 
     { 
         Acl = "public-read" 
     });

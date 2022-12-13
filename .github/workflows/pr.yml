@@ -7,7 +7,7 @@ on:
     branches:
       - main
     tags:
-      - sdk/v*.*.*
+      - v*.*.*
     paths-ignore:
       - 'CHANGELOG.md'
       - 'CHANGELOG_PENDING.md'
@@ -34,3 +34,9 @@ jobs:
         run: dotnet run test-sdk
       - name: Test Pulumi Automation SDK
         run: dotnet run test-automation-sdk
+      - name: Set up Go 1.19.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.x
+      - name: Integration Tests
+        run: dotnet run integration-tests

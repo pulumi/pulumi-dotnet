@@ -86,7 +86,7 @@ let publishSdks() =
             failwith $"Some nuget packages were not published: {failedProjectsAtPublishing}"
 
 let cleanLanguagePlugin() = 
-    let plugin = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
+    let plugin = Path.Combine(repositoryRoot, "pulumi-language-dotnet", "pulumi-language-dotnet")
     if File.Exists plugin then File.Delete plugin
 
 let buildLanguagePlugin() = 
@@ -94,7 +94,7 @@ let buildLanguagePlugin() =
     printfn "Building pulumi-language-dotnet Plugin"
     if Shell.Exec("go", "build", Path.Combine(repositoryRoot, "pulumi-language-dotnet")) <> 0
     then failwith "Building pulumi-language-dotnet failed"
-    let output = Path.Combine(repositoryRoot, "pulumi-language-dotnet", "pulumi-dotnet")
+    let output = Path.Combine(repositoryRoot, "pulumi-language-dotnet", "pulumi-language-dotnet")
     printfn $"Built binary {output}"
 
 let testLanguagePlugin() = 
@@ -120,11 +120,40 @@ let testPulumiAutomationSdk() =
 let syncProtoFiles() = GitSync.repository {
     remoteRepository = "https://github.com/pulumi/pulumi.git"
     localRepositoryPath = repositoryRoot
-    folders = [
-        { sourcePath = [ "proto"; "pulumi" ]; destinationPath = [ "proto"; "pulumi" ] }
-        { sourcePath = [ "proto"; "google"; "protobuf" ]; destinationPath = [ "proto"; "google"; "protobuf" ] }
+    contents = [
+        GitSync.folder {
+            sourcePath = [ "proto"; "pulumi" ]
+            destinationPath = [ "proto"; "pulumi" ]
+        }
+        
+        GitSync.folder {
+            sourcePath = [ "proto"; "google"; "protobuf" ]
+            destinationPath = [ "proto"; "google"; "protobuf" ]
+        }
     ]
 }
+
+let preparePulumiSdkNugetLocally() =
+    cleanSdk()
+    if Shell.Exec("dotnet",  "build", pulumiSdk) <> 0 then
+        failwith "Failed to build the local nuget package"
+    
+    let releaseDir = Path.Combine(pulumiSdk, "bin", "Debug")
+    let releaseArtifacts = Directory.EnumerateFiles(releaseDir)
+    if not (releaseArtifacts.Any()) then
+        failwith "couldn't the built nuget package"
+    else
+        let nugetPackageFile = releaseArtifacts.First()
+        match env "HOME" with
+        | None -> failwith "couldn't find the HOME environment variable"
+        | Some homeDir ->
+            let pulumiLocalNugetPath = Path.Combine(homeDir, ".pulumi-dev", "nuget")
+            Shell.copyFile pulumiLocalNugetPath nugetPackageFile
+
+let integrationTests() = 
+    preparePulumiSdkNugetLocally()
+    if Shell.Exec("go", "test", Path.Combine(repositoryRoot, "integration_tests")) <> 0
+    then failwith "Integration tests failed"
 
 [<EntryPoint>]
 let main(args: string[]) : int = 
@@ -137,6 +166,8 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
     | [| "publish-sdks" |] -> publishSdks()
     | [| "sync-proto-files" |] -> syncProtoFiles()
+    | [| "prepare-pulumi-sdk-nuget-locally" |] -> preparePulumiSdkNugetLocally()
+    | [| "integration-tests" |] -> integrationTests()
     | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 
     0

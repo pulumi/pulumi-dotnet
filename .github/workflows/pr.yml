@@ -35,6 +35,9 @@ jobs:
         run: dotnet run test-sdk
       - name: Test Pulumi Automation SDK
         run: dotnet run test-automation-sdk
+  IntegrationTests:
+    runs-on: ubuntu-latest
+    steps:
       - name: Set up Go 1.19.x
         uses: actions/setup-go@v3
         with:

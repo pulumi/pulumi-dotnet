@@ -454,3 +454,5 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 pulumi-language-dotnet
 dist
+.lock
+pulumi-resource-testprovider

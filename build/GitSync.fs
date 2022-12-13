@@ -5,20 +5,29 @@ open Fake.Core
 open System.IO
 open System
 
-type FolderSync = {
+type SyncContent = {
     sourcePath: string list 
     destinationPath: string list
 }
 
-let formatFolder (folder: FolderSync) =
-    let source = String.concat "/" folder.sourcePath
-    let destination = String.concat "/" folder.sourcePath
-    $"Source: {source} -> Destination: {destination}"
+type SyncType =
+    | File of SyncContent
+    | Folder of SyncContent
+
+let folder content = SyncType.Folder content
+let file content = SyncType.File content
+
+let formatSync = function
+    | SyncType.Folder content 
+    | SyncType.File content ->
+        let source = String.concat "/" content.sourcePath
+        let destination = String.concat "/" content.destinationPath
+        $"Source: {source} -> Destination: {destination}"
 
 type SyncOptions = {
     remoteRepository: string
-    folders: FolderSync list
     localRepositoryPath: string
+    contents: SyncType list
 }
 
 let cloneRepository (remoteRepo: string) (workOnTempDir: string -> unit) =
@@ -32,13 +41,18 @@ let cloneRepository (remoteRepo: string) (workOnTempDir: string -> unit) =
         tempDir.Delete(true)
 
 let repository (options: SyncOptions) =
-    printfn $"Cloning {options.remoteRepository} to sync the following folders"
-    for folder in options.folders do
-        printfn $"{formatFolder folder}"
-
+    printfn $"Cloning {options.remoteRepository} to sync files and folders"
     cloneRepository options.remoteRepository (fun clonedRepo -> 
-        for folder in options.folders do
-            let sourcePath = Path.Combine [| clonedRepo; yield! folder.sourcePath |]
-            let destination = Path.Combine [| options.localRepositoryPath; yield! folder.destinationPath |]
-            Shell.copyDir destination sourcePath (fun file -> true)
+        for content in options.contents do
+            match content with
+            | SyncType.Folder folder -> 
+                let sourcePath = Path.Combine [| clonedRepo; yield! folder.sourcePath |]
+                let destination = Path.Combine [| options.localRepositoryPath; yield! folder.destinationPath |]
+                Shell.copyDir destination sourcePath (fun file -> true)
+                printfn $"Copied folder ({formatSync content})"
+            | SyncType.File file ->
+                let sourcePath = Path.Combine [| clonedRepo; yield! file.sourcePath |]
+                let destination = Path.Combine [| options.localRepositoryPath; yield! file.destinationPath |]
+                Shell.copyFile destination sourcePath
+                printfn $"Copied file ({formatSync content})"
     )

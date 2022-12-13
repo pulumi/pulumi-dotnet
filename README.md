@@ -1,6 +1,6 @@
 ﻿# .NET Language Provider
 
-A .NET language provider for Pulumi.
+A .NET language provider for Pulumi. Use your favorite .NET language to write Pulumi programs and deploy infrastructure to any cloud.
 
 ## Installing the [nuget](https://www.nuget.org/packages/Pulumi) package
 ```

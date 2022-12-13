@@ -147,6 +147,7 @@ let preparePulumiSdkNugetLocally() =
         let nugetPackageFile = releaseArtifacts.First()
         let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
         let pulumiLocalNugetPath = Path.Combine(homeDir, ".pulumi-dev", "nuget")
+        Directory.ensure pulumiLocalNugetPath
         Shell.copyFile pulumiLocalNugetPath nugetPackageFile
 
 let integrationTests() = 

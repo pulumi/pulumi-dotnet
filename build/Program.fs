@@ -149,7 +149,6 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
     | [| "publish-sdks" |] -> publishSdks()
     | [| "sync-proto-files" |] -> syncProtoFiles()
-    | [| "prepare-pulumi-sdk-nuget-locally" |] -> preparePulumiSdkNugetLocally()
     | [| "integration-tests" |] -> integrationTests()
     | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 

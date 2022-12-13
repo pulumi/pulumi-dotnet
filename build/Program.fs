@@ -144,11 +144,9 @@ let preparePulumiSdkNugetLocally() =
         failwith "couldn't the built nuget package"
     else
         let nugetPackageFile = releaseArtifacts.First()
-        match env "HOME" with
-        | None -> failwith "couldn't find the HOME environment variable"
-        | Some homeDir ->
-            let pulumiLocalNugetPath = Path.Combine(homeDir, ".pulumi-dev", "nuget")
-            Shell.copyFile pulumiLocalNugetPath nugetPackageFile
+        let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+        let pulumiLocalNugetPath = Path.Combine(homeDir, ".pulumi-dev", "nuget")
+        Shell.copyFile pulumiLocalNugetPath nugetPackageFile
 
 let integrationTests() = 
     preparePulumiSdkNugetLocally()

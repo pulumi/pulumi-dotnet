@@ -5,7 +5,7 @@ on:
       - 'CHANGELOG_PENDING.md'
   push:
     branches:
-      - *
+      - '**'
     tags:
       - v*.*.*
     paths-ignore:

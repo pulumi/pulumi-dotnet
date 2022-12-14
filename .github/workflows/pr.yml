@@ -88,3 +88,5 @@ jobs:
         run: dotnet run integration test TestAboutDotnet
       - name: TestDotNetTransformations
         run: dotnet run integration test TestDotNetTransformations
+      - name: TestResourceRefsGetResourceDotnet
+        run: dotnet run integration test TestResourceRefsGetResourceDotnet

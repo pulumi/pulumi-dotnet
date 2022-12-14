@@ -159,22 +159,6 @@ let syncProtoFiles() = GitSync.repository {
     ]
 }
 
-let preparePulumiSdkNugetLocally() =
-    cleanSdk()
-    if Shell.Exec("dotnet",  "build -p:Version=3.50", pulumiSdk) <> 0 then
-        failwith "Failed to build the local nuget package"
-    
-    let releaseDir = Path.Combine(pulumiSdk, "bin", "Debug")
-    let releaseArtifacts = Directory.EnumerateFiles(releaseDir)
-    if not (releaseArtifacts.Any()) then
-        failwith "couldn't the built nuget package"
-    else
-        let nugetPackageFile = releaseArtifacts.First()
-        let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-        let pulumiLocalNugetPath = Path.Combine(homeDir, ".pulumi-dev", "nuget")
-        Directory.ensure pulumiLocalNugetPath
-        Shell.copyFile pulumiLocalNugetPath nugetPackageFile
-
 let pulumiBinDirectory() =
     let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
     let pulumiBin = Path.Combine(homeDir, ".pulumi-dev", "bin")

@@ -24,6 +24,7 @@ let pulumiAutomationSdk = Path.Combine(sdk, "Pulumi.Automation")
 let pulumiAutomationSdkTests = Path.Combine(sdk, "Pulumi.Automation.Tests")
 let pulumiFSharp = Path.Combine(sdk, "Pulumi.FSharp")
 let integrationTests = Path.Combine(repositoryRoot, "integration_tests")
+let pulumiLanguageDotnet = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
 
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
@@ -48,7 +49,10 @@ let restoreSdk() =
     printfn "Restoring Pulumi SDK packages"
     if Shell.Exec("dotnet", "restore --no-cache", sdk) <> 0
     then failwith "restore failed"
-    
+
+/// Returns an array of names of go tests inside ./integration_tests
+/// You can use this to see which tests are available,
+/// then run individual tests using `dotnet run integration test <testName>`
 let integrationTestNames() =
     let cmd = Cli.Wrap("go").WithArguments("test -list=.").WithWorkingDirectory(integrationTests)
     let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
@@ -69,6 +73,10 @@ let buildSdk() =
     if Shell.Exec("dotnet", "build --configuration Release", sdk) <> 0
     then failwith "build failed"
 
+/// Publishes packages for Pulumi, Pulumi.Automation and Pulumi.FSharp to nuget.
+/// Requires NUGET_PUBLISH_KEY and PULUMI_VERSION environment variables.
+/// When publishing, we check whether the package we are about to publish already exists on Nuget
+/// and if that is the case, we skip it.
 let publishSdks() =
     // prepare
     cleanSdk()
@@ -102,15 +110,15 @@ let publishSdks() =
             failwith $"Some nuget packages were not published: {failedProjectsAtPublishing}"
 
 let cleanLanguagePlugin() = 
-    let plugin = Path.Combine(repositoryRoot, "pulumi-language-dotnet", "pulumi-language-dotnet")
+    let plugin = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")
     if File.Exists plugin then File.Delete plugin
 
 let buildLanguagePlugin() = 
     cleanLanguagePlugin()
     printfn "Building pulumi-language-dotnet Plugin"
-    if Shell.Exec("go", "build", Path.Combine(repositoryRoot, "pulumi-language-dotnet")) <> 0
+    if Shell.Exec("go", "build", pulumiLanguageDotnet) <> 0
     then failwith "Building pulumi-language-dotnet failed"
-    let output = Path.Combine(repositoryRoot, "pulumi-language-dotnet", "pulumi-language-dotnet")
+    let output = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")
     printfn $"Built binary {output}"
 
 let testLanguagePlugin() = 
@@ -149,25 +157,9 @@ let syncProtoFiles() = GitSync.repository {
     ]
 }
 
-let preparePulumiSdkNugetLocally() =
-    cleanSdk()
-    if Shell.Exec("dotnet",  "build -p:Version=3.50", pulumiSdk) <> 0 then
-        failwith "Failed to build the local nuget package"
-    
-    let releaseDir = Path.Combine(pulumiSdk, "bin", "Debug")
-    let releaseArtifacts = Directory.EnumerateFiles(releaseDir)
-    if not (releaseArtifacts.Any()) then
-        failwith "couldn't the built nuget package"
-    else
-        let nugetPackageFile = releaseArtifacts.First()
-        let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-        let pulumiLocalNugetPath = Path.Combine(homeDir, ".pulumi-dev", "nuget")
-        Directory.ensure pulumiLocalNugetPath
-        Shell.copyFile pulumiLocalNugetPath nugetPackageFile
-
 let runSpecificIntegrationTest(testName: string) = 
     cleanSdk()
-    if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
+    if Shell.Exec("go", $"test -run=^{testName}$", integrationTests) <> 0
     then failwith $"Integration test '{testName}' failed"
 
 let runAllIntegrationTests() =
@@ -187,7 +179,6 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
     | [| "publish-sdks" |] -> publishSdks()
     | [| "sync-proto-files" |] -> syncProtoFiles()
-    | [| "prepare-pulumi-sdk-nuget-locally" |] -> preparePulumiSdkNugetLocally()
     | [| "list-integration-tests" |] -> listIntegrationTests()
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()

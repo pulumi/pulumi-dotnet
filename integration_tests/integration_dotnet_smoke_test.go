@@ -27,9 +27,9 @@ import (
 // TestEmptyDotNet simply tests that we can run an empty .NET project.
 func TestEmptyDotNet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:          "empty",
-		Dependencies: []string{"Pulumi"},
-		Quick:        true,
+		Dir:            "empty",
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
 	})
 }
 
@@ -42,9 +42,9 @@ func TestStackReferenceDotnet(t *testing.T) {
 	opts := &integration.ProgramTestOptions{
 		RequireService: true,
 
-		Dir:          "stack_reference",
-		Dependencies: []string{"Pulumi"},
-		Quick:        true,
+		Dir:            "stack_reference",
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
 		EditDirs: []integration.EditDir{
 			{
 				Dir:      "step1",
@@ -77,7 +77,7 @@ func optsForConstructDotnet(t *testing.T, expectedResourceCount int, localProvid
 	return &integration.ProgramTestOptions{
 		Env:            env,
 		Dir:            filepath.Join("construct_component", "dotnet"),
-		Dependencies:   []string{"Pulumi"},
+		PrepareProject: prepareDotnetProject,
 		LocalProviders: localProviders,
 		Secrets: map[string]string{
 			"secret": "this super secret is encrypted",

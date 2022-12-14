@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/pulumi/pulumi/pkg/v3/engine"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -51,6 +52,64 @@ type assertPerfBenchmark struct {
 	T                  *testing.T
 	MaxPreviewDuration time.Duration
 	MaxUpdateDuration  time.Duration
+}
+
+func prepareDotnetProject(projInfo *engine.Projinfo) error {
+	cwd, _, err := projInfo.GetPwdMain()
+	if err != nil {
+		return err
+	}
+
+	pulumiSdkPath, err := filepath.Abs("../sdk/Pulumi/Pulumi.csproj")
+	if err != nil {
+		return err
+	}
+
+	entries, err := os.ReadDir(cwd)
+	if err != nil {
+		return nil
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() && (entry.Name() == "bin" || entry.Name() == "obj") {
+			err = os.RemoveAll(filepath.Join(cwd, entry.Name()))
+			if err != nil {
+				return err
+			}
+		}
+
+		if strings.HasSuffix(entry.Name(), "csproj") {
+			projectPath := filepath.Join(cwd, entry.Name())
+			projectContent, err := os.ReadFile(projectPath)
+			if err != nil {
+				return err
+			}
+
+			// if a package reference already exists
+			// then pulumi is a transitive reference
+			// no need to add it
+			if strings.Contains(string(projectContent), "Include=\"Pulumi") {
+				continue
+			}
+
+			modifiedContent := fmt.Sprintf(`
+	<ItemGroup>
+		<ProjectReference Include="%s" />
+	</ItemGroup>
+</Project>
+`, pulumiSdkPath)
+
+			modifiedProjectContent := strings.ReplaceAll(string(projectContent), "</Project>", modifiedContent)
+			err = os.WriteFile(projectPath, []byte(modifiedProjectContent), 0644)
+			if err != nil {
+				return nil
+			}
+
+			break
+		}
+	}
+
+	return nil
 }
 
 func (t assertPerfBenchmark) ReportCommand(stats integration.TestCommandStats) {
@@ -147,9 +206,7 @@ func testComponentProviderSchema(t *testing.T, path string) {
 }
 
 // Test remote component inputs properly handle unknowns.
-func testConstructUnknown(t *testing.T, lang string, dependencies ...string) {
-	t.Parallel()
-
+func testConstructUnknown(t *testing.T, lang string) {
 	const testDir = "construct_component_unknown"
 	componentDir := "testcomponent-go"
 
@@ -160,8 +217,8 @@ func testConstructUnknown(t *testing.T, lang string, dependencies ...string) {
 
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:                    filepath.Join(testDir, lang),
-		Dependencies:           dependencies,
 		LocalProviders:         localProviders,
+		PrepareProject:         prepareDotnetProject,
 		SkipRefresh:            true,
 		SkipPreview:            false,
 		SkipUpdate:             true,
@@ -172,9 +229,7 @@ func testConstructUnknown(t *testing.T, lang string, dependencies ...string) {
 }
 
 // Test methods properly handle unknowns.
-func testConstructMethodsUnknown(t *testing.T, lang string, dependencies ...string) {
-	t.Parallel()
-
+func testConstructMethodsUnknown(t *testing.T, lang string) {
 	const testDir = "construct_component_methods_unknown"
 	componentDir := "testcomponent-go"
 
@@ -185,8 +240,8 @@ func testConstructMethodsUnknown(t *testing.T, lang string, dependencies ...stri
 
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:                    filepath.Join(testDir, lang),
-		Dependencies:           dependencies,
 		LocalProviders:         localProviders,
+		PrepareProject:         prepareDotnetProject,
 		SkipRefresh:            true,
 		SkipPreview:            false,
 		SkipUpdate:             true,
@@ -257,9 +312,7 @@ func synchronouslyDo(t *testing.T, lockfile string, timeout time.Duration, fn fu
 }
 
 // Test methods that create resources.
-func testConstructMethodsResources(t *testing.T, lang string, dependencies ...string) {
-	t.Parallel()
-
+func testConstructMethodsResources(t *testing.T, lang string) {
 	const testDir = "construct_component_methods_resources"
 	componentDir := "testcomponent-go"
 
@@ -270,7 +323,7 @@ func testConstructMethodsResources(t *testing.T, lang string, dependencies ...st
 
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, lang),
-		Dependencies:   dependencies,
+		PrepareProject: prepareDotnetProject,
 		LocalProviders: localProviders,
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -293,9 +346,7 @@ func testConstructMethodsResources(t *testing.T, lang string, dependencies ...st
 }
 
 // Test failures returned from methods are observed.
-func testConstructMethodsErrors(t *testing.T, lang string, dependencies ...string) {
-	t.Parallel()
-
+func testConstructMethodsErrors(t *testing.T, lang string) {
 	const testDir = "construct_component_methods_errors"
 	componentDir := "testcomponent-go"
 
@@ -307,7 +358,7 @@ func testConstructMethodsErrors(t *testing.T, lang string, dependencies ...strin
 	}
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, lang),
-		Dependencies:   dependencies,
+		PrepareProject: prepareDotnetProject,
 		LocalProviders: []integration.LocalDependency{localProvider},
 		Quick:          true,
 		Stderr:         stderr,

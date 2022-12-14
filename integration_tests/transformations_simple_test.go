@@ -1,10 +1,8 @@
-// Copyright 2016-2020, Pulumi Corporation.  All rights reserved.
-//go:build (dotnet || all) && !smoke
+// Copyright 2016-2022, Pulumi Corporation.  All rights reserved.
 
-package ints
+package integration_tests
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
@@ -14,19 +12,12 @@ import (
 )
 
 func TestDotNetTransformations(t *testing.T) {
-	t.Parallel()
-
-	for _, dir := range Dirs {
-		d := filepath.Join("dotnet", dir)
-		t.Run(d, func(t *testing.T) {
-			integration.ProgramTest(t, &integration.ProgramTestOptions{
-				Dir:                    d,
-				Dependencies:           []string{"Pulumi"},
-				Quick:                  true,
-				ExtraRuntimeValidation: dotNetValidator(),
-			})
-		})
-	}
+	integration.ProgramTest(t, &integration.ProgramTestOptions{
+		Dir:                    "transformations_simple",
+		PrepareProject:         prepareDotnetProject,
+		Quick:                  true,
+		ExtraRuntimeValidation: dotNetValidator(),
+	})
 }
 
 // .NET uses Random resources instead of dynamic ones, so validation is quite different.

@@ -5,8 +5,4 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Pulumi.Random" Version="4.8.2" />
-  </ItemGroup>
-
 </Project>

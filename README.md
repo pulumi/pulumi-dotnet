@@ -92,6 +92,15 @@ dotnet run test-language-plugin
 
 # Sync proto files from pulumi/pulumi
 dotnet run sync-proto-files
+
+# List all integration tests
+dotnet run list-integration-tests
+
+# Run a specific integration test
+dotnet run integration test <testName>
+
+# Run all integration tests
+dotnet run all-integration-tests
 ```
 
 ## Public API Changes

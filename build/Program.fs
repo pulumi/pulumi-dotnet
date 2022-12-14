@@ -4,6 +4,8 @@ open System.Linq
 open Fake.IO
 open Fake.Core
 open Publish
+open CliWrap
+open CliWrap.Buffered
 
 /// Recursively tries to find the parent of a file starting from a directory
 let rec findParent (directory: string) (fileToFind: string) = 
@@ -21,13 +23,13 @@ let pulumiSdkTests = Path.Combine(sdk, "Pulumi.Tests")
 let pulumiAutomationSdk = Path.Combine(sdk, "Pulumi.Automation")
 let pulumiAutomationSdkTests = Path.Combine(sdk, "Pulumi.Automation.Tests")
 let pulumiFSharp = Path.Combine(sdk, "Pulumi.FSharp")
+let integrationTests = Path.Combine(repositoryRoot, "integration_tests")
 
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
 let cleanSdk() = 
-    printfn "Cleaning Pulumi SDK"
-    if Shell.Exec("dotnet", "clean", sdk) <> 0
-    then failwith "clean failed"
+    if Shell.Exec("dotnet", "clean --verbosity quiet", sdk) <> 0
+    then failwith "Clean failed"
 
     let projects = [ 
         pulumiSdk
@@ -46,6 +48,19 @@ let restoreSdk() =
     printfn "Restoring Pulumi SDK packages"
     if Shell.Exec("dotnet", "restore --no-cache", sdk) <> 0
     then failwith "restore failed"
+    
+let integrationTestNames() =
+    let cmd = Cli.Wrap("go").WithArguments("test -list=.").WithWorkingDirectory(integrationTests)
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith $"Failed to list go tests from {integrationTests}"
+    
+    output.StandardOutput.Split("\n")
+    |> Array.filter (fun line -> line.StartsWith "Test")
+
+let listIntegrationTests() =
+    for testName in integrationTestNames() do
+        printfn $"{testName}"
 
 let buildSdk() = 
     cleanSdk()
@@ -150,15 +165,16 @@ let preparePulumiSdkNugetLocally() =
         Directory.ensure pulumiLocalNugetPath
         Shell.copyFile pulumiLocalNugetPath nugetPackageFile
 
-let integrationTests() = 
-    preparePulumiSdkNugetLocally()
-    if Shell.Exec("go", "test", Path.Combine(repositoryRoot, "integration_tests")) <> 0
-    then failwith "Integration tests failed"
-
 let runSpecificIntegrationTest(testName: string) = 
-    preparePulumiSdkNugetLocally()
+    cleanSdk()
     if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
     then failwith $"Integration test '{testName}' failed"
+
+let runAllIntegrationTests() =
+    for testName in integrationTestNames() do
+        printfn $"Running test {testName}"
+        cleanSdk()
+        runSpecificIntegrationTest testName
 
 [<EntryPoint>]
 let main(args: string[]) : int = 
@@ -172,8 +188,10 @@ let main(args: string[]) : int =
     | [| "publish-sdks" |] -> publishSdks()
     | [| "sync-proto-files" |] -> syncProtoFiles()
     | [| "prepare-pulumi-sdk-nuget-locally" |] -> preparePulumiSdkNugetLocally()
-    | [| "integration-tests" |] -> integrationTests()
-    | [| "integration"; testName |] -> runSpecificIntegrationTest testName
+    | [| "list-integration-tests" |] -> listIntegrationTests()
+    | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
+    | [| "all-integration-tests" |] -> runAllIntegrationTests()
+
     | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 
     0

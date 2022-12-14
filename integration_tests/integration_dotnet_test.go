@@ -31,7 +31,7 @@ import (
 func TestPrintfDotNet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:                    "printf",
-		Dependencies:           []string{"Pulumi"},
+		PrepareProject:         prepareDotnetProject,
 		Quick:                  true,
 		ExtraRuntimeValidation: printfTestValidation,
 	})
@@ -39,9 +39,9 @@ func TestPrintfDotNet(t *testing.T) {
 
 func TestStackOutputsDotNet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:          "stack_outputs",
-		Quick:        true,
-		Dependencies: []string{"Pulumi"},
+		Dir:            "stack_outputs",
+		Quick:          true,
+		PrepareProject: prepareDotnetProject,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
 			// Ensure the checkpoint contains a single resource, the Stack, with two outputs.
 			fmt.Printf("Deployment: %v", stackInfo.Deployment)
@@ -62,9 +62,9 @@ func TestStackOutputsDotNet(t *testing.T) {
 // TestStackComponentDotNet tests the programming model of defining a stack as an explicit top-level component.
 func TestStackComponentDotNet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:          "stack_component",
-		Dependencies: []string{"Pulumi"},
-		Quick:        true,
+		Dir:            "stack_component",
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
 			// Ensure the checkpoint contains a single resource, the Stack, with two outputs.
 			fmt.Printf("Deployment: %v", stackInfo.Deployment)
@@ -85,9 +85,9 @@ func TestStackComponentDotNet(t *testing.T) {
 // TestStackComponentServiceProviderDotNet tests the creation of the stack using IServiceProvider.
 func TestStackComponentServiceProviderDotNet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:          "dotnet_service_provider",
-		Dependencies: []string{"Pulumi"},
-		Quick:        true,
+		Dir:            "dotnet_service_provider",
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
 			// Ensure the checkpoint contains a single resource, the Stack, with two outputs.
 			fmt.Printf("Deployment: %v", stackInfo.Deployment)
@@ -108,9 +108,9 @@ func TestStackComponentServiceProviderDotNet(t *testing.T) {
 // Tests basic configuration from the perspective of a Pulumi .NET program.
 func TestConfigBasicDotNet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:          "config_basic",
-		Dependencies: []string{"Pulumi"},
-		Quick:        true,
+		Dir:            "config_basic",
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
 		Config: map[string]string{
 			"aConfigValue": "this value is a value",
 		},
@@ -138,9 +138,9 @@ func TestConfigSecretsWarnDotNet(t *testing.T) {
 	// TODO[pulumi/pulumi#7127]: Re-enabled the warning.
 	t.Skip("Temporarily skipping test until we've re-enabled the warning - pulumi/pulumi#7127")
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:          "config_secrets_warn",
-		Dependencies: []string{"Pulumi"},
-		Quick:        true,
+		Dir:            "config_secrets_warn",
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
 		Config: map[string]string{
 			"plainstr1":  "1",
 			"plainstr2":  "2",
@@ -265,9 +265,9 @@ func TestStackReferenceSecretsDotnet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		RequireService: true,
 
-		Dir:          filepath.Join(d, "step1"),
-		Dependencies: []string{"Pulumi"},
-		Quick:        true,
+		Dir:            filepath.Join(d, "step1"),
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
 		EditDirs: []integration.EditDir{
 			{
 				Dir:             filepath.Join(d, "step2"),
@@ -289,8 +289,8 @@ func TestStackReferenceSecretsDotnet(t *testing.T) {
 // Tests a resource with a large (>4mb) string prop in .Net
 func TestLargeResourceDotNet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dependencies: []string{"Pulumi"},
-		Dir:          "large_resource",
+		PrepareProject: prepareDotnetProject,
+		Dir:            "large_resource",
 	})
 }
 
@@ -347,7 +347,7 @@ func optsForConstructPlainDotnet(t *testing.T, expectedResourceCount int, localP
 	return &integration.ProgramTestOptions{
 		Env:            env,
 		Dir:            filepath.Join("construct_component_plain", "dotnet"),
-		Dependencies:   []string{"Pulumi"},
+		PrepareProject: prepareDotnetProject,
 		LocalProviders: localProviders,
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -374,7 +374,7 @@ func TestConstructMethodsDotnet(t *testing.T) {
 
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, "dotnet"),
-		Dependencies:   []string{"Pulumi"},
+		PrepareProject: prepareDotnetProject,
 		LocalProviders: []integration.LocalDependency{localProvider},
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -399,7 +399,7 @@ func TestConstructProviderDotnet(t *testing.T) {
 	}
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, "dotnet"),
-		Dependencies:   []string{"Pulumi"},
+		PrepareProject: prepareDotnetProject,
 		LocalProviders: []integration.LocalDependency{localProvider},
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -411,7 +411,7 @@ func TestConstructProviderDotnet(t *testing.T) {
 func TestGetResourceDotnet(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:                      "get_resource",
-		Dependencies:             []string{"Pulumi"},
+		PrepareProject:           prepareDotnetProject,
 		AllowEmptyPreviewChanges: true,
 		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			assert.NotNil(t, stack.Outputs)

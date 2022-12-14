@@ -14,7 +14,7 @@ import (
 func TestDotNetTransformations(t *testing.T) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:                    "transformations_simple",
-		Dependencies:           []string{"Pulumi"},
+		PrepareProject:         prepareDotnetProject,
 		Quick:                  true,
 		ExtraRuntimeValidation: dotNetValidator(),
 	})

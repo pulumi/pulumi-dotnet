@@ -134,9 +134,31 @@ let syncProtoFiles() = GitSync.repository {
     ]
 }
 
+let preparePulumiSdkNugetLocally() =
+    cleanSdk()
+    if Shell.Exec("dotnet",  "build -p:Version=3.50", pulumiSdk) <> 0 then
+        failwith "Failed to build the local nuget package"
+    
+    let releaseDir = Path.Combine(pulumiSdk, "bin", "Debug")
+    let releaseArtifacts = Directory.EnumerateFiles(releaseDir)
+    if not (releaseArtifacts.Any()) then
+        failwith "couldn't the built nuget package"
+    else
+        let nugetPackageFile = releaseArtifacts.First()
+        let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+        let pulumiLocalNugetPath = Path.Combine(homeDir, ".pulumi-dev", "nuget")
+        Directory.ensure pulumiLocalNugetPath
+        Shell.copyFile pulumiLocalNugetPath nugetPackageFile
+
 let integrationTests() = 
-    if Shell.Exec("go", "test -p 1", Path.Combine(repositoryRoot, "integration_tests")) <> 0
+    preparePulumiSdkNugetLocally()
+    if Shell.Exec("go", "test", Path.Combine(repositoryRoot, "integration_tests")) <> 0
     then failwith "Integration tests failed"
+
+let runSpecificIntegrationTest(testName: string) = 
+    preparePulumiSdkNugetLocally()
+    if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
+    then failwith $"Integration test '{testName}' failed"
 
 [<EntryPoint>]
 let main(args: string[]) : int = 
@@ -149,7 +171,9 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
     | [| "publish-sdks" |] -> publishSdks()
     | [| "sync-proto-files" |] -> syncProtoFiles()
+    | [| "prepare-pulumi-sdk-nuget-locally" |] -> preparePulumiSdkNugetLocally()
     | [| "integration-tests" |] -> integrationTests()
+    | [| "integration"; testName |] -> runSpecificIntegrationTest testName
     | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 
     0

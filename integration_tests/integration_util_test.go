@@ -220,7 +220,7 @@ func testConstructUnknown(t *testing.T, lang string) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:                    filepath.Join(testDir, lang),
 		LocalProviders:         localProviders,
-		PrepareProject:         prepareDotnetProject,
+		Dependencies:           []string{"Pulumi"},
 		SkipRefresh:            true,
 		SkipPreview:            false,
 		SkipUpdate:             true,
@@ -243,7 +243,7 @@ func testConstructMethodsUnknown(t *testing.T, lang string) {
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:                    filepath.Join(testDir, lang),
 		LocalProviders:         localProviders,
-		PrepareProject:         prepareDotnetProject,
+		Dependencies:           []string{"Pulumi"},
 		SkipRefresh:            true,
 		SkipPreview:            false,
 		SkipUpdate:             true,
@@ -325,7 +325,7 @@ func testConstructMethodsResources(t *testing.T, lang string) {
 
 	integration.ProgramTest(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, lang),
-		PrepareProject: prepareDotnetProject,
+		Dependencies:   []string{"Pulumi"},
 		LocalProviders: localProviders,
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {

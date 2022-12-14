@@ -103,6 +103,12 @@ dotnet run integration test <testName>
 dotnet run all-integration-tests
 ```
 
+# Running integration tests
+
+When running integration tests via an IDE like Goland or VSCode, you need to have `~/.pulumi-dev/bin` at the start of your `PATH` environment variable and run `dotnet run install-language-plugin` before running the tests so that it uses the local language plugin, not the one that comes bundled with  your Pulumi CLI.
+
+Alternatively, you can run `dotnet run integration test <testName>` or `dotnet run all-integration-tests` which will install the language plugin for you and put it in the right place just before running the test.
+
 ## Public API Changes
 
 When making changes to the code you may get the following compilation

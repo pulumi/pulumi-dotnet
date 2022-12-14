@@ -722,7 +722,8 @@ namespace Pulumi.Tests.Core
                 });
 
             [Fact]
-            public async Task JsonSerializeNestedDependencies() {
+            public async Task JsonSerializeNestedDependencies() 
+            {
                 // We need a custom mock setup for this because new CustomResource will call into the
                 // deployment to try and register.
                 var runner = new Moq.Mock<IRunner>(Moq.MockBehavior.Strict);
@@ -753,6 +754,27 @@ namespace Pulumi.Tests.Core
                 Assert.Contains(resource, data.Resources);
                 Assert.Equal("[0,1]", data.Value);
             }
+ 
+            [Fact]
+            public Task FormatBasic() => RunInNormal(async () =>
+            {
+                var o1 = CreateOutput(0, true);
+                var o2 = Output.Format($"{o1}");
+                var data = await o2.DataTask.ConfigureAwait(false);
+                Assert.True(data.IsKnown);
+                Assert.False(data.IsSecret);
+                Assert.Equal("0", data.Value);
+            });
+
+            [Fact]
+            public Task FormatBraceSyntax() => RunInNormal(async () =>
+            {
+                var o2 = Output.Format($"{{ pip pip");
+                var data = await o2.DataTask.ConfigureAwait(false);
+                Assert.True(data.IsKnown);
+                Assert.False(data.IsSecret);
+                Assert.Equal("{ pip pip", data.Value);
+            });
         }
     }
 }

@@ -69,8 +69,8 @@ And finally, `pulumi preview` and `pulumi up` as you would any other Pulumi proj
 
 ### Prerequisites
 - Dotnet [SDK v6+](https://dotnet.microsoft.com/download/dotnet/6.0) installed on your machine.
-- Go 1.19 or later (for building and testing `pulumi-language-dotnet`)
-- The Pulumi CLI (for running automation tests) 
+- Go 1.19+
+- The Pulumi CLI
 
 Then you can run one of the following commands:
 

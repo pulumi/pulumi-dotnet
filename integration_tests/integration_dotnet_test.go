@@ -445,3 +445,13 @@ func TestAboutDotnet(t *testing.T) {
 	// This one doesn't have a current stack. Assert that we caught it.
 	assert.Contains(t, stderr, "No current stack")
 }
+
+// TestResourceRefsGetResourceDotnet tests that invoking the built-in 'pulumi:pulumi:getResource' function
+// returns resource references for any resource reference in a resource's state.
+func TestResourceRefsGetResourceDotnet(t *testing.T) {
+	integration.ProgramTest(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join("resource_refs_get_resource"),
+		PrepareProject: prepareDotnetProject,
+		Quick:          true,
+	})
+}

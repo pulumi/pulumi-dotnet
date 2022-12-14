@@ -91,6 +91,8 @@ dotnet run build-language-plugin
 dotnet run test-language-plugin
 
 # Install the language plugin into ~/.pulumi-dev/bin and prepend it to your PATH (for testing)
+# Not needed when running tests via `dotnet run all-integration-tests` or `dotnet run integration test <testName>`
+# as it will automatically install the language plugin before running the tests.
 dotnet run install-language-plugin
 
 # Sync proto files from pulumi/pulumi

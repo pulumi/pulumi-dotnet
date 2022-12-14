@@ -55,7 +55,7 @@ type assertPerfBenchmark struct {
 }
 
 func prepareDotnetProject(projInfo *engine.Projinfo) error {
-	time.Sleep(10 * time.Second)
+	time.Sleep(30 * time.Second)
 	cwd, _, err := projInfo.GetPwdMain()
 	if err != nil {
 		return err

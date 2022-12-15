@@ -84,16 +84,12 @@ dotnet run test-sdk
 # Running tests for the Pulumi Automation SDK
 dotnet run test-automation-sdk
 
-# Building the language plugin
+# Building the language plugin. A binary will be built into the pulumi-language-dotnet folder.
+# this is the binary that will be used by the integration tests.
 dotnet run build-language-plugin
 
 # Testing the language plugin
 dotnet run test-language-plugin
-
-# Install the language plugin into ~/.pulumi-dev/bin and prepend it to your PATH (for testing)
-# Not needed when running tests via `dotnet run all-integration-tests` or `dotnet run integration test <testName>`
-# as it will automatically install the language plugin before running the tests.
-dotnet run install-language-plugin
 
 # Sync proto files from pulumi/pulumi
 dotnet run sync-proto-files
@@ -109,10 +105,9 @@ dotnet run all-integration-tests
 ```
 # Running integration tests
 
-When running integration tests via an IDE like Goland or VSCode, you need to have `~/.pulumi-dev/bin` at the start of your `PATH` environment variable and run `dotnet run install-language-plugin` before running the tests so that it uses the local language plugin, not the one that comes bundled with  your Pulumi CLI.
+When running integration tests via an IDE like Goland or VSCode, you want the Pulumi CLI to use the `pulumi-language-dotnet` plugin from this repository, not the one that comes bundled with your Pulumi CLI. To do this, in your terminal `dotnet run build-language-plugin` or simply `cd pulumi-language-dotnet && go build`. 
 
-Alternatively, you can run `dotnet run integration test <testName>` or `dotnet run all-integration-tests` which will install the language plugin for you and put it in the right place just before running the test.
-
+Alternatively, you can run `dotnet run integration test <testName>` or `dotnet run all-integration-tests` which will build the language plugin for you just before running the tests.
 
 ## Public API Changes
 

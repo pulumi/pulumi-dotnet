@@ -12,9 +12,8 @@ import (
 )
 
 func TestDotNetTransformations(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    "transformations_simple",
-		PrepareProject:         prepareDotnetProject,
 		Quick:                  true,
 		ExtraRuntimeValidation: dotNetValidator(),
 	})

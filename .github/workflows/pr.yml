@@ -90,3 +90,15 @@ jobs:
         run: dotnet run integration test TestDotNetTransformations
       - name: TestResourceRefsGetResourceDotnet
         run: dotnet run integration test TestResourceRefsGetResourceDotnet
+      - name: TestDotNetAliasesRemame
+        run: dotnet run integration test TestDotNetAliasesRemame
+      - name: TestDotNetAliasesAdoptIntoComponent
+        run: dotnet run integration test TestDotNetAliasesAdoptIntoComponent
+      - name: TestDotNetAliasesRenameComponentAndChild
+        run: dotnet run integration test TestDotNetAliasesRenameComponentAndChild
+      - name: TestDotNetAliasesRetypeComponent
+        run: dotnet run integration test TestDotNetAliasesRetypeComponent
+      - name: TestDotNetAliasesRenameComponent
+        run: dotnet run integration test TestDotNetAliasesRenameComponent
+      - name: TestDotNetAliasesRetypeParents
+        run: dotnet run integration test TestDotNetAliasesRetypeParents

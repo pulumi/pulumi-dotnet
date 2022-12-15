@@ -159,38 +159,14 @@ let syncProtoFiles() = GitSync.repository {
     ]
 }
 
-let pulumiBinDirectory() =
-    let homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-    let pulumiBin = Path.Combine(homeDir, ".pulumi-dev", "bin")
-    pulumiBin
-
-let installLanguagePluginLocally() = 
-    cleanLanguagePlugin()
-    buildLanguagePlugin()
-    let pulumiBin = pulumiBinDirectory()
-    Directory.ensure pulumiBin
-    let builtPlugin = Path.Combine(repositoryRoot, "pulumi-language-dotnet", "pulumi-language-dotnet")
-    let destination = Path.Combine(pulumiBin, "pulumi-language-dotnet")
-    Shell.rm destination
-    Shell.copyFile pulumiBin builtPlugin
-    printfn $"Copied to {destination}"
-    // update PATH environment variable with the location of ~/.pulumi-dev/bin
-    // this is where we copied the language plugin.
-    // This way, the Pulumi CLI will pick up this local plugin
-    // instead of the one bundled with the CLI
-    match env "PATH" with
-    | None -> Environment.SetEnvironmentVariable("PATH", pulumiBin)
-    | Some path -> Environment.SetEnvironmentVariable("PATH", $"{pulumiBin}:{path}")
-    printfn $"Ensured that {pulumiBin} is first on the PATH"
-
 let runSpecificIntegrationTest(testName: string) = 
+    buildLanguagePlugin()
     cleanSdk()
-    installLanguagePluginLocally()
     if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
     then failwith $"Integration test '{testName}' failed"
 
 let runAllIntegrationTests() =
-    installLanguagePluginLocally()
+    buildLanguagePlugin()
     for testName in integrationTestNames() do
         printfn $"Running test {testName}"
         cleanSdk()
@@ -204,7 +180,6 @@ let main(args: string[]) : int =
     | [| "build-sdk" |] -> buildSdk()
     | [| "build-language-plugin" |] -> buildLanguagePlugin()
     | [| "test-language-plugin" |] -> testLanguagePlugin()
-    | [| "install-language-plugin" |] -> installLanguagePluginLocally()
     | [| "test-sdk" |] -> testPulumiSdk()
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
     | [| "publish-sdks" |] -> publishSdks()

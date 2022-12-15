@@ -112,6 +112,17 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 	return nil
 }
 
+func testDotnetProgram(t *testing.T, options *integration.ProgramTestOptions) {
+	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
+	assert.NoError(t, err)
+	path := os.Getenv("PATH")
+	if options != nil {
+		options.PrepareProject = prepareDotnetProject
+		options.Env = append(options.Env, fmt.Sprintf("PATH=%s:%s", languagePluginPath, path))
+	}
+	integration.ProgramTest(t, options)
+}
+
 func (t assertPerfBenchmark) ReportCommand(stats integration.TestCommandStats) {
 	var maxDuration *time.Duration
 	if strings.HasPrefix(stats.StepName, "pulumi-preview") {
@@ -215,10 +226,9 @@ func testConstructUnknown(t *testing.T, lang string) {
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    filepath.Join(testDir, lang),
 		LocalProviders:         localProviders,
-		PrepareProject:         prepareDotnetProject,
 		SkipRefresh:            true,
 		SkipPreview:            false,
 		SkipUpdate:             true,
@@ -238,10 +248,9 @@ func testConstructMethodsUnknown(t *testing.T, lang string) {
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    filepath.Join(testDir, lang),
 		LocalProviders:         localProviders,
-		PrepareProject:         prepareDotnetProject,
 		SkipRefresh:            true,
 		SkipPreview:            false,
 		SkipUpdate:             true,
@@ -321,9 +330,8 @@ func testConstructMethodsResources(t *testing.T, lang string) {
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, lang),
-		PrepareProject: prepareDotnetProject,
 		LocalProviders: localProviders,
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -356,9 +364,8 @@ func testConstructMethodsErrors(t *testing.T, lang string) {
 	localProvider := integration.LocalDependency{
 		Package: "testcomponent", Path: filepath.Join(testDir, componentDir),
 	}
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, lang),
-		PrepareProject: prepareDotnetProject,
 		LocalProviders: []integration.LocalDependency{localProvider},
 		Quick:          true,
 		Stderr:         stderr,

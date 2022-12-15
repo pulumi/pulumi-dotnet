@@ -14,7 +14,7 @@ namespace Pulumi.Automation.Serialization.Json
 
         public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return _converter.Convert(reader.GetString());
+            return _converter.Convert(reader.GetString()!);
         }
 
         public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)

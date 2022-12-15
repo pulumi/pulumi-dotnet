@@ -8,11 +8,11 @@ open CliWrap
 open CliWrap.Buffered
 
 /// Recursively tries to find the parent of a file starting from a directory
-let rec findParent (directory: string) (fileToFind: string) = 
+let rec findParent (directory: string) (fileToFind: string) =
     let path = if Directory.Exists(directory) then directory else Directory.GetParent(directory).FullName
     let files = Directory.GetFiles(path)
-    if files.Any(fun file -> Path.GetFileName(file).ToLower() = fileToFind.ToLower()) 
-    then path 
+    if files.Any(fun file -> Path.GetFileName(file).ToLower() = fileToFind.ToLower())
+    then path
     else findParent (DirectoryInfo(path).Parent.FullName) fileToFind
 
 let repositoryRoot = findParent __SOURCE_DIRECTORY__ "README.md";
@@ -28,13 +28,13 @@ let pulumiLanguageDotnet = Path.Combine(repositoryRoot, "pulumi-language-dotnet"
 
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
-let cleanSdk() = 
+let cleanSdk() =
     let cmd = Cli.Wrap("dotnet").WithArguments("clean").WithWorkingDirectory(sdk)
     let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith "Clean failed"
 
-    let projects = [ 
+    let projects = [
         pulumiSdk
         pulumiSdkTests
         pulumiAutomationSdk
@@ -47,7 +47,7 @@ let cleanSdk() =
         Shell.deleteDir (Path.Combine(project, "obj"))
 
 /// Runs `dotnet restore` against the solution file without using cache
-let restoreSdk() = 
+let restoreSdk() =
     printfn "Restoring Pulumi SDK packages"
     if Shell.Exec("dotnet", "restore --no-cache", sdk) <> 0
     then failwith "restore failed"
@@ -60,7 +60,7 @@ let integrationTestNames() =
     let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith $"Failed to list go tests from {integrationTests}"
-    
+
     output.StandardOutput.Split("\n")
     |> Array.filter (fun line -> line.StartsWith "Test")
 
@@ -68,7 +68,7 @@ let listIntegrationTests() =
     for testName in integrationTestNames() do
         printfn $"{testName}"
 
-let buildSdk() = 
+let buildSdk() =
     cleanSdk()
     restoreSdk()
     printfn "Building Pulumi SDK"
@@ -89,7 +89,7 @@ let publishSdks() =
         pulumiAutomationSdk
         pulumiFSharp
     ]
-    
+
     match publishResults with
     | Error errorMsg -> printfn $"{errorMsg}"
     | Ok results ->
@@ -108,14 +108,14 @@ let publishSdks() =
                 results
                 |> List.where (fun result -> result.HasErrored())
                 |> List.map (fun result -> result.ProjectName())
-            
+
             failwith $"Some nuget packages were not published: {failedProjectsAtPublishing}"
 
-let cleanLanguagePlugin() = 
+let cleanLanguagePlugin() =
     let plugin = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")
     if File.Exists plugin then File.Delete plugin
 
-let buildLanguagePlugin() = 
+let buildLanguagePlugin() =
     cleanLanguagePlugin()
     printfn "Building pulumi-language-dotnet Plugin"
     if Shell.Exec("go", "build", pulumiLanguageDotnet) <> 0
@@ -123,20 +123,20 @@ let buildLanguagePlugin() =
     let output = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")
     printfn $"Built binary {output}"
 
-let testLanguagePlugin() = 
+let testLanguagePlugin() =
     cleanLanguagePlugin()
     printfn "Testing pulumi-language-dotnet Plugin"
     if Shell.Exec("go", "test", Path.Combine(repositoryRoot, "pulumi-language-dotnet")) <> 0
     then failwith "Testing pulumi-language-dotnet failed"
 
-let testPulumiSdk() = 
+let testPulumiSdk() =
     cleanSdk()
     restoreSdk()
     printfn "Testing Pulumi SDK"
     if Shell.Exec("dotnet", "test --configuration Release", pulumiSdkTests) <> 0
     then failwith "tests failed"
 
-let testPulumiAutomationSdk() = 
+let testPulumiAutomationSdk() =
     cleanSdk()
     restoreSdk()
     printfn "Testing Pulumi Automation SDK"
@@ -151,7 +151,7 @@ let syncProtoFiles() = GitSync.repository {
             sourcePath = [ "proto"; "pulumi" ]
             destinationPath = [ "proto"; "pulumi" ]
         }
-        
+
         GitSync.folder {
             sourcePath = [ "proto"; "google"; "protobuf" ]
             destinationPath = [ "proto"; "google"; "protobuf" ]
@@ -159,7 +159,7 @@ let syncProtoFiles() = GitSync.repository {
     ]
 }
 
-let runSpecificIntegrationTest(testName: string) = 
+let runSpecificIntegrationTest(testName: string) =
     buildLanguagePlugin()
     cleanSdk()
     if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
@@ -174,7 +174,7 @@ let runAllIntegrationTests() =
         then failwith $"Integration test '{testName}' failed"
 
 [<EntryPoint>]
-let main(args: string[]) : int = 
+let main(args: string[]) : int =
     match args with
     | [| "clean-sdk" |] -> cleanSdk()
     | [| "build-sdk" |] -> buildSdk()

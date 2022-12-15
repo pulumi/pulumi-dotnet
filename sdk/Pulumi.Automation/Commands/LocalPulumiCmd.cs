@@ -143,6 +143,7 @@ namespace Pulumi.Automation.Commands
             public void Dispose()
             {
                 var dir = Path.GetDirectoryName(this.FilePath);
+                System.Diagnostics.Debug.Assert(dir != null, "FilePath had no directory name");
                 try
                 {
                     Directory.Delete(dir, recursive: true);

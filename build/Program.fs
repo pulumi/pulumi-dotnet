@@ -29,8 +29,10 @@ let pulumiLanguageDotnet = Path.Combine(repositoryRoot, "pulumi-language-dotnet"
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
 let cleanSdk() = 
-    if Shell.Exec("dotnet", "clean --verbosity quiet", sdk) <> 0
-    then failwith "Clean failed"
+    let cmd = Cli.Wrap("dotnet").WithArguments("clean").WithWorkingDirectory(sdk)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "Clean failed"
 
     let projects = [ 
         pulumiSdk
@@ -158,15 +160,18 @@ let syncProtoFiles() = GitSync.repository {
 }
 
 let runSpecificIntegrationTest(testName: string) = 
+    buildLanguagePlugin()
     cleanSdk()
-    if Shell.Exec("go", $"test -run=^{testName}$", integrationTests) <> 0
+    if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
     then failwith $"Integration test '{testName}' failed"
 
 let runAllIntegrationTests() =
+    buildLanguagePlugin()
     for testName in integrationTestNames() do
         printfn $"Running test {testName}"
         cleanSdk()
-        runSpecificIntegrationTest testName
+        if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
+        then failwith $"Integration test '{testName}' failed"
 
 [<EntryPoint>]
 let main(args: string[]) : int = 

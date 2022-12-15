@@ -26,10 +26,9 @@ import (
 
 // TestEmptyDotNet simply tests that we can run an empty .NET project.
 func TestEmptyDotNet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            "empty",
-		PrepareProject: prepareDotnetProject,
-		Quick:          true,
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   "empty",
+		Quick: true,
 	})
 }
 
@@ -41,9 +40,7 @@ func TestStackReferenceDotnet(t *testing.T) {
 
 	opts := &integration.ProgramTestOptions{
 		RequireService: true,
-
 		Dir:            "stack_reference",
-		PrepareProject: prepareDotnetProject,
 		Quick:          true,
 		EditDirs: []integration.EditDir{
 			{
@@ -56,7 +53,7 @@ func TestStackReferenceDotnet(t *testing.T) {
 			},
 		},
 	}
-	integration.ProgramTest(t, opts)
+	testDotnetProgram(t, opts)
 }
 
 // Test remote component construction in .NET.
@@ -70,14 +67,13 @@ func TestConstructDotnet(t *testing.T) {
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
-	integration.ProgramTest(t, optsForConstructDotnet(t, expectedResourceCount, localProviders))
+	testDotnetProgram(t, optsForConstructDotnet(t, expectedResourceCount, localProviders))
 }
 
 func optsForConstructDotnet(t *testing.T, expectedResourceCount int, localProviders []integration.LocalDependency, env ...string) *integration.ProgramTestOptions {
 	return &integration.ProgramTestOptions{
 		Env:            env,
 		Dir:            filepath.Join("construct_component", "dotnet"),
-		PrepareProject: prepareDotnetProject,
 		LocalProviders: localProviders,
 		Secrets: map[string]string{
 			"secret": "this super secret is encrypted",

@@ -29,19 +29,17 @@ import (
 
 // TestPrintfDotNet tests that we capture stdout and stderr streams properly, even when the last line lacks an \n.
 func TestPrintfDotNet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    "printf",
-		PrepareProject:         prepareDotnetProject,
 		Quick:                  true,
 		ExtraRuntimeValidation: printfTestValidation,
 	})
 }
 
 func TestStackOutputsDotNet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            "stack_outputs",
-		Quick:          true,
-		PrepareProject: prepareDotnetProject,
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   "stack_outputs",
+		Quick: true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
 			// Ensure the checkpoint contains a single resource, the Stack, with two outputs.
 			fmt.Printf("Deployment: %v", stackInfo.Deployment)
@@ -61,10 +59,9 @@ func TestStackOutputsDotNet(t *testing.T) {
 
 // TestStackComponentDotNet tests the programming model of defining a stack as an explicit top-level component.
 func TestStackComponentDotNet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            "stack_component",
-		PrepareProject: prepareDotnetProject,
-		Quick:          true,
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   "stack_component",
+		Quick: true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
 			// Ensure the checkpoint contains a single resource, the Stack, with two outputs.
 			fmt.Printf("Deployment: %v", stackInfo.Deployment)
@@ -84,10 +81,9 @@ func TestStackComponentDotNet(t *testing.T) {
 
 // TestStackComponentServiceProviderDotNet tests the creation of the stack using IServiceProvider.
 func TestStackComponentServiceProviderDotNet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            "dotnet_service_provider",
-		PrepareProject: prepareDotnetProject,
-		Quick:          true,
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   "dotnet_service_provider",
+		Quick: true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
 			// Ensure the checkpoint contains a single resource, the Stack, with two outputs.
 			fmt.Printf("Deployment: %v", stackInfo.Deployment)
@@ -107,10 +103,9 @@ func TestStackComponentServiceProviderDotNet(t *testing.T) {
 
 // Tests basic configuration from the perspective of a Pulumi .NET program.
 func TestConfigBasicDotNet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            "config_basic",
-		PrepareProject: prepareDotnetProject,
-		Quick:          true,
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   "config_basic",
+		Quick: true,
 		Config: map[string]string{
 			"aConfigValue": "this value is a value",
 		},
@@ -137,10 +132,9 @@ func TestConfigBasicDotNet(t *testing.T) {
 func TestConfigSecretsWarnDotNet(t *testing.T) {
 	// TODO[pulumi/pulumi#7127]: Re-enabled the warning.
 	t.Skip("Temporarily skipping test until we've re-enabled the warning - pulumi/pulumi#7127")
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            "config_secrets_warn",
-		PrepareProject: prepareDotnetProject,
-		Quick:          true,
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   "config_secrets_warn",
+		Quick: true,
 		Config: map[string]string{
 			"plainstr1":  "1",
 			"plainstr2":  "2",
@@ -262,11 +256,9 @@ func TestStackReferenceSecretsDotnet(t *testing.T) {
 
 	d := "stack_reference_secrets"
 
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		RequireService: true,
-
 		Dir:            filepath.Join(d, "step1"),
-		PrepareProject: prepareDotnetProject,
 		Quick:          true,
 		EditDirs: []integration.EditDir{
 			{
@@ -288,9 +280,8 @@ func TestStackReferenceSecretsDotnet(t *testing.T) {
 
 // Tests a resource with a large (>4mb) string prop in .Net
 func TestLargeResourceDotNet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		PrepareProject: prepareDotnetProject,
-		Dir:            "large_resource",
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir: "large_resource",
 	})
 }
 
@@ -339,7 +330,7 @@ func TestConstructPlainDotnet(t *testing.T) {
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
-	integration.ProgramTest(t, optsForConstructPlainDotnet(t, expectedResourceCount, localProviders))
+	testDotnetProgram(t, optsForConstructPlainDotnet(t, expectedResourceCount, localProviders))
 }
 
 func optsForConstructPlainDotnet(t *testing.T, expectedResourceCount int, localProviders []integration.LocalDependency,
@@ -347,7 +338,6 @@ func optsForConstructPlainDotnet(t *testing.T, expectedResourceCount int, localP
 	return &integration.ProgramTestOptions{
 		Env:            env,
 		Dir:            filepath.Join("construct_component_plain", "dotnet"),
-		PrepareProject: prepareDotnetProject,
 		LocalProviders: localProviders,
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -372,9 +362,8 @@ func TestConstructMethodsDotnet(t *testing.T) {
 		Path:    filepath.Join(testDir, componentDir),
 	}
 
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, "dotnet"),
-		PrepareProject: prepareDotnetProject,
 		LocalProviders: []integration.LocalDependency{localProvider},
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -397,9 +386,8 @@ func TestConstructProviderDotnet(t *testing.T) {
 	localProvider := integration.LocalDependency{
 		Package: "testcomponent", Path: filepath.Join(testDir, componentDir),
 	}
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, "dotnet"),
-		PrepareProject: prepareDotnetProject,
 		LocalProviders: []integration.LocalDependency{localProvider},
 		Quick:          true,
 		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
@@ -409,9 +397,8 @@ func TestConstructProviderDotnet(t *testing.T) {
 }
 
 func TestGetResourceDotnet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
+	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                      "get_resource",
-		PrepareProject:           prepareDotnetProject,
 		AllowEmptyPreviewChanges: true,
 		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			assert.NotNil(t, stack.Outputs)
@@ -449,9 +436,8 @@ func TestAboutDotnet(t *testing.T) {
 // TestResourceRefsGetResourceDotnet tests that invoking the built-in 'pulumi:pulumi:getResource' function
 // returns resource references for any resource reference in a resource's state.
 func TestResourceRefsGetResourceDotnet(t *testing.T) {
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join("resource_refs_get_resource"),
-		PrepareProject: prepareDotnetProject,
-		Quick:          true,
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   filepath.Join("resource_refs_get_resource"),
+		Quick: true,
 	})
 }

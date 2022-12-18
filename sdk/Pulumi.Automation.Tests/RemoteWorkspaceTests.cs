@@ -158,6 +158,7 @@ namespace Pulumi.Automation.Tests
                     $"pulumi config set bar abc --stack {stackName}",
                     $"pulumi config set --secret buzz secret --stack {stackName}",
                 },
+                SkipInstallDependencies = true,
             });
 
             try

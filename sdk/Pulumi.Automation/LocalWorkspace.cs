@@ -40,6 +40,7 @@ namespace Pulumi.Automation
         private readonly RemoteGitProgramArgs? _remoteGitProgramArgs;
         private readonly IDictionary<string, EnvironmentVariableValue>? _remoteEnvironmentVariables;
         private readonly IList<string>? _remotePreRunCommands;
+        private readonly bool _remoteSkipInstallDependencies;
 
         internal Task ReadyTask { get; }
 
@@ -327,6 +328,7 @@ namespace Pulumi.Automation
                 this.SecretsProvider = options.SecretsProvider;
                 this.Remote = options.Remote;
                 this._remoteGitProgramArgs = options.RemoteGitProgramArgs;
+                this._remoteSkipInstallDependencies = options.RemoteSkipInstallDependencies;
 
                 if (options.EnvironmentVariables != null)
                     this.EnvironmentVariables = new Dictionary<string, string?>(options.EnvironmentVariables);
@@ -861,6 +863,11 @@ namespace Pulumi.Automation
                     args.Add("--remote-pre-run-command");
                     args.Add(command);
                 }
+            }
+
+            if (_remoteSkipInstallDependencies)
+            {
+                args.Add("--remote-skip-install-dependencies");
             }
 
             return args;

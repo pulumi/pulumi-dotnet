@@ -108,6 +108,7 @@ namespace Pulumi.Automation
                 RemoteGitProgramArgs = args,
                 RemoteEnvironmentVariables = args.EnvironmentVariables,
                 RemotePreRunCommands = args.PreRunCommands,
+                RemoteSkipInstallDependencies = args.SkipInstallDependencies,
             };
 
             var ws = new LocalWorkspace(

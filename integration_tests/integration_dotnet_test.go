@@ -441,3 +441,9 @@ func TestResourceRefsGetResourceDotnet(t *testing.T) {
 		Quick: true,
 	})
 }
+
+func TestProviderDotnet(t *testing.T) {
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir: filepath.Join("provider"),
+	})
+}

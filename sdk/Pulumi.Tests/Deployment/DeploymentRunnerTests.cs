@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 
 using Pulumi.Testing;
-using Pulumi.Tests.Mocks;
 
 namespace Pulumi.Tests
 {
@@ -94,7 +93,7 @@ namespace Pulumi.Tests
                 LogLevel level,
                 EventId eventId,
                 TState state,
-                Exception exc,
+                Exception? exc,
                 Func<TState, Exception, string> formatter)
             {
                 var msg = formatter(state, exc);

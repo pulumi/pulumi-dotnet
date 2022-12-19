@@ -1,7 +1,6 @@
 ﻿// Copyright 2016-2019, Pulumi Corporation
 
 using System;
-using System.Collections.Generic;
 
 namespace Pulumi
 {
@@ -88,6 +87,5 @@ namespace Pulumi
             var typeParts = parts[2].Split("$");
             return typeParts[typeParts.Length - 1];
         }
-
     }
 }

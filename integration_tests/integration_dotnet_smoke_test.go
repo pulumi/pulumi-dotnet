@@ -63,7 +63,7 @@ func TestConstructDotnet(t *testing.T) {
 	expectedResourceCount := 8
 
 	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: buildTestProvider(t, "testprovider")},
+		{Package: "testprovider", Path: "testprovider"},
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 

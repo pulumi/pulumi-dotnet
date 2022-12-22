@@ -754,7 +754,99 @@ namespace Pulumi.Tests.Core
                 Assert.Contains(resource, data.Resources);
                 Assert.Equal("[0,1]", data.Value);
             }
- 
+
+            [Fact]
+            public Task JsonDeserializeBasic()
+                => RunInNormal(async () =>
+                {
+                    var o1 = CreateOutput("[0,1]", true);
+                    var o2 = Output.JsonDeserialize<int[]>(o1);
+                    var data = await o2.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.False(data.IsSecret);
+                    Assert.Equal(new int[] {0, 1}, data.Value);
+                });
+
+            [Fact]
+            public Task JsonDeserializeNested()
+                => RunInNormal(async () =>
+                {
+                    var o1 = CreateOutput("[0,1]", true);
+                    var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
+                    var data = await o2.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.False(data.IsSecret);
+                    var i0 = await data.Value[0].DataTask;
+                    Assert.True(i0.IsKnown);
+                    Assert.False(i0.IsSecret);
+                    Assert.Equal(0, i0.Value);
+                    var i1 = await data.Value[1].DataTask;
+                    Assert.True(i1.IsKnown);
+                    Assert.False(i1.IsSecret);
+                    Assert.Equal(1, i1.Value);
+                });
+
+            [Fact]
+            public Task JsonDeserializeNestedSecret()
+                => RunInNormal(async () =>
+                {
+                    var o1 = CreateOutput("[0,1]", true, true);
+                    var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
+                    var data = await o2.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.True(data.IsSecret);
+                    var i0 = await data.Value[0].DataTask;
+                    Assert.True(i0.IsKnown);
+                    Assert.True(i0.IsSecret);
+                    Assert.Equal(0, i0.Value);
+                    var i1 = await data.Value[1].DataTask;
+                    Assert.True(i1.IsKnown);
+                    Assert.True(i1.IsSecret);
+                    Assert.Equal(1, i1.Value);
+                });
+
+            [Fact]
+            public async Task JsonDeserializeNestedDependencies()
+            {
+                // We need a custom mock setup for this because new CustomResource will call into the
+                // deployment to try and register.
+                var runner = new Moq.Mock<IRunner>(Moq.MockBehavior.Strict);
+                runner.Setup(r => r.RegisterTask(Moq.It.IsAny<string>(), Moq.It.IsAny<Task>()));
+
+                var logger = new Moq.Mock<IEngineLogger>(Moq.MockBehavior.Strict);
+                logger.Setup(l => l.DebugAsync(Moq.It.IsAny<string>(), Moq.It.IsAny<Resource>(), Moq.It.IsAny<int?>(), Moq.It.IsAny<bool?>())).Returns(Task.CompletedTask);
+
+                var mock = new Moq.Mock<IDeploymentInternal>(Moq.MockBehavior.Strict);
+                mock.Setup(d => d.IsDryRun).Returns(false);
+                mock.Setup(d => d.Stack).Returns(() => null!);
+                mock.Setup(d => d.Runner).Returns(runner.Object);
+                mock.Setup(d => d.Logger).Returns(logger.Object);
+                mock.Setup(d => d.ReadOrRegisterResource(Moq.It.IsAny<Resource>(), Moq.It.IsAny<bool>(), Moq.It.IsAny<System.Func<string, Resource>>(), Moq.It.IsAny<ResourceArgs>(), Moq.It.IsAny<ResourceOptions>()));
+
+                Deployment.Instance = new DeploymentInstance(mock.Object);
+
+                var resource = new CustomResource("type", "name", null);
+
+                var o1 = CreateOutput(new Resource[] { resource }, "[0,1]", true, true);
+                    var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
+                var data = await o2.DataTask.ConfigureAwait(false);
+                Assert.True(data.IsKnown);
+                Assert.True(data.IsSecret);
+                Assert.Contains(resource, data.Resources);
+                var i0 = await data.Value[0].DataTask;
+                Assert.True(i0.IsKnown);
+                Assert.True(i0.IsSecret);
+                Assert.Equal(0, i0.Value);
+                Assert.Contains(resource, i0.Resources);
+                var i1 = await data.Value[1].DataTask;
+                Assert.True(i1.IsKnown);
+                Assert.True(i1.IsSecret);
+                Assert.Equal(1, i1.Value);
+                Assert.True(data.IsKnown);
+                Assert.True(data.IsSecret);
+                Assert.Contains(resource, i1.Resources);
+            }
+
             [Fact]
             public Task FormatBasic() => RunInNormal(async () =>
             {

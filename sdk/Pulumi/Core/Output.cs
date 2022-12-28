@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -185,8 +184,8 @@ namespace Pulumi
             => Tuple(values1, values2).Apply(tuple => tuple.Item1.AddRange(tuple.Item2));
 
         /// <summary>
-        /// Uses <see cref="System.Text.Json.JsonSerializer.SerializeAsync{T}"/> to serialize the given <see
-        /// cref="Output{T}"/> value into a JSON string.
+        /// Uses <see cref="System.Text.Json.JsonSerializer.SerializeAsync{T}(System.IO.Stream, T, JsonSerializerOptions?, System.Threading.CancellationToken)"/>
+        /// to serialize the given <see cref="Output{T}"/> value into a JSON string.
         /// </summary>
         public static Output<string> JsonSerialize<T>(Output<T> value, System.Text.Json.JsonSerializerOptions? options = null)
         {
@@ -206,26 +205,9 @@ namespace Pulumi
                 // This needs to handle nested potentially secret and unknown Output values, we do this by
                 // hooking options to handle any seen Output<T> values.
 
-                // TODO: This can be simplified in net6.0 to just new System.Text.Json.JsonSerializerOptions(options);
-                var internalOptions = new System.Text.Json.JsonSerializerOptions();
-                internalOptions.AllowTrailingCommas = options?.AllowTrailingCommas ?? internalOptions.AllowTrailingCommas;
-                if (options != null)
-                {
-                    foreach(var converter in options.Converters)
-                    {
-                        internalOptions.Converters.Add(converter);
-                    }
-                }
-                internalOptions.DefaultBufferSize = options?.DefaultBufferSize ?? internalOptions.DefaultBufferSize;
-                internalOptions.DictionaryKeyPolicy = options?.DictionaryKeyPolicy ?? internalOptions.DictionaryKeyPolicy;
-                internalOptions.Encoder = options?.Encoder ?? internalOptions.Encoder;
-                internalOptions.IgnoreNullValues = options?.IgnoreNullValues ?? internalOptions.IgnoreNullValues;
-                internalOptions.IgnoreReadOnlyProperties = options?.IgnoreReadOnlyProperties ?? internalOptions.IgnoreReadOnlyProperties;
-                internalOptions.MaxDepth = options?.MaxDepth ?? internalOptions.MaxDepth;
-                internalOptions.PropertyNameCaseInsensitive = options?.PropertyNameCaseInsensitive ?? internalOptions.PropertyNameCaseInsensitive;
-                internalOptions.PropertyNamingPolicy = options?.PropertyNamingPolicy ?? internalOptions.PropertyNamingPolicy;
-                internalOptions.ReadCommentHandling = options?.ReadCommentHandling ?? internalOptions.ReadCommentHandling;
-                internalOptions.WriteIndented = options?.WriteIndented ?? internalOptions.WriteIndented;
+                var internalOptions = options == null ?
+                    new System.Text.Json.JsonSerializerOptions() :
+                    new System.Text.Json.JsonSerializerOptions(options);
 
                 // Add the magic converter to allow us to do nested outputs
                 var outputConverter = new OutputJsonConverter();
@@ -285,7 +267,8 @@ namespace Pulumi
 
             if (Deployment.TryGetInternalInstance(out var instance))
             {
-                instance.Runner.RegisterTask(TypeNameHelper.GetTypeDisplayName(GetType(), false), dataTask);
+                var description = GetType().ToString();
+                instance.Runner.RegisterTask(description, dataTask);
             }
         }
 

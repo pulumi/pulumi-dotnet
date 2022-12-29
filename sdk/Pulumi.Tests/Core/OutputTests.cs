@@ -11,14 +11,16 @@ using Xunit;
 namespace Pulumi.Tests.Core
 {
     // Simple struct used for JSON tests
-    public struct TestStructure {
-        public int X { get; set;}
+    public struct TestStructure
+    {
+        public int X { get; set; }
 
         private int y;
 
-        public string Z => (y+1).ToString();
+        public string Z => (y + 1).ToString();
 
-        public TestStructure(int x, int y) {
+        public TestStructure(int x, int y)
+        {
             X = x;
             this.y = y;
         }
@@ -285,7 +287,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(1, isKnown: true);
                     var o2 = CreateOutput(2, isKnown: true);
-                    var outputs = new[] {o1, o2}.AsEnumerable();
+                    var outputs = new[] { o1, o2 }.AsEnumerable();
                     var o3 = Output.All(outputs);
                     var data = await o3.DataTask.ConfigureAwait(false);
                     Assert.Equal(new[] { 1, 2 }, data.Value);
@@ -308,7 +310,7 @@ namespace Pulumi.Tests.Core
                 {
                     var i1 = (Input<int>)CreateOutput(1, isKnown: true);
                     var i2 = (Input<int>)CreateOutput(2, isKnown: true);
-                    var inputs = new[] {i1, i2}.AsEnumerable();
+                    var inputs = new[] { i1, i2 }.AsEnumerable();
                     var o = Output.All(inputs);
                     var data = await o.DataTask.ConfigureAwait(false);
                     Assert.Equal(new[] { 1, 2 }, data.Value);
@@ -642,7 +644,7 @@ namespace Pulumi.Tests.Core
             public Task JsonSerializeBasic()
                 => RunInNormal(async () =>
                 {
-                    var o1 = CreateOutput(new int[]{ 0, 1} , true);
+                    var o1 = CreateOutput(new int[] { 0, 1 }, true);
                     var o2 = Output.JsonSerialize(o1);
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.True(data.IsKnown);
@@ -722,7 +724,7 @@ namespace Pulumi.Tests.Core
                 });
 
             [Fact]
-            public async Task JsonSerializeNestedDependencies() 
+            public async Task JsonSerializeNestedDependencies()
             {
                 // We need a custom mock setup for this because new CustomResource will call into the
                 // deployment to try and register.
@@ -764,7 +766,7 @@ namespace Pulumi.Tests.Core
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
-                    Assert.Equal(new int[] {0, 1}, data.Value);
+                    Assert.Equal(new int[] { 0, 1 }, data.Value);
                 });
 
             [Fact]
@@ -828,7 +830,7 @@ namespace Pulumi.Tests.Core
                 var resource = new CustomResource("type", "name", null);
 
                 var o1 = CreateOutput(new Resource[] { resource }, "[0,1]", true, true);
-                    var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
+                var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
                 var data = await o2.DataTask.ConfigureAwait(false);
                 Assert.True(data.IsKnown);
                 Assert.True(data.IsSecret);

@@ -817,7 +817,7 @@ namespace Pulumi.Automation.Tests
         }
 
         // TODO[pulumi/pulumi#7127]: Re-enable the warning.
-        [Fact(Skip="Temporarily skipping test until we've re-enabled the warning - pulumi/pulumi#7127")]
+        [Fact(Skip = "Temporarily skipping test until we've re-enabled the warning - pulumi/pulumi#7127")]
         public async Task ConfigSecretWarnings()
         {
             var program = PulumiFn.Create(() =>
@@ -1269,7 +1269,7 @@ namespace Pulumi.Automation.Tests
         }
 
         // TODO[pulumi/pulumi#8228]: fix flakiness
-        [Fact(Skip="flaky")]
+        [Fact(Skip = "flaky")]
         public async Task InlineProgramExceptionPropagatesToCallerWithServiceProvider()
         {
             await using var provider = new ServiceCollection()
@@ -2033,14 +2033,16 @@ namespace Pulumi.Automation.Tests
             {
                 var planFile = System.IO.Path.GetTempFileName();
 
-                await stack.PreviewAsync(new PreviewOptions {
+                await stack.PreviewAsync(new PreviewOptions
+                {
                     Plan = planFile,
                 });
 
                 var planFileStream = System.IO.File.OpenRead(planFile);
                 Assert.NotEqual(0, planFileStream.Length);
 
-                await stack.UpAsync(new UpOptions {
+                await stack.UpAsync(new UpOptions
+                {
                     Plan = planFile,
                 });
 

@@ -49,11 +49,11 @@ namespace Pulumi.Testing
             }
 
             var result = await _mocks.CallAsync(new MockCallArgs
-                {
-                    Token = request.Tok,
-                    Args = args,
-                    Provider = request.Provider,
-                })
+            {
+                Token = request.Tok,
+                Args = args,
+                Provider = request.Provider,
+            })
                 .ConfigureAwait(false);
             return new InvokeResponse { Return = await SerializeAsync(result).ConfigureAwait(false) };
         }
@@ -64,11 +64,11 @@ namespace Pulumi.Testing
             var args = ToDictionary(request.Args);
 
             var result = await _mocks.CallAsync(new MockCallArgs
-                {
-                    Token = request.Tok,
-                    Args = args,
-                    Provider = request.Provider,
-                })
+            {
+                Token = request.Tok,
+                Args = args,
+                Provider = request.Provider,
+            })
                 .ConfigureAwait(false);
             return new CallResponse { Return = await SerializeAsync(result).ConfigureAwait(false) };
         }

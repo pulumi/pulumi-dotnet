@@ -101,25 +101,31 @@ namespace Pulumi.Serialization
             if (targetType == typeof(object))
                 return (val, null);
 
-            if (targetType == typeof(Asset)) {
+            if (targetType == typeof(Asset))
+            {
                 var (d, exception) = TryEnsureType<Asset>(context, val);
-                if (exception != null) {
+                if (exception != null)
+                {
                     d = new InvalidAsset();
                 }
                 return (d, null);
             }
 
-            if (targetType == typeof(Archive)) {
+            if (targetType == typeof(Archive))
+            {
                 var (d, exception) = TryEnsureType<Archive>(context, val);
-                if (exception != null) {
+                if (exception != null)
+                {
                     d = new InvalidArchive();
                 }
                 return (d, null);
             }
 
-            if (targetType == typeof(AssetOrArchive)) {
+            if (targetType == typeof(AssetOrArchive))
+            {
                 var (d, exception) = TryEnsureType<AssetOrArchive>(context, val);
-                if (exception != null) {
+                if (exception != null)
+                {
                     d = new InvalidAsset();
                 }
                 return (d, null);

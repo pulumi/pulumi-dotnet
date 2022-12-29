@@ -29,6 +29,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
+      - name: Format Pulumi SDK
+        run: dotnet run format-sdk verify
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Test Pulumi SDK

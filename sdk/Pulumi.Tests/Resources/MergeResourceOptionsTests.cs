@@ -11,10 +11,12 @@ namespace Pulumi.Tests.Resources
         public void MergeCustom()
         {
             var prov = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:aws::default_4_13_0");
-            var o1 = new CustomResourceOptions {
+            var o1 = new CustomResourceOptions
+            {
                 Provider = prov,
             };
-            var o2 = new CustomResourceOptions {
+            var o2 = new CustomResourceOptions
+            {
                 Protect = true,
             };
             var result = CustomResourceOptions.Merge(o1, o2);
@@ -29,13 +31,15 @@ namespace Pulumi.Tests.Resources
             var awsExplicit = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:aws::explicit");
             var azureDefault = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:azure::default_4_13_0");
 
-            var o1 = new ComponentResourceOptions {
-                Providers = new List<ProviderResource>{awsDefault, azureDefault},
+            var o1 = new ComponentResourceOptions
+            {
+                Providers = new List<ProviderResource> { awsDefault, azureDefault },
                 Protect = true,
             };
 
-            var o2 = new ComponentResourceOptions {
-                Providers = new List<ProviderResource>{awsExplicit},
+            var o2 = new ComponentResourceOptions
+            {
+                Providers = new List<ProviderResource> { awsExplicit },
                 Protect = false,
             };
 
@@ -53,8 +57,9 @@ namespace Pulumi.Tests.Resources
             var awsExplicit = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:aws::explicit");
             var azureDefault = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:azure::default_4_13_0");
 
-            var o1 = new ComponentResourceOptions{
-                Providers = new List<ProviderResource>{awsDefault, azureDefault},
+            var o1 = new ComponentResourceOptions
+            {
+                Providers = new List<ProviderResource> { awsDefault, azureDefault },
                 Provider = awsExplicit,
             };
             Assert.Equal(o1.Providers, ComponentResourceOptions.Merge(o1, null).Providers);
@@ -64,14 +69,16 @@ namespace Pulumi.Tests.Resources
         public void MergeComponentSingleton()
         {
             var aws = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:aws::default_4_13_0");
-            var o1 = new ComponentResourceOptions{
-                Providers = new List<ProviderResource>{aws},
+            var o1 = new ComponentResourceOptions
+            {
+                Providers = new List<ProviderResource> { aws },
             };
-            var o2 = new ComponentResourceOptions{
+            var o2 = new ComponentResourceOptions
+            {
                 Protect = true,
             };
 
-            var result = ComponentResourceOptions.Merge(o1,o2);
+            var result = ComponentResourceOptions.Merge(o1, o2);
             Assert.True(result.Protect);
             Assert.Null(result.Provider);
             Assert.Equal(aws, result.Providers[0]);

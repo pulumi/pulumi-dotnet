@@ -39,7 +39,7 @@ namespace Pulumi.Tests.Serialization
         [Fact]
         public async Task NonGenericList()
         {
-            var data = Converter.ConvertValue<ImmutableArray<string>>(NoWarn, "", await SerializeToValueAsync(new string[] { "hello", "world"} ));
+            var data = Converter.ConvertValue<ImmutableArray<string>>(NoWarn, "", await SerializeToValueAsync(new string[] { "hello", "world" }));
             AssertEx.SequenceEqual(ImmutableArray<string>.Empty.Add("hello").Add("world"), data.Value);
             Assert.True(data.IsKnown);
         }

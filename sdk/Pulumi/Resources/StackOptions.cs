@@ -10,7 +10,7 @@ namespace Pulumi
     public class StackOptions
     {
         private List<ResourceTransformation>? _resourceTransformations;
-        
+
         /// <summary>
         /// Optional list of transformations to apply to this stack's resources during construction.
         /// The transformations are applied in order, and are applied after all the transformations of custom

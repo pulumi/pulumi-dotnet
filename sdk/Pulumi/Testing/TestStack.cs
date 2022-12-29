@@ -16,23 +16,23 @@ namespace Pulumi.Testing
             createResources();
             Outputs = new Dictionary<string, object?>();
         }
-        
+
         public TestStack(Func<Task> createResources)
         {
             createResources().GetAwaiter().GetResult();
             Outputs = new Dictionary<string, object?>();
         }
-        
+
         public TestStack(Func<IDictionary<string, object?>> createResources)
         {
             Outputs = createResources();
         }
-        
+
         public TestStack(Func<Task<IDictionary<string, object?>>> createResources)
         {
             Outputs = createResources().GetAwaiter().GetResult();
         }
-        
-        public new IDictionary<string, object?> Outputs { get; set;  }
+
+        public new IDictionary<string, object?> Outputs { get; set; }
     }
 }

@@ -179,7 +179,7 @@ namespace Pulumi
             ImmutableArray<Resource> resources)
         {
             var result = new List<Resource>();
-            IDictionary<string, object?> outputs = new Dictionary<string, object?>(); 
+            IDictionary<string, object?> outputs = new Dictionary<string, object?>();
             foreach (var resource in resources)
             {
                 if (resource is TestStack testStack)
@@ -189,13 +189,13 @@ namespace Pulumi
                     // Since TestStack is internal, Skip adding it as part of the resources created by the callback
                     continue;
                 }
-                
+
                 result.Add(resource);
             }
 
             return (result.ToImmutableArray(), outputs);
         }
-        
+
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
@@ -213,12 +213,12 @@ namespace Pulumi
         {
             var createdResources = await TestAsync(
                 mocks: testMocks,
-                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)), 
+                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)),
                 testOptions);
 
             return TestResults(createdResources);
         }
-        
+
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
@@ -236,12 +236,12 @@ namespace Pulumi
         {
             var createdResources = await TestAsync(
                 mocks: testMocks,
-                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)), 
+                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)),
                 testOptions);
 
             return TestResults(createdResources);
         }
-        
+
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
@@ -259,12 +259,12 @@ namespace Pulumi
         {
             var createdResources = await TestAsync(
                 mocks: testMocks,
-                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)), 
+                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)),
                 testOptions);
 
             return TestResults(createdResources).Resources;
         }
-        
+
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
@@ -282,7 +282,7 @@ namespace Pulumi
         {
             var createdResources = await TestAsync(
                 mocks: testMocks,
-                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)), 
+                runAsync: runner => runner.RunAsync(() => new TestStack(createResources)),
                 testOptions);
 
             return TestResults(createdResources).Resources;

@@ -24,7 +24,7 @@ namespace Pulumi.Automation.Serialization.Json
             // otherwise, serialize the whole object as JSON into the stack settings value
             if (element.ValueKind == JsonValueKind.Object)
             {
-                foreach(var property in element.EnumerateObject())
+                foreach (var property in element.EnumerateObject())
                 {
                     if (string.Equals("Secure", property.Name, StringComparison.OrdinalIgnoreCase))
                     {

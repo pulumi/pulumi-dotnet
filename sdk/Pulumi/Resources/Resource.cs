@@ -108,7 +108,7 @@ namespace Pulumi
         /// </summary>
         internal readonly string? _pluginDownloadURL;
 
-        internal readonly ImmutableDictionary<string,IOutputCompletionSource> CompletionSources;
+        internal readonly ImmutableDictionary<string, IOutputCompletionSource> CompletionSources;
 
         /// <summary>
         /// Creates and registers a new resource object.  <paramref name="type"/> is the fully
@@ -352,7 +352,8 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                     aliases.Add(Pulumi.Urn.InheritedChildAlias(childName, parent._name, parentAlias, childType));
                     foreach (var childAlias in childAliases)
                     {
-                        var inheritedAlias = CollapseAliasToUrn(childAlias, childName, childType, parent).Apply(childAliasURN => {
+                        var inheritedAlias = CollapseAliasToUrn(childAlias, childName, childType, parent).Apply(childAliasURN =>
+                        {
                             var aliasedChildName = Pulumi.Urn.Name(childAliasURN);
                             var aliasedChildType = Pulumi.Urn.Type(childAliasURN);
                             return Pulumi.Urn.InheritedChildAlias(aliasedChildName, parent._name, parentAlias, aliasedChildType);

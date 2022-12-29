@@ -26,7 +26,7 @@ namespace Pulumi.Testing
         /// <returns>Invocation result, can be either a POCO or a dictionary bag.</returns>
         Task<object> CallAsync(MockCallArgs args);
     }
-    
+
     /// <summary>
     /// MockResourceArgs for use in NewResourceAsync
     /// </summary>
@@ -36,12 +36,12 @@ namespace Pulumi.Testing
         /// Resource type name.
         /// </summary>
         public string? Type { get; set; }
-        
+
         /// <summary>
         /// Resource Name.
         /// </summary>
-        public string? Name { get; set; }   
-        
+        public string? Name { get; set; }
+
         /// <summary>
         /// Dictionary of resource input properties.
         /// </summary>
@@ -51,7 +51,7 @@ namespace Pulumi.Testing
         /// Provider.
         /// </summary>
         public string? Provider { get; set; }
-        
+
         /// <summary>
         /// Resource identifier.
         /// </summary>
@@ -67,12 +67,12 @@ namespace Pulumi.Testing
         /// Resource identifier.
         /// </summary>
         public string? Token { get; set; }
-        
+
         /// <summary>
         /// Dictionary of input arguments.
         /// </summary>
         public ImmutableDictionary<string, object> Args { get; set; } = null!;
-        
+
         /// <summary>
         /// Provider.
         /// </summary>

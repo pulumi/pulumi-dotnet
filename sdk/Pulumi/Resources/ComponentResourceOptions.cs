@@ -27,7 +27,7 @@ namespace Pulumi
 
         internal override ResourceOptions Clone()
             => CreateComponentResourceOptionsCopy(this);
-        
+
         /// <summary>
         /// Takes two <see cref="ComponentResourceOptions"/> values and produces a new
         /// <see cref="ComponentResourceOptions"/> with the respective
@@ -70,12 +70,13 @@ namespace Pulumi
             return options1;
         }
 
-        private static List<ProviderResource> MergeProviders(List<ProviderResource> prov1, List<ProviderResource> prov2 )
+        private static List<ProviderResource> MergeProviders(List<ProviderResource> prov1, List<ProviderResource> prov2)
         {
             var l = new List<ProviderResource>();
             var taken = new HashSet<string>();
-            Action<List<ProviderResource>> add = (list) => {
-                for(var i = list.Count-1; i >= 0; i--)
+            Action<List<ProviderResource>> add = (list) =>
+            {
+                for (var i = list.Count - 1; i >= 0; i--)
                 {
                     var p = list[i];
                     if (!taken.Contains(p.Package))

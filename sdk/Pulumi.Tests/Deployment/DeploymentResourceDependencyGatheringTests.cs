@@ -33,7 +33,7 @@ namespace Pulumi.Tests
             {
                 new MyCustomResource("r1", null, new CustomResourceOptions()
                 {
-                    DependsOn = Output<Resource[]>.CreateUnknown(new Resource[]{}),
+                    DependsOn = Output<Resource[]>.CreateUnknown(new Resource[] { }),
                 });
             }
         }

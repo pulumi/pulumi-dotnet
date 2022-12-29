@@ -23,7 +23,7 @@ namespace Pulumi.Automation
         /// <summary>
         /// Plan specifies the path to an update plan to use for the update.
         /// </summary>
-        public string? Plan {get; set; }
+        public string? Plan { get; set; }
 
         /// <summary>
         /// Show config secrets when they appear.

@@ -117,7 +117,8 @@ namespace Pulumi.Tests
                 Write($"BeginScope state={state}");
                 return new Scope()
                 {
-                    Close = () => {
+                    Close = () =>
+                    {
                         Write($"EndScope state={state}");
                     }
                 };
@@ -138,7 +139,7 @@ namespace Pulumi.Tests
 
             class Scope : IDisposable
             {
-                public Action Close { get; set; } = () => {};
+                public Action Close { get; set; } = () => { };
 
                 public void Dispose()
                 {

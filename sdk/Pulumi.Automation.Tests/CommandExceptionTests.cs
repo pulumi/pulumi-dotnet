@@ -65,7 +65,7 @@ namespace Pulumi.Automation.Tests
         [Fact]
         public async Task ConcurrentUpdateExceptionIsThrown()
         {
-            
+
             var projectSettings = new ProjectSettings("command_exception_test", ProjectRuntimeName.NodeJS);
             using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
             {

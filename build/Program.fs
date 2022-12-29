@@ -52,6 +52,13 @@ let restoreSdk() =
     if Shell.Exec("dotnet", "restore --no-cache", sdk) <> 0
     then failwith "restore failed"
 
+/// Runs `dotnet format` against the solution file
+let formatSdk verify =
+    printfn "Formatting Pulumi SDK packages"
+    let args = "format" + if verify then " --verify-no-changes" else ""
+    if Shell.Exec("dotnet", args, sdk) <> 0
+    then failwith "format failed"
+
 /// Returns an array of names of go tests inside ./integration_tests
 /// You can use this to see which tests are available,
 /// then run individual tests using `dotnet run integration test <testName>`
@@ -178,6 +185,8 @@ let main(args: string[]) : int =
     match args with
     | [| "clean-sdk" |] -> cleanSdk()
     | [| "build-sdk" |] -> buildSdk()
+    | [| "format-sdk" |] -> formatSdk false
+    | [| "format-sdk"; "verify" |] -> formatSdk true
     | [| "build-language-plugin" |] -> buildLanguagePlugin()
     | [| "test-language-plugin" |] -> testLanguagePlugin()
     | [| "test-sdk" |] -> testPulumiSdk()

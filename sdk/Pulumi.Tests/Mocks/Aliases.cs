@@ -54,12 +54,12 @@ namespace Pulumi.Tests.Mocks.Aliases
 
             var parent6 = new Pulumi.CustomResource("test:resource:type", "myres6", null, new CustomResourceOptions
             {
-                Aliases = {  new Alias { Name = "myres62" }, new Alias { Type = "test:resource:type3"}, new Alias { Name = "myres63" }, }
+                Aliases = { new Alias { Name = "myres62" }, new Alias { Type = "test:resource:type3" }, new Alias { Name = "myres63" }, }
             });
             var child6 = new Pulumi.CustomResource("test:resource:child", "myres6-child", null, new CustomResourceOptions
             {
                 Parent = parent6,
-                Aliases = { new Alias { Name = "myres6-child2" }, new Alias { Type = "test:resource:child2"} }
+                Aliases = { new Alias { Name = "myres6-child2" }, new Alias { Type = "test:resource:child2" } }
             });
         }
     }

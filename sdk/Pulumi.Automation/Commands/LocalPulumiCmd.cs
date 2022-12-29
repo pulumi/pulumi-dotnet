@@ -35,7 +35,9 @@ namespace Pulumi.Automation.Commands
                 try
                 {
                     return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, eventLogFile, cancellationToken).ConfigureAwait(false);
-                } finally {
+                }
+                finally
+                {
                     await eventLogWatcher.Stop().ConfigureAwait(false);
                 }
             }

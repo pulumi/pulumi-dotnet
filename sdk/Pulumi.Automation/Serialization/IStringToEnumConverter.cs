@@ -5,7 +5,7 @@ using System;
 namespace Pulumi.Automation.Serialization
 {
     internal interface IStringToEnumConverter<out TEnum>
-        where TEnum: struct, Enum
+        where TEnum : struct, Enum
     {
         TEnum Convert(string input);
     }

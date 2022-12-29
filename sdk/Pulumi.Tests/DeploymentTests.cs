@@ -121,7 +121,7 @@ namespace Pulumi.Tests
                     ["extra"] = 1
                 };
             });
-            
+
             // There is only one resource created
             Assert.Single(resources);
             Assert.IsType<Instance>(resources[0]);
@@ -138,10 +138,10 @@ namespace Pulumi.Tests
             {
                 throw new Exception($"Expected {publicIpProperty} to be of type Output<string>");
             }
-            
+
             Assert.Equal(1, outputs["extra"]);
         }
-        
+
         [Fact]
         public async Task TestAsyncReturnsCreatedResourcesWithoutOuputs()
         {
@@ -151,28 +151,28 @@ namespace Pulumi.Tests
             {
                 var instance = new Instance("test-instance", new InstanceArgs());
             });
-            
+
             // There is only one resource created
             Assert.Single(resources);
             Assert.IsType<Instance>(resources[0]);
         }
-        
+
         [Fact]
         public async Task TestAsyncReturnsCreatedResourcesWithoutOuputsInAsyncOverload()
         {
             var mocks = new MyMocks();
             var testOptions = new TestOptions();
-            var resources = await Deployment.TestAsync(mocks, testOptions, async() =>
+            var resources = await Deployment.TestAsync(mocks, testOptions, async () =>
             {
                 await Task.Delay(1000);
                 var instance = new Instance("test-instance", new InstanceArgs());
             });
-            
+
             // There is only one resource created
             Assert.Single(resources);
             Assert.IsType<Instance>(resources[0]);
         }
-        
+
         [Fact]
         public async Task TestAsyncReturnsCreatedResourcesAndOutputsInAsyncOverload()
         {
@@ -189,7 +189,7 @@ namespace Pulumi.Tests
                     ["extra"] = 1
                 };
             });
-            
+
             // There is only one resource created
             Assert.Single(resources);
             Assert.IsType<Instance>(resources[0]);
@@ -206,7 +206,7 @@ namespace Pulumi.Tests
             {
                 throw new Exception($"Expected {publicIpProperty} to be of type Output<string>");
             }
-            
+
             Assert.Equal(1, outputs["extra"]);
         }
     }

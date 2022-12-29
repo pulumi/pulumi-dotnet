@@ -148,7 +148,7 @@ namespace Pulumi.Automation.Tests
 
         private static async Task TestStackLifeCycle(Func<RemoteGitProgramArgs, Task<RemoteWorkspaceStack>> factory)
         {
-            var stackName =  FullyQualifiedStackName(GetTestOrg(), "go_remote_proj", RandomStackName());
+            var stackName = FullyQualifiedStackName(GetTestOrg(), "go_remote_proj", RandomStackName());
             using var stack = await factory(new RemoteGitProgramArgs(stackName, _testRepo)
             {
                 Branch = "refs/heads/master",

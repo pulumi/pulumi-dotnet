@@ -24,7 +24,7 @@ namespace Pulumi.Tests.Resources
                 };
                 var dictionary = new DictionaryInvokeArgs(dict.ToImmutableDictionary());
             }
-            catch 
+            catch
             {
                 Assert.True(false, "DictionaryInvokeArgs constructor should not throw an exception");
             }

@@ -21,7 +21,8 @@ namespace Pulumi
             readonly OutputJsonConverter Parent;
             readonly JsonConverter<T> Converter;
 
-            public OutputJsonConverterInner(OutputJsonConverter parent, JsonSerializerOptions options) {
+            public OutputJsonConverterInner(OutputJsonConverter parent, JsonSerializerOptions options)
+            {
                 Parent = parent;
                 Converter = (JsonConverter<T>)options.GetConverter(typeof(T));
             }
@@ -57,11 +58,11 @@ namespace Pulumi
             }
         }
 
-        public bool _isSecret {get; private set;}
+        public bool _isSecret { get; private set; }
         private readonly ImmutableHashSet<Resource> _resources;
 
-        public bool SeenUnknown {get; private set;}
-        public bool SeenSecret {get; private set;}
+        public bool SeenUnknown { get; private set; }
+        public bool SeenSecret { get; private set; }
         public ImmutableHashSet<Resource> SeenResources => _seenResources.ToImmutableHashSet();
         private readonly HashSet<Resource> _seenResources;
 
@@ -199,7 +200,8 @@ namespace Pulumi
         /// </summary>
         public static Output<string> JsonSerialize<T>(Output<T> value, System.Text.Json.JsonSerializerOptions? options = null)
         {
-            if (value == null) {
+            if (value == null)
+            {
                 throw new ArgumentNullException("value");
             }
 
@@ -207,7 +209,8 @@ namespace Pulumi
             {
                 var result = await value.DataTask;
 
-                if (!result.IsKnown) {
+                if (!result.IsKnown)
+                {
                     return new OutputData<string>(result.Resources, "", false, result.IsSecret);
                 }
 
@@ -226,7 +229,8 @@ namespace Pulumi
                 await System.Text.Json.JsonSerializer.SerializeAsync<T>(utf8, result.Value, internalOptions);
 
                 // Check if the result is valid or not, that is if we saw any nulls we can just throw away the json string made and return unknown
-                if (outputConverter.SeenUnknown) {
+                if (outputConverter.SeenUnknown)
+                {
                     return new OutputData<string>(result.Resources.Union(outputConverter.SeenResources), "", false, result.IsSecret | outputConverter.SeenSecret);
                 }
 
@@ -246,7 +250,8 @@ namespace Pulumi
         /// </summary>
         public static Output<T> JsonDeserialize<T>(Output<string> json, System.Text.Json.JsonSerializerOptions? options = null)
         {
-            if (json == null) {
+            if (json == null)
+            {
                 throw new ArgumentNullException("json");
             }
 
@@ -254,7 +259,8 @@ namespace Pulumi
             {
                 var result = await json.DataTask;
 
-                if (!result.IsKnown) {
+                if (!result.IsKnown)
+                {
                     return new OutputData<T>(result.Resources, default!, false, result.IsSecret);
                 }
 
@@ -312,7 +318,8 @@ namespace Pulumi
     {
         internal Task<OutputData<T>> DataTask { get; private set; }
 
-        internal Output(Task<OutputData<T>> dataTask) {
+        internal Output(Task<OutputData<T>> dataTask)
+        {
             this.DataTask = dataTask;
 
             if (Deployment.TryGetInternalInstance(out var instance))
@@ -343,7 +350,8 @@ namespace Pulumi
         internal static Output<T> CreateSecret(Task<T> value)
             => Create(value, isSecret: true);
 
-        internal static Output<T> CreateSecret(Output<T> value) {
+        internal static Output<T> CreateSecret(Output<T> value)
+        {
             if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));

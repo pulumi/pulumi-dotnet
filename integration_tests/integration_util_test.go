@@ -92,12 +92,20 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 				continue
 			}
 
+			packageReference := fmt.Sprintf(`<ProjectReference Include="%s" />`, pulumiSdkPath)
+
+			// If we're running edit tests we might have already have added the ProjectReference (edit tests
+			// rerun prepareProject)
+			if strings.Contains(string(projectContent), packageReference) {
+				continue
+			}
+
 			modifiedContent := fmt.Sprintf(`
 	<ItemGroup>
-		<ProjectReference Include="%s" />
+		%s
 	</ItemGroup>
 </Project>
-`, pulumiSdkPath)
+`, packageReference)
 
 			modifiedProjectContent := strings.ReplaceAll(string(projectContent), "</Project>", modifiedContent)
 			err = os.WriteFile(projectPath, []byte(modifiedProjectContent), 0644)

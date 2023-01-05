@@ -26,8 +26,7 @@ jobs:
         run: |
           TAG="${{ github.event.release.tag_name }}"
           PULUMI_VERSION="${TAG#v}" # remove prefix
-
-          ./.github/scripts/set-output version "${PULUMI_VERSION}"
+          echo "version=${PULUMI_VERSION}" >> $GITHUB_OUTPUT
 
   release:
     name: release

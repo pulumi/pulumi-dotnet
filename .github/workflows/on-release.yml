@@ -17,7 +17,7 @@ jobs:
     name: gather
     runs-on: ubuntu-latest
     outputs:
-      version: "${{ fromJSON(steps.version.outputs.version) }}"
+      version: "${{ steps.version.outputs.version }}"
     steps:
       - uses: actions/checkout@v3
         # Uses release ref (tag)

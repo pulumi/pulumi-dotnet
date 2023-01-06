@@ -441,3 +441,43 @@ func TestResourceRefsGetResourceDotnet(t *testing.T) {
 		Quick: true,
 	})
 }
+
+// TestSln tests that we run a program with a .sln file next to it.
+func TestSln(t *testing.T) {
+	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+		var foundStdout int
+		for _, ev := range stack.Events {
+			if de := ev.DiagnosticEvent; de != nil {
+				if strings.HasPrefix(de.Message, "With sln") {
+					foundStdout++
+				}
+			}
+		}
+		assert.Equal(t, 1, foundStdout)
+	}
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:                    "sln",
+		Quick:                  true,
+		ExtraRuntimeValidation: validation,
+	})
+}
+
+// TestSlnMultiple tests that we run a .sln file with multiple nested projects by setting the "main" option.
+func TestSlnMultipleNested(t *testing.T) {
+	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+		var foundStdout int
+		for _, ev := range stack.Events {
+			if de := ev.DiagnosticEvent; de != nil {
+				if strings.HasPrefix(de.Message, "With sln") {
+					foundStdout++
+				}
+			}
+		}
+		assert.Equal(t, 1, foundStdout)
+	}
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:                    "sln_multiple_nested",
+		Quick:                  true,
+		ExtraRuntimeValidation: validation,
+	})
+}

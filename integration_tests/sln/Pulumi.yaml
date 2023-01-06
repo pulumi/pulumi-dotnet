@@ -1,0 +1,3 @@
+name: sln
+description: A Pulumi program with an .sln file.
+runtime: dotnet

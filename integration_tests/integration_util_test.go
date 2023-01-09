@@ -24,7 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/pulumi/pulumi/pkg/v3/engine"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,6 +33,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/pulumi/pulumi/pkg/v3/engine"
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
@@ -65,22 +67,21 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 		return err
 	}
 
-	entries, err := os.ReadDir(cwd)
-	if err != nil {
-		return nil
-	}
+	err = filepath.WalkDir(cwd, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 
-	for _, entry := range entries {
 		if entry.IsDir() && (entry.Name() == "bin" || entry.Name() == "obj") {
-			err = os.RemoveAll(filepath.Join(cwd, entry.Name()))
+			err = os.RemoveAll(path)
 			if err != nil {
 				return err
 			}
+			return filepath.SkipDir
 		}
 
 		if strings.HasSuffix(entry.Name(), "csproj") {
-			projectPath := filepath.Join(cwd, entry.Name())
-			projectContent, err := os.ReadFile(projectPath)
+			projectContent, err := os.ReadFile(path)
 			if err != nil {
 				return err
 			}
@@ -89,7 +90,7 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 			// then pulumi is a transitive reference
 			// no need to add it
 			if strings.Contains(string(projectContent), "Include=\"Pulumi") {
-				continue
+				return nil
 			}
 
 			packageReference := fmt.Sprintf(`<ProjectReference Include="%s" />`, pulumiSdkPath)
@@ -97,7 +98,7 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 			// If we're running edit tests we might have already have added the ProjectReference (edit tests
 			// rerun prepareProject)
 			if strings.Contains(string(projectContent), packageReference) {
-				continue
+				return nil
 			}
 
 			modifiedContent := fmt.Sprintf(`
@@ -108,16 +109,15 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 `, packageReference)
 
 			modifiedProjectContent := strings.ReplaceAll(string(projectContent), "</Project>", modifiedContent)
-			err = os.WriteFile(projectPath, []byte(modifiedProjectContent), 0644)
+			err = os.WriteFile(path, []byte(modifiedProjectContent), 0644)
 			if err != nil {
-				return nil
+				return err
 			}
-
-			break
 		}
-	}
 
-	return nil
+		return nil
+	})
+	return err
 }
 
 func testDotnetProgram(t *testing.T, options *integration.ProgramTestOptions) {

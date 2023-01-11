@@ -32,7 +32,7 @@ namespace Pulumi.Tests.Core
                 var data = await result.ToOutput().DataTask.ConfigureAwait(false);
                 Assert.True(data.IsKnown);
                 Assert.Equal(4, data.Value.Count);
-                for (var i = 1; i <=4; i++)
+                for (var i = 1; i <= 4; i++)
                     Assert.True(data.Value.Contains($"K{i}", $"V{i}"));
 
                 // Check that the input maps haven't changed
@@ -126,19 +126,19 @@ namespace Pulumi.Tests.Core
         public Task InputUnionInitializer()
             => RunInPreview(async () =>
             {
-                var sample = new SampleArgs{ Union = "testValue" };
+                var sample = new SampleArgs { Union = "testValue" };
                 var data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
                 Assert.Equal("testValue", data.Value);
 
-                sample = new SampleArgs{ Union = 123 };
+                sample = new SampleArgs { Union = 123 };
                 data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
                 Assert.Equal(123, data.Value);
 
-                sample = new SampleArgs{ Union = Union<string, int>.FromT0("left") };
+                sample = new SampleArgs { Union = Union<string, int>.FromT0("left") };
                 data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
                 Assert.Equal("left", data.Value);
 
-                sample = new SampleArgs{ Union = Union<string, int>.FromT1(456) };
+                sample = new SampleArgs { Union = Union<string, int>.FromT1(456) };
                 data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
                 Assert.Equal(456, data.Value);
             });

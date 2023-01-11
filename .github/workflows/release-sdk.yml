@@ -1,0 +1,58 @@
+name: Release Actions
+
+permissions:
+  # To create a PR
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        description: "GitHub ref to use"
+        type: string
+      version:
+        required: true
+        description: "Version to produce"
+        type: string
+      branch_from_ref:
+        required: false
+        description: "Commit to branch from, if not the tag"
+        type: string
+      release-notes:
+        required: true
+        description: "Release notes to publish"
+        type: string
+
+env:
+  PULUMI_VERSION: ${{ inputs.version }}
+  GITHUB_REF: ${{ inputs.ref }}
+  NUGET_PUBLISH_KEY: ${{ secrets.NUGET_PUBLISH_KEY }}
+  PULUMI_API: https://api.pulumi-staging.io
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  AWS_REGION: us-west-2
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  publish-dotnet-sdk:
+    name: Publish dotnet SDK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Set up DotNet 6.0.x
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
+        with:
+          dotnet-version: 6.0.x
+          dotnet-quality: ga
+      - name: Build Pulumi SDK
+        run: dotnet run build-sdk
+      - name: Test Pulumi SDK
+        run: dotnet run test-sdk
+      - name: Test Pulumi Automation SDK
+        run: dotnet run test-automation-sdk
+      - name: Publish Packages
+        run: dotnet run publish-sdks

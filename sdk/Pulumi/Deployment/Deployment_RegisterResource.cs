@@ -21,7 +21,8 @@ namespace Pulumi
             var label = $"resource:{name}[{type}]";
             Log.Debug($"Registering resource start: t={type}, name={name}, custom={custom}, remote={remote}");
 
-            if (options.DeletedWith != null && !(await MonitorSupportsDeletedWith().ConfigureAwait(false))) {
+            if (options.DeletedWith != null && !(await MonitorSupportsDeletedWith().ConfigureAwait(false)))
+            {
                 throw new Exception("The Pulumi CLI does not support the DeletedWith option. Please update the Pulumi CLI.");
             }
 
@@ -74,7 +75,8 @@ namespace Pulumi
             var customOpts = options as CustomResourceOptions;
             var deleteBeforeReplace = customOpts?.DeleteBeforeReplace;
             var deletedWith = "";
-            if (options.DeletedWith != null) {
+            if (options.DeletedWith != null)
+            {
                 deletedWith = await options.DeletedWith.Urn.GetValueAsync("").ConfigureAwait(false);
             }
 

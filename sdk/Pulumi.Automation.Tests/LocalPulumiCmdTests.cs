@@ -37,7 +37,8 @@ namespace Pulumi.Automation.Tests
 
             Assert.Matches(@"^v?\d+\.\d+\.\d+", result.StandardOutput);
             // stderr must strictly begin with the version warning message or be an empty string:
-            if (result.StandardError.Length > 0) {
+            if (result.StandardError.Length > 0)
+            {
                 Assert.StartsWith("warning: A new version of Pulumi", result.StandardError);
             }
 

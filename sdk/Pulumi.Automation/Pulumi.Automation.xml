@@ -700,6 +700,11 @@
             An optional list of arbitrary commands to run before a remote Pulumi operation is invoked.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.LocalWorkspaceOptions.RemoteSkipInstallDependencies">
+            <summary>
+            Whether to skip the default dependency installation step.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.PluginInstallOptions.ExactVersion">
             <summary>
             If <c>true</c>, force installation of an exact version match (usually >= is accepted).
@@ -1065,6 +1070,11 @@
         <member name="P:Pulumi.Automation.RemoteWorkspaceOptions.PreRunCommands">
             <summary>
             An optional list of arbitrary commands to run before a remote Pulumi operation is invoked.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RemoteWorkspaceOptions.SkipInstallDependencies">
+            <summary>
+            Whether to skip the default dependency installation step.
             </summary>
         </member>
         <member name="P:Pulumi.Automation.RemoteWorkspaceStack.Name">

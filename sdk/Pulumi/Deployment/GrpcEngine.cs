@@ -27,7 +27,7 @@ namespace Pulumi
                 // A channel already exists for this address
                 this._engine = new Engine.EngineClient(engineChannel);
             }
-            else 
+            else
             {
                 lock (_channelsLock)
                 {
@@ -36,7 +36,7 @@ namespace Pulumi
                         // A channel already exists for this address
                         this._engine = new Engine.EngineClient(existingChannel);
                     }
-                    else 
+                    else
                     {
                         // Inititialize the engine channel once for this address
                         var channel = GrpcChannel.ForAddress(new Uri($"http://{engineAddress}"), new GrpcChannelOptions
@@ -52,7 +52,7 @@ namespace Pulumi
                 }
             }
         }
-        
+
         public async Task LogAsync(LogRequest request)
             => await this._engine.LogAsync(request);
     }

@@ -499,8 +499,14 @@
         </member>
         <member name="M:Pulumi.Output.JsonSerialize``1(Pulumi.Output{``0},System.Text.Json.JsonSerializerOptions)">
             <summary>
-            Uses <see cref="M:System.Text.Json.JsonSerializer.SerializeAsync``1(System.IO.Stream,``0,System.Text.Json.JsonSerializerOptions,System.Threading.CancellationToken)"/> to serialize the given <see
-            cref="T:Pulumi.Output`1"/> value into a JSON string.
+            Uses <see cref="M:System.Text.Json.JsonSerializer.SerializeAsync``1(System.IO.Stream,``0,System.Text.Json.JsonSerializerOptions,System.Threading.CancellationToken)"/>
+            to serialize the given <see cref="T:Pulumi.Output`1"/> value into a JSON string.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Output.JsonDeserialize``1(Pulumi.Output{System.String},System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Uses <see cref="M:System.Text.Json.JsonSerializer.DeserializeAsync``1(System.IO.Stream,System.Text.Json.JsonSerializerOptions,System.Threading.CancellationToken)"/>
+            to deserialize the given <see cref="T:Pulumi.Output`1"/> string value into a <typeparam name="T"/>.
             </summary>
         </member>
         <member name="M:Pulumi.Output.Tuple``8(Pulumi.Input{``0},Pulumi.Input{``1},Pulumi.Input{``2},Pulumi.Input{``3},Pulumi.Input{``4},Pulumi.Input{``5},Pulumi.Input{``6},Pulumi.Input{``7})">

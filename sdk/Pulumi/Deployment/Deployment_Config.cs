@@ -86,7 +86,7 @@ namespace Pulumi
                 var envObject = JsonDocument.Parse(envConfigSecretKeys);
                 foreach (var element in envObject.RootElement.EnumerateArray())
                 {
-                    parsedConfigSecretKeys.Add(element.GetString());
+                    parsedConfigSecretKeys.Add(element.ToString());
                 }
             }
 

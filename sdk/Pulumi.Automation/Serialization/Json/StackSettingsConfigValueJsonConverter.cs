@@ -15,7 +15,7 @@ namespace Pulumi.Automation.Serialization.Json
             // check if plain string
             if (element.ValueKind == JsonValueKind.String)
             {
-                var value = element.GetString();
+                var value = element.GetString()!;
                 return new StackSettingsConfigValue(value, false);
             }
 
@@ -24,7 +24,7 @@ namespace Pulumi.Automation.Serialization.Json
             // otherwise, serialize the whole object as JSON into the stack settings value
             if (element.ValueKind == JsonValueKind.Object)
             {
-                foreach(var property in element.EnumerateObject())
+                foreach (var property in element.EnumerateObject())
                 {
                     if (string.Equals("Secure", property.Name, StringComparison.OrdinalIgnoreCase))
                     {
@@ -33,8 +33,8 @@ namespace Pulumi.Automation.Serialization.Json
                         {
                             throw new JsonException($"Unable to deserialize [{typeToConvert.FullName}] as a secure string. Expecting a string secret.");
                         }
-                        
-                        return new StackSettingsConfigValue(secureValue.GetString(), true);
+
+                        return new StackSettingsConfigValue(secureValue.GetString()!, true);
                     }
                 }
             }

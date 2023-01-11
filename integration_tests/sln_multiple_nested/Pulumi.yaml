@@ -1,0 +1,4 @@
+name: sln_multiple
+description: A Pulumi program with an .sln file with multiple projects.
+runtime: dotnet
+main: Program

@@ -10,6 +10,6 @@ namespace Pulumi.Automation.Events
     /// </summary>
     public class CancelEvent
     {
-        internal CancelEvent() {}
+        internal CancelEvent() { }
     }
 }

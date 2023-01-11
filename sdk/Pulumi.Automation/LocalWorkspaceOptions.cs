@@ -84,5 +84,10 @@ namespace Pulumi.Automation
         /// An optional list of arbitrary commands to run before a remote Pulumi operation is invoked.
         /// </summary>
         internal IList<string>? RemotePreRunCommands { get; set; }
+
+        /// <summary>
+        /// Whether to skip the default dependency installation step.
+        /// </summary>
+        internal bool RemoteSkipInstallDependencies { get; set; }
     }
 }

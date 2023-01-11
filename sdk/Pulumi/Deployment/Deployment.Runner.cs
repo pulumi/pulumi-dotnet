@@ -37,8 +37,8 @@ namespace Pulumi
             private readonly object _exceptionsLock = new object();
             private readonly List<Exception> _exceptions = new List<Exception>();
 
-            private readonly ConcurrentDictionary<(int TaskId, string Desc),int> _descriptions =
-                new ConcurrentDictionary<(int TaskId, string Desc),int>();
+            private readonly ConcurrentDictionary<(int TaskId, string Desc), int> _descriptions =
+                new ConcurrentDictionary<(int TaskId, string Desc), int>();
 
             public ImmutableList<Exception> SwallowedExceptions
             {
@@ -113,7 +113,8 @@ namespace Pulumi
                     int timesSeen = _descriptions.AddOrUpdate(key, _ => 1, (_, v) => v + 1);
                     if (timesSeen == 1)
                     {
-                        task.ContinueWith(task => {
+                        task.ContinueWith(task =>
+                        {
                             _deploymentLogger.LogDebug($"Completed task: {description}");
                             _descriptions.TryRemove(key, out _);
                         });
@@ -143,7 +144,7 @@ namespace Pulumi
 
             private Task<int> HandleExceptionAsync(Exception exception)
             {
-                return HandleExceptionsAsync(new Exception[]{exception});
+                return HandleExceptionsAsync(new Exception[] { exception });
             }
 
             private async Task<int> HandleExceptionsAsync(IEnumerable<Exception> exceptions)

@@ -41,7 +41,7 @@ namespace Pulumi.Automation.Serialization.Yaml
                         if (!parser.TryConsume<Scalar>(out var securePropertyValue))
                             throw new YamlException($"Unable to deserialize [{type.FullName}] as a secure string. Expecting a string secret.");
 
-                         // needs to be 1 mapping end and then return
+                        // needs to be 1 mapping end and then return
                         parser.Require<MappingEnd>();
                         parser.MoveNext();
                         return new StackSettingsConfigValue(securePropertyValue.Value, true);

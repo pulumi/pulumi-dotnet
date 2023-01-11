@@ -38,12 +38,12 @@ namespace Pulumi.Automation.Serialization.Json
                     return datetime;
                 }
 
-                return reader.GetString();
+                return reader.GetString()!;
             }
 
             if (reader.TokenType == JsonTokenType.StartArray)
             {
-                return JsonSerializer.Deserialize<object[]>(ref reader, options);
+                return JsonSerializer.Deserialize<object[]>(ref reader, options)!;
             }
 
             if (reader.TokenType == JsonTokenType.StartObject)
@@ -61,7 +61,7 @@ namespace Pulumi.Automation.Serialization.Json
                         throw new JsonException("Unable to retrieve property name.");
 
                     reader.Read();
-                    dictionary[propertyName] = JsonSerializer.Deserialize<object>(ref reader, options);
+                    dictionary[propertyName] = JsonSerializer.Deserialize<object>(ref reader, options)!;
 
                     reader.Read();
                 }

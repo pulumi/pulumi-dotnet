@@ -7,7 +7,7 @@ on:
     branches:
       - main
     tags:
-      - sdk/v*.*.*
+      - v*.*.*
     paths-ignore:
       - 'CHANGELOG.md'
       - 'CHANGELOG_PENDING.md'
@@ -17,10 +17,11 @@ env:
   PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
   AWS_REGION: us-west-2
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PULUMI_TEST_OWNER: "moolumi"
 
 jobs:
   Build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -28,9 +29,78 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
+      - name: Format Pulumi SDK
+        run: dotnet run format-sdk verify
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Test Pulumi SDK
         run: dotnet run test-sdk
       - name: Test Pulumi Automation SDK
         run: dotnet run test-automation-sdk
+  IntegrationTests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup dotnet SDK v6.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Set up Go 1.19.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.x
+      - name: TestEmptyDotNet
+        run: dotnet run integration test TestEmptyDotNet
+      - name: TestStackReferenceDotnet
+        run: dotnet run integration test TestStackReferenceDotnet
+      - name: TestConstructDotnet
+        run: dotnet run integration test TestConstructDotnet
+      - name: TestPrintfDotNet
+        run: dotnet run integration test TestPrintfDotNet
+      - name: TestStackOutputsDotNet
+        run: dotnet run integration test TestStackOutputsDotNet
+      - name: TestStackComponentDotNet
+        run: dotnet run integration test TestStackComponentDotNet
+      - name: TestStackComponentServiceProviderDotNet
+        run: dotnet run integration test TestStackComponentServiceProviderDotNet
+      - name: TestConfigBasicDotNet
+        run: dotnet run integration test TestConfigBasicDotNet
+      - name: TestConfigSecretsWarnDotNet
+        run: dotnet run integration test TestConfigSecretsWarnDotNet
+      - name: TestStackReferenceSecretsDotnet
+        run: dotnet run integration test TestStackReferenceSecretsDotnet
+      - name: TestLargeResourceDotNet
+        run: dotnet run integration test TestLargeResourceDotNet
+      - name: TestConstructPlainDotnet
+        run: dotnet run integration test TestConstructPlainDotnet
+      - name: TestConstructUnknownDotnet
+        run: dotnet run integration test TestConstructUnknownDotnet
+      - name: TestConstructMethodsDotnet
+        run: dotnet run integration test TestConstructMethodsDotnet
+      - name: TestConstructMethodsUnknownDotnet
+        run: dotnet run integration test TestConstructMethodsUnknownDotnet
+      - name: TestConstructMethodsErrorsDotnet
+        run: dotnet run integration test TestConstructMethodsErrorsDotnet
+      - name: TestConstructProviderDotnet
+        run: dotnet run integration test TestConstructProviderDotnet
+      - name: TestGetResourceDotnet
+        run: dotnet run integration test TestGetResourceDotnet
+      - name: TestAboutDotnet
+        run: dotnet run integration test TestAboutDotnet
+      - name: TestDotNetTransformations
+        run: dotnet run integration test TestDotNetTransformations
+      - name: TestResourceRefsGetResourceDotnet
+        run: dotnet run integration test TestResourceRefsGetResourceDotnet
+      - name: TestDotNetAliasesRemame
+        run: dotnet run integration test TestDotNetAliasesRemame
+      - name: TestDotNetAliasesAdoptIntoComponent
+        run: dotnet run integration test TestDotNetAliasesAdoptIntoComponent
+      - name: TestDotNetAliasesRenameComponentAndChild
+        run: dotnet run integration test TestDotNetAliasesRenameComponentAndChild
+      - name: TestDotNetAliasesRetypeComponent
+        run: dotnet run integration test TestDotNetAliasesRetypeComponent
+      - name: TestDotNetAliasesRenameComponent
+        run: dotnet run integration test TestDotNetAliasesRenameComponent
+      - name: TestDotNetAliasesRetypeParents
+        run: dotnet run integration test TestDotNetAliasesRetypeParents

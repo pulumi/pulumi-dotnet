@@ -29,5 +29,10 @@ namespace Pulumi.Automation
             get => _preRunCommands ??= new List<string>();
             set => _preRunCommands = value;
         }
+
+        /// <summary>
+        /// Whether to skip the default dependency installation step.
+        /// </summary>
+        public bool SkipInstallDependencies { get; set; }
     }
 }

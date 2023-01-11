@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -22,14 +21,20 @@ namespace Pulumi
             readonly OutputJsonConverter Parent;
             readonly JsonConverter<T> Converter;
 
-            public OutputJsonConverterInner(OutputJsonConverter parent, JsonSerializerOptions options) {
+            public OutputJsonConverterInner(OutputJsonConverter parent, JsonSerializerOptions options)
+            {
                 Parent = parent;
                 Converter = (JsonConverter<T>)options.GetConverter(typeof(T));
             }
 
             public override Output<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                throw new NotImplementedException("JsonSerialize only supports writing to JSON");
+                System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Output<>));
+                System.Diagnostics.Debug.Assert(typeToConvert.GetGenericArguments()[0] == typeof(T));
+                // Just return a known output
+                var value = Converter.Read(ref reader, typeof(T), options);
+                var dataTask = new OutputData<T>(Parent._resources, value!, true, Parent._isSecret);
+                return new Output<T>(Task.FromResult(dataTask));
             }
 
             public override void Write(Utf8JsonWriter writer, Output<T> value, JsonSerializerOptions options)
@@ -37,7 +42,7 @@ namespace Pulumi
                 // Sadly we have to block here as converters aren't async
                 var result = value.DataTask.Result;
                 // Add the seen dependencies to the resources set
-                Parent.Resources.AddRange(result.Resources);
+                Parent._seenResources.AddRange(result.Resources);
                 if (!result.IsKnown)
                 {
                     // If the result isn't known we can just write a null and flag the parent to reject this whole serialization
@@ -53,14 +58,19 @@ namespace Pulumi
             }
         }
 
-        public bool SeenUnknown {get; private set;}
-        public bool SeenSecret {get; private set;}
-        public ImmutableHashSet<Resource> SeenResources => Resources.ToImmutableHashSet();
-        private readonly HashSet<Resource> Resources;
+        public bool _isSecret { get; private set; }
+        private readonly ImmutableHashSet<Resource> _resources;
 
-        public OutputJsonConverter()
+        public bool SeenUnknown { get; private set; }
+        public bool SeenSecret { get; private set; }
+        public ImmutableHashSet<Resource> SeenResources => _seenResources.ToImmutableHashSet();
+        private readonly HashSet<Resource> _seenResources;
+
+        public OutputJsonConverter(ImmutableHashSet<Resource> resources, bool isSecret)
         {
-            Resources = new HashSet<Resource>();
+            _resources = resources;
+            _isSecret = isSecret;
+            _seenResources = new HashSet<Resource>();
         }
 
         public override bool CanConvert(Type typeToConvert)
@@ -185,12 +195,13 @@ namespace Pulumi
             => Tuple(values1, values2).Apply(tuple => tuple.Item1.AddRange(tuple.Item2));
 
         /// <summary>
-        /// Uses <see cref="System.Text.Json.JsonSerializer.SerializeAsync{T}"/> to serialize the given <see
-        /// cref="Output{T}"/> value into a JSON string.
+        /// Uses <see cref="System.Text.Json.JsonSerializer.SerializeAsync{T}(System.IO.Stream, T, JsonSerializerOptions?, System.Threading.CancellationToken)"/>
+        /// to serialize the given <see cref="Output{T}"/> value into a JSON string.
         /// </summary>
         public static Output<string> JsonSerialize<T>(Output<T> value, System.Text.Json.JsonSerializerOptions? options = null)
         {
-            if (value == null) {
+            if (value == null)
+            {
                 throw new ArgumentNullException("value");
             }
 
@@ -198,20 +209,21 @@ namespace Pulumi
             {
                 var result = await value.DataTask;
 
-                if (!result.IsKnown) {
+                if (!result.IsKnown)
+                {
                     return new OutputData<string>(result.Resources, "", false, result.IsSecret);
                 }
 
-                var utf8 = new System.IO.MemoryStream();
                 // This needs to handle nested potentially secret and unknown Output values, we do this by
                 // hooking options to handle any seen Output<T> values.
 
                 // TODO: This can be simplified in net6.0 to just new System.Text.Json.JsonSerializerOptions(options);
+#if NETCOREAPP3_1
                 var internalOptions = new System.Text.Json.JsonSerializerOptions();
                 internalOptions.AllowTrailingCommas = options?.AllowTrailingCommas ?? internalOptions.AllowTrailingCommas;
                 if (options != null)
                 {
-                    foreach(var converter in options.Converters)
+                    foreach (var converter in options.Converters)
                     {
                         internalOptions.Converters.Add(converter);
                     }
@@ -226,15 +238,22 @@ namespace Pulumi
                 internalOptions.PropertyNamingPolicy = options?.PropertyNamingPolicy ?? internalOptions.PropertyNamingPolicy;
                 internalOptions.ReadCommentHandling = options?.ReadCommentHandling ?? internalOptions.ReadCommentHandling;
                 internalOptions.WriteIndented = options?.WriteIndented ?? internalOptions.WriteIndented;
+#else
+                var internalOptions = options == null ?
+                    new System.Text.Json.JsonSerializerOptions() :
+                    new System.Text.Json.JsonSerializerOptions(options);
+#endif
 
                 // Add the magic converter to allow us to do nested outputs
-                var outputConverter = new OutputJsonConverter();
+                var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);
                 internalOptions.Converters.Add(outputConverter);
 
+                var utf8 = new System.IO.MemoryStream();
                 await System.Text.Json.JsonSerializer.SerializeAsync<T>(utf8, result.Value, internalOptions);
 
                 // Check if the result is valid or not, that is if we saw any nulls we can just throw away the json string made and return unknown
-                if (outputConverter.SeenUnknown) {
+                if (outputConverter.SeenUnknown)
+                {
                     return new OutputData<string>(result.Resources.Union(outputConverter.SeenResources), "", false, result.IsSecret | outputConverter.SeenSecret);
                 }
 
@@ -246,6 +265,70 @@ namespace Pulumi
             }
 
             return new Output<string>(GetData());
+        }
+
+        /// <summary>
+        /// Uses <see cref="System.Text.Json.JsonSerializer.DeserializeAsync{T}(System.IO.Stream, JsonSerializerOptions?, System.Threading.CancellationToken)"/>
+        /// to deserialize the given <see cref="Output{T}"/> string value into a <typeparam name="T"/>.
+        /// </summary>
+        public static Output<T> JsonDeserialize<T>(Output<string> json, System.Text.Json.JsonSerializerOptions? options = null)
+        {
+            if (json == null)
+            {
+                throw new ArgumentNullException("json");
+            }
+
+            async Task<OutputData<T>> GetData()
+            {
+                var result = await json.DataTask;
+
+                if (!result.IsKnown)
+                {
+                    return new OutputData<T>(result.Resources, default!, false, result.IsSecret);
+                }
+
+#if NETCOREAPP3_1
+                var internalOptions = new System.Text.Json.JsonSerializerOptions();
+                internalOptions.AllowTrailingCommas = options?.AllowTrailingCommas ?? internalOptions.AllowTrailingCommas;
+                if (options != null)
+                {
+                    foreach (var converter in options.Converters)
+                    {
+                        internalOptions.Converters.Add(converter);
+                    }
+                }
+                internalOptions.DefaultBufferSize = options?.DefaultBufferSize ?? internalOptions.DefaultBufferSize;
+                internalOptions.DictionaryKeyPolicy = options?.DictionaryKeyPolicy ?? internalOptions.DictionaryKeyPolicy;
+                internalOptions.Encoder = options?.Encoder ?? internalOptions.Encoder;
+                internalOptions.IgnoreNullValues = options?.IgnoreNullValues ?? internalOptions.IgnoreNullValues;
+                internalOptions.IgnoreReadOnlyProperties = options?.IgnoreReadOnlyProperties ?? internalOptions.IgnoreReadOnlyProperties;
+                internalOptions.MaxDepth = options?.MaxDepth ?? internalOptions.MaxDepth;
+                internalOptions.PropertyNameCaseInsensitive = options?.PropertyNameCaseInsensitive ?? internalOptions.PropertyNameCaseInsensitive;
+                internalOptions.PropertyNamingPolicy = options?.PropertyNamingPolicy ?? internalOptions.PropertyNamingPolicy;
+                internalOptions.ReadCommentHandling = options?.ReadCommentHandling ?? internalOptions.ReadCommentHandling;
+                internalOptions.WriteIndented = options?.WriteIndented ?? internalOptions.WriteIndented;
+#else
+                var internalOptions = options == null ?
+                    new System.Text.Json.JsonSerializerOptions() :
+                    new System.Text.Json.JsonSerializerOptions(options);
+#endif
+
+                // Add the magic converter to allow us to do nested outputs
+                var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);
+                internalOptions.Converters.Add(outputConverter);
+
+                var utf8 = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(result.Value));
+                var value = await System.Text.Json.JsonSerializer.DeserializeAsync<T>(utf8, internalOptions);
+
+                // Check if the result is valid or not, that is if we saw any nulls we can just throw away the json string made and return unknown
+                System.Diagnostics.Debug.Assert(!outputConverter.SeenSecret);
+                System.Diagnostics.Debug.Assert(!outputConverter.SeenUnknown);
+                System.Diagnostics.Debug.Assert(outputConverter.SeenResources.IsEmpty);
+
+                return new OutputData<T>(result.Resources, value!, true, result.IsSecret);
+            }
+
+            return new Output<T>(GetData());
         }
     }
 
@@ -280,12 +363,14 @@ namespace Pulumi
     {
         internal Task<OutputData<T>> DataTask { get; private set; }
 
-        internal Output(Task<OutputData<T>> dataTask) {
+        internal Output(Task<OutputData<T>> dataTask)
+        {
             this.DataTask = dataTask;
 
             if (Deployment.TryGetInternalInstance(out var instance))
             {
-                instance.Runner.RegisterTask(TypeNameHelper.GetTypeDisplayName(GetType(), false), dataTask);
+                var description = GetType().ToString();
+                instance.Runner.RegisterTask(description, dataTask);
             }
         }
 
@@ -310,7 +395,8 @@ namespace Pulumi
         internal static Output<T> CreateSecret(Task<T> value)
             => Create(value, isSecret: true);
 
-        internal static Output<T> CreateSecret(Output<T> value) {
+        internal static Output<T> CreateSecret(Output<T> value)
+        {
             if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));

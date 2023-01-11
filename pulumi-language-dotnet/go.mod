@@ -1,4 +1,4 @@
-module github.com/pulumi/pulumi-dotnet
+module github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet
 
 go 1.19
 

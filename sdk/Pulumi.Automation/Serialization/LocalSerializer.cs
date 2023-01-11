@@ -27,7 +27,7 @@ namespace Pulumi.Automation.Serialization
         }
 
         public T DeserializeJson<T>(string content)
-            => JsonSerializer.Deserialize<T>(content, this._jsonOptions);
+            => JsonSerializer.Deserialize<T>(content, this._jsonOptions)!;
 
         public T DeserializeYaml<T>(string content)
             where T : class
@@ -45,7 +45,11 @@ namespace Pulumi.Automation.Serialization
             var options = new JsonSerializerOptions
             {
                 AllowTrailingCommas = true,
+#if NETCOREAPP3_1
                 IgnoreNullValues = true,
+#else
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+#endif
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
 

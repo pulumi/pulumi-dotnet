@@ -36,7 +36,7 @@ namespace Pulumi
                 // This is a resource that already exists. Read its state from the engine.
                 var invokeResult = await InvokeRawAsync(
                     "pulumi:pulumi:getResource",
-                    new GetResourceInvokeArgs {Urn = options.Urn},
+                    new GetResourceInvokeArgs { Urn = options.Urn },
                     new InvokeOptions()).ConfigureAwait(false);
 
                 var result = invokeResult.Serialized;

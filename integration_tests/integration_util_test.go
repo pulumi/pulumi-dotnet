@@ -22,14 +22,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -38,8 +36,6 @@ import (
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/util/fsutil"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"github.com/stretchr/testify/assert"
@@ -230,7 +226,7 @@ func testConstructUnknown(t *testing.T, lang string) {
 	componentDir := "testcomponent-go"
 
 	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: buildTestProvider(t, "testprovider")},
+		{Package: "testprovider", Path: "testprovider"},
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
@@ -252,7 +248,7 @@ func testConstructMethodsUnknown(t *testing.T, lang string) {
 	componentDir := "testcomponent-go"
 
 	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: buildTestProvider(t, "testprovider")},
+		{Package: "testprovider", Path: "testprovider"},
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
@@ -268,73 +264,13 @@ func testConstructMethodsUnknown(t *testing.T, lang string) {
 	})
 }
 
-func buildTestProvider(t *testing.T, providerDir string) string {
-	fn := func() {
-		providerName := "pulumi-resource-testprovider"
-		if runtime.GOOS == "windows" {
-			providerName += ".exe"
-		}
-
-		_, err := os.Stat(filepath.Join(providerDir, providerName))
-		if err == nil {
-			return
-		} else if errors.Is(err, os.ErrNotExist) {
-			// Not built yet, continue.
-		} else {
-			t.Fatalf("Unexpected error building test provider: %v", err)
-		}
-
-		cmd := exec.Command("go", "build", "-o", providerName)
-		cmd.Dir = providerDir
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			contract.AssertNoErrorf(err, "failed to run setup script: %v", string(output))
-		}
-	}
-	lockfile := filepath.Join(providerDir, ".lock")
-	timeout := 10 * time.Minute
-	synchronouslyDo(t, lockfile, timeout, fn)
-
-	// Allows us to drop this in in places where providerDir was used:
-	return providerDir
-}
-
-func synchronouslyDo(t *testing.T, lockfile string, timeout time.Duration, fn func()) {
-	mutex := fsutil.NewFileMutex(lockfile)
-	defer func() {
-		assert.NoError(t, mutex.Unlock())
-	}()
-
-	lockWait := make(chan struct{}, 1)
-	go func() {
-		for {
-			if err := mutex.Lock(); err != nil {
-				time.Sleep(1 * time.Second)
-				continue
-			} else {
-				break
-			}
-		}
-
-		fn()
-		lockWait <- struct{}{}
-	}()
-
-	select {
-	case <-time.After(timeout):
-		t.Fatalf("timed out waiting for lock on %s", lockfile)
-	case <-lockWait:
-		// waited for fn, success.
-	}
-}
-
 // Test methods that create resources.
 func testConstructMethodsResources(t *testing.T, lang string) {
 	const testDir = "construct_component_methods_resources"
 	componentDir := "testcomponent-go"
 
 	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: buildTestProvider(t, "testprovider")},
+		{Package: "testprovider", Path: "testprovider"},
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
@@ -392,7 +328,7 @@ func testConstructOutputValues(t *testing.T, lang string, dependencies ...string
 	componentDir := "testcomponent-go"
 
 	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: buildTestProvider(t, "testprovider")},
+		{Package: "testprovider", Path: "testprovider"},
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 

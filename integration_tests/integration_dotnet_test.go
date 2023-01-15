@@ -326,7 +326,7 @@ func TestConstructPlainDotnet(t *testing.T) {
 	expectedResourceCount := 8
 
 	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: buildTestProvider(t, "testprovider")},
+		{Package: "testprovider", Path: "testprovider"},
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
@@ -479,5 +479,20 @@ func TestSlnMultipleNested(t *testing.T) {
 		Dir:                    "sln_multiple_nested",
 		Quick:                  true,
 		ExtraRuntimeValidation: validation,
+	})
+}
+
+func TestProvider(t *testing.T) {
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join("provider"),
+		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
+		Verbose: true,
+		DebugLogLevel: 10,
+		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+			assert.NotNil(t, stack.Outputs)
+			assert.Equal(t, float64(42), stack.Outputs["echoA"])
+			assert.Equal(t, "hello", stack.Outputs["echoB"])
+			assert.Equal(t, []interface{}{float64(1), "goodbye", true}, stack.Outputs["echoC"])
+		},
 	})
 }

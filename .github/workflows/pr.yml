@@ -111,3 +111,5 @@ jobs:
         run: dotnet run integration test TestDotNetAliasesRetypeParents
       - name: TestProvider
         run: dotnet run integration test TestProvider
+      - name: TestDeletedWith
+        run: dotnet run integration test TestDeletedWith

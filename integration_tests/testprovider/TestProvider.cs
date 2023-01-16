@@ -38,10 +38,9 @@ public class TestProvider : Provider {
 
     public override Task<CheckResponse> Check(CheckRequest request, CancellationToken ct)
     {
-        if (request.Type == "testprovider:index:Echo") {
-            return Task.FromResult(new CheckResponse() { Inputs = request.News });
-        }
-        else if (request.Type == "testprovider:index:Random")
+        if (request.Type == "testprovider:index:Echo" ||
+            request.Type == "testprovider:index:Random" ||
+            request.Type == "testprovider:index:FailsOnDelete")
         {
             return Task.FromResult(new CheckResponse() { Inputs = request.News });
         }
@@ -64,6 +63,12 @@ public class TestProvider : Provider {
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
                 Replaces = new string[] { "length" },
+            });
+        }
+        else if (request.Type == "testprovider:index:FailsOnDelete")
+        {
+            return Task.FromResult(new DiffResponse() {
+                Changes = false,
             });
         }
 
@@ -114,12 +119,24 @@ public class TestProvider : Provider {
                 Properties = outputs,
             });
         }
+        else if (request.Type == "testprovider:index:FailsOnDelete")
+        {
+            ++this.id;
+            return Task.FromResult(new CreateResponse() {
+                Id = this.id.ToString(),
+            });
+        }
 
         throw new Exception($"Unknown resource type '{request.Type}'");
     }
 
     public override Task Delete(DeleteRequest request, CancellationToken ct)
     {
+        if (request.Type == "testprovider:index:FailsOnDelete")
+        {
+            throw new Exception("Delete always fails for the FailsOnDelete resource");
+        }
+
         return Task.CompletedTask;
     }
 

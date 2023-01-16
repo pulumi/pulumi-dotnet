@@ -493,3 +493,12 @@ func TestProvider(t *testing.T) {
 		},
 	})
 }
+
+// TestDeletedWith tests the DeletedWith resource option.
+func TestDeletedWith(t *testing.T) {
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            "deleted_with",
+		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
+		Quick:          true,
+	})
+}

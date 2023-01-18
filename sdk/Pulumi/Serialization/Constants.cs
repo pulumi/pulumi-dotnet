@@ -1,4 +1,4 @@
-﻿// Copyright 2016-2019, Pulumi Corporation
+// Copyright 2016-2019, Pulumi Corporation
 
 namespace Pulumi.Serialization
 {

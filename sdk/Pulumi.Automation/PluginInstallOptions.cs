@@ -1,4 +1,4 @@
-﻿namespace Pulumi.Automation
+namespace Pulumi.Automation
 {
     public class PluginInstallOptions
     {

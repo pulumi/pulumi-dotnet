@@ -1,4 +1,4 @@
-﻿// Copyright 2016-2021, Pulumi Corporation
+// Copyright 2016-2021, Pulumi Corporation
 
 using System.Text.Json;
 using System.Text.Json.Serialization;

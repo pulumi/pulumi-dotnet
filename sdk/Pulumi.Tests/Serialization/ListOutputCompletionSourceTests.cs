@@ -1,4 +1,4 @@
-﻿// Copyright 2016-2022, Pulumi Corporation
+// Copyright 2016-2022, Pulumi Corporation
 
 using System.Collections.Generic;
 using System.Collections.Immutable;

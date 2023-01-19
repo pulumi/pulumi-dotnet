@@ -193,6 +193,10 @@ namespace Pulumi.Tests.Mocks
             var resources = await Deployment.TestAsync<Aliases.AliasesStack>(
                 new Aliases.AliasesMocks());
 
+            // simply assert that we have some resources
+            // here we only case about not having an alias computation explosion
+            Assert.NotEmpty(resources);
+
             // TODO[pulumi/pulumi#8637]
             //
             // var parent1Urn = await resources[1].Urn.GetValueAsync("");
@@ -202,47 +206,6 @@ namespace Pulumi.Tests.Mocks
             // `pulumi:pulumi:Stack` as an explicit parent type in the URN. This should not happen, and indicates
             // a bug in the the Pulumi .NET SDK unrelated to Aliases.  It appears this only happens when using the
             // .NET mock testing framework, not when running normal programs.
-            var expected = new Dictionary<string, List<string>>{
-                { "myres1-child", new List<string>{}},
-                { "myres2-child", new List<string>{
-                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child2::myres2-child"
-                }},
-                { "myres3-child", new List<string>{
-                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::child2"
-                }},
-                { "myres4-child", new List<string>{
-                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::myres4-child2",
-                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres4-child",
-                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres4-child2",
-                }},
-                { "myres5-child", new List<string>{
-                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::myres5-child2",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres52-child",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres52-child2",
-                }},
-                { "myres6-child", new List<string>{
-                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::myres6-child2",
-                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child2::myres6-child",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres62-child",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres62-child2",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child2::myres62-child",
-                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres6-child",
-                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres6-child2",
-                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child2::myres6-child",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres63-child",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres63-child2",
-                    "urn:pulumi:stack::project::test:resource:type$test:resource:child2::myres63-child",
-                }},
-
-            };
-            foreach (var resource in resources)
-            {
-                if (resource.GetResourceType() == "test:resource:child")
-                {
-                    var aliases = await Output.All(resource._aliases).GetValueAsync(ImmutableArray.Create<string>());
-                    Assert.Equal<string>(expected[resource.GetResourceName()], aliases);
-                }
-            }
         }
     }
 

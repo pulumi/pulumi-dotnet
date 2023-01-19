@@ -858,6 +858,12 @@
             Check if the monitor supports the "outputValues" feature.
             </summary>
         </member>
+        <member name="M:Pulumi.Deployment.MonitorSupportsAliasSpec">
+            <summary>
+            Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
+            In which case we no longer compute alias combinations ourselves but instead delegate the work to the engine.
+            </summary>
+        </member>
         <member name="M:Pulumi.Deployment.EngineLogger.Pulumi#IEngineLogger#DebugAsync(System.String,Pulumi.Resource,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
             <summary>
             Logs a debug-level message that is generally hidden from end-users.
@@ -952,6 +958,13 @@
             <summary>
             Recursively walk the resources passed in, returning them and all resources reachable from
             <see cref="P:Pulumi.Resource.ChildResources"/> through any **Component** resources we encounter.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Deployment.PrepareResult.SupportsAliasSpec">
+            <summary>
+            Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
+            When that is not the case, use only use the URNs of the aliases to populate the AliasURNs field of RegisterResourceRequest,
+            otherwise we pass the full structure of the Aliases field to the resource monitor.
             </summary>
         </member>
         <member name="M:Pulumi.Deployment.CompleteResourceAsync(Pulumi.Resource,System.Boolean,System.Func{System.String,Pulumi.Resource},Pulumi.ResourceArgs,Pulumi.ResourceOptions,System.Collections.Immutable.ImmutableDictionary{System.String,Pulumi.Serialization.IOutputCompletionSource})">
@@ -1965,11 +1978,6 @@
             A collection of transformations to apply as part of resource registration.
             </summary>
         </member>
-        <member name="F:Pulumi.Resource._aliases">
-            <summary>
-            A list of aliases applied to this resource.
-            </summary>
-        </member>
         <member name="M:Pulumi.Resource.GetResourceType">
             <summary>
             The type assigned to the resource at construction.
@@ -2019,14 +2027,6 @@
         <member name="M:Pulumi.Resource.GetProvider(System.String)">
             <summary>
             Fetches the provider for the given module member, if any.
-            </summary>
-        </member>
-        <member name="M:Pulumi.Resource.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
-            <summary>
-            <see cref="M:Pulumi.Resource.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)"/> makes a copy of the aliases array, and add to it any 
-            implicit aliases inherited from its parent. If there are N child aliases, and
-            M parent aliases, there will be (M+1)*(N+1)-1 total aliases, or, as calculated
-            in the logic below, N+(M*(1+N)).
             </summary>
         </member>
         <member name="T:Pulumi.ResourceArgs">

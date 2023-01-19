@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +13,25 @@ namespace Pulumi.Tests.Mocks.Aliases
     {
         public AliasesStack()
         {
-            var parent1 = new Pulumi.CustomResource("test:resource:type", "myres1", null, new CustomResourceOptions { });
+            // create 1000 aliases
+            var manyAliases = Enumerable.Range(0, 1000).Select(i =>
+            {
+                Input<Alias> alias = new Alias
+                {
+                    Name = $"myres{i}",
+                    Project = "myproject",
+                    Stack = "mystack",
+                    Type = "test:resource:type"
+                };
+
+                return alias;
+            });
+
+            var parent1 = new Pulumi.CustomResource("test:resource:type", "myres1", null, new CustomResourceOptions
+            {
+                Aliases = manyAliases.ToList()
+            });
+
             var child1 = new Pulumi.CustomResource("test:resource:child", "myres1-child", null, new CustomResourceOptions
             {
                 Parent = parent1,

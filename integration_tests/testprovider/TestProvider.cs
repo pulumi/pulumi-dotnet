@@ -90,7 +90,7 @@ public class TestProvider : Provider {
 
             ++this.id;
             return Task.FromResult(new CreateResponse() {
-                ID = this.id.ToString(),
+                Id = this.id.ToString(),
                 Properties = outputs,
             });
         }
@@ -110,7 +110,7 @@ public class TestProvider : Provider {
             outputs.Add("result", new PropertyValue(result));
 
             return Task.FromResult(new CreateResponse() {
-                ID = result,
+                Id = result,
                 Properties = outputs,
             });
         }
@@ -126,7 +126,7 @@ public class TestProvider : Provider {
     public override Task<ReadResponse> Read(ReadRequest request, CancellationToken ct)
     {
         var response = new ReadResponse() {
-            ID = request.ID,
+            Id = request.Id,
             Properties = request.Properties,
         };
         return Task.FromResult(response);

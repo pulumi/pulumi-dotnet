@@ -326,7 +326,6 @@ func TestConstructPlainDotnet(t *testing.T) {
 	expectedResourceCount := 8
 
 	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: "testprovider"},
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
@@ -486,8 +485,6 @@ func TestProvider(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join("provider"),
 		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
-		Verbose: true,
-		DebugLogLevel: 10,
 		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			assert.NotNil(t, stack.Outputs)
 			assert.Equal(t, float64(42), stack.Outputs["echoA"])

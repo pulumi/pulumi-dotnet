@@ -117,4 +117,18 @@ public class TestProvider : Provider {
 
         throw new Exception($"Unknown resource type '{request.Type}'");
     }
+
+    public override Task Delete(DeleteRequest request, CancellationToken ct)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task<ReadResponse> Read(ReadRequest request, CancellationToken ct)
+    {
+        var response = new ReadResponse() {
+            ID = request.ID,
+            Properties = request.Properties,
+        };
+        return Task.FromResult(response);
+    }
 }

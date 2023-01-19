@@ -28,19 +28,19 @@ namespace Pulumi.Experimental.Provider
     public readonly struct ResourceReference : IEquatable<ResourceReference>
     {
         public readonly string URN;
-        public readonly PropertyValue ID;
+        public readonly PropertyValue Id;
         public readonly string PackageVersion;
 
         public ResourceReference(string urn, PropertyValue id, string version)
         {
             URN = urn;
-            ID = id;
+            Id = id;
             PackageVersion = version;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(URN, ID, PackageVersion);
+            return HashCode.Combine(URN, Id, PackageVersion);
         }
 
         public override bool Equals(object? obj)
@@ -54,7 +54,7 @@ namespace Pulumi.Experimental.Provider
 
         public bool Equals(ResourceReference other)
         {
-            return URN == other.URN && ID.Equals(other.ID) && PackageVersion == other.PackageVersion;
+            return URN == other.URN && Id.Equals(other.Id) && PackageVersion == other.PackageVersion;
         }
     }
 
@@ -872,7 +872,7 @@ namespace Pulumi.Experimental.Provider
                     var result = new Struct();
                     result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialResourceSig);
                     result.Fields[Constants.UrnPropertyName] = Value.ForString(resource.URN);
-                    result.Fields[Constants.IdPropertyName] = Unmarshal(resource.ID);
+                    result.Fields[Constants.IdPropertyName] = Unmarshal(resource.Id);
                     if (resource.PackageVersion != "")
                     {
                         result.Fields[Constants.ResourceVersionName] = Value.ForString(resource.PackageVersion);

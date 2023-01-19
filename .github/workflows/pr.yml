@@ -38,7 +38,10 @@ jobs:
       - name: Test Pulumi Automation SDK
         run: dotnet run test-automation-sdk
   IntegrationTests:
-    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+          os: [ubuntu-latest, windows-latest, macos-11]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -50,6 +53,8 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.19.x
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
       - name: TestEmptyDotNet
         run: dotnet run integration test TestEmptyDotNet
       - name: TestStackReferenceDotnet
@@ -104,3 +109,5 @@ jobs:
         run: dotnet run integration test TestDotNetAliasesRenameComponent
       - name: TestDotNetAliasesRetypeParents
         run: dotnet run integration test TestDotNetAliasesRetypeParents
+      - name: TestProvider
+        run: dotnet run integration test TestProvider

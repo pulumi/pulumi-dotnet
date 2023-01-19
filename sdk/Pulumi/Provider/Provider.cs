@@ -346,7 +346,7 @@ namespace Pulumi.Experimental.Provider
                     webBuilder
                         .ConfigureKestrel(kestrelOptions =>
                         {
-                            kestrelOptions.Listen(IPAddress.Any, 0, listenOptions =>
+                            kestrelOptions.Listen(IPAddress.Loopback, 0, listenOptions =>
                             {
                                 listenOptions.Protocols = HttpProtocols.Http2;
                             });
@@ -414,7 +414,10 @@ namespace Pulumi.Experimental.Provider
             await host.StartAsync(cancellationToken);
 
             var port = await portTcs.Task;
-            System.Console.WriteLine(port.ToString());
+            // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
+            // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
+            // we work around this here so that old engines can use dotnet providers as well.
+            System.Console.Write(port.ToString() + "\n");
 
             await host.WaitForShutdownAsync(cancellationToken);
 

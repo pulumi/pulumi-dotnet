@@ -35,6 +35,7 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/engine"
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
+	"github.com/pulumi/pulumi/sdk/go/common/util/contract"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
@@ -116,14 +117,29 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 	return err
 }
 
+func getProviderPath(providerDir string) string {
+	environ := os.Environ()
+	for _, env := range environ {
+		split := strings.SplitN(env, "=", 2)
+		contract.Assert(len(split) == 2)
+		key, value := split[0], split[1]
+
+		// Case-insensitive compare, as Windows will normally be "Path", not "PATH".
+		if strings.EqualFold(key, "PATH") {
+			// Prepend the provider directory to PATH so any calls to run
+			// pulumi-language-dotnet pick up the locally built one.
+			path := fmt.Sprintf("%s=%s%s%s", key, providerDir, string(os.PathListSeparator), value)
+			return path
+		}
+	}
+	return fmt.Sprintf("PATH=%s", providerDir)
+}
+
 func testDotnetProgram(t *testing.T, options *integration.ProgramTestOptions) {
 	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
 	assert.NoError(t, err)
-	path := os.Getenv("PATH")
-	if options != nil {
-		options.PrepareProject = prepareDotnetProject
-		options.Env = append(options.Env, fmt.Sprintf("PATH=%s:%s", languagePluginPath, path))
-	}
+	options.PrepareProject = prepareDotnetProject
+	options.Env = append(options.Env, getProviderPath(languagePluginPath))
 	integration.ProgramTest(t, options)
 }
 

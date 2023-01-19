@@ -203,17 +203,17 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class ReadRequest
     {
-        public readonly string ID;
         public readonly string Urn;
+        public readonly string ID;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly ImmutableDictionary<string, PropertyValue> Inputs;
 
-        public ReadRequest(string id, string urn, ImmutableDictionary<string, PropertyValue> properties, ImmutableDictionary<string, PropertyValue> inputs)
+        public ReadRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> properties, ImmutableDictionary<string, PropertyValue> inputs)
         {
-            ID = id;
             Urn = urn;
+            ID = id;
             Properties = properties;
             Inputs = inputs;
         }
@@ -228,8 +228,8 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class UpdateRequest
     {
-        public readonly string ID;
         public readonly string Urn;
+        public readonly string ID;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Olds;
@@ -238,10 +238,10 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableArray<string> IgnoreChanges;
         public readonly bool Preview;
 
-        public UpdateRequest(string id, string urn, ImmutableDictionary<string, PropertyValue> olds, ImmutableDictionary<string, PropertyValue> news, TimeSpan timeout, ImmutableArray<string> ignoreChanges, bool preview)
+        public UpdateRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> olds, ImmutableDictionary<string, PropertyValue> news, TimeSpan timeout, ImmutableArray<string> ignoreChanges, bool preview)
         {
-            ID = id;
             Urn = urn;
+            ID = id;
             Olds = olds;
             News = news;
             Timeout = timeout;
@@ -257,17 +257,17 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class DeleteRequest
     {
-        public readonly string ID;
         public readonly string Urn;
+        public readonly string ID;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly TimeSpan Timeout;
 
-        public DeleteRequest(string id, string urn, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout)
+        public DeleteRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout)
         {
-            ID = id;
             Urn = urn;
+            ID = id;
             Properties = properties;
             Timeout = timeout;
         }
@@ -727,7 +727,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ReadRequest(request.Id, request.Urn, PropertyValue.Marshal(request.Properties), PropertyValue.Marshal(request.Inputs));
+                var domRequest = new ReadRequest(request.Urn, request.Id, PropertyValue.Marshal(request.Properties), PropertyValue.Marshal(request.Inputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Read(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ReadResponse();

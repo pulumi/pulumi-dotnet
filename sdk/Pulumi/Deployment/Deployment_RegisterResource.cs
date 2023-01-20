@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Pulumirpc;
@@ -58,7 +59,16 @@ namespace Pulumi
             request.Parent = prepareResult.ParentUrn;
             request.Provider = prepareResult.ProviderRef;
             request.Providers.Add(prepareResult.ProviderRefs);
-            request.AliasURNs.AddRange(prepareResult.AliasURNs);
+            if (prepareResult.SupportsAliasSpec)
+            {
+                request.Aliases.AddRange(prepareResult.Aliases);
+            }
+            else
+            {
+                var aliasUrns = prepareResult.Aliases.Select(a => a.Urn);
+                request.AliasURNs.AddRange(aliasUrns);
+            }
+
             request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
 
             foreach (var (key, resourceUrns) in prepareResult.PropertyToDirectDependencyUrns)

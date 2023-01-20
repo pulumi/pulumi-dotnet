@@ -222,6 +222,15 @@ namespace Pulumi
             return MonitorSupportsFeature("deletedWith");
         }
 
+        /// <summary>
+        /// Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
+        /// In which case we no longer compute alias combinations ourselves but instead delegate the work to the engine.
+        /// </summary>
+        internal Task<bool> MonitorSupportsAliasSpec()
+        {
+            return MonitorSupportsFeature("aliasSpec");
+        }
+
         // Because the secrets feature predates the Pulumi .NET SDK, we assume
         // that the monitor supports secrets.
     }

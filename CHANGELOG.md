@@ -1,4 +1,4 @@
-# 3.52.0
+# 3.52.0 (2023-01-17)
 
 ### Improvements
 
@@ -7,3 +7,5 @@
   complete enough to try out, and we hope to get feedback on the interface to refine and stabilize this
   shortly.
   [#76](https://github.com/pulumi/pulumi-dotnet/pull/76)
+
+### Bug Fixes

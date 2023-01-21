@@ -1,4 +1,4 @@
-﻿Pulumi.Automation.Commands.Exceptions.CommandException
+Pulumi.Automation.Commands.Exceptions.CommandException
 Pulumi.Automation.Commands.Exceptions.CommandException.Name.get -> string
 Pulumi.Automation.Commands.Exceptions.ConcurrentUpdateException
 Pulumi.Automation.Commands.Exceptions.StackAlreadyExistsException

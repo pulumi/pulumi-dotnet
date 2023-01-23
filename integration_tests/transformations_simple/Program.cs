@@ -1,4 +1,4 @@
-﻿// Copyright 2016-2020, Pulumi Corporation.  All rights reserved.
+// Copyright 2016-2020, Pulumi Corporation.  All rights reserved.
 
 using System;
 using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿open System
+open System
 open System.IO
 open System.Linq
 open Fake.IO

@@ -1,4 +1,4 @@
-﻿Pulumi.Alias
+Pulumi.Alias
 Pulumi.Alias.Alias() -> void
 Pulumi.Alias.Name.get -> Pulumi.Input<string>
 Pulumi.Alias.Name.set -> void

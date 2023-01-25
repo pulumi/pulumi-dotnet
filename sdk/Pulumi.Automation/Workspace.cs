@@ -124,6 +124,39 @@ namespace Pulumi.Automation
         public abstract Task PostCommandCallbackAsync(string stackName, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Returns the value associated with the specified stack name and key,
+        /// scoped to the Workspace.
+        /// </summary>
+        /// <param name="stackName">The name of the stack to read tag metadata from.</param>
+        /// <param name="key">The key to use for the tag lookup.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public abstract Task<string> GetTagAsync(string stackName, string key, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Sets the specified key-value pair on the provided stack name.
+        /// </summary>
+        /// <param name="stackName">The stack to operate on.</param>
+        /// <param name="key">The tag key to set.</param>
+        /// <param name="value">The tag value to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public abstract Task SetTagAsync(string stackName, string key, string value, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Sets the specified key-value pair on the provided stack name.
+        /// </summary>
+        /// <param name="stackName">The stack to operate on.</param>
+        /// <param name="key">The tag key to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public abstract Task RemoveTagAsync(string stackName, string key, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Returns the tag map for the specified stack name, scoped to the current Workspace.
+        /// </summary>
+        /// <param name="stackName">The stack to operate on.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public abstract Task<Dictionary<string, string>> ListTagsAsync(string stackName, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Returns the value associated with the specified stack name and key, scoped
         /// to the Workspace.
         /// </summary>

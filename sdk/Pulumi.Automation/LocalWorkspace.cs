@@ -541,6 +541,32 @@ namespace Pulumi.Automation
             => Task.CompletedTask;
 
         /// <inheritdoc/>
+        public override async Task<string> GetTagAsync(string stackName, string key, CancellationToken cancellationToken = default)
+        {
+            var result = await this.RunCommandAsync(new[] { "stack", "tag", "get", key, "--stack", stackName }, cancellationToken).ConfigureAwait(false);
+            return result.StandardOutput.Trim();
+        }
+
+        /// <inheritdoc/>
+        public override async Task SetTagAsync(string stackName, string key, string value, CancellationToken cancellationToken = default)
+        {
+            await this.RunCommandAsync(new[] { "stack", "tag", "set", key, value, "--stack", stackName }, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public override async Task RemoveTagAsync(string stackName, string key, CancellationToken cancellationToken = default)
+        {
+            await this.RunCommandAsync(new[] { "stack", "tag", "rm", key, "--stack", stackName }, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public override async Task<Dictionary<string, string>> ListTagsAsync(string stackName, CancellationToken cancellationToken = default)
+        {
+            var result = await this.RunCommandAsync(new[] { "stack", "tag", "ls", "--json", "--stack", stackName }, cancellationToken).ConfigureAwait(false);
+            return this._serializer.DeserializeJson<Dictionary<string, string>>(result.StandardOutput);
+        }
+
+        /// <inheritdoc/>
         public override async Task<ConfigValue> GetConfigAsync(string stackName, string key, CancellationToken cancellationToken = default)
         {
             var result = await this.RunCommandAsync(new[] { "config", "get", key, "--json", "--stack", stackName }, cancellationToken).ConfigureAwait(false);

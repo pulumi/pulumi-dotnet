@@ -1,4 +1,4 @@
-﻿namespace Pulumi.FSharp
+namespace Pulumi.FSharp
 
 open Pulumi
 

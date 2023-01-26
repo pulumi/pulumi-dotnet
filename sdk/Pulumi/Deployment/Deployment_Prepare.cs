@@ -116,8 +116,8 @@ namespace Pulumi
                 propertyToDirectDependencyUrns[propertyName] = urns;
             }
 
-            var resourceMonitorSupportsAliasSpec = await MonitorSupportsAliasSpec().ConfigureAwait(false);
-            var aliases = await PrepareAliases(res, options, resourceMonitorSupportsAliasSpec).ConfigureAwait(false);
+            var resourceMonitorSupportsAliasSpecs = await MonitorSupportsAliasSpecs().ConfigureAwait(false);
+            var aliases = await PrepareAliases(res, options, resourceMonitorSupportsAliasSpecs).ConfigureAwait(false);
 
             return new PrepareResult(
                 serializedProps,
@@ -127,7 +127,7 @@ namespace Pulumi
                 allDirectDependencyUrns,
                 propertyToDirectDependencyUrns,
                 aliases,
-                resourceMonitorSupportsAliasSpec);
+                resourceMonitorSupportsAliasSpecs);
 
             void LogExcessive(string message)
             {
@@ -158,6 +158,17 @@ namespace Pulumi
                     if (resolvedAlias == null)
                     {
                         // alias contains unknowns, skip it.
+                        continue;
+                    }
+
+                    if (resolvedAlias.Urn != null)
+                    {
+                        // Alias URN fully provided, use it as is
+                        aliases.Add(new Pulumirpc.Alias
+                        {
+                            Urn = resolvedAlias.Urn
+                        });
+
                         continue;
                     }
 

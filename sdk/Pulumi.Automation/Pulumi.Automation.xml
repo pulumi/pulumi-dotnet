@@ -566,6 +566,18 @@
         <member name="M:Pulumi.Automation.LocalWorkspace.PostCommandCallbackAsync(System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.GetTagAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.SetTagAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.RemoveTagAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.ListTagsAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:Pulumi.Automation.LocalWorkspace.GetConfigAsync(System.String,System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -1378,6 +1390,39 @@
             <param name="stackName">The name of the stack.</param>
             <param name="cancellationToken">A cancellation token.</param>
         </member>
+        <member name="M:Pulumi.Automation.Workspace.GetTagAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the value associated with the specified stack name and key,
+            scoped to the Workspace.
+            </summary>
+            <param name="stackName">The name of the stack to read tag metadata from.</param>
+            <param name="key">The key to use for the tag lookup.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.SetTagAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Sets the specified key-value pair on the provided stack name.
+            </summary>
+            <param name="stackName">The stack to operate on.</param>
+            <param name="key">The tag key to set.</param>
+            <param name="value">The tag value to set.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.RemoveTagAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Sets the specified key-value pair on the provided stack name.
+            </summary>
+            <param name="stackName">The stack to operate on.</param>
+            <param name="key">The tag key to set.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.ListTagsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the tag map for the specified stack name, scoped to the current Workspace.
+            </summary>
+            <param name="stackName">The stack to operate on.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
         <member name="M:Pulumi.Automation.Workspace.GetConfigAsync(System.String,System.String,System.Threading.CancellationToken)">
             <summary>
             Returns the value associated with the specified stack name and key, scoped
@@ -1599,6 +1644,34 @@
             </summary>
             <param name="name">The name of the identifying stack.</param>
             <param name="workspace">The Workspace the Stack was created from.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.WorkspaceStack.GetTagAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the value associated with the stack and key, scoped to the Workspace.
+            </summary>
+            <param name="key">The key to use for the tag lookup.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.WorkspaceStack.SetTagAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Sets the specified key-value pair on the stack.
+            </summary>
+            <param name="key">The tag key to set.</param>
+            <param name="value">The tag value to set.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.WorkspaceStack.RemoveTagAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Sets the specified key-value pair on the stack.
+            </summary>
+            <param name="key">The tag key to set.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.WorkspaceStack.ListTagsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns the tag map for the stack, scoped to the current Workspace.
+            </summary>
             <param name="cancellationToken">A cancellation token.</param>
         </member>
         <member name="M:Pulumi.Automation.WorkspaceStack.GetConfigAsync(System.String,System.Threading.CancellationToken)">

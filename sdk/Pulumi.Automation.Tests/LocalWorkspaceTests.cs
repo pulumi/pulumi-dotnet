@@ -2097,5 +2097,47 @@ namespace Pulumi.Automation.Tests
 
             public bool Protect { get; set; }
         }
+
+        [Fact]
+        public async Task ManipulateTags()
+        {
+            var projectName = "manipulate_tags_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+            });
+
+            var stackName = FullyQualifiedStackName(_pulumiOrg, projectName, RandomStackName());
+            var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+
+            try
+            {
+                await Assert.ThrowsAsync<CommandException>(
+                    () => stack.GetTagAsync("key"));
+
+                var values = await stack.ListTagsAsync();
+                Assert.Contains(KeyValuePair.Create("pulumi:project", "manipulate_tags_test"), values);
+                Assert.Contains(KeyValuePair.Create("pulumi:runtime", "nodejs"), values);
+
+                await stack.SetTagAsync("key", "value");
+
+                var value = await stack.GetTagAsync("key");
+                Assert.Equal("value", value);
+
+                values = await stack.ListTagsAsync();
+                Assert.Contains(KeyValuePair.Create("key", "value"), values);
+
+                await stack.RemoveTagAsync("key");
+
+                values = await stack.ListTagsAsync();
+                Assert.DoesNotContain(KeyValuePair.Create("key", "value"), values);
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+            }
+        }
     }
 }

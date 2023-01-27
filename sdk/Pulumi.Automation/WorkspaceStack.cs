@@ -142,6 +142,38 @@ namespace Pulumi.Automation
         }
 
         /// <summary>
+        /// Returns the value associated with the stack and key, scoped to the Workspace.
+        /// </summary>
+        /// <param name="key">The key to use for the tag lookup.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task<string> GetTagAsync(string key, CancellationToken cancellationToken = default)
+            => this.Workspace.GetTagAsync(this.Name, key, cancellationToken);
+
+        /// <summary>
+        /// Sets the specified key-value pair on the stack.
+        /// </summary>
+        /// <param name="key">The tag key to set.</param>
+        /// <param name="value">The tag value to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task SetTagAsync(string key, string value, CancellationToken cancellationToken = default)
+            => this.Workspace.SetTagAsync(this.Name, key, value, cancellationToken);
+
+        /// <summary>
+        /// Sets the specified key-value pair on the stack.
+        /// </summary>
+        /// <param name="key">The tag key to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task RemoveTagAsync(string key, CancellationToken cancellationToken = default)
+            => this.Workspace.RemoveTagAsync(this.Name, key, cancellationToken);
+
+        /// <summary>
+        /// Returns the tag map for the stack, scoped to the current Workspace.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task<Dictionary<string, string>> ListTagsAsync(CancellationToken cancellationToken = default)
+            => this.Workspace.ListTagsAsync(this.Name, cancellationToken);
+
+        /// <summary>
         /// Returns the config value associated with the specified key.
         /// </summary>
         /// <param name="key">The key to use for the config lookup.</param>

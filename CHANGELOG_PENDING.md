@@ -13,3 +13,5 @@
   
 - [sdk] Correctly check for alias support in the engine and map fully specified alias urns.
   [#88](https://github.com/pulumi/pulumi-dotnet/pull/88)
+
+- [sdk] Bring back the correct fallback behavior for calculating aliases for older Pulumi engines.

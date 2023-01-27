@@ -79,7 +79,7 @@ namespace Pulumi
             }
         }
 
-        private async static Task<RegisterResourceRequest> CreateRegisterResourceRequest(
+        private static async Task<RegisterResourceRequest> CreateRegisterResourceRequest(
             string type, string name, bool custom, bool remote, ResourceOptions options)
         {
             var customOpts = options as CustomResourceOptions;
@@ -137,7 +137,7 @@ namespace Pulumi
             // https://golang.org/pkg/time/#ParseDuration.
             //
             // Simply put, we simply convert our ticks to the integral number of nanoseconds
-            // corresponding to it.  Since each tick is 100ns, this can trivialy be done just by
+            // corresponding to it.  Since each tick is 100ns, this can trivially be done just by
             // appending "00" to it.
             return timeSpan.Value.Ticks + "00ns";
         }

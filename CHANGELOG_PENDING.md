@@ -5,6 +5,9 @@
 
 ### Bug Fixes
 
+- [sdk] Fix MockMonitor reporting DeletedWith wasn't supported.
+  [#93](https://github.com/pulumi/pulumi-dotnet/pull/93)
+  
 - [sdk] Fix paket referencing Pulumi.
   [#91](https://github.com/pulumi/pulumi-dotnet/pull/91)
   

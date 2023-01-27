@@ -26,8 +26,9 @@ namespace Pulumi.Testing
 
         public Task<SupportsFeatureResponse> SupportsFeatureAsync(SupportsFeatureRequest request)
         {
-            var hasSupport = request.Id == "secrets" || request.Id == "resourceReferences";
-            return Task.FromResult(new SupportsFeatureResponse { HasSupport = hasSupport });
+            // Rather than attempting to keep the list of feature flags up-to date here, we just assume the
+            // mock monitor supports any feature requested of it.
+            return Task.FromResult(new SupportsFeatureResponse { HasSupport = true });
         }
 
         public async Task<InvokeResponse> InvokeAsync(ResourceInvokeRequest request)

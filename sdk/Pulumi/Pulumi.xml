@@ -858,7 +858,7 @@
             Check if the monitor supports the "outputValues" feature.
             </summary>
         </member>
-        <member name="M:Pulumi.Deployment.MonitorSupportsAliasSpec">
+        <member name="M:Pulumi.Deployment.MonitorSupportsAliasSpecs">
             <summary>
             Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
             In which case we no longer compute alias combinations ourselves but instead delegate the work to the engine.
@@ -1978,6 +1978,11 @@
             A collection of transformations to apply as part of resource registration.
             </summary>
         </member>
+        <member name="F:Pulumi.Resource._aliases">
+            <summary>
+            A list of aliases applied to this resource.
+            </summary>
+        </member>
         <member name="M:Pulumi.Resource.GetResourceType">
             <summary>
             The type assigned to the resource at construction.
@@ -2027,6 +2032,14 @@
         <member name="M:Pulumi.Resource.GetProvider(System.String)">
             <summary>
             Fetches the provider for the given module member, if any.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Resource.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
+            <summary>
+            <see cref="M:Pulumi.Resource.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)"/> makes a copy of the aliases array, and add to it any
+            implicit aliases inherited from its parent. If there are N child aliases, and
+            M parent aliases, there will be (M+1)*(N+1)-1 total aliases, or, as calculated
+            in the logic below, N+(M*(1+N)).
             </summary>
         </member>
         <member name="T:Pulumi.ResourceArgs">

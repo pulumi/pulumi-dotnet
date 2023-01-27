@@ -154,8 +154,9 @@ namespace Pulumi
                 // map each alias in the options to its corresponding Alias proto definition.
                 foreach (var alias in options.Aliases)
                 {
-                    var resolvedAlias = await alias.ToOutput().GetValueAsync(whenUnknown: default!).ConfigureAwait(false);
-                    if (resolvedAlias == null)
+                    var defaultAliasWhenUnknown = new Alias();
+                    var resolvedAlias = await alias.ToOutput().GetValueAsync(whenUnknown: defaultAliasWhenUnknown).ConfigureAwait(false);
+                    if (ReferenceEquals(resolvedAlias, defaultAliasWhenUnknown))
                     {
                         // alias contains unknowns, skip it.
                         continue;
@@ -180,12 +181,12 @@ namespace Pulumi
                         Project = await Resolve(resolvedAlias.Project, ""),
                     };
 
-                    // Here we specify whether the alias has a parent or not. 
+                    // Here we specify whether the alias has a parent or not.
                     // aliasSpec must only specify one of NoParent or ParentUrn, not both!
                     // this determines the wire format of the alias which is used by the engine.
                     if (resolvedAlias.Parent == null && resolvedAlias.ParentUrn == null)
                     {
-                        aliasSpec.NoParent = true;
+                        aliasSpec.NoParent = resolvedAlias.NoParent;
                     }
                     else if (resolvedAlias.Parent != null)
                     {
@@ -215,15 +216,8 @@ namespace Pulumi
                 // If the engine does not support alias specs, we fall back to the old behavior of
                 // collapsing all aliases into urns.
                 var uniqueAliases = new HashSet<string>();
-                foreach (var alias in options.Aliases)
+                foreach (var aliasUrn in resource._aliases)
                 {
-                    var aliasUrn = CollapseAliasToUrn(
-                        alias: alias,
-                        defaultName: resource.GetResourceName(),
-                        defaultType: resource.GetResourceType(),
-                        defaultParent: options.Parent
-                    );
-
                     var aliasValue = await Resolve(aliasUrn, "");
                     if (!string.IsNullOrEmpty(aliasValue) && uniqueAliases.Add(aliasValue))
                     {
@@ -236,82 +230,6 @@ namespace Pulumi
             }
 
             return aliases;
-        }
-
-        private static Output<string> CollapseAliasToUrn(
-            Input<Alias> alias,
-            string defaultName,
-            string defaultType,
-            Resource? defaultParent)
-        {
-            return alias.ToOutput().Apply(a =>
-            {
-                if (a.Urn != null)
-                {
-                    CheckNull(a.Name, nameof(a.Name));
-                    CheckNull(a.Type, nameof(a.Type));
-                    CheckNull(a.Project, nameof(a.Project));
-                    CheckNull(a.Stack, nameof(a.Stack));
-                    CheckNull(a.Parent, nameof(a.Parent));
-                    CheckNull(a.ParentUrn, nameof(a.ParentUrn));
-                    if (a.NoParent)
-                        ThrowAliasPropertyConflict(nameof(a.NoParent));
-
-                    return Output.Create(a.Urn);
-                }
-
-                var name = a.Name ?? defaultName;
-                var type = a.Type ?? defaultType;
-                var project = a.Project ?? Deployment.Instance.ProjectName;
-                var stack = a.Stack ?? Deployment.Instance.StackName;
-
-                var parentCount =
-                    (a.Parent != null ? 1 : 0) +
-                    (a.ParentUrn != null ? 1 : 0) +
-                    (a.NoParent ? 1 : 0);
-
-                if (parentCount >= 2)
-                {
-                    throw new ArgumentException(
-$"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '{nameof(Alias.NoParent)}' in an {nameof(Alias)}");
-                }
-
-                var (parent, parentUrn) = GetParentInfo(defaultParent, a);
-
-                if (name == null)
-                    throw new ArgumentNullException("No valid 'Name' passed in for alias.");
-
-                if (type == null)
-                    throw new ArgumentNullException("No valid 'type' passed in for alias.");
-
-                return Pulumi.Urn.Create(name, type, parent, parentUrn, project, stack);
-            });
-        }
-
-
-        private static void CheckNull<T>(T? value, string name) where T : class
-        {
-            if (value != null)
-            {
-                ThrowAliasPropertyConflict(name);
-            }
-        }
-
-        private static void ThrowAliasPropertyConflict(string name)
-            => throw new ArgumentException($"{nameof(Alias)} should not specify both {nameof(Alias.Urn)} and {name}");
-
-        private static (Resource? parent, Input<string>? urn) GetParentInfo(Resource? defaultParent, Alias alias)
-        {
-            if (alias.Parent != null)
-                return (alias.Parent, null);
-
-            if (alias.ParentUrn != null)
-                return (null, alias.ParentUrn);
-
-            if (alias.NoParent)
-                return (null, null);
-
-            return (defaultParent, null);
         }
 
         private static Task<ImmutableArray<Resource>> GatherExplicitDependenciesAsync(InputList<Resource> resources)

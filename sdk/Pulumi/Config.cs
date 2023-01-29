@@ -9,12 +9,7 @@ namespace Pulumi
 {
     /// <summary>
     /// <see cref="Config"/> is a bag of related configuration state.  Each bag contains any number
-    /// of configuration variables, indexed by simple keys, and each has a name that uniquely
-    /// identifies it; two bags with different names do not share values for variables that
-    /// otherwise share the same key.  For example, a bag whose name is <c>pulumi:foo</c>, with keys
-    /// <c>a</c>, <c>b</c>, and <c>c</c>, is entirely separate from a bag whose name is
-    /// <c>pulumi:bar</c> with the same simple key names.  Each key has a fully qualified names,
-    /// such as <c>pulumi:foo:a</c>, ..., and <c>pulumi:bar:a</c>, respectively.
+    /// of configc>, ..., and <c>pulumi:bar:a</c>, respectively.
     /// </summary>
     public sealed partial class Config
     {

@@ -216,7 +216,12 @@ namespace Pulumi
                 // If the engine does not support alias specs, we fall back to the old behavior of
                 // collapsing all aliases into urns.
                 var uniqueAliases = new HashSet<string>();
-                foreach (var aliasUrn in resource._aliases)
+                var allAliases = AllAliases(
+                    options.Aliases,
+                    resource.GetResourceName(),
+                    resource.GetResourceType(),
+                    options.Parent);
+                foreach (var aliasUrn in allAliases)
                 {
                     var aliasValue = await Resolve(aliasUrn, "");
                     if (!string.IsNullOrEmpty(aliasValue) && uniqueAliases.Add(aliasValue))
@@ -231,6 +236,117 @@ namespace Pulumi
 
             return aliases;
         }
+
+        /// <summary>
+        /// <see cref="AllAliases"/> makes a copy of the aliases array, and add to it any
+        /// implicit aliases inherited from its parent. If there are N child aliases, and
+        /// M parent aliases, there will be (M+1)*(N+1)-1 total aliases, or, as calculated
+        /// in the logic below, N+(M*(1+N)).
+        /// </summary>
+        internal static ImmutableArray<Input<string>> AllAliases(List<Input<Alias>> childAliases, string childName, string childType, Resource? parent)
+        {
+            var aliases = ImmutableArray.CreateBuilder<Input<string>>();
+            foreach (var childAlias in childAliases)
+            {
+                aliases.Add(CollapseAliasToUrn(childAlias, childName, childType, parent));
+            }
+            if (parent != null)
+            {
+                foreach (var parentAlias in parent._aliases)
+                {
+                    var parentName = parent.GetResourceName();
+                    aliases.Add(Pulumi.Urn.InheritedChildAlias(childName, parentName, parentAlias, childType));
+                    foreach (var childAlias in childAliases)
+                    {
+                        var inheritedAlias = CollapseAliasToUrn(childAlias, childName, childType, parent).Apply(childAliasURN =>
+                        {
+                            var aliasedChildName = Pulumi.Urn.Name(childAliasURN);
+                            var aliasedChildType = Pulumi.Urn.Type(childAliasURN);
+                            return Pulumi.Urn.InheritedChildAlias(aliasedChildName, parentName, parentAlias, aliasedChildType);
+                        });
+                        aliases.Add(inheritedAlias);
+                    }
+                }
+            }
+            return aliases.ToImmutable();
+        }
+
+        internal static Output<string> CollapseAliasToUrn(
+            Input<Alias> alias,
+            string defaultName,
+            string defaultType,
+            Resource? defaultParent)
+        {
+            return alias.ToOutput().Apply(a =>
+            {
+                if (a.Urn != null)
+                {
+                    CheckNull(a.Name, nameof(a.Name));
+                    CheckNull(a.Type, nameof(a.Type));
+                    CheckNull(a.Project, nameof(a.Project));
+                    CheckNull(a.Stack, nameof(a.Stack));
+                    CheckNull(a.Parent, nameof(a.Parent));
+                    CheckNull(a.ParentUrn, nameof(a.ParentUrn));
+                    if (a.NoParent)
+                        ThrowAliasPropertyConflict(nameof(a.NoParent));
+
+                    return Output.Create(a.Urn);
+                }
+
+                var name = a.Name ?? defaultName;
+                var type = a.Type ?? defaultType;
+                var project = a.Project ?? Deployment.Instance.ProjectName;
+                var stack = a.Stack ?? Deployment.Instance.StackName;
+
+                var parentCount =
+                    (a.Parent != null ? 1 : 0) +
+                    (a.ParentUrn != null ? 1 : 0) +
+                    (a.NoParent ? 1 : 0);
+
+                if (parentCount >= 2)
+                {
+                    throw new ArgumentException(
+$"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '{nameof(Alias.NoParent)}' in an {nameof(Alias)}");
+                }
+
+                var (parent, parentUrn) = GetParentInfo(defaultParent, a);
+
+                if (name == null)
+                    throw new ArgumentNullException("No valid 'Name' passed in for alias.");
+
+                if (type == null)
+                    throw new ArgumentNullException("No valid 'type' passed in for alias.");
+
+                return Pulumi.Urn.Create(name, type, parent, parentUrn, project, stack);
+            });
+        }
+
+
+        private static void CheckNull<T>(T? value, string name) where T : class
+        {
+            if (value != null)
+            {
+                ThrowAliasPropertyConflict(name);
+            }
+        }
+
+        private static void ThrowAliasPropertyConflict(string name)
+            => throw new ArgumentException($"{nameof(Alias)} should not specify both {nameof(Alias.Urn)} and {name}");
+
+        private static (Resource? parent, Input<string>? urn) GetParentInfo(Resource? defaultParent, Alias alias)
+        {
+            if (alias.Parent != null)
+                return (alias.Parent, null);
+
+            if (alias.ParentUrn != null)
+                return (null, alias.ParentUrn);
+
+            if (alias.NoParent)
+                return (null, null);
+
+            return (defaultParent, null);
+        }
+
 
         private static Task<ImmutableArray<Resource>> GatherExplicitDependenciesAsync(InputList<Resource> resources)
             => resources.ToOutput().GetValueAsync(whenUnknown: ImmutableArray<Resource>.Empty);

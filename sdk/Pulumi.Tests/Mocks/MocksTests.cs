@@ -190,12 +190,125 @@ namespace Pulumi.Tests.Mocks
         [Fact]
         public async Task TestAliases()
         {
-            var resources = await Deployment.TestAsync<Aliases.AliasesStack>(
-                new Aliases.AliasesMocks());
+            var mocks = new Aliases.AliasesMocks();
+            var options = new TestOptions();
+            var (resources, outputs) = await Deployment.TestAsync(mocks, options, () =>
+            {
+                var parent1 = new Pulumi.CustomResource("test:resource:type", "myres1", null, new CustomResourceOptions { });
 
-            // simply assert that we have some resources
-            // here we only case about not having an alias computation explosion
-            Assert.NotEmpty(resources);
+                var child1Options = new CustomResourceOptions
+                {
+                    Parent = parent1,
+                };
+
+                var child1 = new Pulumi.CustomResource("test:resource:child", "myres1-child", null, child1Options);
+
+                var parent2 = new Pulumi.CustomResource("test:resource:type", "myres2", null, new CustomResourceOptions { });
+
+                var child2Options = new CustomResourceOptions
+                {
+                    Parent = parent2,
+                    Aliases = { new Alias { Type = "test:resource:child2" } }
+                };
+
+                var child2 = new Pulumi.CustomResource("test:resource:child", "myres2-child", null, child2Options);
+
+                var parent3 = new Pulumi.CustomResource("test:resource:type", "myres3", null, new CustomResourceOptions { });
+
+                var child3Options = new CustomResourceOptions
+                {
+                    Parent = parent3,
+                    Aliases = { new Alias { Name = "child2" } }
+                };
+
+                var child3 = new Pulumi.CustomResource("test:resource:child", "myres3-child", null, child3Options);
+
+                var parent4 = new Pulumi.CustomResource("test:resource:type", "myres4", null, new CustomResourceOptions
+                {
+                    Aliases = { new Alias { Type = "test:resource:type3" } }
+                });
+
+                var child4Options = new CustomResourceOptions
+                {
+                    Parent = parent4,
+                    Aliases = { new Alias { Name = "myres4-child2" } }
+                };
+
+                var child4 = new Pulumi.CustomResource("test:resource:child", "myres4-child", null, child4Options);
+
+                var parent5 = new Pulumi.CustomResource("test:resource:type", "myres5", null, new CustomResourceOptions
+                {
+                    Aliases = { new Alias { Name = "myres52" } }
+                });
+
+                var child5Options = new CustomResourceOptions
+                {
+                    Parent = parent5,
+                    Aliases = { new Alias { Name = "myres5-child2" } }
+                };
+                var child5 = new Pulumi.CustomResource("test:resource:child", "myres5-child", null, child5Options);
+
+                var parent6 = new Pulumi.CustomResource("test:resource:type", "myres6", null, new CustomResourceOptions
+                {
+                    Aliases =
+                    {
+                        new Alias { Name = "myres62" },
+                        new Alias { Type = "test:resource:type3" },
+                        new Alias { Name = "myres63" },
+                    }
+                });
+
+                var child6Options = new CustomResourceOptions
+                {
+                    Parent = parent6,
+                    Aliases =
+                    {
+                        new Alias { Name = "myres6-child2" },
+                        new Alias { Type = "test:resource:child2" }
+                    }
+                };
+
+                var child6 = new Pulumi.CustomResource("test:resource:child", "myres6-child", null, child6Options);
+
+                return new Dictionary<string, object?>
+                {
+                    [child1.GetResourceName()] = Deployment.AllAliases(
+                        child1Options.Aliases,
+                        child1.GetResourceName(),
+                        child1.GetResourceType(),
+                        child1Options.Parent),
+
+                    [child2.GetResourceName()] = Deployment.AllAliases(
+                        child2Options.Aliases,
+                        child2.GetResourceName(),
+                        child2.GetResourceType(),
+                        child2Options.Parent),
+
+                    [child3.GetResourceName()] = Deployment.AllAliases(
+                        child3Options.Aliases,
+                        child3.GetResourceName(),
+                        child3.GetResourceType(),
+                        child3Options.Parent),
+
+                    [child4.GetResourceName()] = Deployment.AllAliases(
+                        child4Options.Aliases,
+                        child4.GetResourceName(),
+                        child4.GetResourceType(),
+                        child4Options.Parent),
+
+                    [child5.GetResourceName()] = Deployment.AllAliases(
+                        child5Options.Aliases,
+                        child5.GetResourceName(),
+                        child5.GetResourceType(),
+                        child5Options.Parent),
+
+                    [child6.GetResourceName()] = Deployment.AllAliases(
+                        child6Options.Aliases,
+                        child6.GetResourceName(),
+                        child6.GetResourceType(),
+                        child6Options.Parent),
+                };
+            });
 
             // TODO[pulumi/pulumi#8637]
             //
@@ -206,6 +319,53 @@ namespace Pulumi.Tests.Mocks
             // `pulumi:pulumi:Stack` as an explicit parent type in the URN. This should not happen, and indicates
             // a bug in the the Pulumi .NET SDK unrelated to Aliases.  It appears this only happens when using the
             // .NET mock testing framework, not when running normal programs.
+            var expected = new Dictionary<string, List<string>>{
+                { "myres1-child", new List<string>{}},
+                { "myres2-child", new List<string>{
+                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child2::myres2-child"
+                }},
+                { "myres3-child", new List<string>{
+                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::child2"
+                }},
+                { "myres4-child", new List<string>{
+                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::myres4-child2",
+                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres4-child",
+                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres4-child2",
+                }},
+                { "myres5-child", new List<string>{
+                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::myres5-child2",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres52-child",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres52-child2",
+                }},
+                { "myres6-child", new List<string>{
+                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child::myres6-child2",
+                    "urn:pulumi:stack::project::pulumi:pulumi:Stack$test:resource:type$test:resource:child2::myres6-child",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres62-child",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres62-child2",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child2::myres62-child",
+                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres6-child",
+                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child::myres6-child2",
+                    "urn:pulumi:stack::project::test:resource:type3$test:resource:child2::myres6-child",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres63-child",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child::myres63-child2",
+                    "urn:pulumi:stack::project::test:resource:type$test:resource:child2::myres63-child",
+                }},
+            };
+
+            foreach (var resource in resources)
+            {
+                if (resource.GetResourceType() == "test:resource:child")
+                {
+                    var resourceName = resource.GetResourceName();
+                    Assert.True(outputs.ContainsKey(resourceName), $"outputs contains aliases for resource {resourceName}");
+                    if (outputs[resourceName] is ImmutableArray<Input<string>> computedAliases)
+                    {
+                        var actual = await Output.All(computedAliases).GetValueAsync(new ImmutableArray<string>());
+                        var expectedAliases = expected[resourceName];
+                        Assert.Equal(expectedAliases, actual);
+                    }
+                }
+            }
         }
     }
 

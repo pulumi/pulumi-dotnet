@@ -954,6 +954,14 @@
             remove this function.
             </summary>
         </member>
+        <member name="M:Pulumi.Deployment.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
+            <summary>
+            <see cref="M:Pulumi.Deployment.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)"/> makes a copy of the aliases array, and add to it any
+            implicit aliases inherited from its parent. If there are N child aliases, and
+            M parent aliases, there will be (M+1)*(N+1)-1 total aliases, or, as calculated
+            in the logic below, N+(M*(1+N)).
+            </summary>
+        </member>
         <member name="M:Pulumi.Deployment.GetTransitivelyReferencedChildResourcesOfComponentResources(System.Collections.Generic.HashSet{Pulumi.Resource})">
             <summary>
             Recursively walk the resources passed in, returning them and all resources reachable from
@@ -2032,14 +2040,6 @@
         <member name="M:Pulumi.Resource.GetProvider(System.String)">
             <summary>
             Fetches the provider for the given module member, if any.
-            </summary>
-        </member>
-        <member name="M:Pulumi.Resource.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
-            <summary>
-            <see cref="M:Pulumi.Resource.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)"/> makes a copy of the aliases array, and add to it any
-            implicit aliases inherited from its parent. If there are N child aliases, and
-            M parent aliases, there will be (M+1)*(N+1)-1 total aliases, or, as calculated
-            in the logic below, N+(M*(1+N)).
             </summary>
         </member>
         <member name="T:Pulumi.ResourceArgs">

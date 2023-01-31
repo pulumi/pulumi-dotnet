@@ -32,15 +32,15 @@ namespace Pulumi.Experimental.Provider
         // directly, but by parsing the single URN sent from the engine.
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public readonly ImmutableDictionary<string, PropertyValue> Olds;
-        public readonly ImmutableDictionary<string, PropertyValue> News;
+        public readonly ImmutableDictionary<string, PropertyValue> OldInputs;
+        public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
         public readonly ImmutableArray<byte> RandomSeed;
 
-        public CheckRequest(string urn, ImmutableDictionary<string, PropertyValue> olds, ImmutableDictionary<string, PropertyValue> news, ImmutableArray<byte> randomSeed)
+        public CheckRequest(string urn, ImmutableDictionary<string, PropertyValue> oldInputs, ImmutableDictionary<string, PropertyValue> newInputs, ImmutableArray<byte> randomSeed)
         {
             Urn = urn;
-            Olds = olds;
-            News = news;
+            OldInputs = oldInputs;
+            NewInputs = newInputs;
             RandomSeed = randomSeed;
         }
     }
@@ -70,16 +70,16 @@ namespace Pulumi.Experimental.Provider
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly string Id;
-        public readonly ImmutableDictionary<string, PropertyValue> Olds;
-        public readonly ImmutableDictionary<string, PropertyValue> News;
+        public readonly ImmutableDictionary<string, PropertyValue> OldState;
+        public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
         public readonly ImmutableArray<string> IgnoreChanges;
 
-        public DiffRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> olds, ImmutableDictionary<string, PropertyValue> news, ImmutableArray<string> ignoreChanges)
+        public DiffRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> oldState, ImmutableDictionary<string, PropertyValue> newInputs, ImmutableArray<string> ignoreChanges)
         {
             Urn = urn;
             Id = id;
-            Olds = olds;
-            News = news;
+            OldState = oldState;
+            NewInputs = newInputs;
             IgnoreChanges = ignoreChanges;
         }
     }
@@ -170,11 +170,6 @@ namespace Pulumi.Experimental.Provider
         public bool SupportsPreview { get; set; }
         public bool AcceptResources { get; set; }
         public bool AcceptOutputs { get; set; }
-    }
-
-    public sealed class GetPluginInfoResponse
-    {
-        public string? Version { get; set; }
     }
 
     public sealed class CreateRequest
@@ -275,11 +270,6 @@ namespace Pulumi.Experimental.Provider
 
     public abstract class Provider
     {
-        public virtual Task<GetPluginInfoResponse> GetPluginInfo(CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
             throw new NotImplementedException();
@@ -335,7 +325,7 @@ namespace Pulumi.Experimental.Provider
             throw new NotImplementedException();
         }
 
-        public static async Task Serve(string[] args, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
@@ -357,12 +347,16 @@ namespace Pulumi.Experimental.Provider
                             // note that we also won't read environment variables for config
                             config.Sources.Clear();
 
-                            var hostConfig = new Dictionary<string, string>();
+                            var memConfig = new Dictionary<string, string>();
                             if (args.Length > 0)
                             {
-                                hostConfig.Add("Host", args[0]);
+                                memConfig.Add("Host", args[0]);
                             }
-                            config.AddInMemoryCollection(hostConfig);
+                            if (version != null)
+                            {
+                                memConfig.Add("Version", version);
+                            }
+                            config.AddInMemoryCollection(memConfig);
                         })
                         .ConfigureLogging(loggingBuilder =>
                         {
@@ -430,6 +424,7 @@ namespace Pulumi.Experimental.Provider
         readonly Func<IHost, Provider> factory;
         readonly CancellationTokenSource rootCTS;
         Provider? implementation;
+        readonly string version;
 
         Provider Implementation
         {
@@ -459,6 +454,24 @@ namespace Pulumi.Experimental.Provider
             {
                 CreateProvider(host);
             }
+
+            var version = configuration.GetValue<string?>("Version", null);
+            if (version == null)
+            {
+                var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
+                Debug.Assert(entryAssembly != null, "GetEntryAssembly returned null in managed code");
+                var entryName = entryAssembly.GetName();
+                var assemblyVersion = entryName.Version;
+                if (assemblyVersion != null)
+                {
+                    version = assemblyVersion.ToString();
+                }
+                else
+                {
+                    version = "0.0.1";
+                }
+            }
+            this.version = version;
         }
 
         public void Dispose()
@@ -673,15 +686,14 @@ namespace Pulumi.Experimental.Provider
             }
         }
 
-        public override async Task<Pulumirpc.PluginInfo> GetPluginInfo(Empty request, ServerCallContext context)
+        public override Task<Pulumirpc.PluginInfo> GetPluginInfo(Empty request, ServerCallContext context)
         {
             try
             {
                 using var cts = GetToken(context);
-                var domResponse = await Implementation.GetPluginInfo(cts.Token);
                 var grpcResponse = new Pulumirpc.PluginInfo();
-                grpcResponse.Version = domResponse.Version ?? "";
-                return grpcResponse;
+                grpcResponse.Version = this.version;
+                return Task.FromResult(grpcResponse);
             }
             catch (NotImplementedException ex)
             {

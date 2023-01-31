@@ -14,16 +14,9 @@ public class TestProvider : Provider {
         this.host = host;
     }
 
-    public override Task<GetPluginInfoResponse> GetPluginInfo(CancellationToken ct)
-    {
-        return Task.FromResult(new GetPluginInfoResponse() {
-            Version = "0.0.1",
-        });
-    }
-
     public override Task<CheckResponse> CheckConfig(CheckRequest request, CancellationToken ct)
     {
-        return Task.FromResult(new CheckResponse() { Inputs = request.News });
+        return Task.FromResult(new CheckResponse() { Inputs = request.NewInputs });
     }
 
     public override Task<DiffResponse> DiffConfig(DiffRequest request, CancellationToken ct)
@@ -42,7 +35,7 @@ public class TestProvider : Provider {
             request.Type == "testprovider:index:Random" ||
             request.Type == "testprovider:index:FailsOnDelete")
         {
-            return Task.FromResult(new CheckResponse() { Inputs = request.News });
+            return Task.FromResult(new CheckResponse() { Inputs = request.NewInputs });
         }
 
         throw new Exception($"Unknown resource type '{request.Type}'");
@@ -51,7 +44,7 @@ public class TestProvider : Provider {
     public override Task<DiffResponse> Diff(DiffRequest request, CancellationToken ct)
     {
         if (request.Type == "testprovider:index:Echo") {
-            var changes = !request.Olds["echo"].Equals(request.News["echo"]);
+            var changes = !request.OldState["echo"].Equals(request.NewInputs["echo"]);
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
                 Replaces = new string[] { "echo" },
@@ -59,7 +52,7 @@ public class TestProvider : Provider {
         }
         else if (request.Type == "testprovider:index:Random")
         {
-            var changes = !request.Olds["length"].Equals(request.News["length"]);
+            var changes = !request.OldState["length"].Equals(request.NewInputs["length"]);
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
                 Replaces = new string[] { "length" },

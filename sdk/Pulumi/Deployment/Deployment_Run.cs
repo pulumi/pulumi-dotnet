@@ -154,6 +154,31 @@ namespace Pulumi
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// instantiate a new stack instance based on the type passed as TStack
+        /// type parameter using the given service provider. This method creates
+        /// no real resources.
+        /// Note: Currently, unit tests that call
+        /// <see cref="TestWithServiceProviderAsync{TStack}(IMocks, IServiceProvider, TestOptions)"/>
+        /// must run serially; parallel execution is not supported.
+        /// </summary>
+        /// <param name="mocks">Hooks to mock the engine calls.</param>
+        /// <param name="serviceProvider"></param>
+        /// <param name="options">Optional settings for the test run.</param>
+        /// <typeparam name="TStack">The type of the stack to test.</typeparam>
+        /// <returns>Test result containing created resources, stack outputs and errors, if any.</returns>
+        public static Task<(ImmutableArray<Resource> Resources, IDictionary<string, object?> Outputs)> TestWithServiceProviderAsync<TStack>(IMocks mocks, IServiceProvider serviceProvider, TestOptions? options = null)
+            where TStack : Stack
+        {
+            var createdResources = await TestAsync(
+                mocks: testMocks,
+                runAsync: runner => runner.RunAsync<TStack>(serviceProvider),
+                testOptions);
+
+            return TestResults(createdResources);
+        }
+
+        /// <summary>
+        /// Entry point to test a Pulumi application. Deployment will
+        /// instantiate a new stack instance based on the type passed as TStack
         /// type parameter. This method creates no real resources.
         /// Note: Currently, unit tests that call <see cref="TestAsync{TStack}(IMocks, TestOptions)"/>
         /// must run serially; parallel execution is not supported.

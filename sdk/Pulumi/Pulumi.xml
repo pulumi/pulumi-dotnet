@@ -2228,6 +2228,18 @@
             <param name="name">The name of the stack output to fetch.</param>
             <returns>An <see cref="T:Pulumi.Output`1"/> containing the requested value.</returns>
         </member>
+        <member name="M:Pulumi.StackReference.GetOutputDetailsAsync(System.String)">
+            <summary>
+            Fetches the value of the named stack output
+            and builds a <see ref="StackReferenceOutputDetails"/> object from it.
+            <para />
+            The returned object has its Value or SecretValue field set
+            depending on whether the output is a secret.
+            Neither field is set if the output is not found.
+            </summary>
+            <param name="name">The name of the stack output to fetch.</param>
+            <returns>StackReferenceOutputDetails object containing the output.</returns>
+        </member>
         <member name="M:Pulumi.StackReference.GetValueAsync(Pulumi.Input{System.String})">
             <summary>
             Fetches the value of the named stack output. May return null if the value is
@@ -2256,6 +2268,24 @@
         <member name="P:Pulumi.StackReferenceArgs.Name">
             <summary>
             The name of the stack to reference.
+            </summary>
+        </member>
+        <member name="T:Pulumi.StackReferenceOutputDetails">
+            <summary>
+            Holds a StackReference's output value.
+            At most one of Value and SecretValue will be set.
+            </summary>
+        </member>
+        <member name="P:Pulumi.StackReferenceOutputDetails.Value">
+            <summary>
+            Output value returned by the <see cref="T:Pulumi.StackReference"/>.
+            This field is only set if the output is not a secret.
+            </summary>
+        </member>
+        <member name="P:Pulumi.StackReferenceOutputDetails.SecretValue">
+            <summary>
+            Secret output value returned by the <see cref="T:Pulumi.StackReference"/>.
+            This field is only set if the output is a secret.
             </summary>
         </member>
         <member name="T:Pulumi.OutputAttribute">

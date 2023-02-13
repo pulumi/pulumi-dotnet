@@ -82,6 +82,32 @@ namespace Pulumi
         }
 
         /// <summary>
+        /// Fetches the value of the named stack output
+        /// and builds a <see ref="StackReferenceOutputDetails"/> object from it.
+        /// <para />
+        /// The returned object has its Value or SecretValue field set
+        /// depending on whether the output is a secret.
+        /// Neither field is set if the output is not found.
+        /// </summary>
+        /// <param name="name">The name of the stack output to fetch.</param>
+        /// <returns>StackReferenceOutputDetails object containing the output.</returns>
+        public async Task<StackReferenceOutputDetails> GetOutputDetailsAsync(string name)
+        {
+            var output = this.GetOutput(name);
+            var data = await output.DataTask.ConfigureAwait(false);
+            var details = new StackReferenceOutputDetails { };
+            if (data.IsSecret)
+            {
+                details.SecretValue = data.Value;
+            }
+            else
+            {
+                details.Value = data.Value;
+            }
+            return details;
+        }
+
+        /// <summary>
         /// Fetches the value of the named stack output. May return null if the value is
         /// not known for some reason.
         /// <para />

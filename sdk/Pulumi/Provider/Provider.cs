@@ -325,7 +325,12 @@ namespace Pulumi.Experimental.Provider
             throw new NotImplementedException();
         }
 
-        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        public static Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        {
+            return Serve(args, version, factory, cancellationToken, System.Console.Out);
+        }
+
+        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
@@ -412,7 +417,7 @@ namespace Pulumi.Experimental.Provider
             // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
             // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
             // we work around this here so that old engines can use dotnet providers as well.
-            System.Console.Write(port.ToString() + "\n");
+            stdout.Write(port.ToString() + "\n");
 
             await host.WaitForShutdownAsync(cancellationToken);
 
@@ -513,7 +518,7 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
-        // This keeps the PropertyValue.Marshal clean in terms of not handling nulls. 
+        // This keeps the PropertyValue.Marshal clean in terms of not handling nulls.
         private ImmutableDictionary<string, PropertyValue> Marshal(Struct? properties)
         {
             if (properties == null)

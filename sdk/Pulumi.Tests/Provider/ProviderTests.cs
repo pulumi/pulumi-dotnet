@@ -59,15 +59,12 @@ namespace Pulumi.Tests.Provider
 
             var cts = new System.Threading.CancellationTokenSource();
 
-            // Hook stdout so we can see what port Serve chooses
-            var stringWriter = new System.IO.StringWriter();
-            System.Console.SetOut(stringWriter);
-
-            var server = Pulumi.Experimental.Provider.Provider.Serve(args, "1.0", _ => new TestConfigureProvider(), cts.Token);
+            // Custom stdout so we can see what port Serve chooses
+            var stdout = new System.IO.StringWriter();
+            var server = Pulumi.Experimental.Provider.Provider.Serve(args, "1.0", _ => new TestConfigureProvider(), cts.Token, stdout);
 
             // Grab the port from stdout and create a connection to it
-            var port = int.Parse(stringWriter.ToString().Trim());
-
+            var port = int.Parse(stdout.ToString().Trim());
 
             // Inititialize the engine channel once for this address
             var channel = GrpcChannel.ForAddress(new Uri($"http://localhost:{port}"), new GrpcChannelOptions

@@ -13,16 +13,19 @@ namespace Pulumi.Tests.Core
     // Simple struct used for JSON tests
     public struct TestStructure
     {
-        public int X { get; set; }
+        public Input<int> X { get; set; }
 
-        private int y;
+        private Output<int> y;
 
-        public string Z => (y + 1).ToString();
+        public Output<string> Z => y.Apply(y => (y + 1).ToString());
 
-        public TestStructure(int x, int y)
+        public int W { get; set; }
+
+        public TestStructure(Input<int> x, Output<int> y, int w)
         {
             X = x;
             this.y = y;
+            W = w;
         }
     }
 
@@ -701,8 +704,8 @@ namespace Pulumi.Tests.Core
                 => RunInNormal(async () =>
                 {
                     var v = new System.Collections.Generic.Dictionary<string, TestStructure>();
-                    v.Add("a", new TestStructure(1, 2));
-                    v.Add("b", new TestStructure(int.MinValue, int.MaxValue));
+                    v.Add("a", new TestStructure(1, Output.Create(2), 3));
+                    v.Add("b", new TestStructure(int.MinValue, Output.Create(int.MaxValue), 0));
                     var o1 = CreateOutput(v, true);
                     var options = new System.Text.Json.JsonSerializerOptions();
                     options.WriteIndented = true;
@@ -713,11 +716,13 @@ namespace Pulumi.Tests.Core
                     var expected = @"{
   ""a"": {
     ""X"": 1,
-    ""Z"": ""3""
+    ""Z"": ""3"",
+    ""W"": 3
   },
   ""b"": {
     ""X"": -2147483648,
-    ""Z"": ""-2147483648""
+    ""Z"": ""-2147483648"",
+    ""W"": 0
   }
 }";
                     Assert.Equal(expected, data.Value);

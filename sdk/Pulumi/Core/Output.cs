@@ -57,6 +57,47 @@ namespace Pulumi
                 }
             }
         }
+        private sealed class InputJsonConverterInner<T> : System.Text.Json.Serialization.JsonConverter<Input<T>>
+        {
+            readonly OutputJsonConverter Parent;
+            readonly JsonConverter<T> Converter;
+
+            public InputJsonConverterInner(OutputJsonConverter parent, JsonSerializerOptions options)
+            {
+                Parent = parent;
+                Converter = (JsonConverter<T>)options.GetConverter(typeof(T));
+            }
+
+            public override Input<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Input<>));
+                System.Diagnostics.Debug.Assert(typeToConvert.GetGenericArguments()[0] == typeof(T));
+                // Just return a known output
+                var value = Converter.Read(ref reader, typeof(T), options);
+                var dataTask = new OutputData<T>(Parent._resources, value!, true, Parent._isSecret);
+                return new Output<T>(Task.FromResult(dataTask));
+            }
+
+            public override void Write(Utf8JsonWriter writer, Input<T> value, JsonSerializerOptions options)
+            {
+                // Sadly we have to block here as converters aren't async
+                var result = value.ToOutput<T>().DataTask.Result;
+                // Add the seen dependencies to the resources set
+                Parent._seenResources.AddRange(result.Resources);
+                if (!result.IsKnown)
+                {
+                    // If the result isn't known we can just write a null and flag the parent to reject this whole serialization
+                    writer.WriteNullValue();
+                    Parent.SeenUnknown = true;
+                }
+                else
+                {
+                    // The result is known we can just serialize the inner value, but flag the parent if we've seen a secret
+                    Converter.Write(writer, result.Value, options);
+                    Parent.SeenSecret |= result.IsSecret;
+                }
+            }
+        }
 
         public bool _isSecret { get; private set; }
         private readonly ImmutableHashSet<Resource> _resources;
@@ -78,22 +119,35 @@ namespace Pulumi
             if (typeToConvert.IsGenericType)
             {
                 var genericType = typeToConvert.GetGenericTypeDefinition();
-                return genericType == typeof(Output<>);
+                return genericType == typeof(Output<>) || genericType == typeof(Input<>);
             }
             return false;
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
+            System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Output<>) || typeToConvert.GetGenericTypeDefinition() == typeof(Input<>));
+            System.Diagnostics.Debug.Assert(typeToConvert.GetGenericArguments().Length == 1);
+
             Type elementType = typeToConvert.GetGenericArguments()[0];
-            JsonConverter converter = (JsonConverter)Activator.CreateInstance(
-                typeof(OutputJsonConverterInner<>).MakeGenericType(
+            if (typeToConvert.GetGenericTypeDefinition() == typeof(Output<>))
+            {
+                return (JsonConverter)Activator.CreateInstance(
+                    typeof(OutputJsonConverterInner<>).MakeGenericType(
+                        new Type[] { elementType }),
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
+                        binder: null,
+                        args: new object[] { this, options },
+                        culture: null)!;
+            }
+
+            return (JsonConverter)Activator.CreateInstance(
+                typeof(InputJsonConverterInner<>).MakeGenericType(
                     new Type[] { elementType }),
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
                     binder: null,
                     args: new object[] { this, options },
                     culture: null)!;
-            return converter;
         }
     }
 

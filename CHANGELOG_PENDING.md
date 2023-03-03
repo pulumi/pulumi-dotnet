@@ -7,4 +7,7 @@
   - [sdk] Added `StackReference.GetOutputDetailsAsync` to retrieve output values from stack references directly.
     [#103](https://github.com/pulumi/pulumi-dotnet/pull/103)
 
+  - [sdk] When an exception is thrown from the constructor of a `Stack` subclass, prevent `TargetInvocationException` from obscuring the error message.
+    [#106](https://github.com/pulumi/pulumi-dotnet/pull/106)
+
 ### Bug Fixes

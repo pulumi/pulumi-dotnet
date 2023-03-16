@@ -1,5 +1,7 @@
 // Copyright 2016-2021, Pulumi Corporation
 
+using System.Collections.Generic;
+
 namespace Pulumi.Automation
 {
     /// <summary>
@@ -13,5 +15,11 @@ namespace Pulumi.Automation
         /// Show config secrets when they appear.
         /// </summary>
         public bool? ShowSecrets { get; set; }
+
+        public bool? SkipPendingCreates { get; set; }
+
+        public bool? ClearPendingCreates { get; set; }
+
+        public List<string>? ImportPendingCreates { get; set; }
     }
 }

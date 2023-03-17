@@ -25,7 +25,8 @@ using static Pulumi.Automation.Tests.Utility;
 
 namespace Pulumi.Automation.Tests
 {
-    public class LocalWorkspaceTests
+    [Collection("PULUMI_BACKEND_URL")]
+    public class LocalWorkspaceTests : IDisposable
     {
         private static readonly string _pulumiOrg = GetTestOrg();
 
@@ -40,6 +41,8 @@ namespace Pulumi.Automation.Tests
 
         private ILogger TestLogger { get; }
 
+        private string? temporaryDirectory;
+
         public LocalWorkspaceTests(ITestOutputHelper output)
         {
             var logger = new LoggerConfiguration()
@@ -50,6 +53,25 @@ namespace Pulumi.Automation.Tests
             var loggerFactory = new SerilogLoggerFactory(logger);
 
             TestLogger = loggerFactory.CreateLogger<LocalWorkspaceTests>();
+
+            // If PULUMI_ACCESS_TOKEN is set we can use the service, but otherwise we need to make a
+            // temporary folder and set PULUMI_BACKEND_URL.
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PULUMI_ACCESS_TOKEN")))
+            {
+                temporaryDirectory = Path.Combine(Path.GetTempPath(), "pulumi", "automation-tests");
+                Directory.CreateDirectory(temporaryDirectory);
+                Environment.SetEnvironmentVariable("PULUMI_BACKEND_URL", $"file:///{temporaryDirectory}");
+                // Because we're using filestate we need to set a passphrase as well.
+                Environment.SetEnvironmentVariable("PULUMI_CONFIG_PASSPHRASE", "backup_password");
+            }
+        }
+
+        public void Dispose()
+        {
+            if (temporaryDirectory != null)
+            {
+                Directory.Delete(temporaryDirectory, true);
+            }
         }
 
         [Theory]
@@ -205,6 +227,8 @@ namespace Pulumi.Automation.Tests
 
                 var previewAfterImport = await stack.PreviewAsync();
                 Assert.Equal(1, previewAfterImport.ChangeSummary[OperationType.Same]);
+
+                await stack.DestroyAsync();
             }
             finally
             {
@@ -2098,7 +2122,8 @@ namespace Pulumi.Automation.Tests
             public bool Protect { get; set; }
         }
 
-        [Fact]
+        // This test only works with the Pulumi Service backend.
+        [ServiceApiFact]
         public async Task ManipulateTags()
         {
             var projectName = "manipulate_tags_test";

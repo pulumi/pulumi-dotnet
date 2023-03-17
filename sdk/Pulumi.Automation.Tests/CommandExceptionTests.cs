@@ -1,6 +1,7 @@
 // Copyright 2016-2021, Pulumi Corporation
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,8 +10,33 @@ using Xunit;
 
 namespace Pulumi.Automation.Tests
 {
-    public class CommandExceptionTests
+    [Collection("PULUMI_BACKEND_URL")]
+    public class CommandExceptionTests : IDisposable
     {
+        private string? temporaryDirectory;
+
+        public CommandExceptionTests()
+        {
+            // If PULUMI_ACCESS_TOKEN is set we can use the service, but otherwise we need to make a
+            // temporary folder and set PULUMI_BACKEND_URL.
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PULUMI_ACCESS_TOKEN")))
+            {
+                temporaryDirectory = Path.Combine(Path.GetTempPath(), "pulumi", "automation-tests");
+                Directory.CreateDirectory(temporaryDirectory);
+                Environment.SetEnvironmentVariable("PULUMI_BACKEND_URL", $"file:///{temporaryDirectory}");
+                // Because we're using filestate we need to set a passphrase as well.
+                Environment.SetEnvironmentVariable("PULUMI_CONFIG_PASSPHRASE", "backup_password");
+            }
+        }
+
+        public void Dispose()
+        {
+            if (temporaryDirectory != null)
+            {
+                Directory.Delete(temporaryDirectory, true);
+            }
+        }
+
         private static string GetTestSuffix()
         {
             var random = new Random();
@@ -65,7 +91,6 @@ namespace Pulumi.Automation.Tests
         [Fact]
         public async Task ConcurrentUpdateExceptionIsThrown()
         {
-
             var projectSettings = new ProjectSettings("command_exception_test", ProjectRuntimeName.NodeJS);
             using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
             {
@@ -123,6 +148,8 @@ namespace Pulumi.Automation.Tests
                 // finish first up call
                 semaphore.Release();
                 await upTask;
+
+                await stack.DestroyAsync();
             }
             finally
             {

@@ -626,8 +626,26 @@ namespace Pulumi.Automation
         /// <inheritdoc/>
         public override async Task<WhoAmIResult> WhoAmIAsync(CancellationToken cancellationToken = default)
         {
-            var result = await this.RunCommandAsync(new[] { "whoami" }, cancellationToken).ConfigureAwait(false);
-            return new WhoAmIResult(result.StandardOutput.Trim());
+            var version = await this.RunCommandAsync(new[] { "version" }, cancellationToken).ConfigureAwait(false);
+            if (!SemVersion.TryParse(version.StandardOutput.Trim(), SemVersionStyles.AllowLowerV, out var semVersion))
+            {
+                // Assume an old version. Doesn't really matter what this is as long as it's pre-3.58.
+                semVersion = new SemVersion(3, 0);
+            }
+
+            // 3.58 added the --json flag (https://github.com/pulumi/pulumi/releases/tag/v3.58.0)
+            if (semVersion >= new SemVersion(3, 58))
+            {
+                // Use the new --json style
+                var result = await this.RunCommandAsync(new[] { "whoami", "--json" }, cancellationToken).ConfigureAwait(false);
+                return this._serializer.DeserializeJson<WhoAmIResult>(result.StandardOutput);
+            }
+            else
+            {
+                // Fallback to the old just a name style
+                var result = await this.RunCommandAsync(new[] { "whoami", }, cancellationToken).ConfigureAwait(false);
+                return new WhoAmIResult(result.StandardOutput.Trim(), null, ImmutableArray<string>.Empty);
+            }
         }
 
         /// <inheritdoc/>

@@ -47,6 +47,8 @@ jobs:
         with:
           dotnet-version: 6.0.x
           dotnet-quality: ga
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v4
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Test Pulumi SDK

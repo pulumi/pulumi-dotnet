@@ -2139,5 +2139,21 @@ namespace Pulumi.Automation.Tests
                 await workspace.RemoveStackAsync(stackName);
             }
         }
+
+        [Fact]
+        public async Task GetWhoAmi()
+        {
+            using var workspace = await LocalWorkspace.CreateAsync();
+
+            var whoAmI = await workspace.WhoAmIAsync();
+            Assert.NotNull(whoAmI);
+            Assert.False(string.IsNullOrEmpty(whoAmI.User), "User was null or empty");
+            // Pre 3.58 this will be null
+            if (whoAmI.Url != null)
+            {
+                // But it should never be empty
+                Assert.NotEqual("", whoAmI.Url);
+            }
+        }
     }
 }

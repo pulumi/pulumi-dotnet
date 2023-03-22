@@ -16,10 +16,19 @@ namespace Pulumi.Automation
         /// </summary>
         public bool? ShowSecrets { get; set; }
 
+        /// <summary>
+        /// Ignores any pending create operations
+        /// </summary>
         public bool? SkipPendingCreates { get; set; }
 
+        /// <summary>
+        /// Removes any pending create operations from the stack
+        /// </summary>
         public bool? ClearPendingCreates { get; set; }
 
-        public List<string>? ImportPendingCreates { get; set; }
+        /// <summary>
+        /// <see cref="PendingCreateValue"/> values to import into the stack
+        /// </summary>
+        public List<PendingCreateValue>? ImportPendingCreates { get; set; }
     }
 }

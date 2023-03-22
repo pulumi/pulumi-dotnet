@@ -500,7 +500,9 @@ namespace Pulumi.Automation
                     foreach (var item in options.ImportPendingCreates)
                     {
                         args.Add("--import-pending-creates");
-                        args.Add(item);
+                        args.Add(item.Urn);
+                        args.Add("--import-pending-creates");
+                        args.Add(item.Id);
                     }
                 }
 

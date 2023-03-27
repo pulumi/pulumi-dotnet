@@ -5,17 +5,16 @@ using Xunit;
 
 namespace Pulumi.Automation.Tests
 {
-    public sealed class DeploymentsApiFactAttribute : FactAttribute
+    /// <summary>
+    /// Skip a test if PULUMI_ACCESS_TOKEN is not set.
+    /// </summary>
+    public sealed class ServiceApiFactAttribute : FactAttribute
     {
-        public DeploymentsApiFactAttribute()
+        public ServiceApiFactAttribute()
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PULUMI_ACCESS_TOKEN")))
             {
                 Skip = "PULUMI_ACCESS_TOKEN not set";
-            }
-            else if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PULUMI_TEST_DEPLOYMENTS_API")))
-            {
-                Skip = "PULUMI_TEST_DEPLOYMENTS_API not set";
             }
         }
     }

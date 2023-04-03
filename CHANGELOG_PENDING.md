@@ -9,3 +9,6 @@
 ### Bug Fixes
   - [sdk] Fix JSON serialisation of Input<T> types.
     [#112](https://github.com/pulumi/pulumi-dotnet/pull/112)
+	
+  - [sdk] Improve the error message from not implemented provider methods.
+    [#125](https://github.com/pulumi/pulumi-dotnet/pull/125)

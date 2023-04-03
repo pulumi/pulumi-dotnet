@@ -86,5 +86,14 @@ namespace Pulumi.Tests.Provider
             Assert.True(outputValue.KindCase == Google.Protobuf.WellKnownTypes.Value.KindOneofCase.StringValue);
             Assert.Equal("testing", outputValue.StringValue);
         }
+
+        [Fact]
+        public async Task NotImplementedErrorIncludesName()
+        {
+            var provider = new TestConfigureProvider();
+            var exc = await Assert.ThrowsAsync<NotImplementedException>(() =>
+                provider.GetSchema(new GetSchemaRequest(0), CancellationToken.None));
+            Assert.Contains("GetSchema", exc.Message);
+        }
     }
 }

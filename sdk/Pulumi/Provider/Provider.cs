@@ -272,57 +272,57 @@ namespace Pulumi.Experimental.Provider
     {
         public virtual Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(GetSchema)}' is not implemented ");
         }
 
         public virtual Task<CheckResponse> CheckConfig(CheckRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(CheckConfig)}' is not implemented ");
         }
 
         public virtual Task<DiffResponse> DiffConfig(DiffRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(DiffConfig)}' is not implemented ");
         }
 
         public virtual Task<ConfigureResponse> Configure(ConfigureRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Configure)}' is not implemented ");
         }
 
         public virtual Task<InvokeResponse> Invoke(InvokeRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Invoke)}' is not implemented ");
         }
 
         public virtual Task<CreateResponse> Create(CreateRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Create)}' is not implemented ");
         }
 
         public virtual Task<ReadResponse> Read(ReadRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Read)}' is not implemented ");
         }
 
         public virtual Task<CheckResponse> Check(CheckRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Check)}' is not implemented ");
         }
 
         public virtual Task<DiffResponse> Diff(DiffRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Diff)}' is not implemented ");
         }
 
         public virtual Task<UpdateResponse> Update(UpdateRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Update)}' is not implemented ");
         }
 
         public virtual Task Delete(DeleteRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Delete)}' is not implemented ");
         }
 
         public static Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)

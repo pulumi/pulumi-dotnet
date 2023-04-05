@@ -489,6 +489,23 @@ namespace Pulumi.Automation
                 if (options.ExpectNoChanges is true)
                     args.Add("--expect-no-changes");
 
+                if (options.SkipPendingCreates is true)
+                    args.Add("--skip-pending-creates");
+
+                if (options.ClearPendingCreates is true)
+                    args.Add("--clear-pending-creates");
+
+                if (options.ImportPendingCreates?.Any() == true)
+                {
+                    foreach (var item in options.ImportPendingCreates)
+                    {
+                        args.Add("--import-pending-creates");
+                        args.Add(item.Urn);
+                        args.Add("--import-pending-creates");
+                        args.Add(item.Id);
+                    }
+                }
+
                 ApplyUpdateOptions(options, args);
             }
 

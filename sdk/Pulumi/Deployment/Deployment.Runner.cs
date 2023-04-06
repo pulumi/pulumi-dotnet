@@ -35,7 +35,15 @@ namespace Pulumi
             private readonly TaskMonitoringHelper _inFlightTasks = new TaskMonitoringHelper();
 
             private readonly object _exceptionsLock = new object();
-            private readonly List<Exception> _exceptions = new List<Exception>();
+
+            // It is possible for multiple tasks to complete with the
+            // same exception. This is happening in the test suite. It
+            // is also possible to register the same task twice,
+            // causing duplication.
+            //
+            // The `HashSet` here ensures this class does not report
+            // the same exception twice.
+            private readonly HashSet<Exception> _exceptions = new HashSet<Exception>();
 
             private readonly ConcurrentDictionary<(int TaskId, string Desc), int> _descriptions =
                 new ConcurrentDictionary<(int TaskId, string Desc), int>();
@@ -165,6 +173,24 @@ namespace Pulumi
                     loggedExceptionCount += logged ? 1 : 0;
                 }
 
+                // We still need to wait for any async work to try and finish
+                var errs = Enumerable.Empty<Exception>();
+                do
+                {
+                    // This could introduce even more errors
+                    errs = await _inFlightTasks.AwaitIdleOrFirstExceptionAsync().ConfigureAwait(false);
+                    lock (_exceptionsLock)
+                    {
+                        _exceptions.AddRange(errs);
+                    }
+
+                    foreach (var exception in errs)
+                    {
+                        var logged = await LogExceptionToErrorStream(exception);
+                        loggedExceptionCount += logged ? 1 : 0;
+                    }
+                } while (errs.Any());
+
                 // If we logged any exceptions, then return with a
                 // special error code stating as such so that our host
                 // does not print out another set of errors.
@@ -191,7 +217,6 @@ namespace Pulumi
                 {
                     // We got an error while logging itself. Nothing
                     // to do here but print some errors and abort.
-                    _deploymentLogger.LogError(exception, "Error occurred trying to send logging message to engine");
                     await Console.Error.WriteLineAsync($"Error occurred trying to send logging message to engine:\n{exception.ToStringDemystified()}").ConfigureAwait(false);
                     return false;
                 }
@@ -220,7 +245,6 @@ namespace Pulumi
                     await _deployment.Logger.ErrorAsync($"Running program '{location}' failed with an unhandled exception:\n{exception.ToStringDemystified()}").ConfigureAwait(false);
                 }
 
-                _deploymentLogger.LogDebug("Returning from program after last error");
                 return true;
             }
         }

@@ -15,3 +15,6 @@
 	
   - [sdk] Improve the error message from not implemented provider methods.
     [#125](https://github.com/pulumi/pulumi-dotnet/pull/125)
+	
+  - [sdk] Wait for async work on errors.
+    [#127](https://github.com/pulumi/pulumi-dotnet/pull/127)

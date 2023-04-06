@@ -46,20 +46,7 @@ namespace Pulumi
 
         private IEnumerable<Exception> Flush()
         {
-            // It is possible for multiple tasks to complete with the
-            // same exception. This is happening in the test suite. It
-            // is also possible to register the same task twice,
-            // causing duplication.
-            //
-            // The `Distinct` here ensures this class does not report
-            // the same exception twice to the single call of
-            // `AwaitExceptionsAsync`.
-            //
-            // Note it is still possible to observe the same
-            // exception twice from separate calls to
-            // `AwaitExceptionsAsync`. This class opts not to keep
-            // state to track that global invariant.
-            var errs = _exceptions.Distinct().ToImmutableArray();
+            var errs = _exceptions.ToImmutableArray();
             _exceptions.Clear();
             return errs;
         }

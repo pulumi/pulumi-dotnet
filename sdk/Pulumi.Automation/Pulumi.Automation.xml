@@ -717,6 +717,28 @@
             Whether to skip the default dependency installation step.
             </summary>
         </member>
+        <member name="T:Pulumi.Automation.PendingCreateValue">
+            <summary>
+            Config values for Importing Pending Create operations 
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.PendingCreateValue.Urn">
+            <summary>
+            The logical URN used by Pulumi to identify resources.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.PendingCreateValue.Id">
+            <summary>
+            The Id used by the provider to identify resources.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.PendingCreateValue.#ctor(System.String,System.String)">
+            <summary>
+            Creates a <see cref="T:Pulumi.Automation.PendingCreateValue"/> from input values.
+            </summary>
+            <param name="urn">The logical URN of a resource used by Pulumi.</param>
+            <param name="id">The Id of a resource used by the provider.</param>
+        </member>
         <member name="P:Pulumi.Automation.PluginInstallOptions.ExactVersion">
             <summary>
             If <c>true</c>, force installation of an exact version match (usually >= is accepted).
@@ -895,6 +917,21 @@
         <member name="P:Pulumi.Automation.RefreshOptions.ShowSecrets">
             <summary>
             Show config secrets when they appear.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RefreshOptions.SkipPendingCreates">
+            <summary>
+            Ignores any pending create operations
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RefreshOptions.ClearPendingCreates">
+            <summary>
+            Removes any pending create operations from the stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RefreshOptions.ImportPendingCreates">
+            <summary>
+            <see cref="T:Pulumi.Automation.PendingCreateValue"/> values to import into the stack
             </summary>
         </member>
         <member name="T:Pulumi.Automation.RemoteDestroyOptions">

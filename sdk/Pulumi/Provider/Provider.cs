@@ -525,7 +525,7 @@ namespace Pulumi.Experimental.Provider
             {
                 return ImmutableDictionary<string, PropertyValue>.Empty;
             }
-            return PropertyValue.Marshal(properties);
+            return PropertyValue.Unmarshal(properties);
         }
 
         public override async Task<Pulumirpc.CheckResponse> CheckConfig(Pulumirpc.CheckRequest request, ServerCallContext context)
@@ -536,7 +536,7 @@ namespace Pulumi.Experimental.Provider
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Unmarshal(domResponse.Inputs);
+                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 if (domResponse.Failures != null)
                 {
                     foreach (var domFailure in domResponse.Failures)
@@ -623,7 +623,7 @@ namespace Pulumi.Experimental.Provider
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Invoke(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.InvokeResponse();
-                grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Unmarshal(domResponse.Return);
+                grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return);
                 if (domResponse.Failures != null)
                 {
                     foreach (var domFailure in domResponse.Failures)
@@ -735,7 +735,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Create(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CreateResponse();
                 grpcResponse.Id = domResponse.Id ?? "";
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Unmarshal(domResponse.Properties);
+                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -761,8 +761,8 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Read(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ReadResponse();
                 grpcResponse.Id = domResponse.Id ?? "";
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Unmarshal(domResponse.Properties);
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Unmarshal(domResponse.Inputs);
+                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
+                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -787,7 +787,7 @@ namespace Pulumi.Experimental.Provider
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Unmarshal(domResponse.Inputs);
+                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 if (domResponse.Failures != null)
                 {
                     foreach (var domFailure in domResponse.Failures)
@@ -874,7 +874,7 @@ namespace Pulumi.Experimental.Provider
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Update(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.UpdateResponse();
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Unmarshal(domResponse.Properties);
+                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
                 return grpcResponse;
             }
             catch (NotImplementedException ex)

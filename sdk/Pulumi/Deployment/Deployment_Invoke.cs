@@ -84,7 +84,7 @@ namespace Pulumi
 
             var protoArgs = serializedArgs.ToSerializationResult();
             var result = await InvokeRawAsync(token, protoArgs, options).ConfigureAwait(false);
-            var data = Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result",
+            var data = Pulumi.Serialization.Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result",
                                                  new Value { StructValue = result.Serialized });
             var resources = ImmutableHashSet.CreateRange(
                 result.PropertyToDependentResources.Values.SelectMany(r => r)
@@ -105,7 +105,7 @@ namespace Pulumi
                 return default!;
             }
 
-            var data = Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result", new Value { StructValue = result.Serialized });
+            var data = Pulumi.Serialization.Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result", new Value { StructValue = result.Serialized });
             return data.Value;
         }
 

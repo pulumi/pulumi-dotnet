@@ -160,15 +160,12 @@ namespace Pulumi
         /// <see cref="TestOutputsWithServiceProviderAsync{TStack}(IMocks, IServiceProvider, TestOptions)"/>
         /// must run serially; parallel execution is not supported.
         /// </summary>
-        /// <param name="mocks">Hooks to mock the engine calls.</param>
+        /// <param name="testMocks">Hooks to mock the engine calls.</param>
         /// <param name="serviceProvider"></param>
         /// <param name="options">Optional settings for the test run.</param>
         /// <typeparam name="TStack">The type of the stack to test.</typeparam>
         /// <returns>Test result containing created resources, stack outputs and errors, if any.</returns>
-        public static async Task<(ImmutableArray<Resource> Resources, IDictionary<string, object?> Outputs)> TestOutputsWithServiceProviderAsync<TStack>(
-            IMocks testMocks, 
-            IServiceProvider serviceProvider, 
-            TestOptions? options = null)
+        public static async Task<(ImmutableArray<Resource> Resources, IDictionary<string, object?> Outputs)> TestOutputsWithServiceProviderAsync<TStack>(IMocks testMocks, IServiceProvider serviceProvider, TestOptions? options = null)
             where TStack : Stack
         {
             var createdResources = await TestAsync(

@@ -3,5 +3,8 @@
 
   - [sdk/providers] Updated names of "Olds" and "News" to make it clear if they are old/new inputs or state. Also removed the GetPluginInfo overload, version should now be passed into the main Serve method (defaults to the assembly version).
     [#99](https://github.com/pulumi/pulumi-dotnet/pull/99)
+    
+  - [sdk] Expand service provider test stack to include outputs.
+    [#101](https://github.com/pulumi/pulumi-dotnet/pull/101) 
 
 ### Bug Fixes

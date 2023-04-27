@@ -11,6 +11,9 @@
 
   - [sdk] Updated to the latest pulumi protobuf specification.
     [#135](https://github.com/pulumi/pulumi-dotnet/pull/135)
+    
+  - [sdk] Expand service provider test stack to include outputs.
+    [#101](https://github.com/pulumi/pulumi-dotnet/pull/101) 
 
 ### Bug Fixes
   - [sdk] Fix JSON serialisation of Input<T> types.

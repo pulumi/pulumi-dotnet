@@ -272,60 +272,65 @@ namespace Pulumi.Experimental.Provider
     {
         public virtual Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(GetSchema)}' is not implemented ");
         }
 
         public virtual Task<CheckResponse> CheckConfig(CheckRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(CheckConfig)}' is not implemented ");
         }
 
         public virtual Task<DiffResponse> DiffConfig(DiffRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(DiffConfig)}' is not implemented ");
         }
 
         public virtual Task<ConfigureResponse> Configure(ConfigureRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Configure)}' is not implemented ");
         }
 
         public virtual Task<InvokeResponse> Invoke(InvokeRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Invoke)}' is not implemented ");
         }
 
         public virtual Task<CreateResponse> Create(CreateRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Create)}' is not implemented ");
         }
 
         public virtual Task<ReadResponse> Read(ReadRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Read)}' is not implemented ");
         }
 
         public virtual Task<CheckResponse> Check(CheckRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Check)}' is not implemented ");
         }
 
         public virtual Task<DiffResponse> Diff(DiffRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Diff)}' is not implemented ");
         }
 
         public virtual Task<UpdateResponse> Update(UpdateRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Update)}' is not implemented ");
         }
 
         public virtual Task Delete(DeleteRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"The method '{nameof(Delete)}' is not implemented ");
         }
 
-        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        public static Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        {
+            return Serve(args, version, factory, cancellationToken, System.Console.Out);
+        }
+
+        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
@@ -367,6 +372,7 @@ namespace Pulumi.Experimental.Provider
                         {
                             // to be injected into ResourceProviderService
                             services.AddSingleton(factory);
+                            services.AddSingleton<ResourceProviderService>();
 
                             services.AddGrpc(grpcOptions =>
                             {
@@ -411,7 +417,7 @@ namespace Pulumi.Experimental.Provider
             // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
             // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
             // we work around this here so that old engines can use dotnet providers as well.
-            System.Console.Write(port.ToString() + "\n");
+            stdout.Write(port.ToString() + "\n");
 
             await host.WaitForShutdownAsync(cancellationToken);
 
@@ -511,15 +517,26 @@ namespace Pulumi.Experimental.Provider
             return CancellationTokenSource.CreateLinkedTokenSource(rootCTS.Token, context.CancellationToken);
         }
 
+        // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
+        // This keeps the PropertyValue.Marshal clean in terms of not handling nulls.
+        private ImmutableDictionary<string, PropertyValue> Marshal(Struct? properties)
+        {
+            if (properties == null)
+            {
+                return ImmutableDictionary<string, PropertyValue>.Empty;
+            }
+            return PropertyValue.Unmarshal(properties);
+        }
+
         public override async Task<Pulumirpc.CheckResponse> CheckConfig(Pulumirpc.CheckRequest request, ServerCallContext context)
         {
             try
             {
-                var domRequest = new CheckRequest(request.Urn, PropertyValue.Marshal(request.Olds), PropertyValue.Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Unmarshal(domResponse.Inputs);
+                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 if (domResponse.Failures != null)
                 {
                     foreach (var domFailure in domResponse.Failures)
@@ -550,7 +567,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(request.Urn, request.Id, PropertyValue.Marshal(request.Olds), PropertyValue.Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -602,11 +619,11 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new InvokeRequest(request.Tok, PropertyValue.Marshal(request.Args));
+                var domRequest = new InvokeRequest(request.Tok, Marshal(request.Args));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Invoke(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.InvokeResponse();
-                grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Unmarshal(domResponse.Return);
+                grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return);
                 if (domResponse.Failures != null)
                 {
                     foreach (var domFailure in domResponse.Failures)
@@ -662,7 +679,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), PropertyValue.Marshal(request.Args), request.AcceptSecrets, request.AcceptResources);
+                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Marshal(request.Args), request.AcceptSecrets, request.AcceptResources);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Configure(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ConfigureResponse();
@@ -713,12 +730,12 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CreateRequest(request.Urn, PropertyValue.Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout), request.Preview);
+                var domRequest = new CreateRequest(request.Urn, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout), request.Preview);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Create(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CreateResponse();
                 grpcResponse.Id = domResponse.Id ?? "";
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Unmarshal(domResponse.Properties);
+                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -739,13 +756,13 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ReadRequest(request.Urn, request.Id, PropertyValue.Marshal(request.Properties), PropertyValue.Marshal(request.Inputs));
+                var domRequest = new ReadRequest(request.Urn, request.Id, Marshal(request.Properties), Marshal(request.Inputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Read(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ReadResponse();
                 grpcResponse.Id = domResponse.Id ?? "";
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Unmarshal(domResponse.Properties);
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Unmarshal(domResponse.Inputs);
+                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
+                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -766,11 +783,11 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(request.Urn, PropertyValue.Marshal(request.Olds), PropertyValue.Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Unmarshal(domResponse.Inputs);
+                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 if (domResponse.Failures != null)
                 {
                     foreach (var domFailure in domResponse.Failures)
@@ -801,7 +818,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(request.Urn, request.Id, PropertyValue.Marshal(request.Olds), PropertyValue.Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Diff(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -853,11 +870,11 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new UpdateRequest(request.Urn, request.Id, PropertyValue.Marshal(request.Olds), PropertyValue.Marshal(request.News), TimeSpan.FromSeconds(request.Timeout), request.IgnoreChanges.ToImmutableArray(), request.Preview);
+                var domRequest = new UpdateRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), TimeSpan.FromSeconds(request.Timeout), request.IgnoreChanges.ToImmutableArray(), request.Preview);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Update(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.UpdateResponse();
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Unmarshal(domResponse.Properties);
+                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -878,7 +895,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DeleteRequest(request.Urn, request.Id, PropertyValue.Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
+                var domRequest = new DeleteRequest(request.Urn, request.Id, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
                 using var cts = GetToken(context);
                 await Implementation.Delete(domRequest, cts.Token);
                 return new Empty();

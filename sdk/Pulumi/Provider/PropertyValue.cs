@@ -554,17 +554,17 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        internal static ImmutableDictionary<string, PropertyValue> Marshal(Struct properties)
+        internal static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct properties)
         {
             var builder = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
             foreach (var item in properties.Fields)
             {
-                builder.Add(item.Key, Marshal(item.Value));
+                builder.Add(item.Key, Unmarshal(item.Value));
             }
             return builder.ToImmutable();
         }
 
-        internal static PropertyValue Marshal(Value value)
+        internal static PropertyValue Unmarshal(Value value)
         {
             switch (value.KindCase)
             {
@@ -589,7 +589,7 @@ namespace Pulumi.Experimental.Provider
                         var builder = ImmutableArray.CreateBuilder<PropertyValue>(listValue.Values.Count);
                         foreach (var item in listValue.Values)
                         {
-                            builder.Add(Marshal(item));
+                            builder.Add(Unmarshal(item));
                         }
                         return new PropertyValue(builder.ToImmutable());
                     }
@@ -607,7 +607,7 @@ namespace Pulumi.Experimental.Provider
                                         if (!structValue.Fields.TryGetValue(Constants.ValueName, out var secretValue))
                                             throw new InvalidOperationException("Secrets must have a field called 'value'");
 
-                                        return new PropertyValue(Marshal(secretValue));
+                                        return new PropertyValue(Unmarshal(secretValue));
                                     }
                                 case Constants.SpecialAssetSig:
                                     {
@@ -637,7 +637,7 @@ namespace Pulumi.Experimental.Provider
                                                 var assets = ImmutableDictionary.CreateBuilder<string, AssetOrArchive>();
                                                 foreach (var (name, val) in assetsValue.StructValue.Fields)
                                                 {
-                                                    var innerAssetOrArchive = Marshal(val);
+                                                    var innerAssetOrArchive = Unmarshal(val);
                                                     if (innerAssetOrArchive.AssetValue != null)
                                                     {
                                                         assets[name] = innerAssetOrArchive.AssetValue;
@@ -675,14 +675,14 @@ namespace Pulumi.Experimental.Provider
                                             throw new InvalidOperationException("Value was marked as a Resource, but did not conform to required shape.");
                                         }
 
-                                        return new PropertyValue(new ResourceReference(urn, Marshal(id), version));
+                                        return new PropertyValue(new ResourceReference(urn, Unmarshal(id), version));
                                     }
                                 case Constants.SpecialOutputValueSig:
                                     {
                                         PropertyValue? element = null;
                                         if (structValue.Fields.TryGetValue(Constants.ValueName, out var knownElement))
                                         {
-                                            element = Marshal(knownElement);
+                                            element = Unmarshal(knownElement);
                                         }
                                         var secret = false;
                                         if (structValue.Fields.TryGetValue(Constants.SecretName, out var v))
@@ -742,7 +742,7 @@ namespace Pulumi.Experimental.Provider
                             var builder = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
                             foreach (var item in structValue.Fields)
                             {
-                                builder.Add(item.Key, Marshal(item.Value));
+                                builder.Add(item.Key, Unmarshal(item.Value));
                             }
                             return new PropertyValue(builder.ToImmutable());
                         }
@@ -754,17 +754,17 @@ namespace Pulumi.Experimental.Provider
             }
         }
 
-        internal static Struct Unmarshal(IDictionary<string, PropertyValue> properties)
+        internal static Struct Marshal(IDictionary<string, PropertyValue> properties)
         {
             var result = new Struct();
             foreach (var item in properties)
             {
-                result.Fields[item.Key] = Unmarshal(item.Value);
+                result.Fields[item.Key] = Marshal(item.Value);
             }
             return result;
         }
 
-        private static Value UnmarshalAsset(Asset asset)
+        private static Value MarshalAsset(Asset asset)
         {
             var result = new Struct();
             result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialAssetSig);
@@ -772,7 +772,7 @@ namespace Pulumi.Experimental.Provider
             return Value.ForStruct(result);
         }
 
-        private static Value UnmarshalArchive(Archive archive)
+        private static Value MarshalArchive(Archive archive)
         {
             var result = new Struct();
             result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialAssetSig);
@@ -787,33 +787,33 @@ namespace Pulumi.Experimental.Provider
                 var innerStruct = new Struct();
                 foreach (var item in inner)
                 {
-                    innerStruct.Fields[item.Key] = UnmarshalAssetOrArchive(item.Value);
+                    innerStruct.Fields[item.Key] = MarshalAssetOrArchive(item.Value);
                 }
                 result.Fields[archive.PropName] = Value.ForStruct(innerStruct);
             }
             return Value.ForStruct(result);
         }
 
-        private static Value UnmarshalAssetOrArchive(AssetOrArchive assetOrArchive)
+        private static Value MarshalAssetOrArchive(AssetOrArchive assetOrArchive)
         {
             if (assetOrArchive is Asset asset)
             {
-                return UnmarshalAsset(asset);
+                return MarshalAsset(asset);
             }
             else if (assetOrArchive is Archive archive)
             {
-                return UnmarshalArchive(archive);
+                return MarshalArchive(archive);
             }
             throw new InvalidOperationException("Internal error, AssetOrArchive was neither an Asset or Archive");
         }
 
-        private static Value UnmarshalOutput(OutputReference output, bool secret)
+        private static Value MarshalOutput(OutputReference output, bool secret)
         {
             var result = new Struct();
             result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialOutputValueSig);
             if (output.Value != null)
             {
-                result.Fields[Constants.ValueName] = Unmarshal(output.Value);
+                result.Fields[Constants.ValueName] = Marshal(output.Value);
             }
 
             var dependencies = new Value[output.Dependencies.Length];
@@ -828,7 +828,7 @@ namespace Pulumi.Experimental.Provider
             return Value.ForStruct(result);
         }
 
-        internal static Value Unmarshal(PropertyValue value)
+        internal static Value Marshal(PropertyValue value)
         {
             return value.Match<Value>(
                 () => Value.ForNull(),
@@ -840,7 +840,7 @@ namespace Pulumi.Experimental.Provider
                     var result = new Value[a.Length];
                     for (int i = 0; i < a.Length; ++i)
                     {
-                        result[i] = Unmarshal(a[i]);
+                        result[i] = Marshal(a[i]);
                     }
                     return Value.ForList(result);
                 },
@@ -849,22 +849,22 @@ namespace Pulumi.Experimental.Provider
                     var result = new Struct();
                     foreach (var item in o)
                     {
-                        result.Fields[item.Key] = Unmarshal(item.Value);
+                        result.Fields[item.Key] = Marshal(item.Value);
                     }
                     return Value.ForStruct(result);
                 },
-                asset => UnmarshalAsset(asset),
-                archive => UnmarshalArchive(archive),
+                asset => MarshalAsset(asset),
+                archive => MarshalArchive(archive),
                 secret =>
                 {
                     // Special case if our secret value is an output
                     if (secret.OutputValue != null)
                     {
-                        return UnmarshalOutput(secret.OutputValue.Value, true);
+                        return MarshalOutput(secret.OutputValue.Value, true);
                     }
                     var result = new Struct();
                     result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialSecretSig);
-                    result.Fields[Constants.ValueName] = Unmarshal(secret);
+                    result.Fields[Constants.ValueName] = Marshal(secret);
                     return Value.ForStruct(result);
                 },
                 resource =>
@@ -872,14 +872,14 @@ namespace Pulumi.Experimental.Provider
                     var result = new Struct();
                     result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialResourceSig);
                     result.Fields[Constants.UrnPropertyName] = Value.ForString(resource.URN);
-                    result.Fields[Constants.IdPropertyName] = Unmarshal(resource.Id);
+                    result.Fields[Constants.IdPropertyName] = Marshal(resource.Id);
                     if (resource.PackageVersion != "")
                     {
                         result.Fields[Constants.ResourceVersionName] = Value.ForString(resource.PackageVersion);
                     }
                     return Value.ForStruct(result);
                 },
-                output => UnmarshalOutput(output, false),
+                output => MarshalOutput(output, false),
                 () => Value.ForString(Constants.UnknownValue)
             );
         }

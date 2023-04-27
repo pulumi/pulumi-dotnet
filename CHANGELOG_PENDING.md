@@ -1,10 +1,23 @@
 ### Improvements
-  - [sdk] Lazily initialize all alias combinations for older Pulumi engines during `RegisterRequest` preparation, not when constructing resources. Re-enable tests for `AllAliases` [#97](https://github.com/pulumi/pulumi-dotnet/pull/97)
 
-  - [sdk/providers] Updated names of "Olds" and "News" to make it clear if they are old/new inputs or state. Also removed the GetPluginInfo overload, version should now be passed into the main Serve method (defaults to the assembly version).
-    [#99](https://github.com/pulumi/pulumi-dotnet/pull/99)
+  - [sdk] When an exception is thrown from the constructor of a `Stack` subclass, prevent `TargetInvocationException` from obscuring the error message.
+    [#106](https://github.com/pulumi/pulumi-dotnet/pull/106)
+
+  - [sdk/auto] Added additional fields to `WhoAmIResult` for URL and organizations.
+    [#120](https://github.com/pulumi/pulumi-dotnet/pull/120)
+
+  - [sdk/auto] Expose additional Pulumi refresh options to the Automation API.
+    [#117](https://github.com/pulumi/pulumi-dotnet/pull/117)
+
+  - [sdk] Updated to the latest pulumi protobuf specification.
+    [#135](https://github.com/pulumi/pulumi-dotnet/pull/135)
     
   - [sdk] Expand service provider test stack to include outputs.
     [#101](https://github.com/pulumi/pulumi-dotnet/pull/101) 
 
 ### Bug Fixes
+  - [sdk] Fix JSON serialisation of Input<T> types.
+    [#112](https://github.com/pulumi/pulumi-dotnet/pull/112)
+
+  - [sdk] Improve the error message from not implemented provider methods.
+    [#125](https://github.com/pulumi/pulumi-dotnet/pull/125)

@@ -38,6 +38,26 @@ namespace Pulumi.Tests
         }
 
         [Fact]
+        public async Task DisplaysExceptionFromStack()
+        {
+            var deployResult = await Deployment.TryTestAsync<ThrowsExceptionStack>(new EmptyMocks());
+            Assert.NotNull(deployResult.Exception);
+            Assert.IsType<RunException>(deployResult.Exception!);
+            Assert.Contains(ThrowsExceptionStack.EXPECTED_MESSAGE, deployResult.Exception!.Message);
+            Assert.DoesNotContain(nameof(System.Reflection.TargetInvocationException), deployResult.Exception!.Message);
+        }
+
+        class ThrowsExceptionStack : Stack
+        {
+            public const string EXPECTED_MESSAGE = "My exception message.";
+
+            public ThrowsExceptionStack()
+            {
+                throw new Exception(EXPECTED_MESSAGE);
+            }
+        }
+
+        [Fact]
         public async Task LogsTaskDescriptions()
         {
             var resources = await Deployment.TestAsync<LogsTaskDescriptionsStack>(new EmptyMocks());

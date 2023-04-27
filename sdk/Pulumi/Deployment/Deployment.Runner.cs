@@ -69,7 +69,7 @@ namespace Pulumi
                     ?? throw new ApplicationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
             }
 
-            Task<int> IRunner.RunAsync<TStack>() => RunAsync(() => new TStack());
+            Task<int> IRunner.RunAsync<TStack>() => RunAsync(() => (TStack)Activator.CreateInstance(typeof(TStack), BindingFlags.DoNotWrapExceptions, binder: null, args: null, culture: null)!);
 
             public Task<int> RunAsync<TStack>(Func<TStack> stackFactory) where TStack : Stack
             {

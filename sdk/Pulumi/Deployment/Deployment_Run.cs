@@ -165,13 +165,16 @@ namespace Pulumi
         /// <param name="options">Optional settings for the test run.</param>
         /// <typeparam name="TStack">The type of the stack to test.</typeparam>
         /// <returns>Test result containing created resources, stack outputs and errors, if any.</returns>
-        public static Task<(ImmutableArray<Resource> Resources, IDictionary<string, object?> Outputs)> TestOutputsWithServiceProviderAsync<TStack>(IMocks mocks, IServiceProvider serviceProvider, TestOptions? options = null)
+        public static async Task<(ImmutableArray<Resource> Resources, IDictionary<string, object?> Outputs)> TestOutputsWithServiceProviderAsync<TStack>(
+            IMocks testMocks, 
+            IServiceProvider serviceProvider, 
+            TestOptions? options = null)
             where TStack : Stack
         {
             var createdResources = await TestAsync(
                 mocks: testMocks,
                 runAsync: runner => runner.RunAsync<TStack>(serviceProvider),
-                testOptions);
+                options);
 
             return TestResults(createdResources);
         }

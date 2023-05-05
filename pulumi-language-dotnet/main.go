@@ -1,4 +1,4 @@
-// Copyright 2016-2021, Pulumi Corporation.
+// Copyright 2016-2023, Pulumi Corporation.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -131,6 +131,8 @@ func main() {
 // dotnetLanguageHost implements the LanguageRuntimeServer interface
 // for use as an API endpoint.
 type dotnetLanguageHost struct {
+	pulumirpc.UnsafeLanguageRuntimeServer
+
 	exec                 string
 	engineAddress        string
 	tracing              string
@@ -687,21 +689,17 @@ func (host *dotnetLanguageHost) GetPluginInfo(ctx context.Context, req *pbempty.
 	}, nil
 }
 
-func (host *dotnetLanguageHost) InstallDependencies(
-	req *pulumirpc.InstallDependenciesRequest, server pulumirpc.LanguageRuntime_InstallDependenciesServer) error {
-
-	closer, stdout, stderr, err := rpcutil.MakeInstallDependenciesStreams(server, req.IsTerminal)
-	if err != nil {
-		return err
-	}
-	// best effort close, but we try an explicit close and error check at the end as well
-	defer closer.Close()
+func (host *dotnetLanguageHost) InstallDependencies(ctx context.Context,
+	req *pulumirpc.InstallDependenciesRequest,
+) (*pulumirpc.InstallDependenciesResponse, error) {
+	stdout := os.NewFile(uintptr(req.StdoutHandle), "<stdout>")
+	stderr := os.NewFile(uintptr(req.StderrHandle), "<stderr>")
 
 	stdout.Write([]byte("Installing dependencies...\n\n"))
 
 	dotnetbin, err := executable.FindExecutable("dotnet")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	cmd := exec.Command(dotnetbin, "build")
@@ -710,16 +708,12 @@ func (host *dotnetLanguageHost) InstallDependencies(
 	cmd.Stdout, cmd.Stderr = stdout, stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("`dotnet build` failed to install dependencies: %w", err)
+		return nil, fmt.Errorf("`dotnet build` failed to install dependencies: %w", err)
 
 	}
 	stdout.Write([]byte("Finished installing dependencies\n\n"))
 
-	if err := closer.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return &pulumirpc.InstallDependenciesResponse{}, nil
 }
 
 func (host *dotnetLanguageHost) About(ctx context.Context, req *pbempty.Empty) (*pulumirpc.AboutResponse, error) {

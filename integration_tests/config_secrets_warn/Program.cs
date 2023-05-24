@@ -30,6 +30,11 @@ class Program
             config.GetSecretInt32("plainint3");
             config.RequireSecretInt32("plainint4");
 
+            config.GetDouble("plaindouble1");
+            config.RequireDouble("plaindouble2");
+            config.GetSecretDouble("plaindouble3");
+            config.RequireSecretDouble("plaindouble4");
+
             config.GetObject<JsonElement>("plainobj1");
             config.RequireObject<JsonElement>("plainobj2");
             config.GetSecretObject<JsonElement>("plainobj3");
@@ -49,6 +54,11 @@ class Program
             config.RequireInt32("int2");
             config.GetSecretInt32("int3");
             config.RequireSecretInt32("int4");
+
+            config.GetDouble("double1");
+            config.RequireDouble("double2");
+            config.GetSecretDouble("double3");
+            config.RequireSecretDouble("double4");
 
             config.GetObject<JsonElement>("obj1");
             config.RequireObject<JsonElement>("obj2");

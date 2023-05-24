@@ -12,6 +12,9 @@
   - [sdk] Updated to the latest pulumi protobuf specification.
     [#135](https://github.com/pulumi/pulumi-dotnet/pull/135)
 
+  - [sdk] Added `GetDouble` to `Config`.
+    [#143](https://github.com/pulumi/pulumi-dotnet/pull/143)
+
 ### Bug Fixes
   - [sdk] Fix JSON serialisation of Input<T> types.
     [#112](https://github.com/pulumi/pulumi-dotnet/pull/112)

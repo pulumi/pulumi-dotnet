@@ -128,6 +128,31 @@ namespace Pulumi
         public Output<int>? GetSecretInt32(string key)
             => MakeStructSecret(GetInt32Impl(key));
 
+        private double? GetDoubleImpl(string key, string? use = null, [CallerMemberName] string? insteadOf = null)
+        {
+            var v = GetImpl(key, use, insteadOf);
+            return v == null
+                ? default(double?)
+                : double.TryParse(v, out var result)
+                    ? result
+                    : throw new ConfigTypeException(FullKey(key), v, nameof(Double));
+        }
+
+        /// <summary>
+        /// Loads an optional configuration value, as a number, by its key, or null if it doesn't exist.
+        /// If the configuration value isn't a legal number, this function will throw an error.
+        /// </summary>
+        public double? GetDouble(string key)
+            => GetDoubleImpl(key, nameof(GetSecretDouble));
+
+        /// <summary>
+        /// Loads an optional configuration value, as a number, by its key, making it as a secret or
+        /// null if it doesn't exist. If the configuration value isn't a legal number, this
+        /// function will throw an error.
+        /// </summary>
+        public Output<double>? GetSecretDouble(string key)
+            => MakeStructSecret(GetDoubleImpl(key));
+
         [return: MaybeNull]
         private T GetObjectImpl<T>(string key, string? use = null, [CallerMemberName] string? insteadOf = null)
         {
@@ -214,6 +239,23 @@ namespace Pulumi
         /// </summary>
         public Output<int> RequireSecretInt32(string key)
             => MakeStructSecret(RequireInt32Impl(key));
+
+        private double RequireDoubleImpl(string key, string? use = null, [CallerMemberName] string? insteadOf = null)
+            => GetDoubleImpl(key, use, insteadOf) ?? throw new ConfigMissingException(FullKey(key));
+
+        /// <summary>
+        /// Loads a configuration value, as a number, by its given key.  If it doesn't exist, or the
+        /// configuration value is not a legal number, an error is thrown.
+        /// </summary>
+        public double RequireDouble(string key)
+            => RequireDoubleImpl(key, nameof(RequireSecretDouble));
+
+        /// <summary>
+        /// Loads a configuration value, as a number, by its given key, marking it as a secret.
+        /// If it doesn't exist, or the configuration value is not a legal number, an error is thrown.
+        /// </summary>
+        public Output<double> RequireSecretDouble(string key)
+            => MakeStructSecret(RequireDoubleImpl(key));
 
         private T RequireObjectImpl<T>(string key, string? use = null, [CallerMemberName] string? insteadOf = null)
         {

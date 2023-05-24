@@ -456,3 +456,7 @@ pulumi-language-dotnet
 dist
 .lock
 pulumi-resource-testprovider
+
+# Ignore user-provided go.work files.
+/go.work
+/go.work.sum

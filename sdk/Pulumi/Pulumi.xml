@@ -65,6 +65,19 @@
             If the configuration value isn't a legal number, this function will throw an error.
             </summary>
         </member>
+        <member name="M:Pulumi.Config.GetDouble(System.String)">
+            <summary>
+            Loads an optional configuration value, as a number, by its key, or null if it doesn't exist.
+            If the configuration value isn't a legal number, this function will throw an error.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Config.GetSecretDouble(System.String)">
+            <summary>
+            Loads an optional configuration value, as a number, by its key, making it as a secret or
+            null if it doesn't exist. If the configuration value isn't a legal number, this
+            function will throw an error.
+            </summary>
+        </member>
         <member name="M:Pulumi.Config.GetObject``1(System.String)">
             <summary>
             Loads an optional configuration value, as an object, by its key, or null if it doesn't
@@ -109,6 +122,18 @@
             </summary>
         </member>
         <member name="M:Pulumi.Config.RequireSecretInt32(System.String)">
+            <summary>
+            Loads a configuration value, as a number, by its given key, marking it as a secret.
+            If it doesn't exist, or the configuration value is not a legal number, an error is thrown.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Config.RequireDouble(System.String)">
+            <summary>
+            Loads a configuration value, as a number, by its given key.  If it doesn't exist, or the
+            configuration value is not a legal number, an error is thrown.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Config.RequireSecretDouble(System.String)">
             <summary>
             Loads a configuration value, as a number, by its given key, marking it as a secret.
             If it doesn't exist, or the configuration value is not a legal number, an error is thrown.
@@ -3599,6 +3624,228 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Analyzer.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Analyzer.AnalyzerBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="T:Pulumirpc.ConverterReflection">
+            <summary>Holder for reflection information generated from pulumi/converter.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.ConverterReflection.Descriptor">
+            <summary>File descriptor for pulumi/converter.proto</summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertStateRequest.MapperTargetFieldNumber">
+            <summary>Field number for the "mapper_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertStateRequest.MapperTarget">
+            <summary>
+            the gRPC address of the mapper service.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceImport">
+            <summary>
+            A ResourceImport specifies a resource to import.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Type">
+            <summary>
+            the type token for the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Name">
+            <summary>
+            the name of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.IdFieldNumber">
+            <summary>Field number for the "id" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Id">
+            <summary>
+            the ID of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Version">
+            <summary>
+            the provider version to use for the resource, if any.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.PluginDownloadURLFieldNumber">
+            <summary>Field number for the "pluginDownloadURL" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.PluginDownloadURL">
+            <summary>
+            the provider PluginDownloadURL to use for the resource, if any.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertStateResponse.ResourcesFieldNumber">
+            <summary>Field number for the "resources" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertStateResponse.Resources">
+            <summary>
+            a list of resources to import.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertProgramRequest.SourceDirectoryFieldNumber">
+            <summary>Field number for the "source_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertProgramRequest.SourceDirectory">
+            <summary>
+            the source directory containing the program to convert from.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertProgramRequest.TargetDirectoryFieldNumber">
+            <summary>Field number for the "target_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertProgramRequest.TargetDirectory">
+            <summary>
+            a target directory to write the resulting PCL code and project file to.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertProgramRequest.MapperTargetFieldNumber">
+            <summary>Field number for the "mapper_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertProgramRequest.MapperTarget">
+            <summary>
+            the gRPC address of the mapper service.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Converter">
+            <summary>
+            Converter is a service for converting between other ecosystems and Pulumi.
+            This is currently unstable and experimental.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.Converter.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Pulumirpc.Converter.ConverterBase">
+            <summary>Base class for server-side implementations of Converter</summary>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterBase.ConvertState(Pulumirpc.ConvertStateRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            ConvertState converts state from the target ecosystem into a form that can be imported into Pulumi.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterBase.ConvertProgram(Pulumirpc.ConvertProgramRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            ConvertProgram converts a program from the target ecosystem into a form that can be used with Pulumi.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Pulumirpc.Converter.ConverterClient">
+            <summary>Client for Converter</summary>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for Converter</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for Converter that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertState(Pulumirpc.ConvertStateRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            ConvertState converts state from the target ecosystem into a form that can be imported into Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertState(Pulumirpc.ConvertStateRequest,Grpc.Core.CallOptions)">
+            <summary>
+            ConvertState converts state from the target ecosystem into a form that can be imported into Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertStateAsync(Pulumirpc.ConvertStateRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            ConvertState converts state from the target ecosystem into a form that can be imported into Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertStateAsync(Pulumirpc.ConvertStateRequest,Grpc.Core.CallOptions)">
+            <summary>
+            ConvertState converts state from the target ecosystem into a form that can be imported into Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertProgram(Pulumirpc.ConvertProgramRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            ConvertProgram converts a program from the target ecosystem into a form that can be used with Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertProgram(Pulumirpc.ConvertProgramRequest,Grpc.Core.CallOptions)">
+            <summary>
+            ConvertProgram converts a program from the target ecosystem into a form that can be used with Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertProgramAsync(Pulumirpc.ConvertProgramRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            ConvertProgram converts a program from the target ecosystem into a form that can be used with Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertProgramAsync(Pulumirpc.ConvertProgramRequest,Grpc.Core.CallOptions)">
+            <summary>
+            ConvertProgram converts a program from the target ecosystem into a form that can be used with Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Pulumirpc.Converter.BindService(Pulumirpc.Converter.ConverterBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Pulumirpc.Converter.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Converter.ConverterBase)">
             <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
@@ -7148,6 +7395,127 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.ResourceMonitor.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.ResourceMonitor.ResourceMonitorBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="T:Codegen.MapperReflection">
+            <summary>Holder for reflection information generated from pulumi/codegen/mapper.proto</summary>
+        </member>
+        <member name="P:Codegen.MapperReflection.Descriptor">
+            <summary>File descriptor for pulumi/codegen/mapper.proto</summary>
+        </member>
+        <member name="T:Codegen.GetMappingRequest">
+            <summary>
+            GetMappingRequest allows the engine to return ecosystem specific information to allow the converter to be
+            convert provider types from a source markup to Pulumi.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetMappingRequest.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="P:Codegen.GetMappingRequest.Provider">
+            <summary>
+            the provider name for the mapping being requested.
+            </summary>
+        </member>
+        <member name="T:Codegen.GetMappingResponse">
+            <summary>
+            GetMappingResponse returns converter plugin specific data for the requested provider. This will normally be human
+            readable JSON, but the engine doesn't mandate any form.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetMappingResponse.DataFieldNumber">
+            <summary>Field number for the "data" field.</summary>
+        </member>
+        <member name="P:Codegen.GetMappingResponse.Data">
+            <summary>
+            the conversion plugin specific data (if any)
+            </summary>
+        </member>
+        <member name="T:Codegen.Mapper">
+            <summary>
+            Mapper is a service for getting mappings from other ecosystems to Pulumi.
+            This is currently unstable and experimental.
+            </summary>
+        </member>
+        <member name="P:Codegen.Mapper.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Codegen.Mapper.MapperBase">
+            <summary>Base class for server-side implementations of Mapper</summary>
+        </member>
+        <member name="M:Codegen.Mapper.MapperBase.GetMapping(Codegen.GetMappingRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GetMapping tries to find a mapping for the given provider.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Codegen.Mapper.MapperClient">
+            <summary>Client for Mapper</summary>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for Mapper</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for Mapper that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.GetMapping(Codegen.GetMappingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetMapping tries to find a mapping for the given provider.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.GetMapping(Codegen.GetMappingRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetMapping tries to find a mapping for the given provider.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.GetMappingAsync(Codegen.GetMappingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetMapping tries to find a mapping for the given provider.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.GetMappingAsync(Codegen.GetMappingRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetMapping tries to find a mapping for the given provider.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Codegen.Mapper.MapperClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Codegen.Mapper.BindService(Codegen.Mapper.MapperBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Codegen.Mapper.BindService(Grpc.Core.ServiceBinderBase,Codegen.Mapper.MapperBase)">
             <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>

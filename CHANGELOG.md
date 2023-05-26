@@ -1,3 +1,10 @@
+# 3.55.1 (2023-05-26)
+
+### Bug Fixes
+
+- [sdk] Fix serialization secret JSON resource arguments.
+  [#144](https://github.com/pulumi/pulumi-dotnet/pull/144)
+
 # 3.55.0 (2023-05-24)
 
 ### Improvements
@@ -18,6 +25,7 @@
     [#143](https://github.com/pulumi/pulumi-dotnet/pull/143)
 
 ### Bug Fixes
+
   - [sdk] Fix JSON serialisation of Input<T> types.
     [#112](https://github.com/pulumi/pulumi-dotnet/pull/112)
 

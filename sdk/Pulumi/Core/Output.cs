@@ -400,6 +400,8 @@ namespace Pulumi
         /// <see cref="OutputData{X}.Value"/> casted to an object.
         /// </summary>
         Task<OutputData<object?>> GetDataAsync();
+
+        Output<U> UntypedApply<U>(Func<object?, Output<U>> func);
     }
 
     /// <summary>
@@ -570,6 +572,11 @@ namespace Pulumi
             return OutputData.Create(
                 data.Resources.Union(innerData.Resources), innerData.Value,
                 data.IsKnown && innerData.IsKnown, data.IsSecret || innerData.IsSecret);
+        }
+
+        public Output<U> UntypedApply<U>(Func<object?, Output<U>> func)
+        {
+            return Apply(v => func(v));
         }
 
         internal static Output<ImmutableArray<T>> All(ImmutableArray<Input<T>> inputs)

@@ -46,7 +46,7 @@ namespace Pulumi
                 new InputInfo(t.attr!, t.memberName, t.memberType, t.getValue)).ToImmutableArray();
         }
 
-        internal virtual async Task<ImmutableDictionary<string, object?>> ToDictionaryAsync()
+        internal virtual Task<ImmutableDictionary<string, object?>> ToDictionaryAsync()
         {
             var builder = ImmutableDictionary.CreateBuilder<string, object?>();
             foreach (var info in _inputInfos)
@@ -61,24 +61,37 @@ namespace Pulumi
 
                 if (info.Attribute.Json)
                 {
-                    value = await ConvertToJsonAsync(fullName, value).ConfigureAwait(false);
+                    value = ConvertToJson(fullName, value);
                 }
 
                 builder.Add(info.Attribute.Name, value);
             }
 
-            return builder.ToImmutable();
+            return Task.FromResult(builder.ToImmutable());
         }
 
-        private async Task<object?> ConvertToJsonAsync(string context, object? input)
+        private Input<string>? ConvertToJson(string context, object? input)
         {
             if (input == null)
                 return null;
 
-            var serializer = new Serializer(excessiveDebugOutput: false);
-            var obj = await serializer.SerializeAsync(context, input, false).ConfigureAwait(false);
-            var value = Serializer.CreateValue(obj);
-            return JsonFormatter.Default.Format(value);
+            Func<object?, Task<string>> serialize = async (object? input) =>
+            {
+                var serializer = new Serializer(excessiveDebugOutput: false);
+                var obj = await serializer.SerializeAsync(context, input, false).ConfigureAwait(false);
+                var value = Serializer.CreateValue(obj);
+                return JsonFormatter.Default.Format(value);
+            };
+
+            if (input is IInput i)
+            {
+                var output = i.ToOutput();
+                return output.UntypedApply<string>(input => Output.Create(serialize(input)));
+            }
+            else
+            {
+                return Output.Create(serialize(input));
+            }
         }
 
         private readonly struct InputInfo

@@ -104,6 +104,16 @@ namespace Pulumi.Tests.Core
             }
         }
 
+        static async Task<Pulumi.Serialization.OutputData<object?>> GetData(object value)
+        {
+            if (value is IInput input)
+            {
+                var output = input.ToOutput();
+                return await output.GetDataAsync();
+            }
+            return new Pulumi.Serialization.OutputData<object?>(ImmutableHashSet<Resource>.Empty, value, false, false);
+        }
+
         [Fact]
         public async Task TestJsonMap()
         {
@@ -124,8 +134,78 @@ namespace Pulumi.Tests.Core
             Assert.NotNull(arrayValue);
             Assert.NotNull(mapValue);
 
-            Assert.Equal("[ true, false ]", arrayValue);
-            Assert.Equal("{ \"k1\": 1, \"k2\": 2 }", mapValue);
+            var arrayData = await GetData(arrayValue!);
+            var mapData = await GetData(mapValue!);
+
+            Assert.Equal("[ true, false ]", arrayData.Value);
+            Assert.Equal("{ \"k1\": 1, \"k2\": 2 }", mapData.Value);
+        }
+
+        [Fact]
+        public async Task TestJsonMapUnknown()
+        {
+            await PulumiTest.RunInPreview(async () =>
+            {
+                var unknownB = new Output<bool>(Task.FromResult(Pulumi.Serialization.OutputData.Create(
+                    ImmutableHashSet<Resource>.Empty, false, false, false)));
+
+                var unknownI = new Output<int>(Task.FromResult(Pulumi.Serialization.OutputData.Create(
+                    ImmutableHashSet<Resource>.Empty, 0, false, false)));
+
+                var args = new JsonResourceArgs1
+                {
+                    Array = { unknownB, false },
+                    Map =
+                    {
+                        { "k1", unknownI },
+                        { "k2", 2 },
+                    },
+                };
+
+                var dictionary = await args.ToDictionaryAsync();
+
+                Assert.True(dictionary.TryGetValue("array", out var arrayValue));
+                Assert.True(dictionary.TryGetValue("map", out var mapValue));
+
+                Assert.NotNull(arrayValue);
+                Assert.NotNull(mapValue);
+
+                var arrayData = await GetData(arrayValue!);
+                var mapData = await GetData(mapValue!);
+
+                Assert.False(arrayData.IsKnown);
+                Assert.False(mapData.IsKnown);
+            });
+        }
+
+        [Fact]
+        public async Task TestJsonMapSecret()
+        {
+            var args = new JsonResourceArgs1
+            {
+                Array = { Output.CreateSecret(true), false },
+                Map =
+                {
+                    { "k1", Output.CreateSecret(1) },
+                    { "k2", 2 },
+                },
+            };
+            var dictionary = await args.ToDictionaryAsync();
+
+            Assert.True(dictionary.TryGetValue("array", out var arrayValue));
+            Assert.True(dictionary.TryGetValue("map", out var mapValue));
+
+            Assert.NotNull(arrayValue);
+            Assert.NotNull(mapValue);
+
+            var arrayData = await GetData(arrayValue!);
+            var mapData = await GetData(mapValue!);
+
+            Assert.True(arrayData.IsSecret);
+            Assert.Equal("[ true, false ]", arrayData.Value);
+
+            Assert.True(mapData.IsSecret);
+            Assert.Equal("{ \"k1\": 1, \"k2\": 2 }", mapData.Value);
         }
 
         #endregion

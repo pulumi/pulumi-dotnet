@@ -470,11 +470,13 @@ namespace Pulumi.Experimental.Provider
                 var assemblyVersion = entryName.Version;
                 if (assemblyVersion != null)
                 {
-                    version = assemblyVersion.ToString();
+                    // Pulumi expects semver style versions, so we convert from the .NET version format by
+                    // dropping the revision component.
+                    version = string.Format("{0}.{1}.{2}", assemblyVersion.Major, assemblyVersion.Minor, assemblyVersion.Build);
                 }
                 else
                 {
-                    version = "0.0.1";
+                    throw new Exception("Provider.Serve must be called with a version, or an assembly version must be set.");
                 }
             }
             this.version = version;

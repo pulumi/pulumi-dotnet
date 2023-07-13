@@ -657,7 +657,7 @@ namespace Pulumi
                 "1. o.Apply(v => $\"prefix{v}suffix\")",
                 "2. Output.Format($\"prefix{hostname}suffix\");",
                 "",
-                "See https://pulumi.io/help/outputs for more details.",
+                "See https://www.pulumi.com/docs/concepts/inputs-outputs for more details.",
                 "This function may throw in a future version of Pulumi.",
             });
 

@@ -1,3 +1,10 @@
+# 3.55.2 (2023-08-01)
+
+### Bug Fixes
+
+- [sdk] Fix the default version for dotnet providers.
+  [#148](https://github.com/pulumi/pulumi-dotnet/pull/148)
+
 # 3.55.1 (2023-05-26)
 
 ### Bug Fixes

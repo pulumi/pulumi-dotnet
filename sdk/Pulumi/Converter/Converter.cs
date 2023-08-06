@@ -24,14 +24,21 @@ namespace Pulumi.Experimental.Converter
 {
     public sealed class ConvertProgramRequest
     {
-        public string SourceDirectory { get; set; } = "";
-        public string TargetDirectory { get; set; } = "";
-        public string MapperTarget { get; set; } = "";
+        public readonly string SourceDirectory;
+        public readonly string TargetDirectory;
+        public readonly string MapperTarget;
+
+        public ConvertProgramRequest(string sourceDirectory, string targetDirectory, string mapperTarget)
+        {
+            SourceDirectory = sourceDirectory;
+            TargetDirectory = targetDirectory;
+            MapperTarget = mapperTarget;
+        }
     }
 
     public sealed class ConvertProgramResponse
     {
-        public List<Codegen.Diagnostic> Diagnostics { get; set; } = new List<Diagnostic>();
+        public IList<Diagnostic>? Diagnostics { get; set; }
         public static ConvertProgramResponse Empty => new ConvertProgramResponse();
     }
 
@@ -44,13 +51,11 @@ namespace Pulumi.Experimental.Converter
 
         public static Converter CreateSimple(Func<ConvertProgramRequest, ConvertProgramResponse> convertProgram)
         {
-            Task<ConvertProgramResponse> ConvertAsync(ConvertProgramRequest request)
+            return new SimpleProgramConverter(request =>
             {
                 var response = convertProgram(request);
                 return Task.FromResult(response);
-            }
-
-            return new SimpleProgramConverter(ConvertAsync);
+            });
         }
 
         public static Converter CreateSimpleAsync(Func<ConvertProgramRequest, Task<ConvertProgramResponse>> convertProgramAsync)
@@ -208,25 +213,33 @@ namespace Pulumi.Experimental.Converter
 
         public override async Task<Pulumirpc.ConvertProgramResponse> ConvertProgram(Pulumirpc.ConvertProgramRequest rpcRequest, ServerCallContext context)
         {
-            var response = await _convertProgram(new ConvertProgramRequest
+            var request = new ConvertProgramRequest(
+                sourceDirectory: rpcRequest.SourceDirectory,
+                targetDirectory: rpcRequest.TargetDirectory,
+                mapperTarget: rpcRequest.MapperTarget);
+
+            var response = await _convertProgram(request);
+
+            if (response.Diagnostics == null)
             {
-                SourceDirectory = rpcRequest.SourceDirectory,
-                TargetDirectory = rpcRequest.TargetDirectory,
-                MapperTarget = rpcRequest.MapperTarget
-            });
+                return new Pulumirpc.ConvertProgramResponse();
+            }
 
             var rpcResponse = new Pulumirpc.ConvertProgramResponse();
             foreach (var diagnostic in response.Diagnostics)
             {
-                var rpcDiagnostic = new Pulumirpc.Codegen.Diagnostic();
-                rpcDiagnostic.Detail = diagnostic.Detail ?? "";
-                rpcDiagnostic.Summary = diagnostic.Summary ?? "";
-                rpcDiagnostic.Severity = diagnostic.Severity switch
+                var rpcDiagnostic = new Pulumirpc.Codegen.Diagnostic
                 {
-                    DiagnosticSeverity.Warning => Pulumirpc.Codegen.DiagnosticSeverity.DiagWarning,
-                    DiagnosticSeverity.Error => Pulumirpc.Codegen.DiagnosticSeverity.DiagError,
-                    _ => Pulumirpc.Codegen.DiagnosticSeverity.DiagInvalid
+                    Detail = diagnostic.Detail ?? "",
+                    Summary = diagnostic.Summary ?? "",
+                    Severity = diagnostic.Severity switch
+                    {
+                        DiagnosticSeverity.Warning => Pulumirpc.Codegen.DiagnosticSeverity.DiagWarning,
+                        DiagnosticSeverity.Error => Pulumirpc.Codegen.DiagnosticSeverity.DiagError,
+                        _ => Pulumirpc.Codegen.DiagnosticSeverity.DiagInvalid
+                    }
                 };
+
                 if (diagnostic.Subject != null)
                 {
                     rpcDiagnostic.Subject = RpcRange(diagnostic.Subject);

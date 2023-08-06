@@ -14,6 +14,7 @@
 
 syntax = "proto3";
 
+import "pulumi/codegen/hcl.proto";
 import "pulumi/plugin.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
@@ -33,7 +34,7 @@ service Converter {
 }
 
 message ConvertStateRequest {
-    // the gRPC address of the mapper service.
+    // the gRPC target of the mapper service.
     string mapper_target = 1;
 }
 
@@ -62,9 +63,11 @@ message ConvertProgramRequest {
     string source_directory = 1;
     // a target directory to write the resulting PCL code and project file to.
     string target_directory = 2;
-    // the gRPC address of the mapper service.
+    // the gRPC target of the mapper service.
     string mapper_target = 3;
 }
 
 message ConvertProgramResponse {
+    // any diagnostics from code generation.
+    repeated pulumirpc.codegen.Diagnostic diagnostics = 1;
 }

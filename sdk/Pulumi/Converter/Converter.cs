@@ -64,7 +64,6 @@ namespace Pulumi.Experimental.Converter
         }
 
         public static async Task Serve(
-            string[] args,
             Converter converter,
             CancellationToken? cancellationToken = null,
             TextWriter? stdout = null)
@@ -86,14 +85,6 @@ namespace Pulumi.Experimental.Converter
                             // clear so we don't read appsettings.json
                             // note that we also won't read environment variables for config
                             config.Sources.Clear();
-
-                            var memConfig = new Dictionary<string, string>();
-                            if (args.Length > 0)
-                            {
-                                memConfig.Add("Host", args[0]);
-                            }
-
-                            config.AddInMemoryCollection(memConfig);
                         })
                         .ConfigureLogging(loggingBuilder =>
                         {

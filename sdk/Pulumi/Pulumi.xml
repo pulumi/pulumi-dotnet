@@ -170,6 +170,83 @@
             ConfigMissingException is used when a configuration value is completely missing.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.Provider.LogSeverity">
+            <summary>
+            LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Debug">
+            <summary>
+            A debug-level message not displayed to end-users (the default).
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Info">
+            <summary>
+            An informational message printed to output during resource operations.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Warning">
+            <summary>
+            A warning to indicate that something went wrong.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Error">
+            <summary>
+            A fatal error indicating that the tool should stop processing subsequent resource operations.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.LogMessage">
+            <summary>
+            A log message to be sent to the Pulumi engine.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogMessage.Severity">
+            <summary>
+            The logging level of this message.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogMessage.Message">
+            <summary>
+            The contents of the logged message.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogMessage.Urn">
+            <summary>
+            The (optional) resource urn this log is associated with.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogMessage.StreamId">
+            <summary>
+            The (optional) stream id that a stream of log messages can be associated with. This allows
+            clients to not have to buffer a large set of log messages that they all want to be
+            conceptually connected.  Instead the messages can be sent as chunks (with the same stream id)
+            and the end display can show the messages as they arrive, while still stitching them together
+            into one total log message.
+            </summary>
+            <remarks>
+            0 means do not associate with any stream.
+            </remarks>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.LogMessage.Ephemeral">
+            <summary>
+            Optional value indicating whether this is a status message.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.IHost">
+            <summary>
+            An interface to the engine host running this plugin.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.IHost.LogAsync(Pulumi.Experimental.Provider.LogMessage)">
+            <summary>
+            Send a log message to the host.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.PropertyValueType">
+            <summary>
+            Property values will be one of these types.
+            </summary>
+        </member>
         <member name="T:Pulumi.Alias">
             <summary>
             Alias is a description of prior named used for a resource. It can be processed in the
@@ -1552,83 +1629,6 @@
             <summary>
             Logs an exception. Consider raising the exception after
             calling this method to stop the Pulumi program.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.LogSeverity">
-            <summary>
-            LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Debug">
-            <summary>
-            A debug-level message not displayed to end-users (the default).
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Info">
-            <summary>
-            An informational message printed to output during resource operations.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Warning">
-            <summary>
-            A warning to indicate that something went wrong.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Error">
-            <summary>
-            A fatal error indicating that the tool should stop processing subsequent resource operations.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.LogMessage">
-            <summary>
-            A log message to be sent to the Pulumi engine.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Severity">
-            <summary>
-            The logging level of this message.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Message">
-            <summary>
-            The contents of the logged message.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Urn">
-            <summary>
-            The (optional) resource urn this log is associated with.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.StreamId">
-            <summary>
-            The (optional) stream id that a stream of log messages can be associated with. This allows
-            clients to not have to buffer a large set of log messages that they all want to be
-            conceptually connected.  Instead the messages can be sent as chunks (with the same stream id)
-            and the end display can show the messages as they arrive, while still stitching them together
-            into one total log message.
-            </summary>
-            <remarks>
-            0 means do not associate with any stream.
-            </remarks>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Ephemeral">
-            <summary>
-            Optional value indicating whether this is a status message.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.IHost">
-            <summary>
-            An interface to the engine host running this plugin.
-            </summary>
-        </member>
-        <member name="M:Pulumi.Experimental.Provider.IHost.LogAsync(Pulumi.Experimental.Provider.LogMessage)">
-            <summary>
-            Send a log message to the host.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.PropertyValueType">
-            <summary>
-            Property values will be one of these types.
             </summary>
         </member>
         <member name="T:Pulumi.CallArgs">
@@ -3629,6 +3629,140 @@
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
+        <member name="T:Pulumirpc.Codegen.HclReflection">
+            <summary>Holder for reflection information generated from pulumi/codegen/hcl.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.HclReflection.Descriptor">
+            <summary>File descriptor for pulumi/codegen/hcl.proto</summary>
+        </member>
+        <member name="T:Pulumirpc.Codegen.DiagnosticSeverity">
+            <summary>
+            DiagnosticSeverity is the severity level of a diagnostic message.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.DiagnosticSeverity.DiagInvalid">
+            <summary>
+            DIAG_INVALID is the invalid zero value of DiagnosticSeverity
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.DiagnosticSeverity.DiagError">
+            <summary>
+            DIAG_ERROR indicates that the problem reported by a diagnostic prevents
+            further progress in parsing and/or evaluating the subject.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.DiagnosticSeverity.DiagWarning">
+            <summary>
+            DIAG_WARNING indicates that the problem reported by a diagnostic warrants
+            user attention but does not prevent further progress. It is most
+            commonly used for showing deprecation notices.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Codegen.Pos">
+            <summary>
+            Pos represents a single position in a source file, by addressing the start byte of a unicode character
+            encoded in UTF-8.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Pos.LineFieldNumber">
+            <summary>Field number for the "line" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.Pos.Line">
+            <summary>
+            Line is the source code line where this position points. Lines are counted starting at 1 and
+            incremented for each newline character encountered.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Pos.ColumnFieldNumber">
+            <summary>Field number for the "column" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.Pos.Column">
+             <summary>
+             Column is the source code column where this position points, in unicode characters, with counting
+             starting at 1.
+            
+             Column counts characters as they appear visually, so for example a latin letter with a combining
+             diacritic mark counts as one character. This is intended for rendering visual markers against source
+             code in contexts where these diacritics would be rendered in a single character cell. Technically
+             speaking, Column is counting grapheme clusters as used in unicode normalization.
+             </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Pos.ByteFieldNumber">
+            <summary>Field number for the "byte" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.Pos.Byte">
+            <summary>
+            Byte is the byte offset into the file where the indicated character begins. This is a zero-based offset
+            to the first byte of the first UTF-8 codepoint sequence in the character, and thus gives a position
+            that can be resolved _without_ awareness of Unicode characters.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Codegen.Range">
+            <summary>
+            Range represents a span of characters between two positions in a source file.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Range.FilenameFieldNumber">
+            <summary>Field number for the "filename" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.Range.Filename">
+            <summary>
+            Filename is the name of the file into which this range's positions point.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Range.StartFieldNumber">
+            <summary>Field number for the "start" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.Range.Start">
+            <summary>
+            Start and End represent the bounds of this range. Start is inclusive and End is exclusive.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Range.EndFieldNumber">
+            <summary>Field number for the "end" field.</summary>
+        </member>
+        <member name="T:Pulumirpc.Codegen.Diagnostic">
+            <summary>
+            Diagnostic represents information to be presented to a user about an error or anomaly in parsing or evaluating configuration.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Diagnostic.SeverityFieldNumber">
+            <summary>Field number for the "severity" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Diagnostic.SummaryFieldNumber">
+            <summary>Field number for the "summary" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.Diagnostic.Summary">
+            <summary>
+            Summary and Detail contain the English-language description of the
+            problem. Summary is a terse description of the general problem and
+            detail is a more elaborate, often-multi-sentence description of
+            the problem and what might be done to solve it.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Diagnostic.DetailFieldNumber">
+            <summary>Field number for the "detail" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Diagnostic.SubjectFieldNumber">
+            <summary>Field number for the "subject" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Codegen.Diagnostic.Subject">
+             <summary>
+             Subject and Context are both source ranges relating to the diagnostic.
+            
+             Subject is a tight range referring to exactly the construct that
+             is problematic, while Context is an optional broader range (which should
+             fully contain Subject) that ought to be shown around Subject when
+             generating isolated source-code snippets in diagnostic messages.
+             If Context is nil, the Subject is also the Context.
+            
+             Some diagnostics have no source ranges at all. If Context is set then
+             Subject should always also be set.
+             </summary>
+        </member>
+        <member name="F:Pulumirpc.Codegen.Diagnostic.ContextFieldNumber">
+            <summary>Field number for the "context" field.</summary>
+        </member>
         <member name="T:Pulumirpc.ConverterReflection">
             <summary>Holder for reflection information generated from pulumi/converter.proto</summary>
         </member>
@@ -3640,7 +3774,7 @@
         </member>
         <member name="P:Pulumirpc.ConvertStateRequest.MapperTarget">
             <summary>
-            the gRPC address of the mapper service.
+            the gRPC target of the mapper service.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceImport">
@@ -3717,7 +3851,15 @@
         </member>
         <member name="P:Pulumirpc.ConvertProgramRequest.MapperTarget">
             <summary>
-            the gRPC address of the mapper service.
+            the gRPC target of the mapper service.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertProgramResponse.DiagnosticsFieldNumber">
+            <summary>Field number for the "diagnostics" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertProgramResponse.Diagnostics">
+            <summary>
+            any diagnostics from code generation.
             </summary>
         </member>
         <member name="T:Pulumirpc.Converter">
@@ -4485,6 +4627,118 @@
         <member name="T:Pulumirpc.RunPluginResponse.OutputOneofCase">
             <summary>Enum of possible cases for the "output" oneof.</summary>
         </member>
+        <member name="F:Pulumirpc.GenerateProgramRequest.SourceFieldNumber">
+            <summary>Field number for the "source" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProgramRequest.Source">
+            <summary>
+            the PCL source of the project.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProgramRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProgramRequest.LoaderTarget">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProgramResponse.DiagnosticsFieldNumber">
+            <summary>Field number for the "diagnostics" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProgramResponse.Diagnostics">
+            <summary>
+            any diagnostics from code generation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProgramResponse.SourceFieldNumber">
+            <summary>Field number for the "source" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProgramResponse.Source">
+            <summary>
+            the generated program source code.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProjectRequest.SourceDirectoryFieldNumber">
+            <summary>Field number for the "source_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectRequest.SourceDirectory">
+            <summary>
+            the directory to generate the project from.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProjectRequest.TargetDirectoryFieldNumber">
+            <summary>Field number for the "target_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectRequest.TargetDirectory">
+            <summary>
+            the directory to generate the project in.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProjectRequest.ProjectFieldNumber">
+            <summary>Field number for the "project" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectRequest.Project">
+            <summary>
+            the JSON-encoded pulumi project file.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProjectRequest.StrictFieldNumber">
+            <summary>Field number for the "strict" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectRequest.Strict">
+            <summary>
+            if PCL binding should be strict or not.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProjectRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectRequest.LoaderTarget">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProjectResponse.DiagnosticsFieldNumber">
+            <summary>Field number for the "diagnostics" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectResponse.Diagnostics">
+            <summary>
+            any diagnostics from code generation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GeneratePackageRequest.DirectoryFieldNumber">
+            <summary>Field number for the "directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageRequest.Directory">
+            <summary>
+            the directory to generate the package in.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GeneratePackageRequest.SchemaFieldNumber">
+            <summary>Field number for the "schema" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageRequest.Schema">
+            <summary>
+            the JSON-encoded schema.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GeneratePackageRequest.ExtraFilesFieldNumber">
+            <summary>Field number for the "extra_files" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageRequest.ExtraFiles">
+            <summary>
+            extra files to copy to the package output.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GeneratePackageRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageRequest.LoaderTarget">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.LanguageRuntime">
             <summary>
             LanguageRuntime is the interface that the planning monitor uses to drive execution of an interpreter responsible
@@ -4554,6 +4808,30 @@
             <param name="responseStream">Used for sending responses back to the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>A task indicating completion of the handler.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.GenerateProgram(Pulumirpc.GenerateProgramRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GenerateProgram generates a given PCL program into a program for this language.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.GenerateProject(Pulumirpc.GenerateProjectRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GenerateProject generates a given PCL program into a project for this language.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.GeneratePackage(Pulumirpc.GeneratePackageRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GeneratePackage generates a given pulumi package into a package for this language.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="T:Pulumirpc.LanguageRuntime.LanguageRuntimeClient">
             <summary>Client for LanguageRuntime</summary>
@@ -4789,6 +5067,114 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProgram(Pulumirpc.GenerateProgramRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GenerateProgram generates a given PCL program into a program for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProgram(Pulumirpc.GenerateProgramRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GenerateProgram generates a given PCL program into a program for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProgramAsync(Pulumirpc.GenerateProgramRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GenerateProgram generates a given PCL program into a program for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProgramAsync(Pulumirpc.GenerateProgramRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GenerateProgram generates a given PCL program into a program for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProject(Pulumirpc.GenerateProjectRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GenerateProject generates a given PCL program into a project for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProject(Pulumirpc.GenerateProjectRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GenerateProject generates a given PCL program into a project for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProjectAsync(Pulumirpc.GenerateProjectRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GenerateProject generates a given PCL program into a project for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GenerateProjectAsync(Pulumirpc.GenerateProjectRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GenerateProject generates a given PCL program into a project for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GeneratePackage(Pulumirpc.GeneratePackageRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GeneratePackage generates a given pulumi package into a package for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GeneratePackage(Pulumirpc.GeneratePackageRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GeneratePackage generates a given pulumi package into a package for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GeneratePackageAsync(Pulumirpc.GeneratePackageRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GeneratePackage generates a given pulumi package into a package for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.GeneratePackageAsync(Pulumirpc.GeneratePackageRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GeneratePackage generates a given pulumi package into a package for this language.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
         </member>
@@ -4927,6 +5313,14 @@
         <member name="P:Pulumirpc.ConfigureRequest.AcceptResources">
             <summary>
             when true, operations should return resources as strongly typed values to the provider.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConfigureRequest.SendsOldInputsFieldNumber">
+            <summary>Field number for the "sends_old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.SendsOldInputs">
+            <summary>
+            when true, diff and update will be called with the old outputs and the old inputs.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConfigureResponse.AcceptSecretsFieldNumber">
@@ -5137,6 +5531,14 @@
             the organization of the stack being deployed into.
             </summary>
         </member>
+        <member name="F:Pulumirpc.CallRequest.SourcePositionFieldNumber">
+            <summary>Field number for the "sourcePosition" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallRequest.SourcePosition">
+            <summary>
+            the optional source position of the user code that initiated the call.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.CallRequest.Types">
             <summary>Container for nested types declared in the CallRequest message type.</summary>
         </member>
@@ -5278,7 +5680,7 @@
         </member>
         <member name="P:Pulumirpc.DiffRequest.Olds">
             <summary>
-            the old values of provider inputs to diff.
+            the old output values of resource to diff.
             </summary>
         </member>
         <member name="F:Pulumirpc.DiffRequest.NewsFieldNumber">
@@ -5286,7 +5688,7 @@
         </member>
         <member name="P:Pulumirpc.DiffRequest.News">
             <summary>
-            the new values of provider inputs to diff.
+            the new input values of resource to diff.
             </summary>
         </member>
         <member name="F:Pulumirpc.DiffRequest.IgnoreChangesFieldNumber">
@@ -5295,6 +5697,14 @@
         <member name="P:Pulumirpc.DiffRequest.IgnoreChanges">
             <summary>
             a set of property paths that should be treated as unchanged.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DiffRequest.OldInputsFieldNumber">
+            <summary>Field number for the "old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DiffRequest.OldInputs">
+            <summary>
+            the old input values of the resource to diff.
             </summary>
         </member>
         <member name="F:Pulumirpc.PropertyDiff.KindFieldNumber">
@@ -5619,6 +6029,14 @@
             true if this is a preview and the provider should not actually create the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.UpdateRequest.OldInputsFieldNumber">
+            <summary>Field number for the "old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.UpdateRequest.OldInputs">
+            <summary>
+            the old input values of the resource to diff.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.UpdateResponse.PropertiesFieldNumber">
             <summary>Field number for the "properties" field.</summary>
         </member>
@@ -5747,28 +6165,12 @@
             a map from property keys to the dependencies of the property.
             </summary>
         </member>
-        <member name="F:Pulumirpc.ConstructRequest.ProtectFieldNumber">
-            <summary>Field number for the "protect" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConstructRequest.Protect">
-            <summary>
-            true if the resource should be marked protected.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.ConstructRequest.ProvidersFieldNumber">
             <summary>Field number for the "providers" field.</summary>
         </member>
         <member name="P:Pulumirpc.ConstructRequest.Providers">
             <summary>
             the map of providers to use for this resource's children.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ConstructRequest.AliasesFieldNumber">
-            <summary>Field number for the "aliases" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConstructRequest.Aliases">
-            <summary>
-            a list of additional URNs that shoud be considered the same.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConstructRequest.DependenciesFieldNumber">
@@ -5795,6 +6197,79 @@
             the organization of the stack being deployed into.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConstructRequest.ProtectFieldNumber">
+            <summary>Field number for the "protect" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.Protect">
+            <summary>
+            Resource options:
+            Do not change field IDs. Add new fields at the end.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.AliasesFieldNumber">
+            <summary>Field number for the "aliases" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.Aliases">
+            <summary>
+            a list of additional URNs that shoud be considered the same.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.AdditionalSecretOutputsFieldNumber">
+            <summary>Field number for the "additionalSecretOutputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.AdditionalSecretOutputs">
+            <summary>
+            additional output properties that should be treated as secrets.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.CustomTimeoutsFieldNumber">
+            <summary>Field number for the "customTimeouts" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.CustomTimeouts">
+            <summary>
+            default timeouts for CRUD operations on this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.DeletedWithFieldNumber">
+            <summary>Field number for the "deletedWith" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.DeletedWith">
+            <summary>
+            URN of a resource that, if deleted, also deletes this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.DeleteBeforeReplaceFieldNumber">
+            <summary>Field number for the "deleteBeforeReplace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.DeleteBeforeReplace">
+            <summary>
+            whether to delete the resource before replacing it.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.IgnoreChangesFieldNumber">
+            <summary>Field number for the "ignoreChanges" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.IgnoreChanges">
+            <summary>
+            properties that should be ignored during a diff
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.ReplaceOnChangesFieldNumber">
+            <summary>Field number for the "replaceOnChanges" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.ReplaceOnChanges">
+            <summary>
+            properties that, when changed, trigger a replacement
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.RetainOnDeleteFieldNumber">
+            <summary>Field number for the "retainOnDelete" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.RetainOnDelete">
+            <summary>
+            whether to retain the resource in the cloud provider when it is deleted
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ConstructRequest.Types">
             <summary>Container for nested types declared in the ConstructRequest message type.</summary>
         </member>
@@ -5810,6 +6285,36 @@
             <summary>
             A list of URNs this property depends on.
             </summary>
+        </member>
+        <member name="T:Pulumirpc.ConstructRequest.Types.CustomTimeouts">
+             <summary>
+             CustomTimeouts specifies timeouts for resource provisioning operations.
+             Use it with the [Timeouts] option when creating new resources
+             to override default timeouts.
+            
+             Each timeout is specified as a duration string such as,
+             "5ms" (5 milliseconds), "40s" (40 seconds),
+             and "1m30s" (1 minute, 30 seconds).
+            
+             The following units are accepted.
+            
+               - ns: nanoseconds
+               - us: microseconds
+               - µs: microseconds
+               - ms: milliseconds
+               - s: seconds
+               - m: minutes
+               - h: hours
+             </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.CustomTimeouts.CreateFieldNumber">
+            <summary>Field number for the "create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.CustomTimeouts.UpdateFieldNumber">
+            <summary>Field number for the "update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.CustomTimeouts.DeleteFieldNumber">
+            <summary>Field number for the "delete" field.</summary>
         </member>
         <member name="F:Pulumirpc.ConstructResponse.UrnFieldNumber">
             <summary>Field number for the "urn" field.</summary>
@@ -6932,6 +7437,14 @@
             the server url of the provider to use when servicing this request.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ReadResourceRequest.SourcePositionFieldNumber">
+            <summary>Field number for the "sourcePosition" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceRequest.SourcePosition">
+            <summary>
+            the optional source position of the user code that initiated the read.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ReadResourceResponse">
             <summary>
             ReadResourceResponse contains the result of reading a resource's state.
@@ -7174,6 +7687,28 @@
             if set the engine will not call the resource providers delete method for this resource when specified resource is deleted.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.AliasSpecsFieldNumber">
+            <summary>Field number for the "aliasSpecs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.AliasSpecs">
+            <summary>
+            Indicates that alias specs are specified correctly according to the spec.
+            Older versions of the Node.js SDK did not send alias specs correctly.
+            If this is not set to true and the engine detects the request is from the
+            Node.js runtime, the engine will transform incorrect alias specs into
+            correct ones.
+            Other SDKs that are correctly specifying alias specs could set this to
+            true, but it's not necessary.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.SourcePositionFieldNumber">
+            <summary>Field number for the "sourcePosition" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.SourcePosition">
+            <summary>
+            the optional source position of the user code that initiated the register.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -7358,6 +7893,14 @@
             an optional reference to the provider url to use for this invoke.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.SourcePositionFieldNumber">
+            <summary>Field number for the "sourcePosition" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.SourcePosition">
+            <summary>
+            the optional source position of the user code that initiated the invoke.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceMonitor">
             <summary>
             ResourceMonitor is the interface a source uses to talk back to the planning monitor orchestrating the execution.
@@ -7400,6 +7943,168 @@
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
+        <member name="T:Pulumirpc.SourceReflection">
+            <summary>Holder for reflection information generated from pulumi/source.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.SourceReflection.Descriptor">
+            <summary>File descriptor for pulumi/source.proto</summary>
+        </member>
+        <member name="T:Pulumirpc.SourcePosition">
+            <summary>
+            A SourcePosition represents a position in a source file.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.SourcePosition.UriFieldNumber">
+            <summary>Field number for the "uri" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.SourcePosition.Uri">
+            <summary>
+            The URI of the file. Currently only the file scheme with an absolute path is supported.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.SourcePosition.LineFieldNumber">
+            <summary>Field number for the "line" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.SourcePosition.Line">
+            <summary>
+            The line in the file
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.SourcePosition.ColumnFieldNumber">
+            <summary>Field number for the "column" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.SourcePosition.Column">
+            <summary>
+            The column in the line
+            </summary>
+        </member>
+        <member name="T:Codegen.LoaderReflection">
+            <summary>Holder for reflection information generated from pulumi/codegen/loader.proto</summary>
+        </member>
+        <member name="P:Codegen.LoaderReflection.Descriptor">
+            <summary>File descriptor for pulumi/codegen/loader.proto</summary>
+        </member>
+        <member name="T:Codegen.GetSchemaRequest">
+            <summary>
+            GetSchemaRequest allows the engine to return a schema for a given package and version.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetSchemaRequest.PackageFieldNumber">
+            <summary>Field number for the "package" field.</summary>
+        </member>
+        <member name="P:Codegen.GetSchemaRequest.Package">
+            <summary>
+            the package name for the schema being requested.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetSchemaRequest.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Codegen.GetSchemaRequest.Version">
+            <summary>
+            the version for the schema being requested, must be a valid semver or empty.
+            </summary>
+        </member>
+        <member name="T:Codegen.GetSchemaResponse">
+            <summary>
+            GetSchemaResponse returns the schema data for the requested package.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetSchemaResponse.SchemaFieldNumber">
+            <summary>Field number for the "schema" field.</summary>
+        </member>
+        <member name="P:Codegen.GetSchemaResponse.Schema">
+            <summary>
+            the JSON encoded schema.
+            </summary>
+        </member>
+        <member name="T:Codegen.Loader">
+            <summary>
+            Loader is a service for getting schemas from the Pulumi engine for use in code generators and other tools.
+            This is currently unstable and experimental.
+            </summary>
+        </member>
+        <member name="P:Codegen.Loader.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Codegen.Loader.LoaderBase">
+            <summary>Base class for server-side implementations of Loader</summary>
+        </member>
+        <member name="M:Codegen.Loader.LoaderBase.GetSchema(Codegen.GetSchemaRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GetSchema tries to find a schema for the given package and version.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Codegen.Loader.LoaderClient">
+            <summary>Client for Loader</summary>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for Loader</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for Loader that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.GetSchema(Codegen.GetSchemaRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetSchema tries to find a schema for the given package and version.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.GetSchema(Codegen.GetSchemaRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetSchema tries to find a schema for the given package and version.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.GetSchemaAsync(Codegen.GetSchemaRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetSchema tries to find a schema for the given package and version.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.GetSchemaAsync(Codegen.GetSchemaRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetSchema tries to find a schema for the given package and version.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Codegen.Loader.LoaderClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Codegen.Loader.BindService(Codegen.Loader.LoaderBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Codegen.Loader.BindService(Grpc.Core.ServiceBinderBase,Codegen.Loader.LoaderBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
         <member name="T:Codegen.MapperReflection">
             <summary>Holder for reflection information generated from pulumi/codegen/mapper.proto</summary>
         </member>
@@ -7418,6 +8123,14 @@
         <member name="P:Codegen.GetMappingRequest.Provider">
             <summary>
             the provider name for the mapping being requested.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetMappingRequest.PulumiProviderFieldNumber">
+            <summary>Field number for the "pulumi_provider" field.</summary>
+        </member>
+        <member name="P:Codegen.GetMappingRequest.PulumiProvider">
+            <summary>
+            the expected name of the pulumi provider that maps to the requested provider. Defaults to the same as 'provider'.
             </summary>
         </member>
         <member name="T:Codegen.GetMappingResponse">

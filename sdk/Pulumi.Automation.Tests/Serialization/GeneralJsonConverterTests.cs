@@ -140,5 +140,31 @@ namespace Pulumi.Automation.Tests.Serialization
             Assert.True(update.ResourceChanges.TryGetValue(OperationType.Create, out var createdCount));
             Assert.Equal(3, createdCount);
         }
+
+        [Fact]
+        public void CanValidateJson()
+        {
+            var json = @"
+[
+    {
+    ""isJson"": true
+    }
+]
+";
+
+            var isValid = _serializer.IsValidJson(json);
+
+            Assert.True(isValid);
+        }
+
+        [Fact]
+        public void DetectsInvalidJson()
+        {
+            var json = @"notValidJson";
+
+            var isValid = _serializer.IsValidJson(json);
+
+            Assert.False(isValid);
+        }
     }
 }

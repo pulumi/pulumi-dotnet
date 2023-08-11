@@ -23,6 +23,15 @@ namespace Pulumi.Automation.Tests
         }
 
         [Fact]
+        public async Task ReceivesInvalidEventAndSkipsOver()
+        {
+            using var fx = new Fixture();
+            await fx.Write("notJson");
+            await fx.Watcher.Stop();
+            Assert.Equal(0, fx.EventCounter);
+        }
+
+        [Fact]
         public async Task ReceivesManyBasicEvents()
         {
             using var fx = new Fixture();

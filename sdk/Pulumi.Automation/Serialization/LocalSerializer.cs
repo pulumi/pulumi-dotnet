@@ -1,5 +1,6 @@
 // Copyright 2016-2021, Pulumi Corporation
 
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Pulumi.Automation.Events;
@@ -24,6 +25,21 @@ namespace Pulumi.Automation.Serialization
             // configure yaml
             this._yamlDeserializer = BuildYamlDeserializer();
             this._yamlSerializer = BuildYamlSerializer();
+        }
+
+        public bool IsValidJson(string content)
+        {
+            try
+            {
+                var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(content));
+                reader.Read();
+                reader.Skip();
+                return true;
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
         }
 
         public T DeserializeJson<T>(string content)

@@ -98,7 +98,7 @@ namespace Pulumi.Automation.Events
             {
                 var line = await reader.ReadLineAsync().ConfigureAwait(false);
                 this._position = fs.Position;
-                if (!string.IsNullOrWhiteSpace(line))
+                if (!string.IsNullOrWhiteSpace(line) && _localSerializer.IsValidJson(line))
                 {
                     line = line.Trim();
                     var @event = _localSerializer.DeserializeJson<EngineEvent>(line);

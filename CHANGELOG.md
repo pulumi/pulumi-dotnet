@@ -1,3 +1,14 @@
+# 3.56.1 (2023-08-24)
+
+### Bug Fixes
+- [sdk/automation-api] Adds guards in a non-destructive way against invalid JSON engine event data.
+  [#167](https://github.com/pulumi/pulumi-dotnet/pull/167)
+
+# 3.56.0 (2023-08-09)
+
+### Improvements
+- [sdk] - Implements a `Converter` abstraction for building language converter plugins for Pulumi in dotnet. 
+
 # 3.55.2 (2023-08-01)
 
 ### Bug Fixes

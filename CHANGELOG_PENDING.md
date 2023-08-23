@@ -2,8 +2,5 @@
 
 ### Bug Fixes
 
-- [sdk] Fix the default version for dotnet providers.
-  [#148](https://github.com/pulumi/pulumi-dotnet/pull/148)
-
-### Improvements
-- [sdk] - Implements a `Converter` abstraction for building language converter plugins for Pulumi in dotnet. 
+- [sdk/automation-api] Adds guards in a non-destructive way against invalid JSON engine event data.
+  [#167](https://github.com/pulumi/pulumi-dotnet/pull/167)

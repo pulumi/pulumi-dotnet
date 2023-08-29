@@ -24,6 +24,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
@@ -93,11 +94,13 @@ func main() {
 		engineAddress = args[0]
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	// map the context Done channel to the rpcutil boolean cancel channel
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	// Map the context Done channel to the rpcutil boolean cancel channel.
+	// The context will close on SIGINT or Healthcheck failure.
 	cancelChannel := make(chan bool)
 	go func() {
 		<-ctx.Done()
+		cancel() // remove the interrupt handler
 		close(cancelChannel)
 	}()
 	err := rpcutil.Healthcheck(ctx, engineAddress, 5*time.Minute, cancel)

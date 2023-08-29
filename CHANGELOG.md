@@ -1,3 +1,9 @@
+# 3.56.2 (2023-08-29)
+
+### Improvements
+
+- Plugin: clean up resources and exit cleanly on receiving SIGINT or CTRL_BREAK.
+
 # 3.56.1 (2023-08-24)
 
 ### Bug Fixes

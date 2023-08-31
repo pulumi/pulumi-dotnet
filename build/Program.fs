@@ -17,6 +17,7 @@ let rec findParent (directory: string) (fileToFind: string) =
 
 let repositoryRoot = findParent __SOURCE_DIRECTORY__ "README.md";
 
+let coverageDir = Path.Combine(repositoryRoot, "coverage")
 let sdk = Path.Combine(repositoryRoot, "sdk")
 let pulumiSdk = Path.Combine(sdk, "Pulumi")
 let pulumiSdkTests = Path.Combine(sdk, "Pulumi.Tests")
@@ -136,18 +137,20 @@ let testLanguagePlugin() =
     if Shell.Exec("go", "test", Path.Combine(repositoryRoot, "pulumi-language-dotnet")) <> 0
     then failwith "Testing pulumi-language-dotnet failed"
 
-let testPulumiSdk() =
+let testPulumiSdk coverage =
     cleanSdk()
     restoreSdk()
     printfn "Testing Pulumi SDK"
-    if Shell.Exec("dotnet", "test --configuration Release", pulumiSdkTests) <> 0
+    let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.xml" else ""
+    if Shell.Exec("dotnet", "test --configuration Release" + coverageArgs, pulumiSdkTests) <> 0
     then failwith "tests failed"
 
-let testPulumiAutomationSdk() =
+let testPulumiAutomationSdk coverage =
     cleanSdk()
     restoreSdk()
     printfn "Testing Pulumi Automation SDK"
-    if Shell.Exec("dotnet", "test --configuration Release", pulumiAutomationSdkTests) <> 0
+    let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.automation.xml" else ""
+    if Shell.Exec("dotnet", "test --configuration Release" + coverageArgs, pulumiAutomationSdkTests) <> 0
     then failwith "automation tests failed"
 
 let syncProtoFiles() = GitSync.repository {
@@ -189,8 +192,10 @@ let main(args: string[]) : int =
     | [| "format-sdk"; "verify" |] -> formatSdk true
     | [| "build-language-plugin" |] -> buildLanguagePlugin()
     | [| "test-language-plugin" |] -> testLanguagePlugin()
-    | [| "test-sdk" |] -> testPulumiSdk()
-    | [| "test-automation-sdk" |] -> testPulumiAutomationSdk()
+    | [| "test-sdk" |] -> testPulumiSdk false
+    | [| "test-sdk"; "coverage" |] -> testPulumiSdk true
+    | [| "test-automation-sdk" |] -> testPulumiAutomationSdk false
+    | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
     | [| "sync-proto-files" |] -> syncProtoFiles()
     | [| "list-integration-tests" |] -> listIntegrationTests()

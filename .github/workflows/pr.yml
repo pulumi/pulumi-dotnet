@@ -36,9 +36,17 @@ jobs:
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Test Pulumi SDK
-        run: dotnet run test-sdk
+        run: dotnet run test-sdk coverage
       - name: Test Pulumi Automation SDK
-        run: dotnet run test-automation-sdk
+        run: dotnet run test-automation-sdk coverage
+      - name: Upload coverage data
+        uses: codecov/codecov-action@v3
+        with:
+          directory: coverage
+          files: "*"
+          fail_ci_if_error: false
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
   IntegrationTests:
     strategy:
         matrix:

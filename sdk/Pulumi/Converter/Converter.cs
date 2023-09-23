@@ -27,12 +27,18 @@ namespace Pulumi.Experimental.Converter
         public readonly string SourceDirectory;
         public readonly string TargetDirectory;
         public readonly string MapperTarget;
+        public readonly string[] Args;
 
-        public ConvertProgramRequest(string sourceDirectory, string targetDirectory, string mapperTarget)
+        public ConvertProgramRequest(
+            string sourceDirectory,
+            string targetDirectory,
+            string mapperTarget,
+            string[] args)
         {
             SourceDirectory = sourceDirectory;
             TargetDirectory = targetDirectory;
             MapperTarget = mapperTarget;
+            Args = args;
         }
     }
 
@@ -207,7 +213,8 @@ namespace Pulumi.Experimental.Converter
             var request = new ConvertProgramRequest(
                 sourceDirectory: rpcRequest.SourceDirectory,
                 targetDirectory: rpcRequest.TargetDirectory,
-                mapperTarget: rpcRequest.MapperTarget);
+                mapperTarget: rpcRequest.MapperTarget,
+                args: rpcRequest.Args.ToArray());
 
             var response = await _convertProgram(request);
 

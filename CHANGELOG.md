@@ -1,3 +1,10 @@
+# 3.57.0 (2023-09-23)
+
+### Improvements
+
+- Converter SDK: add `Args: string[]` to the `ConvertProgramRequest` fields which allows converter plugins to access args provided to `pulumi convert` 
+  [#181](https://github.com/pulumi/pulumi-dotnet/pull/181)
+
 # 3.56.2 (2023-08-29)
 
 ### Improvements

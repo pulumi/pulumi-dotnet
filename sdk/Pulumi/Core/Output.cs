@@ -503,7 +503,40 @@ namespace Pulumi
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
         /// </summary>
         public Output<U> Apply<U>(Func<T, U> func)
-            => Apply(t => Output.Create(func(t)));
+        {
+            if (typeof(U).GUID == typeof(Task).GUID)
+            {
+                // This is a special case for when the input lambda returns a Task implicitly because
+                // it is async lambda that doesn't return a value. This overload is resolved
+                // instead of the one accepting Task<T> and so the task doesn't get registered with the engine.
+                return Apply(t =>
+                {
+                    async Task<U> WrapperTask()
+                    {
+                        if (func(t) is Task underlyingTask)
+                        {
+                            await underlyingTask.ConfigureAwait(false);
+                        }
+
+                        // return an empty task of type U to satisfy the runtime
+                        // using reflection to create new Task(() => { })
+                        // which doesn't have to be awaited because we awaited the original task
+                        Action emptyAction = () => { };
+                        var emptyTask = Activator.CreateInstance(typeof(Task), emptyAction);
+                        if (emptyTask != null)
+                        {
+                            return (U)emptyTask;
+                        }
+
+                        throw new InvalidOperationException("Unable to create empty task");
+                    }
+
+                    return Output.Create(WrapperTask());
+                });
+            }
+
+            return Apply(t => Output.Create(func(t)));
+        }
 
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.

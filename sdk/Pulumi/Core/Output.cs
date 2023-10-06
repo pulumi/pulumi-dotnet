@@ -502,32 +502,28 @@ namespace Pulumi
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
         /// </summary>
+        public Output<Task> Apply(Func<T, Task> func)
+        {
+            return Apply(t =>
+            {
+                async Task<Task> WrapperTask()
+                {
+                    var underlyingTask = func(t);
+                    await underlyingTask.ConfigureAwait(false);
+                    // return a completed task to satisfy the runtime
+                    // which doesn't need to be awaited because we awaited the original task
+                    return Task.CompletedTask;
+                }
+
+                return Output.Create(WrapperTask());
+            });
+        }
+
+        /// <summary>
+        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// </summary>
         public Output<U> Apply<U>(Func<T, U> func)
         {
-            if (typeof(U).GUID == typeof(Task).GUID)
-            {
-                // This is a special case for when the input lambda returns a Task implicitly because
-                // it is async lambda that doesn't return a value. This overload is resolved
-                // instead of the one accepting Task<T> and so the task doesn't get registered with the engine.
-                return Apply(t =>
-                {
-                    async Task<U> WrapperTask()
-                    {
-                        if (func(t) is Task underlyingTask)
-                        {
-                            await underlyingTask.ConfigureAwait(false);
-                        }
-
-                        // return an empty task of type U to satisfy the runtime
-                        // which doesn't have to be awaited because we awaited the original task
-                        var emptyTask = new Task(() => { }) as object;
-                        return (U)emptyTask;
-                    }
-
-                    return Output.Create(WrapperTask());
-                });
-            }
-
             return Apply(t => Output.Create(func(t)));
         }
 

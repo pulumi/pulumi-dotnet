@@ -510,9 +510,7 @@ namespace Pulumi
                 {
                     var underlyingTask = func(t);
                     await underlyingTask.ConfigureAwait(false);
-                    // return a completed task to satisfy the runtime
-                    // which doesn't need to be awaited because we awaited the original task
-                    return Task.CompletedTask;
+                    return underlyingTask;
                 }
 
                 return Output.Create(WrapperTask());

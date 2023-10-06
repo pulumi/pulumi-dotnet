@@ -519,16 +519,9 @@ namespace Pulumi
                         }
 
                         // return an empty task of type U to satisfy the runtime
-                        // using reflection to create new Task(() => { })
                         // which doesn't have to be awaited because we awaited the original task
-                        Action emptyAction = () => { };
-                        var emptyTask = Activator.CreateInstance(typeof(Task), emptyAction);
-                        if (emptyTask != null)
-                        {
-                            return (U)emptyTask;
-                        }
-
-                        throw new InvalidOperationException("Unable to create empty task");
+                        var emptyTask = new Task(() => { }) as object;
+                        return (U)emptyTask;
                     }
 
                     return Output.Create(WrapperTask());

@@ -38,6 +38,38 @@ namespace Pulumi.Tests
         }
 
         [Fact]
+        public async Task NonGenericTaskIsAwaitedFromApply()
+        {
+            var deployResult = await Deployment.TryTestAsync<UsingNonGenericTaskInApplyStack>(
+                new EmptyMocks());
+            var stack = deployResult.Resources[0] as UsingNonGenericTaskInApplyStack;
+            var resultMessage = await stack.ResultMessage.GetValueAsync("");
+            Assert.Equal("After", resultMessage);
+        }
+
+        class UsingNonGenericTaskInApplyStack : Stack
+        {
+            [Output]
+            public Output<string> ResultMessage { get; set; }
+
+            public UsingNonGenericTaskInApplyStack()
+            {
+                ResultMessage = Output.Create("Before");
+
+                Output.Create(0).Apply(async _ =>
+                {
+                    await Work();
+                });
+            }
+
+            async Task Work()
+            {
+                await Task.Delay(5000);
+                this.ResultMessage = Output.Create("After");
+            }
+        }
+
+        [Fact]
         public async Task DisplaysExceptionFromStack()
         {
             var deployResult = await Deployment.TryTestAsync<ThrowsExceptionStack>(new EmptyMocks());

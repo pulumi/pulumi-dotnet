@@ -284,6 +284,11 @@ $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:
                 return (int)prop;
             }
 
+            if (prop is ValueTuple)
+            {
+                return null;
+            }
+
             var propType = prop.GetType();
             if (propType.IsValueType && propType.GetCustomAttribute<EnumTypeAttribute>() != null)
             {

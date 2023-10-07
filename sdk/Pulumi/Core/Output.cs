@@ -502,15 +502,15 @@ namespace Pulumi
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
         /// </summary>
-        public Output<Task> Apply(Func<T, Task> func)
+        public Output<ValueTuple> Apply(Func<T, Task> func)
         {
             return Apply(t =>
             {
-                async Task<Task> WrapperTask()
+                async Task<ValueTuple> WrapperTask()
                 {
                     var underlyingTask = func(t);
                     await underlyingTask.ConfigureAwait(false);
-                    return underlyingTask;
+                    return ValueTuple.Create();
                 }
 
                 return Output.Create(WrapperTask());

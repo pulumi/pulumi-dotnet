@@ -28,7 +28,10 @@ namespace Pulumi.Testing
         {
             // Rather than attempting to keep the list of feature flags up-to date here, we just assume the
             // mock monitor supports any feature requested of it.
-            return Task.FromResult(new SupportsFeatureResponse { HasSupport = true });
+            // However, support for "outputValues" is deliberately disabled for the mock monitor so
+            // instances of `Output` don't show up in `MockResourceArgs` Inputs.
+            var hasSupport = request.Id != "outputValues";
+            return Task.FromResult(new SupportsFeatureResponse { HasSupport = hasSupport });
         }
 
         public async Task<InvokeResponse> InvokeAsync(ResourceInvokeRequest request)

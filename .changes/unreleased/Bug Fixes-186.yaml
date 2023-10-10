@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Bug Fixes
+body: Fix issue with specifying a git username for remote workspaces.
+time: 2023-11-15T13:48:50.270288Z
+custom:
+  PR: "186"

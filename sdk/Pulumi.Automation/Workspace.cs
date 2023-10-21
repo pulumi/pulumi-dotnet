@@ -166,6 +166,17 @@ namespace Pulumi.Automation
         public abstract Task<ConfigValue> GetConfigAsync(string stackName, string key, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Returns the value associated with the specified stack name and key, scoped
+        /// to the Workspace.
+        /// </summary>
+        /// <param name="stackName">The name of the stack to read config from.</param>
+        /// <param name="key">The key to use for the config lookup.</param>
+        /// <param name="path">The key contains a path to a property in a map or list to get.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public virtual Task<ConfigValue> GetConfigAsync(string stackName, string key, bool path, CancellationToken cancellationToken = default)
+            => path ? throw new NotSupportedException($"{nameof(path)} not supported") : GetConfigAsync(stackName, key, cancellationToken);
+
+        /// <summary>
         /// Returns the config map for the specified stack name, scoped to the current Workspace.
         /// </summary>
         /// <param name="stackName">The name of the stack to read config from.</param>
@@ -182,12 +193,33 @@ namespace Pulumi.Automation
         public abstract Task SetConfigAsync(string stackName, string key, ConfigValue value, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Sets the specified key-value pair in the provided stack's config.
+        /// </summary>
+        /// <param name="stackName">The name of the stack to operate on.</param>
+        /// <param name="key">The config key to set.</param>
+        /// <param name="value">The config value to set.</param>
+        /// <param name="path">The key contains a path to a property in a map or list to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public virtual Task SetConfigAsync(string stackName, string key, ConfigValue value, bool path, CancellationToken cancellationToken = default)
+            => path ? throw new NotSupportedException($"{nameof(path)} not supported") : SetConfigAsync(stackName, key, value, cancellationToken);
+
+        /// <summary>
         /// Sets all values in the provided config map for the specified stack name.
         /// </summary>
         /// <param name="stackName">The name of the stack to operate on.</param>
         /// <param name="configMap">The config map to upsert against the existing config.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public abstract Task SetAllConfigAsync(string stackName, IDictionary<string, ConfigValue> configMap, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Sets all values in the provided config map for the specified stack name.
+        /// </summary>
+        /// <param name="stackName">The name of the stack to operate on.</param>
+        /// <param name="configMap">The config map to upsert against the existing config.</param>
+        /// <param name="path">The keys contain a path to a property in a map or list to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public virtual Task SetAllConfigAsync(string stackName, IDictionary<string, ConfigValue> configMap, bool path, CancellationToken cancellationToken = default)
+            => path ? throw new NotSupportedException($"{nameof(path)} not supported") : SetAllConfigAsync(stackName, configMap, cancellationToken);
 
         /// <summary>
         /// Removes the specified key-value pair from the provided stack's config.
@@ -198,12 +230,32 @@ namespace Pulumi.Automation
         public abstract Task RemoveConfigAsync(string stackName, string key, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Removes the specified key-value pair from the provided stack's config.
+        /// </summary>
+        /// <param name="stackName">The name of the stack to operate on.</param>
+        /// <param name="key">The config key to remove.</param>
+        /// <param name="path">The key contains a path to a property in a map or list to remove.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public virtual Task RemoveConfigAsync(string stackName, string key, bool path, CancellationToken cancellationToken = default)
+            => path ? throw new NotSupportedException($"{nameof(path)} not supported") : RemoveConfigAsync(stackName, key, cancellationToken);
+
+        /// <summary>
         /// Removes all values in the provided key collection from the config map for the specified stack name.
         /// </summary>
         /// <param name="stackName">The name of the stack to operate on.</param>
         /// <param name="keys">The collection of keys to remove from the underlying config map.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public abstract Task RemoveAllConfigAsync(string stackName, IEnumerable<string> keys, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Removes all values in the provided key collection from the config map for the specified stack name.
+        /// </summary>
+        /// <param name="stackName">The name of the stack to operate on.</param>
+        /// <param name="keys">The collection of keys to remove from the underlying config map.</param>
+        /// <param name="path">The keys contain a path to a property in a map or list to remove.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public virtual Task RemoveAllConfigAsync(string stackName, IEnumerable<string> keys, bool path, CancellationToken cancellationToken = default)
+            => path ? throw new NotSupportedException($"{nameof(path)} not supported") : RemoveAllConfigAsync(stackName, keys, cancellationToken);
 
         /// <summary>
         /// Gets and sets the config map used with the last update for the stack matching the specified stack name.

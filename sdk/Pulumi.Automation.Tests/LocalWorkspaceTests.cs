@@ -305,6 +305,116 @@ namespace Pulumi.Automation.Tests
         }
 
         [Fact]
+        public async Task ManipulateConfigPath()
+        {
+            var projectName = "manipulate_config_path_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+
+            var stackName = $"{RandomStackName()}";
+            var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+
+            try
+            {
+                // test backward compatibility
+                await stack.SetConfigAsync("key1", new ConfigValue("value1"));
+                // test new flag without subPath
+                await stack.SetConfigAsync("key2", new ConfigValue("value2"), path: false);
+                // test new flag with subPath
+                await stack.SetConfigAsync("key3.subKey1", new ConfigValue("value3"), path: true);
+                // test secret
+                await stack.SetConfigAsync("key4", new ConfigValue("value4", isSecret: true));
+                // test subPath and key as secret
+                await stack.SetConfigAsync("key5.subKey1", new ConfigValue("value5", isSecret: true), path: true);
+                // test string with dots
+                await stack.SetConfigAsync("key6.subKey1", new ConfigValue("value6", isSecret: true));
+                // test string with dots
+                await stack.SetConfigAsync("key7.subKey1", new ConfigValue("value7", isSecret: true), path: false);
+                // test subPath
+                await stack.SetConfigAsync("key7.subKey2", new ConfigValue("value8"), path: true);
+                // test subPath
+                await stack.SetConfigAsync("key7.subKey3", new ConfigValue("value9"), path: true);
+
+                // test backward compatibility
+                var cv1 = await stack.GetConfigAsync("key1");
+                Assert.NotNull(cv1);
+                Assert.Equal("value1", cv1.Value);
+                Assert.False(cv1.IsSecret);
+
+                // test new flag without subPath
+                var cv2 = await stack.GetConfigAsync("key2", path: false);
+                Assert.NotNull(cv2);
+                Assert.Equal("value2", cv2.Value);
+                Assert.False(cv2.IsSecret);
+
+                // test new flag with subPath
+                var cv3 = await stack.GetConfigAsync("key3.subKey1", path: true);
+                Assert.NotNull(cv3);
+                Assert.Equal("value3", cv3.Value);
+                Assert.False(cv3.IsSecret);
+
+                // test secret
+                var cv4 = await stack.GetConfigAsync("key4");
+                Assert.NotNull(cv4);
+                Assert.Equal("value4", cv4.Value);
+                Assert.True(cv4.IsSecret);
+
+                // test subPath and key as secret
+                var cv5 = await stack.GetConfigAsync("key5.subKey1", true);
+                Assert.NotNull(cv5);
+                Assert.Equal("value5", cv5.Value);
+                Assert.True(cv5.IsSecret);
+
+                // test string with dots
+                var cv6 = await stack.GetConfigAsync("key6.subKey1");
+                Assert.NotNull(cv6);
+                Assert.Equal("value6", cv6.Value);
+                Assert.True(cv6.IsSecret);
+
+                // test string with dots
+                var cv7 = await stack.GetConfigAsync("key7.subKey1", false);
+                Assert.NotNull(cv7);
+                Assert.Equal("value7", cv7.Value);
+                Assert.True(cv7.IsSecret);
+
+                // test string with dots
+                var cv8 = await stack.GetConfigAsync("key7.subKey2", true);
+                Assert.NotNull(cv8);
+                Assert.Equal("value8", cv8.Value);
+                Assert.False(cv8.IsSecret);
+
+                // test string with dots
+                var cv9 = await stack.GetConfigAsync("key7.subKey3", true);
+                Assert.NotNull(cv9);
+                Assert.Equal("value9", cv9.Value);
+                Assert.False(cv9.IsSecret);
+
+                await stack.RemoveConfigAsync("key1");
+                await stack.RemoveConfigAsync("key2", path: false);
+                await stack.RemoveConfigAsync("key3", path: false);
+                await stack.RemoveConfigAsync("key4", path: false);
+                await stack.RemoveConfigAsync("key5", path: false);
+                await stack.RemoveConfigAsync("key6.subKey1", path: false);
+                await stack.RemoveConfigAsync("key7.subKey1", path: false);
+
+                var cfg = await stack.GetAllConfigAsync();
+                Assert.Equal("{\"subKey2\":\"value8\",\"subKey3\":\"value9\"}", cfg[$"{projectName}:key7"].Value);
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+            }
+        }
+
+        [Fact]
         public async Task SupportConfigFlagLike()
         {
             var projectName = "config_flag_like";

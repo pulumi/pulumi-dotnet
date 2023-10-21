@@ -567,9 +567,19 @@ namespace Pulumi.Automation
         }
 
         /// <inheritdoc/>
-        public override async Task<ConfigValue> GetConfigAsync(string stackName, string key, CancellationToken cancellationToken = default)
+        public override Task<ConfigValue> GetConfigAsync(string stackName, string key, CancellationToken cancellationToken = default)
+            => GetConfigAsync(stackName, key, false, cancellationToken);
+
+        /// <inheritdoc/>
+        public override async Task<ConfigValue> GetConfigAsync(string stackName, string key, bool path, CancellationToken cancellationToken = default)
         {
-            var result = await this.RunCommandAsync(new[] { "config", "get", key, "--json", "--stack", stackName }, cancellationToken).ConfigureAwait(false);
+            var args = new List<string> { "config", "get" };
+            if (path)
+            {
+                args.Add("--path");
+            }
+            args.AddRange(new[] { key, "--json", "--stack", stackName });
+            var result = await this.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
             return this._serializer.DeserializeJson<ConfigValue>(result.StandardOutput);
         }
 
@@ -585,16 +595,34 @@ namespace Pulumi.Automation
         }
 
         /// <inheritdoc/>
-        public override async Task SetConfigAsync(string stackName, string key, ConfigValue value, CancellationToken cancellationToken = default)
+        public override Task SetConfigAsync(string stackName, string key, ConfigValue value, CancellationToken cancellationToken = default)
+            => SetConfigAsync(stackName, key, value, false, cancellationToken);
+
+        /// <inheritdoc/>
+        public override async Task SetConfigAsync(string stackName, string key, ConfigValue value, bool path, CancellationToken cancellationToken = default)
         {
+            var args = new List<string> { "config", "set" };
+            if (path)
+            {
+                args.Add("--path");
+            }
             var secretArg = value.IsSecret ? "--secret" : "--plaintext";
-            await this.RunCommandAsync(new[] { "config", "set", key, secretArg, "--stack", stackName, "--non-interactive", "--", value.Value }, cancellationToken).ConfigureAwait(false);
+            args.AddRange(new[] { key, secretArg, "--stack", stackName, "--non-interactive", "--", value.Value });
+            await this.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public override async Task SetAllConfigAsync(string stackName, IDictionary<string, ConfigValue> configMap, CancellationToken cancellationToken = default)
+        public override Task SetAllConfigAsync(string stackName, IDictionary<string, ConfigValue> configMap, CancellationToken cancellationToken = default)
+            => SetAllConfigAsync(stackName, configMap, false, cancellationToken);
+
+        /// <inheritdoc/>
+        public override async Task SetAllConfigAsync(string stackName, IDictionary<string, ConfigValue> configMap, bool path, CancellationToken cancellationToken = default)
         {
             var args = new List<string> { "config", "set-all", "--stack", stackName };
+            if (path)
+            {
+                args.Add("--path");
+            }
             foreach (var (key, value) in configMap)
             {
                 var secretArg = value.IsSecret ? "--secret" : "--plaintext";
@@ -605,13 +633,32 @@ namespace Pulumi.Automation
         }
 
         /// <inheritdoc/>
-        public override async Task RemoveConfigAsync(string stackName, string key, CancellationToken cancellationToken = default)
-            => await this.RunCommandAsync(new[] { "config", "rm", key, "--stack", stackName }, cancellationToken).ConfigureAwait(false);
+        public override Task RemoveConfigAsync(string stackName, string key, CancellationToken cancellationToken = default)
+            => RemoveConfigAsync(stackName, key, false, cancellationToken);
 
         /// <inheritdoc/>
-        public override async Task RemoveAllConfigAsync(string stackName, IEnumerable<string> keys, CancellationToken cancellationToken = default)
+        public override async Task RemoveConfigAsync(string stackName, string key, bool path, CancellationToken cancellationToken = default)
+        {
+            var args = new List<string> { "config", "rm", key, "--stack", stackName };
+            if (path)
+            {
+                args.Add("--path");
+            }
+            await this.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public override Task RemoveAllConfigAsync(string stackName, IEnumerable<string> keys, CancellationToken cancellationToken = default)
+            => RemoveAllConfigAsync(stackName, keys, false, cancellationToken);
+
+        /// <inheritdoc/>
+        public override async Task RemoveAllConfigAsync(string stackName, IEnumerable<string> keys, bool path, CancellationToken cancellationToken = default)
         {
             var args = new List<string> { "config", "rm-all", "--stack", stackName };
+            if (path)
+            {
+                args.Add("--path");
+            }
             args.AddRange(keys);
             await this.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
         }

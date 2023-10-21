@@ -4,6 +4,8 @@ using Grpc.Net.Client;
 using Pulumi.Experimental.Provider;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -94,6 +96,129 @@ namespace Pulumi.Tests.Provider
             var exc = await Assert.ThrowsAsync<NotImplementedException>(() =>
                 provider.GetSchema(new GetSchemaRequest(0), CancellationToken.None));
             Assert.Contains("GetSchema", exc.Message);
+        }
+
+        class BasicArgs : ResourceArgs
+        {
+            public int PasswordLength { get; set; }
+        }
+
+        async Task<T> DeserializObject<T>(Dictionary<string, object?> inputs)
+        {
+            var propertyValue = await PropertyValue.From(inputs);
+            if (propertyValue.TryGetObject(out var objectInputs) && objectInputs != null)
+            {
+                var deserialized = PropertyValue.DeserializeObject<T>(objectInputs);
+                return deserialized;
+            }
+
+            throw new Exception("Expected object");
+        }
+
+        [Fact]
+        public async Task DeserializingBasicArgsWorks()
+        {
+            var basicArgs = await DeserializObject<BasicArgs>(new Dictionary<string, object?>
+            {
+                ["PasswordLength"] = 10
+            });
+
+            Assert.Equal(10, basicArgs.PasswordLength);
+        }
+
+        class UsingNullableArgs : ResourceArgs
+        {
+            public int? Length { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingNullableArgsWorks()
+        {
+            var emptyData = new Dictionary<string, object?>();
+            var withoutData = await DeserializObject<UsingNullableArgs>(emptyData);
+            Assert.False(withoutData.Length.HasValue, "Nullable value is null");
+
+            var withData = await DeserializObject<UsingNullableArgs>(new Dictionary<string, object?>
+            {
+                ["Length"] = 10
+            });
+
+            Assert.True(withData.Length.HasValue, "Nullable field has a value");
+            Assert.Equal(10, withData.Length.Value);
+        }
+
+        class UsingListArgs : ResourceArgs
+        {
+            public string[] First { get; set; }
+            public List<string> Second { get; set; }
+            public ImmutableArray<string> Third { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingListTypesWorks()
+        {
+            var data = new [] { "one", "two", "three" };
+            var args = await DeserializObject<UsingListArgs>(new Dictionary<string, object?>
+            {
+                ["First"] = data,
+                ["Second"] = data,
+                ["Third"] = data
+            });
+
+            Assert.Equal(data, args.First);
+            Assert.Equal(data, args.Second.ToArray());
+            Assert.Equal(data, args.Third.ToArray());
+
+            var withEmptyArgs = await DeserializObject<UsingListArgs>(new Dictionary<string, object?>());
+
+            Assert.Equal(0, withEmptyArgs.First.Length);
+            Assert.Equal(0, withEmptyArgs.Second.Count);
+            Assert.Equal(0, withEmptyArgs.Third.Length);
+        }
+
+        class StringFromNullBecomesEmpty : ResourceArgs
+        {
+            public string Data { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingStringFromNullValueMakesItEmptyString()
+        {
+            var argsWithNullString = await DeserializObject<StringFromNullBecomesEmpty>(new Dictionary<string, object?>
+            {
+                ["Data"] = null
+            });
+
+            Assert.Equal("", argsWithNullString.Data);
+        }
+
+        class UsingDictionaryArgs : ResourceArgs
+        {
+            public Dictionary<string, string> First { get; set; }
+            public ImmutableDictionary<string, string> Second { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingDictionaryPropertiesWork()
+        {
+            var data = new Dictionary<string, string>
+            {
+                ["Uno"] = "One"
+            };
+
+            var args = await DeserializObject<UsingDictionaryArgs>(new Dictionary<string, object?>
+            {
+                ["First"] = data,
+                ["Second"] = data
+            });
+
+            Assert.Equal(data, args.First);
+            Assert.Equal(data, args.Second.ToDictionary(x => x.Key, y => y.Value));
+
+            var emptyArgs = await DeserializObject<UsingDictionaryArgs>(new Dictionary<string, object?>());
+
+            Assert.Equal(0, emptyArgs.First.Count());
+            Assert.Equal(0, emptyArgs.Second.Count());
         }
     }
 }

@@ -20,7 +20,10 @@ namespace Pulumi
             if (type == Stack._rootPulumiStackTypeName)
                 return null;
 
-            var stack = InternalInstance.Stack ?? throw new InvalidOperationException($"Calling {nameof(GetRootResourceAsync)} before the stack was registered!");
+            if (InternalInstance.Stack == null)
+                return null;
+
+            var stack = InternalInstance.Stack;
             var resUrn = await stack.Urn.GetValueAsync(whenUnknown: default!).ConfigureAwait(false);
             return resUrn;
         }

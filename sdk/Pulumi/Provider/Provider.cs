@@ -268,6 +268,71 @@ namespace Pulumi.Experimental.Provider
         }
     }
 
+    public sealed class ConstructRequest
+    {
+        public readonly string Type;
+        public readonly string Name;
+        public readonly string Parent;
+        public readonly bool Protect;
+        public readonly string Project;
+        public readonly string Stack;
+        public readonly string Organisation;
+        public readonly bool RetainOnDelete;
+        public readonly ImmutableDictionary<string, PropertyValue> Inputs;
+        public readonly ImmutableArray<string> Aliases;
+        public readonly ImmutableArray<string> Dependencies;
+        public readonly ImmutableArray<string> IgnoreChanges;
+        public readonly ImmutableDictionary<string, string> Config;
+        public readonly ImmutableDictionary<string, string> Providers;
+        public readonly string DeletedWith;
+
+        public ConstructRequest(
+            string type,
+            string name,
+            string parent,
+            string project,
+            string stack,
+            string organisation,
+            bool protect,
+            bool retainOnDelete,
+            string deletedWith,
+            ImmutableDictionary<string, PropertyValue> inputs,
+            ImmutableArray<string> aliases,
+            ImmutableArray<string> dependencies,
+            ImmutableArray<string> ignoreChanges,
+            ImmutableDictionary<string, string> config,
+            ImmutableDictionary<string, string> providers)
+        {
+            Type = type;
+            Name = name;
+            Parent = parent;
+            Project = project;
+            Stack = stack;
+            Organisation = organisation;
+            Protect = protect;
+            RetainOnDelete = retainOnDelete;
+            DeletedWith = deletedWith;
+            Inputs = inputs;
+            Aliases = aliases;
+            IgnoreChanges = ignoreChanges;
+            Dependencies = dependencies;
+            Config = config;
+            Providers = providers;
+        }
+    }
+
+    public sealed class ConstructResponse
+    {
+        public readonly string Urn;
+        public readonly ImmutableDictionary<string, PropertyValue> State;
+
+        public ConstructResponse(string urn, ImmutableDictionary<string, PropertyValue> state)
+        {
+            Urn = urn;
+            State = state;
+        }
+    }
+
     public abstract class Provider
     {
         public virtual Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
@@ -323,6 +388,11 @@ namespace Pulumi.Experimental.Provider
         public virtual Task Delete(DeleteRequest request, CancellationToken ct)
         {
             throw new NotImplementedException($"The method '{nameof(Delete)}' is not implemented ");
+        }
+
+        public virtual Task<ConstructResponse> Construct(ConstructRequest request, CancellationToken ct)
+        {
+            throw new NotImplementedException($"The method '{nameof(Construct)}' is not implemented ");
         }
 
         public static Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
@@ -916,9 +986,57 @@ namespace Pulumi.Experimental.Provider
             }
         }
 
-        public override Task<Pulumirpc.ConstructResponse> Construct(Pulumirpc.ConstructRequest request, ServerCallContext context)
+        public override async Task<Pulumirpc.ConstructResponse> Construct(Pulumirpc.ConstructRequest request, ServerCallContext context)
         {
-            throw new RpcException(new Status(StatusCode.Unimplemented, "Component resources not yet supported"));
+            try
+            {
+                var deployment = new Deployment(
+                    monitorAddress: request.MonitorEndpoint,
+                    project: request.Project,
+                    stack: request.Stack,
+                    organization: request.Organization,
+                    dryRun: request.DryRun
+                );
+
+                Deployment.Instance = new DeploymentInstance(deployment);
+
+                var domRequest = new ConstructRequest(
+                    type: request.Type,
+                    name: request.Name,
+                    project: request.Project,
+                    stack: request.Stack,
+                    parent: request.Parent,
+                    protect: request.Protect,
+                    retainOnDelete: request.RetainOnDelete,
+                    deletedWith: request.DeletedWith,
+                    organisation: request.Organization,
+                    inputs: PropertyValue.Unmarshal(request.Inputs),
+                    aliases: request.Aliases.ToImmutableArray(),
+                    dependencies: request.Dependencies.ToImmutableArray(),
+                    ignoreChanges: request.IgnoreChanges.ToImmutableArray(),
+                    config: request.Config.ToImmutableDictionary(),
+                    providers: request.Providers.ToImmutableDictionary());
+
+                using var cts = GetToken(context);
+                var response = await Implementation.Construct(domRequest, cts.Token);
+                return new Pulumirpc.ConstructResponse
+                {
+                    Urn = response.Urn,
+                    State = PropertyValue.Marshal(response.State)
+                };
+            }
+            catch (NotImplementedException ex)
+            {
+                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, $"{ex.Message}:\n{ex.StackTrace}"));
+            }
         }
 
         public override Task<Pulumirpc.CallResponse> Call(Pulumirpc.CallRequest request, ServerCallContext context)

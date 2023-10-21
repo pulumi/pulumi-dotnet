@@ -4,6 +4,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
+using Type = System.Type;
 
 namespace Pulumi.Experimental.Provider
 {
@@ -494,6 +496,264 @@ namespace Pulumi.Experimental.Provider
         public static PropertyValue Null = new PropertyValue(SpecialType.IsNull);
         public static PropertyValue Computed = new PropertyValue(SpecialType.IsComputed);
 
+        public static async Task<PropertyValue> From(object data)
+        {
+            var serializer = new Serializer(excessiveDebugOutput: false);
+            var value = await serializer.SerializeAsync(
+                prop: data,
+                keepResources: true,
+                keepOutputValues: true,
+                ctx: "");
+
+            return Unmarshal(Serializer.CreateValue(value));
+        }
+
+        public static T DeserializeObject<T>(ImmutableDictionary<string, PropertyValue> inputs)
+        {
+            var deserialized = DeserializeObject(inputs, typeof(T));
+            if (deserialized is T t)
+            {
+                return t;
+            }
+
+            throw new InvalidOperationException($"Could not deserialize {typeof(T).FullName}");
+        }
+
+        public static object? DeserializeObject(ImmutableDictionary<string, PropertyValue> inputs, Type targetType)
+        {
+            var instance = Activator.CreateInstance(targetType);
+            var properties = targetType.GetProperties();
+            foreach (var property in properties)
+            {
+                var runtimePropertyName = property.Name;
+                var attribute = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
+                if (attribute is InputAttribute inputAttribute)
+                {
+                    runtimePropertyName = inputAttribute.Name;
+                }
+
+                if (inputs.TryGetValue(runtimePropertyName, out var value))
+                {
+                    var deserializedValue = DeserializeValue(value, property.PropertyType);
+                    property.SetValue(instance, deserializedValue);
+                }
+                else
+                {
+                    var maybeDeserializedEmptyValue = DeserializeValue(PropertyValue.Null, property.PropertyType);
+
+                    // we couldn't find the corresponding property value in the inputs given
+                    // that is alright if the property is optional (i.e. the type is nullable)
+                    // otherwise we throw an error
+                    var isNullable =
+                        property.PropertyType.IsGenericType
+                        && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
+
+                    if (!isNullable && maybeDeserializedEmptyValue == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"Could not deserialize object of type {targetType.Name}, missing required property {runtimePropertyName}");
+                    }
+
+                    property.SetValue(instance, maybeDeserializedEmptyValue);
+                }
+            }
+
+            return instance;
+        }
+
+        public static object? DeserializeValue(PropertyValue value, Type targetType)
+        {
+            if (value.SecretValue != null)
+            {
+                return DeserializeValue(value.SecretValue, targetType);
+            }
+
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                if (value.IsNull)
+                {
+                    return null;
+                }
+
+                var elementType = targetType.GetGenericArguments()[0];
+                var nullableType = typeof(Nullable<>).MakeGenericType(elementType);
+                return Activator.CreateInstance(
+                    type: nullableType,
+                    args: new [] { DeserializeValue(value, elementType) });
+            }
+
+            if (targetType == typeof(int) && value.TryGetNumber(out var numberAsInt))
+            {
+                return (int)numberAsInt;
+            }
+
+            if (targetType == typeof(double) && value.TryGetNumber(out var numberAsDouble))
+            {
+                return numberAsDouble;
+            }
+
+            if (targetType == typeof(string) && value.TryGetString(out var stringValue))
+            {
+                return stringValue;
+            }
+
+            if (targetType == typeof(string) && value.IsNull)
+            {
+                return "";
+            }
+
+            if (targetType == typeof(Asset) && value.TryGetAsset(out var asset))
+            {
+                return asset;
+            }
+
+            if (targetType == typeof(Archive) && value.TryGetArchive(out var archive))
+            {
+                return archive;
+            }
+
+            if (targetType == typeof(bool) && value.TryGetBool(out var boolValue))
+            {
+                return boolValue;
+            }
+
+            if (targetType.IsArray)
+            {
+                var elementType = targetType.GetElementType()!;
+                if (value.TryGetArray(out var arrayValue))
+                {
+                    var array = Array.CreateInstance(elementType, arrayValue.Length);
+                    for (var i = 0; i < arrayValue.Length; ++i)
+                    {
+                        var deserialized = DeserializeValue(arrayValue[i], elementType);
+                        array.SetValue(deserialized, i);
+                    }
+                    return array;
+                }
+
+                return Array.CreateInstance(elementType, 0);
+            }
+
+            if (targetType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var elementType = targetType.GetGenericArguments()[0];
+                var list = Activator.CreateInstance(targetType)!;
+                var addMethod = targetType.GetMethod(nameof(List<int>.Add))!;
+                if (value.TryGetArray(out var arrayValue))
+                {
+                    foreach (var item in arrayValue)
+                    {
+                        var deserialized = DeserializeValue(item, elementType);
+                        addMethod.Invoke(list, new[] { deserialized });
+                    }
+                }
+
+                return list;
+            }
+
+            if (targetType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
+            {
+                var builder =
+                    typeof(ImmutableArray).GetMethod(nameof(ImmutableArray.CreateBuilder), Array.Empty<Type>())!
+                        .MakeGenericMethod(targetType.GenericTypeArguments)
+                        .Invoke(obj: null, parameters: null)!;
+
+                var builderAdd = builder.GetType().GetMethod(nameof(ImmutableArray<int>.Builder.Add))!;
+                var builderToImmutable = builder.GetType().GetMethod(nameof(ImmutableArray<int>.Builder.ToImmutable))!;
+                var elementType = targetType.GetGenericArguments()[0];
+                if (value.TryGetArray(out var arrayValue))
+                {
+                    foreach (var item in arrayValue)
+                    {
+                        var deserialized = DeserializeValue(item, elementType);
+                        builderAdd.Invoke(builder, new[] { deserialized });
+                    }
+                }
+
+                return builderToImmutable.Invoke(builder, Array.Empty<object>());
+            }
+
+            if (targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+                var dictionary = Activator.CreateInstance(targetType);
+                var addMethod =
+                    targetType
+                        .GetMethods()
+                        .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Count() == 2);
+
+                var valueType = targetType.GenericTypeArguments[1];
+                if (value.TryGetObject(out var values) && values != null)
+                {
+                    foreach (var pair in values)
+                    {
+                        var deserializedValue = DeserializeValue(pair.Value, valueType);
+                        addMethod.Invoke(dictionary, new[] { pair.Key, deserializedValue });
+                    }
+                }
+
+                return dictionary;
+            }
+
+            if (targetType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
+            {
+                var builder =
+                    typeof(ImmutableDictionary).GetMethod(nameof(ImmutableDictionary.CreateBuilder),
+                            Array.Empty<Type>())!
+                        .MakeGenericMethod(targetType.GenericTypeArguments)
+                        .Invoke(obj: null, parameters: null)!;
+
+                var builderAdd =
+                    builder
+                        .GetType()
+                        .GetMethods()
+                        .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Count() == 2);
+
+                var builderToImmutable = builder.GetType()
+                    .GetMethod(nameof(ImmutableDictionary<int, int>.Builder.ToImmutable))!;
+                var valueType = targetType.GenericTypeArguments[1];
+
+                if (value.TryGetObject(out var values) && values != null)
+                {
+                    foreach (var pair in values)
+                    {
+                        var deserializedValue = DeserializeValue(pair.Value, valueType);
+                        builderAdd.Invoke(builder, new[] { pair.Key, deserializedValue });
+                    }
+                }
+
+                return builderToImmutable.Invoke(builder, Array.Empty<object>());
+            }
+
+            if (value.TryGetObject(out var objectProperties) && objectProperties != null)
+            {
+                return DeserializeObject(objectProperties, targetType);
+            }
+
+            return null;
+        }
+
+        public static async Task<ImmutableDictionary<string, PropertyValue>> StateFromComponentResource(
+            ComponentResource component)
+        {
+            var state = new Dictionary<string, PropertyValue>();
+            var componentType = component.GetType();
+            var properties = componentType.GetProperties();
+            foreach (var property in properties)
+            {
+                var outputAttr = property.GetCustomAttributes(typeof(OutputAttribute), false).FirstOrDefault();
+                if (outputAttr is OutputAttribute attr && attr.Name != null)
+                {
+                    var value = property.GetValue(component);
+                    if (value != null)
+                    {
+                        var serialized = await From(value);
+                        state.Add(attr.Name, serialized);
+                    }
+                }
+            }
+
+            return state.ToImmutableDictionary();
+        }
         public PropertyValue(bool value)
         {
             BoolValue = value;

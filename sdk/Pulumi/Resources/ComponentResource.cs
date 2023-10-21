@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pulumi
@@ -15,6 +16,11 @@ namespace Pulumi
     public class ComponentResource : Resource
     {
         internal readonly bool remote;
+
+        public async Task<string> ResolveUrn()
+        {
+            return await this.Urn.GetValueAsync("").ConfigureAwait(false);
+        }
 
         /// <summary>
         /// Creates and registers a new component resource.  <paramref name="type"/> is the fully
@@ -61,8 +67,22 @@ namespace Pulumi
         /// state as quickly as possible (instead of waiting until the entire application completes).
         /// </summary>
         protected void RegisterOutputs()
-            => RegisterOutputs(ImmutableDictionary<string, object?>.Empty);
+        {
+            var outputs = new Dictionary<string, object?>();
+            var currentType = GetType();
+            foreach (var prop in currentType.GetProperties())
+            {
+                var outputAttr = prop.GetCustomAttributes(typeof(OutputAttribute), false).FirstOrDefault();
+                if (outputAttr is OutputAttribute attr && attr.Name != null)
+                {
+                    var value = prop.GetValue(this);
+                    outputs.Add(attr.Name, value);
+                }
+            }
 
+            RegisterOutputs(outputs);
+        }
+        
         protected void RegisterOutputs(IDictionary<string, object?> outputs)
             => RegisterOutputs(Task.FromResult(outputs ?? throw new ArgumentNullException(nameof(outputs))));
 

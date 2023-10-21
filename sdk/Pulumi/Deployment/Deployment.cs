@@ -40,6 +40,14 @@ namespace Pulumi
     /// </summary>
     public sealed partial class Deployment : IDeploymentInternal
     {
+        internal class NoopEngine : IEngine
+        {
+            public Task LogAsync(LogRequest request)
+            {
+                return Task.CompletedTask;
+            }
+        }
+
         private static readonly object _instanceLock = new object();
         private static readonly AsyncLocal<DeploymentInstance?> _instance = new AsyncLocal<DeploymentInstance?>();
 
@@ -96,12 +104,11 @@ namespace Pulumi
         internal IMonitor Monitor { get; }
 
         internal Stack? _stack;
-        internal Stack Stack
+        internal Stack? Stack
         {
-            get => _stack ?? throw new InvalidOperationException("Trying to acquire Deployment.Stack before 'Run' was called.");
+            get => _stack;
             set => _stack = (value ?? throw new ArgumentNullException(nameof(value)));
         }
-
         private Deployment(RunnerOptions? runnerOptions = null)
         {
             // ReSharper disable UnusedVariable
@@ -147,6 +154,30 @@ namespace Pulumi
             _logger = new EngineLogger(this, deploymentLogger, this.Engine);
         }
 
+        internal Deployment(
+            string monitorAddress,
+            string project,
+            string stack,
+            string organization,
+            bool dryRun)
+        {
+            _isDryRun = dryRun;
+            _stackName = stack;
+            _projectName = project;
+            _organizationName = String.IsNullOrWhiteSpace(organization) ? "" : organization;
+            var deploymentLogger = CreateDefaultLogger();
+            deploymentLogger.LogDebug("Creating deployment monitor");
+            this.Monitor = new GrpcMonitor(monitorAddress);
+            this.Engine = new NoopEngine();
+            deploymentLogger.LogDebug("Created deployment monitor");
+            _runner = new Runner(this, deploymentLogger, new RunnerOptions
+            {
+                IsInlineAutomationProgram = false
+            });
+
+            _logger = new EngineLogger(this, deploymentLogger, this.Engine);
+        }
+
         /// <summary>
         /// This constructor is called from <see cref="TestAsync(IMocks, Func{IRunner, Task{int}}, TestOptions?)"/>
         /// with a mocked monitor and dummy values for project and stack.
@@ -175,7 +206,7 @@ namespace Pulumi
         IEngineLogger IDeploymentInternal.Logger => _logger;
         IRunner IDeploymentInternal.Runner => _runner;
 
-        Stack IDeploymentInternal.Stack
+        Stack? IDeploymentInternal.Stack
         {
             get => Stack;
             set => Stack = value;

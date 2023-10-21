@@ -152,12 +152,14 @@ namespace Pulumi
             // threads via `parentResource.ChildResources`.
             CompletionSources = OutputCompletionSource.InitializeOutputs(this);
 
+            Resource? parent = null;
+            if (type != Stack._rootPulumiStackTypeName)
+            {
+                parent = options.Parent ?? Deployment.InternalInstance.Stack;
+            }
+
             // Before anything else - if there are transformations registered, invoke them in order
             // to transform the properties and options assigned to this resource.
-            var parent = type == Stack._rootPulumiStackTypeName
-                ? null
-                : (options.Parent ?? Deployment.InternalInstance.Stack);
-
             _type = type;
             _name = name;
 

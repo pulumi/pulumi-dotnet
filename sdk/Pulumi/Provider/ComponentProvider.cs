@@ -14,12 +14,18 @@ namespace Pulumi.Experimental.Provider
 {
     public class ComponentMetadata
     {
-        public readonly Type ArgsType;
+        public readonly Type? ArgsType;
         public readonly Type ResourceType;
 
         public ComponentMetadata(Type argsType, Type resourceType)
         {
             ArgsType = argsType;
+            ResourceType = resourceType;
+        }
+
+        public ComponentMetadata(Type resourceType)
+        {
+            ArgsType = null;
             ResourceType = resourceType;
         }
     }
@@ -31,12 +37,20 @@ namespace Pulumi.Experimental.Provider
         public string ProviderName { get; set; } = "provider";
         public string ProviderVersion { get; set; } = "0.1.0";
 
-        public ComponentProviderBuilder Register<T, U>(string type, Func<ConstructRequest, T, U> constructor)
+        public ComponentProviderBuilder RegisterComponent<T, U>(string type, Func<ConstructRequest, T, U> constructor)
             where T : ResourceArgs
             where U : ComponentResource
         {
             ResourceConstructors[type] = (request, args) => constructor(request, (T)args);
             ResourceMetadata[type] = new ComponentMetadata(argsType: typeof(T), resourceType: typeof(U));
+            return this;
+        }
+
+        public ComponentProviderBuilder RegisterComponent<T>(string type, Func<ConstructRequest, T> constructor)
+            where T : ComponentResource
+        {
+            ResourceConstructors[type] = (request, args) => constructor(request);
+            ResourceMetadata[type] = new ComponentMetadata(resourceType: typeof(T));
             return this;
         }
 
@@ -189,6 +203,60 @@ namespace Pulumi.Experimental.Provider
             return "P:" + GetXmlNameTypeSegment(propertyInfo.DeclaringType.FullName!) + "." + propertyInfo.Name;
         }
 
+        private bool ContainsNullable(Type propertyType)
+        {
+            if (propertyType.IsGenericType)
+            {
+                if (propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    return true;
+                }
+
+                if (propertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    var elementType = propertyType.GetGenericArguments()[0];
+                    return ContainsNullable(elementType);
+                }
+
+                if (propertyType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
+                {
+                    var elementType = propertyType.GetGenericArguments()[0];
+                    return ContainsNullable(elementType);
+                }
+
+                if (propertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                {
+                    var valueType = propertyType.GetGenericArguments()[1];
+                    return ContainsNullable(valueType);
+                }
+
+                if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
+                {
+                    var elementType = propertyType.GetGenericArguments()[0];
+                    return ContainsNullable(elementType);
+                }
+
+                if (propertyType.GetGenericTypeDefinition() == typeof(InputList<>))
+                {
+                    var elementType = propertyType.GetGenericArguments()[0];
+                    return ContainsNullable(elementType);
+                }
+
+                if (propertyType.GetGenericTypeDefinition() == typeof(InputMap<>))
+                {
+                    var elementType = propertyType.GetGenericArguments()[0];
+                    return ContainsNullable(elementType);
+                }
+            }
+
+            if (propertyType.IsArray)
+            {
+                var elementType = propertyType.GetElementType()!;
+                return ContainsNullable(elementType);
+            }
+
+            return false;
+        }
         private JObject PropertyType(Type propertyType)
         {
             JObject Primitive(string typeName) => new JObject { ["type"] = typeName };
@@ -252,7 +320,7 @@ namespace Pulumi.Experimental.Provider
                     return new JObject
                     {
                         ["type"] = "object",
-                        ["addtionalProperties"] = PropertyType(valueType)
+                        ["additionalProperties"] = PropertyType(valueType)
                     };
                 }
 
@@ -263,8 +331,14 @@ namespace Pulumi.Experimental.Provider
                     return new JObject
                     {
                         ["type"] = "object",
-                        ["addtionalProperties"] = PropertyType(valueType)
+                        ["additionalProperties"] = PropertyType(valueType)
                     };
+                }
+
+                if (propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    var elementType = propertyType.GetGenericArguments()[0];
+                    return PropertyType(elementType);
                 }
             }
 
@@ -297,103 +371,120 @@ namespace Pulumi.Experimental.Provider
                 var properties = new JObject();
                 var requiredInputs = new HashSet<string>();
                 var requiredOutputs = new HashSet<string>();
-                foreach(var property in metadata.ArgsType.GetProperties())
+
+                if (metadata.ArgsType != null)
                 {
-                    var propertyName = property.Name;
-                    var propertyType = property.PropertyType;
-                    var plain = true;
-                    var secret = false;
-                    var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
-                    if (inputAttr is InputAttribute attr)
+                    foreach (var property in metadata.ArgsType.GetProperties())
                     {
-                        propertyName = attr.Name;
-                        if (attr.IsRequired)
+                        var propertyName = property.Name;
+                        var propertyType = property.PropertyType;
+                        var plain = true;
+                        var secret = false;
+                        var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
+                        if (inputAttr is InputAttribute attr)
+                        {
+                            propertyName = attr.Name;
+                            if (attr.IsRequired)
+                            {
+                                requiredInputs.Add(propertyName);
+                            }
+                        }
+
+                        var requiredAttribute = property.GetCustomAttributes(typeof(RequiredAttribute), false)
+                            .FirstOrDefault();
+
+                        if (requiredAttribute != null)
+                        {
+                            // if using Pulumi.RequiredAttribute, then mark the property as required
+                            requiredInputs.Add(propertyName);
+                        }
+
+                        var requiredAttributeFromDataAnnotations = property
+                            .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute))
+                            .FirstOrDefault();
+
+                        if (requiredAttributeFromDataAnnotations != null)
+                        {
+                            // if using System.ComponentModel.DataAnnotations.RequiredAttribute,
+                            // then mark the property as required
+                            requiredInputs.Add(propertyName);
+                        }
+
+                        if (!ContainsNullable(propertyType))
                         {
                             requiredInputs.Add(propertyName);
                         }
-                    }
 
-                    var requiredAttribute = property.
-                        GetCustomAttributes(typeof(RequiredAttribute), false)
-                        .FirstOrDefault();
-
-                    if (requiredAttribute != null)
-                    {
-                        // if using Pulumi.RequiredAttribute, then mark the property as required
-                        requiredInputs.Add(propertyName);
-                    }
-
-                    var requiredAttributeFromDataAnnotations = property
-                        .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute))
-                        .FirstOrDefault();
-
-                    if (requiredAttributeFromDataAnnotations != null)
-                    {
-                        // if using System.ComponentModel.DataAnnotations.RequiredAttribute,
-                        // then mark the property as required
-                        requiredInputs.Add(propertyName);
-                    }
-
-                    var secretAttribute = property.GetCustomAttributes(typeof(SecretAttribute), false).FirstOrDefault();
-                    if (secretAttribute != null)
-                    {
-                        secret = true;
-                    }
-
-                    if (propertyType.IsGenericType)
-                    {
-                        if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
+                        var secretAttribute = property.GetCustomAttributes(typeof(SecretAttribute), false)
+                            .FirstOrDefault();
+                        if (secretAttribute != null)
                         {
-                            plain = false;
-                            propertyType = propertyType.GetGenericArguments()[0];
+                            secret = true;
                         }
-                        else if (propertyType.GetGenericTypeDefinition() == typeof(InputList<>))
+
+                        if (propertyType.IsGenericType)
                         {
-                            plain = false;
-                            var elementType = propertyType.GetGenericArguments()[0];
-                            propertyType = Array.CreateInstance(elementType, 0).GetType();
+                            if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
+                            {
+                                plain = false;
+                                propertyType = propertyType.GetGenericArguments()[0];
+                            }
+                            else if (propertyType.GetGenericTypeDefinition() == typeof(InputList<>))
+                            {
+                                plain = false;
+                                var elementType = propertyType.GetGenericArguments()[0];
+                                propertyType = Array.CreateInstance(elementType, 0).GetType();
+                            }
+                            else if (propertyType.GetGenericTypeDefinition() == typeof(InputMap<>))
+                            {
+                                plain = false;
+                                var elementType = propertyType.GetGenericArguments()[0];
+                                propertyType = typeof(Dictionary<,>).MakeGenericType(typeof(string), elementType);
+                            }
+                            else if (propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                            {
+                                propertyType = propertyType.GetGenericArguments()[0];
+                            }
                         }
-                        else if (propertyType.GetGenericTypeDefinition() == typeof(InputMap<>))
+
+                        var propertySchema = PropertyType(propertyType);
+                        if (plain)
                         {
-                            plain = false;
-                            var elementType = propertyType.GetGenericArguments()[0];
-                            propertyType = typeof(Dictionary<,>).MakeGenericType(typeof(string), elementType);
+                            propertySchema["plain"] = true;
                         }
-                    }
 
-                    var propertySchema = PropertyType(propertyType);
-                    if (plain)
-                    {
-                        propertySchema["plain"] = true;
-                    }
-
-                    if (secret && !plain)
-                    {
-                        // A property can only be a secret when it is an Output
-                        propertySchema["secret"] = true;
-                    }
-
-                    var documentation = GetDocumentation(property);
-                    if (documentation != "")
-                    {
-                        propertySchema["description"] = documentation;
-                    }
-
-                    var descriptionAttributeContent = DescriptionAttributeContent(property);
-                    if (descriptionAttributeContent != "")
-                    {
-                        propertySchema["description"] = descriptionAttributeContent;
-                    }
-
-                    propertySchema["language"] = new JObject
-                    {
-                        ["csharp"] = new JObject
+                        if (secret && !plain)
                         {
-                            ["name"] = property.Name
+                            // A property can only be a secret when it is an Output
+                            propertySchema["secret"] = true;
                         }
-                    };
 
-                    inputProperties[propertyName] = propertySchema;
+                        var documentation = GetDocumentation(property);
+                        if (documentation != "")
+                        {
+                            propertySchema["description"] = documentation;
+                        }
+
+                        var descriptionAttributeContent = DescriptionAttributeContent(property);
+                        if (descriptionAttributeContent != "")
+                        {
+                            propertySchema["description"] = descriptionAttributeContent;
+                        }
+
+                        if (property.Name != propertyName)
+                        {
+                            // if the name was overridden by an attribute, then add the original name as an alias
+                            propertySchema["language"] = new JObject
+                            {
+                                ["csharp"] = new JObject
+                                {
+                                    ["name"] = property.Name
+                                }
+                            };
+                        }
+
+                        inputProperties[propertyName] = propertySchema;
+                    }
                 }
 
                 foreach (var property in metadata.ResourceType.GetProperties())
@@ -438,13 +529,17 @@ namespace Pulumi.Experimental.Provider
                         propertySchema["description"] = descriptionAttributeContent;
                     }
 
-                    propertySchema["language"] = new JObject
+                    if (property.Name != propertyName)
                     {
-                        ["csharp"] = new JObject
+                        // if the name was overridden by an attribute, then add the original name as an alias
+                        propertySchema["language"] = new JObject
                         {
-                            ["name"] = property.Name
-                        }
-                    };
+                            ["csharp"] = new JObject
+                            {
+                                ["name"] = property.Name
+                            }
+                        };
+                    }
 
                     properties[propertyName] = propertySchema;
                 }
@@ -493,13 +588,17 @@ namespace Pulumi.Experimental.Provider
             if (_builder.ResourceConstructors.TryGetValue(request.Type, out var constructor))
             {
                 var argsType = _builder.ResourceMetadata[request.Type].ArgsType;
-                var args = PropertyValue.DeserializeObject(request.Inputs, argsType);
-                if (args == null)
+                var args =
+                    argsType != null
+                        ? PropertyValue.DeserializeObject(request.Inputs, argsType)
+                        : null;
+
+                if (argsType != null && args == null)
                 {
-                    throw new Exception($"Failed to deserialize args of type {argsType}");
+                    throw new Exception($"Failed to deserialize args of type {argsType.FullName}");
                 }
 
-                var resource = constructor(request, args);
+                var resource = constructor(request, args ?? new object());
                 var urn = await resource.ResolveUrn();
                 var state = await PropertyValue.StateFromComponentResource(resource);
                 return new ConstructResponse(urn, state);

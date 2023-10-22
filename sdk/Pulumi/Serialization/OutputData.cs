@@ -1,6 +1,7 @@
 // Copyright 2016-2019, Pulumi Corporation
 
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace Pulumi.Serialization
 {
@@ -30,6 +31,12 @@ namespace Pulumi.Serialization
 
         public static implicit operator OutputData<object?>(OutputData<X> data)
             => new OutputData<object?>(data.Resources, data.Value, data.IsKnown, data.IsSecret);
+
+        public Input<X> ToInput() =>
+            new Output<X>(Task.FromResult(this));
+
+        public static OutputData<X> Create(ImmutableHashSet<Resource> resources, X value, bool isKnown, bool isSecret)
+            => new OutputData<X>(resources, value, isKnown, isSecret);
 
         public void Deconstruct(out X value, out bool isKnown, out bool isSecret)
         {

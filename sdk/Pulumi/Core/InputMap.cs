@@ -105,6 +105,11 @@ namespace Pulumi
 
         #region construct from dictionary types
 
+        public static InputMap<V> FromInputDictionary(Input<ImmutableDictionary<string, V>> input)
+        {
+            return new InputMap<V>(input);
+        }
+
         public static implicit operator InputMap<V>(Dictionary<string, V> values)
             => Output.Create(values);
 

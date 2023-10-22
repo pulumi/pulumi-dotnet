@@ -220,5 +220,42 @@ namespace Pulumi.Tests.Provider
             Assert.Equal(0, emptyArgs.First.Count());
             Assert.Equal(0, emptyArgs.Second.Count());
         }
+
+        class UsingInputArgs : ResourceArgs
+        {
+            public Input<string> Name { get; set; }
+            public InputList<string> Subnets { get; set; }
+            public InputMap<string> Tags { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingInputTypesWorks()
+        {
+            var args = await DeserializObject<UsingInputArgs>(new Dictionary<string, object?>
+            {
+                ["Name"] = "test",
+                ["Subnets"] = new [] { "one", "two", "three" },
+                ["Tags"] = new Dictionary<string, object?>
+                {
+                    ["one"] = "one",
+                    ["two"] = "two",
+                    ["three"] = "three"
+                }
+            });
+
+            var name = await args.Name.ToOutput().GetValueAsync("");
+            Assert.Equal("test", name);
+
+            var subnets = await args.Subnets.ToOutput().GetValueAsync(ImmutableArray<string>.Empty);
+            Assert.Equal(new [] { "one", "two", "three" }, subnets.ToArray());
+
+            var tags = await args.Tags.ToOutput().GetValueAsync(ImmutableDictionary<string, string>.Empty);
+            Assert.Equal(new Dictionary<string, string>
+            {
+                ["one"] = "one",
+                ["two"] = "two",
+                ["three"] = "three"
+            }, tags);
+        }
     }
 }

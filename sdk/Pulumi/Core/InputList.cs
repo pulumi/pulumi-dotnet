@@ -98,6 +98,11 @@ namespace Pulumi
 
         #region construct from array
 
+        public static InputList<T> FromInputList(Input<ImmutableArray<T>> values)
+        {
+            return new InputList<T>(values);
+        }
+
         public static implicit operator InputList<T>(T[] values)
             => ImmutableArray.CreateRange(values.Select(v => (Input<T>)v));
 

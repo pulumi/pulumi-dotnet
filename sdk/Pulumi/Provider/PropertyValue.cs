@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Reflection;
 using System.Threading.Tasks;
 using Type = System.Type;
 
@@ -580,6 +581,93 @@ namespace Pulumi.Experimental.Provider
                 return Activator.CreateInstance(
                     type: nullableType,
                     args: new [] { DeserializeValue(value, elementType) });
+            }
+
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(InputList<>))
+            {
+                // change InputList<T> to Input<ImmutableArray<T>> and deserialize
+                var elementType = targetType.GetGenericArguments()[0];
+                var listType = typeof(ImmutableArray<>).MakeGenericType(elementType);
+                var inputListType = typeof(Input<>).MakeGenericType(listType);
+                var inputList = DeserializeValue(value, inputListType);
+                var fromInputList = targetType.GetMethod("FromInputList")!;
+                return fromInputList.Invoke(null, new [] { inputList });
+            }
+
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(InputMap<>))
+            {
+                // change InputMap<T> to Input<ImmutableDictionary<string, T>> and deserialize
+                var valueType = targetType.GetGenericArguments()[0];
+                var dictionaryType = typeof(ImmutableDictionary<,>).MakeGenericType(typeof(string), valueType);
+                var inputMapType = typeof(Input<>).MakeGenericType(dictionaryType);
+                var inputDictionary = DeserializeValue(value, inputMapType);
+                var fromInputDictionary = targetType.GetMethod("FromInputDictionary")!;
+                return fromInputDictionary.Invoke(null, new [] { inputDictionary });
+            }
+
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Input<>))
+            {
+                var elementType = targetType.GetGenericArguments()[0];
+                var outputDataType = typeof(OutputData<>).MakeGenericType(elementType);
+                var methods = outputDataType.GetMethods();
+                var createOutputData = outputDataType.GetMethod("Create")!;
+                var toInput = outputDataType.GetMethod("ToInput")!;
+
+                var unknownOutputData = createOutputData.Invoke(null, new object?[]
+                {
+                    ImmutableHashSet<Resource>.Empty, // resources
+                    null, // value
+                    false, // isKnown
+                    false // isSecret
+                });
+
+                var unknownOutput = toInput.Invoke(unknownOutputData, new object?[] { });
+
+                if (value.TryGetSecret(out var secretValue) && secretValue != null)
+                {
+                    if (secretValue.IsComputed)
+                    {
+                        return unknownOutput;
+                    }
+
+                    var deserializedValue = DeserializeValue(secretValue, elementType);
+                    // Create OutputData<T>
+                    var secretOutputData = createOutputData.Invoke(null, new object?[]
+                    {
+                        ImmutableHashSet<Resource>.Empty,
+                        deserializedValue,
+                        true,
+                        true
+                    });
+
+                    // return Output<T>
+                    return toInput.Invoke(secretOutputData, new object?[] { });
+                }
+
+                if (value.TryGetOutput(out var outputValue) && outputValue.Value != null)
+                {
+                    var deserializedValue = DeserializeValue(outputValue.Value, elementType);
+                    var outputData = createOutputData.Invoke(null, new object?[]
+                    {
+                        ImmutableHashSet<Resource>.Empty,
+                        deserializedValue,
+                        true,
+                        false
+                    });
+
+                    return toInput.Invoke(outputData, new object?[] { });
+                }
+
+                var deserialized = DeserializeValue(value, elementType);
+                var outputDataValue = createOutputData.Invoke(null, new object?[]
+                {
+                    ImmutableHashSet<Resource>.Empty,
+                    deserialized,
+                    true,
+                    false
+                });
+
+                return toInput.Invoke(outputDataValue, new object?[] { });
             }
 
             if (targetType == typeof(int) && value.TryGetNumber(out var numberAsInt))

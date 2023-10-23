@@ -103,7 +103,7 @@ namespace Pulumi.Tests.Provider
             public int PasswordLength { get; set; }
         }
 
-        async Task<T> DeserializObject<T>(Dictionary<string, object?> inputs)
+        async Task<T> DeserializeObject<T>(Dictionary<string, object?> inputs)
         {
             var propertyValue = await PropertyValue.From(inputs);
             if (propertyValue.TryGetObject(out var objectInputs) && objectInputs != null)
@@ -118,7 +118,7 @@ namespace Pulumi.Tests.Provider
         [Fact]
         public async Task DeserializingBasicArgsWorks()
         {
-            var basicArgs = await DeserializObject<BasicArgs>(new Dictionary<string, object?>
+            var basicArgs = await DeserializeObject<BasicArgs>(new Dictionary<string, object?>
             {
                 ["PasswordLength"] = 10
             });
@@ -135,10 +135,10 @@ namespace Pulumi.Tests.Provider
         public async Task DeserializingNullableArgsWorks()
         {
             var emptyData = new Dictionary<string, object?>();
-            var withoutData = await DeserializObject<UsingNullableArgs>(emptyData);
+            var withoutData = await DeserializeObject<UsingNullableArgs>(emptyData);
             Assert.False(withoutData.Length.HasValue, "Nullable value is null");
 
-            var withData = await DeserializObject<UsingNullableArgs>(new Dictionary<string, object?>
+            var withData = await DeserializeObject<UsingNullableArgs>(new Dictionary<string, object?>
             {
                 ["Length"] = 10
             });
@@ -158,7 +158,7 @@ namespace Pulumi.Tests.Provider
         public async Task DeserializingListTypesWorks()
         {
             var data = new [] { "one", "two", "three" };
-            var args = await DeserializObject<UsingListArgs>(new Dictionary<string, object?>
+            var args = await DeserializeObject<UsingListArgs>(new Dictionary<string, object?>
             {
                 ["First"] = data,
                 ["Second"] = data,
@@ -169,7 +169,7 @@ namespace Pulumi.Tests.Provider
             Assert.Equal(data, args.Second.ToArray());
             Assert.Equal(data, args.Third.ToArray());
 
-            var withEmptyArgs = await DeserializObject<UsingListArgs>(new Dictionary<string, object?>());
+            var withEmptyArgs = await DeserializeObject<UsingListArgs>(new Dictionary<string, object?>());
 
             Assert.Equal(0, withEmptyArgs.First.Length);
             Assert.Equal(0, withEmptyArgs.Second.Count);
@@ -184,7 +184,7 @@ namespace Pulumi.Tests.Provider
         [Fact]
         public async Task DeserializingStringFromNullValueMakesItEmptyString()
         {
-            var argsWithNullString = await DeserializObject<StringFromNullBecomesEmpty>(new Dictionary<string, object?>
+            var argsWithNullString = await DeserializeObject<StringFromNullBecomesEmpty>(new Dictionary<string, object?>
             {
                 ["Data"] = null
             });
@@ -206,7 +206,7 @@ namespace Pulumi.Tests.Provider
                 ["Uno"] = "One"
             };
 
-            var args = await DeserializObject<UsingDictionaryArgs>(new Dictionary<string, object?>
+            var args = await DeserializeObject<UsingDictionaryArgs>(new Dictionary<string, object?>
             {
                 ["First"] = data,
                 ["Second"] = data
@@ -215,7 +215,7 @@ namespace Pulumi.Tests.Provider
             Assert.Equal(data, args.First);
             Assert.Equal(data, args.Second.ToDictionary(x => x.Key, y => y.Value));
 
-            var emptyArgs = await DeserializObject<UsingDictionaryArgs>(new Dictionary<string, object?>());
+            var emptyArgs = await DeserializeObject<UsingDictionaryArgs>(new Dictionary<string, object?>());
 
             Assert.Equal(0, emptyArgs.First.Count());
             Assert.Equal(0, emptyArgs.Second.Count());
@@ -231,7 +231,7 @@ namespace Pulumi.Tests.Provider
         [Fact]
         public async Task DeserializingInputTypesWorks()
         {
-            var args = await DeserializObject<UsingInputArgs>(new Dictionary<string, object?>
+            var args = await DeserializeObject<UsingInputArgs>(new Dictionary<string, object?>
             {
                 ["Name"] = "test",
                 ["Subnets"] = new [] { "one", "two", "three" },
@@ -256,6 +256,56 @@ namespace Pulumi.Tests.Provider
                 ["two"] = "two",
                 ["three"] = "three"
             }, tags);
+        }
+
+        [Fact]
+        public async Task DeserializingInputsFromEmptyValuesWorks()
+        {
+            var args = await DeserializeObject<UsingInputArgs>(new Dictionary<string, object?>());
+
+            var name = await args.Name.ToOutput().GetValueAsync("<unknown>");
+            Assert.Equal("", name);
+
+            var unknownDefaultSubnets = (new List<string> { "<unknown>" }).ToImmutableArray();
+            var subnets = await args.Subnets.ToOutput().GetValueAsync(unknownDefaultSubnets);
+            Assert.Equal(new string[] { }, subnets.ToArray());
+
+            var unknownDefaultTags =
+                (new Dictionary<string, string> { ["tag"] = "deafult" })
+                .ToImmutableDictionary();
+
+            var tags = await args.Tags.ToOutput().GetValueAsync(unknownDefaultTags);
+            Assert.Equal(0, tags.Count);
+        }
+
+        class RequireIntInputArgs : ResourceArgs
+        {
+            public Input<int> Property { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingEmptyValuesIntoRequiredIntegerShouldFail()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var args =
+                    DeserializeObject<RequireIntInputArgs>(new Dictionary<string, object?>())
+                        .GetAwaiter()
+                        .GetResult();
+            });
+        }
+
+        class OptionalIntInputArgs : ResourceArgs
+        {
+            public Input<int?> OptionalInteger { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingOptionalInputWorks()
+        {
+            var args = await DeserializeObject<OptionalIntInputArgs>(new Dictionary<string, object?>());
+            var optionalInteger = await args.OptionalInteger.ToOutput().GetValueAsync(0);
+            Assert.False(optionalInteger.HasValue);
         }
     }
 }

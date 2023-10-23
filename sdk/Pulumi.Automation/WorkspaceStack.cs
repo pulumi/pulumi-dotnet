@@ -179,7 +179,16 @@ namespace Pulumi.Automation
         /// <param name="key">The key to use for the config lookup.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task<ConfigValue> GetConfigAsync(string key, CancellationToken cancellationToken = default)
-            => this.Workspace.GetConfigAsync(this.Name, key, cancellationToken);
+            => GetConfigAsync(key, false, cancellationToken);
+
+        /// <summary>
+        /// Returns the config value associated with the specified key.
+        /// </summary>
+        /// <param name="key">The key to use for the config lookup.</param>
+        /// <param name="path">The key contains a path to a property in a map or list to get.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task<ConfigValue> GetConfigAsync(string key, bool path, CancellationToken cancellationToken = default)
+            => this.Workspace.GetConfigAsync(this.Name, key, path, cancellationToken);
 
         /// <summary>
         /// Returns the full config map associated with the stack in the Workspace.
@@ -195,7 +204,17 @@ namespace Pulumi.Automation
         /// <param name="value">The config value to set.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task SetConfigAsync(string key, ConfigValue value, CancellationToken cancellationToken = default)
-            => this.Workspace.SetConfigAsync(this.Name, key, value, cancellationToken);
+            => SetConfigAsync(key, value, false, cancellationToken);
+
+        /// <summary>
+        /// Sets the config key-value pair on the Stack in the associated Workspace.
+        /// </summary>
+        /// <param name="key">The key to set.</param>
+        /// <param name="value">The config value to set.</param>
+        /// <param name="path">The key contains a path to a property in a map or list to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task SetConfigAsync(string key, ConfigValue value, bool path, CancellationToken cancellationToken = default)
+            => this.Workspace.SetConfigAsync(this.Name, key, value, path, cancellationToken);
 
         /// <summary>
         /// Sets all specified config values on the stack in the associated Workspace.
@@ -203,7 +222,16 @@ namespace Pulumi.Automation
         /// <param name="configMap">The map of config key-value pairs to set.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task SetAllConfigAsync(IDictionary<string, ConfigValue> configMap, CancellationToken cancellationToken = default)
-            => this.Workspace.SetAllConfigAsync(this.Name, configMap, cancellationToken);
+            => SetAllConfigAsync(configMap, false, cancellationToken);
+
+        /// <summary>
+        /// Sets all specified config values on the stack in the associated Workspace.
+        /// </summary>
+        /// <param name="configMap">The map of config key-value pairs to set.</param>
+        /// <param name="path">The keys contain a path to a property in a map or list to set.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task SetAllConfigAsync(IDictionary<string, ConfigValue> configMap, bool path, CancellationToken cancellationToken = default)
+            => this.Workspace.SetAllConfigAsync(this.Name, configMap, path, cancellationToken);
 
         /// <summary>
         /// Removes the specified config key from the Stack in the associated Workspace.
@@ -211,7 +239,16 @@ namespace Pulumi.Automation
         /// <param name="key">The config key to remove.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task RemoveConfigAsync(string key, CancellationToken cancellationToken = default)
-            => this.Workspace.RemoveConfigAsync(this.Name, key, cancellationToken);
+            => RemoveConfigAsync(key, false, cancellationToken);
+
+        /// <summary>
+        /// Removes the specified config key from the Stack in the associated Workspace.
+        /// </summary>
+        /// <param name="key">The config key to remove.</param>
+        /// <param name="path">The key contains a path to a property in a map or list to remove.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task RemoveConfigAsync(string key, bool path, CancellationToken cancellationToken = default)
+            => this.Workspace.RemoveConfigAsync(this.Name, key, path, cancellationToken);
 
         /// <summary>
         /// Removes the specified config keys from the Stack in the associated Workspace.
@@ -219,7 +256,16 @@ namespace Pulumi.Automation
         /// <param name="keys">The config keys to remove.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task RemoveAllConfigAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
-            => this.Workspace.RemoveAllConfigAsync(this.Name, keys, cancellationToken);
+            => RemoveAllConfigAsync(keys, false, cancellationToken);
+
+        /// <summary>
+        /// Removes the specified config keys from the Stack in the associated Workspace.
+        /// </summary>
+        /// <param name="keys">The config keys to remove.</param>
+        /// <param name="path">The keys contain a path to a property in a map or list to remove.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task RemoveAllConfigAsync(IEnumerable<string> keys, bool path, CancellationToken cancellationToken = default)
+            => this.Workspace.RemoveAllConfigAsync(this.Name, keys, path, cancellationToken);
 
         /// <summary>
         /// Gets and sets the config map used with the last update.

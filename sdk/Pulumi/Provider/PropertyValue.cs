@@ -685,6 +685,14 @@ namespace Pulumi.Experimental.Provider
                 return stringValue;
             }
 
+            if (targetType.IsEnum && value.TryGetString(out var enumCase))
+            {
+                if (System.Enum.TryParse(targetType, value: enumCase, ignoreCase: true, out var enumValue))
+                {
+                    return enumValue;
+                }
+            }
+
             if (targetType == typeof(string) && value.IsNull)
             {
                 return "";

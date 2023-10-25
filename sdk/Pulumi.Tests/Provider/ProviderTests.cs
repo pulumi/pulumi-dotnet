@@ -307,5 +307,22 @@ namespace Pulumi.Tests.Provider
             var optionalInteger = await args.OptionalInteger.ToOutput().GetValueAsync(0);
             Assert.False(optionalInteger.HasValue);
         }
+
+        enum TestEnum { Allow, Default }
+        class EnumArgs : ResourceArgs
+        {
+            public TestEnum EnumInput { get; set; }
+        }
+
+        [Fact]
+        public async Task DeserializingEnumWorks()
+        {
+            var args = await DeserializeObject<EnumArgs>(new Dictionary<string, object?>
+            {
+                ["EnumInput"] = "Allow"
+            });
+
+            Assert.Equal(TestEnum.Allow, args.EnumInput);
+        }
     }
 }

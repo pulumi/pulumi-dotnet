@@ -22,6 +22,12 @@ public class SchemaBuilderTests
         public Input<NestedObjectInput> Nested { get; set; }
     }
 
+    enum TestEnum
+    {
+        Allow,
+        Default
+    }
+
     class TestArgs : ResourceArgs
     {
         public int IntProperty { get; set; }
@@ -43,6 +49,7 @@ public class SchemaBuilderTests
         [Input("overriddenStringProperty")]
         public string OverriddenStringProperty { get; set; }
         public Input<ObjectInput> ObjectInput { get; set; }
+        public Input<TestEnum?> EnumInput { get; set; }
     }
 
     class TestComponent : ComponentResource
@@ -207,6 +214,10 @@ public class SchemaBuilderTests
             ["ObjectInput"] = new JObject
             {
                 ["$ref"] = "#/types/test::ObjectInput"
+            },
+            ["EnumInput"] = new JObject
+            {
+                ["$ref"] = "#/types/test::TestEnum"
             }
         };
 
@@ -401,6 +412,11 @@ public class SchemaBuilderTests
                         ["$ref"] = "#/types/test::NestedObjectInput"
                     }
                 }
+            },
+            ["test::TestEnum"] = new JObject
+            {
+                ["type"] = "string",
+                ["enum"] = new JArray { "Allow", "Default" }
             }
         };
 

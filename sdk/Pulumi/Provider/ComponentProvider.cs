@@ -87,8 +87,8 @@ namespace Pulumi.Experimental.Provider
             {
                 var fullName = argsType.FullName ?? "";
                 var userAssemblyFullName = ResourceType.Assembly.FullName ?? "";
-                var isUserDefinedType = argsType.IsClass && !fullName.StartsWith("System.");
-                if (isUserDefinedType && argsType.Assembly.FullName == userAssemblyFullName)
+                var isUserDefinedType = !fullName.StartsWith("System.");
+                if (argsType.IsClass && isUserDefinedType && argsType.Assembly.FullName == userAssemblyFullName)
                 {
                     // for classes defined by the user, to be encoded within "types" schema section
                     var typeToken = $"{_providerName}::{argsType.Name}";
@@ -102,6 +102,15 @@ namespace Pulumi.Experimental.Provider
                     {
                         ComputeTypeReferences(property.PropertyType);
                     }
+                }
+                else if (isUserDefinedType && argsType.IsEnum)
+                {
+                    var typeToken = $"{_providerName}::{argsType.Name}";
+                    var typeReference = $"#/types/{typeToken}";
+                    TypeReferences[argsType] = new TypeReference(
+                        fullReference: typeReference,
+                        token: typeToken,
+                        isExternal: false);
                 }
                 else if (isUserDefinedType)
                 {
@@ -705,53 +714,70 @@ namespace Pulumi.Experimental.Provider
                             typeSchema["description"] = typeDescription;
                         }
 
-                        var typeProperties = new JObject();
-                        foreach (var property in typeReferenceInfo.Key.GetProperties())
+                        if (typeReferenceInfo.Key.IsEnum)
                         {
-                            var propertyName = property.Name;
-                            var outputAttr = property.GetCustomAttributes(typeof(OutputAttribute), false).FirstOrDefault();
-                            if (outputAttr is OutputAttribute output && output.Name != "")
+                            var enumsCases = new JArray();
+                            foreach (var name in Enum.GetNames(typeReferenceInfo.Key))
                             {
-                                propertyName = output.Name ?? "";
+                                enumsCases.Add(name);
                             }
 
-                            var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
-                            if (inputAttr is InputAttribute input && input.Name != "")
+                            typeSchema["type"] = "string";
+                            typeSchema["enum"] = enumsCases;
+                        }
+                        else
+                        {
+                            var typeProperties = new JObject();
+                            foreach (var property in typeReferenceInfo.Key.GetProperties())
                             {
-                                propertyName = input.Name ?? "";
-                            }
-
-                            var propertyType = property.PropertyType;
-                            if (propertyType.IsGenericType)
-                            {
-                                if (propertyType.GetGenericTypeDefinition() == typeof(Output<>))
+                                var propertyName = property.Name;
+                                var outputAttr = property.GetCustomAttributes(typeof(OutputAttribute), false)
+                                    .FirstOrDefault();
+                                if (outputAttr is OutputAttribute output && output.Name != "")
                                 {
-                                    propertyType = propertyType.GetGenericArguments()[0];
+                                    propertyName = output.Name ?? "";
                                 }
 
-                                if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
+                                var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false)
+                                    .FirstOrDefault();
+                                if (inputAttr is InputAttribute input && input.Name != "")
                                 {
-                                    propertyType = propertyType.GetGenericArguments()[0];
+                                    propertyName = input.Name ?? "";
                                 }
-                            }
 
-                            var propertySchema = PropertyType(metadata, propertyType);
-                            var documentation = GetDocumentation(property);
-                            if (documentation != "")
-                            {
-                                propertySchema["description"] = documentation;
-                            }
+                                var propertyType = property.PropertyType;
+                                if (propertyType.IsGenericType)
+                                {
+                                    if (propertyType.GetGenericTypeDefinition() == typeof(Output<>))
+                                    {
+                                        propertyType = propertyType.GetGenericArguments()[0];
+                                    }
 
-                            var descriptionAttributeContent = DescriptionAttributeContent(property);
-                            if (descriptionAttributeContent != "")
-                            {
-                                propertySchema["description"] = descriptionAttributeContent;
-                            }
+                                    if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
+                                    {
+                                        propertyType = propertyType.GetGenericArguments()[0];
+                                    }
+                                }
 
-                            typeProperties[propertyName] = propertySchema;
+                                var propertySchema = PropertyType(metadata, propertyType);
+                                var documentation = GetDocumentation(property);
+                                if (documentation != "")
+                                {
+                                    propertySchema["description"] = documentation;
+                                }
+
+                                var descriptionAttributeContent = DescriptionAttributeContent(property);
+                                if (descriptionAttributeContent != "")
+                                {
+                                    propertySchema["description"] = descriptionAttributeContent;
+                                }
+
+                                typeProperties[propertyName] = propertySchema;
+                            }
+                            typeSchema["properties"] = typeProperties;
                         }
 
-                        typeSchema["properties"] = typeProperties;
+
                         types[typeReference.Token] = typeSchema;
                     }
                 }

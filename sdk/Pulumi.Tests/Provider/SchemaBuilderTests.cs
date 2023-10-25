@@ -11,6 +11,17 @@ namespace Pulumi.Tests.Provider;
 
 public class SchemaBuilderTests
 {
+    class NestedObjectInput
+    {
+        public Input<int> Int { get; set; }
+        public Input<string> String { get; set; }
+    }
+
+    class ObjectInput
+    {
+        public Input<NestedObjectInput> Nested { get; set; }
+    }
+
     class TestArgs : ResourceArgs
     {
         public int IntProperty { get; set; }
@@ -31,10 +42,23 @@ public class SchemaBuilderTests
         public Input<int?> OptionalIntInputProperty { get; set; }
         [Input("overriddenStringProperty")]
         public string OverriddenStringProperty { get; set; }
+        public Input<ObjectInput> ObjectInput { get; set; }
     }
 
     class TestComponent : ComponentResource
     {
+        public Output<string> StringOutput { get; set; }
+        public Output<int> IntOutput { get; set; }
+        public Output<bool> BoolOutput { get; set; }
+        public Output<double> DoubleOutput { get; set; }
+        public Output<string[]> StringArrayOutput { get; set; }
+        public Output<List<string>> StringListOutput { get; set; }
+        public Output<ImmutableArray<string>> StringImmutableArrayOutput { get; set; }
+        public Output<Dictionary<string, string>> StringDictionaryOutput { get; set; }
+        public Output<ImmutableDictionary<string, string>> StringImmutableDictionaryOutput { get; set; }
+        [Output("overriddenString")]
+        public Output<string> OverriddenStringOutput { get; set; }
+
         public TestComponent(string name) : base("token:token:token", name, ResourceArgs.Empty)
         {
 
@@ -46,6 +70,7 @@ public class SchemaBuilderTests
     {
         var schema =
             new ComponentProviderBuilder()
+                .Name("test")
                 .RegisterComponent<TestArgs, TestComponent>("token:token:token",
                     (request, args) => new TestComponent(request.Name))
                 .BuildSchema();
@@ -178,6 +203,10 @@ public class SchemaBuilderTests
                         ["name"] = "OverriddenStringProperty"
                     }
                 }
+            },
+            ["ObjectInput"] = new JObject
+            {
+                ["$ref"] = "#/types/test::ObjectInput"
             }
         };
 
@@ -243,5 +272,154 @@ public class SchemaBuilderTests
                 throw new Exception($"Unexpected required input {actualRequiredInput}");
             }
         }
+
+        var expectedOutputProperties = new JObject
+        {
+            ["StringOutput"] = new JObject
+            {
+                ["type"] = "string"
+            },
+            ["IntOutput"] = new JObject
+            {
+                ["type"] = "integer"
+            },
+            ["BoolOutput"] = new JObject
+            {
+                ["type"] = "bool"
+            },
+            ["DoubleOutput"] = new JObject
+            {
+                ["type"] = "number"
+            },
+            ["StringArrayOutput"] = new JObject
+            {
+                ["type"] = "array",
+                ["items"] = new JObject
+                {
+                    ["type"] = "string"
+                }
+            },
+            ["StringListOutput"] = new JObject
+            {
+                ["type"] = "array",
+                ["items"] = new JObject
+                {
+                    ["type"] = "string"
+                }
+            },
+            ["StringImmutableArrayOutput"] = new JObject
+            {
+                ["type"] = "array",
+                ["items"] = new JObject
+                {
+                    ["type"] = "string"
+                }
+            },
+            ["StringDictionaryOutput"] = new JObject
+            {
+                ["type"] = "object",
+                ["additionalProperties"] = new JObject
+                {
+                    ["type"] = "string"
+                }
+            },
+            ["StringImmutableDictionaryOutput"] = new JObject
+            {
+                ["type"] = "object",
+                ["additionalProperties"] = new JObject
+                {
+                    ["type"] = "string"
+                }
+            },
+            ["overriddenString"] = new JObject
+            {
+                ["type"] = "string",
+                ["language"] = new JObject
+                {
+                    ["csharp"] = new JObject
+                    {
+                        ["name"] = "OverriddenStringOutput"
+                    }
+                }
+            }
+        };
+
+
+        var actualOutputProperties = testComponent["properties"] as JObject;
+        if (actualOutputProperties == null)
+        {
+            throw new Exception("Expected properties to be an object");
+        }
+
+        foreach (var property in expectedOutputProperties.Properties())
+        {
+            var propertyName = property.Name;
+            if (!expectedOutputProperties.ContainsKey(propertyName))
+            {
+                throw new Exception($"Unexpected property {propertyName}");
+            }
+
+            var actualProperty = actualOutputProperties[propertyName] as JObject;
+            var expectedProperty = expectedOutputProperties[propertyName] as JObject;
+
+            if (expectedProperty.ToString() != actualProperty.ToString())
+            {
+                throw new Exception($"Expected property {propertyName} to be {expectedProperty} but was {actualProperty}");
+            }
+        }
+
+        foreach (var property in actualOutputProperties)
+        {
+            if (!expectedOutputProperties.ContainsKey(property.Key))
+            {
+                throw new Exception($"Unexpected property {property.Key}");
+            }
+        }
+
+        var expectedTypes = new JObject
+        {
+            ["test::NestedObjectInput"] = new JObject
+            {
+                ["properties"] = new JObject
+                {
+                    ["Int"] = new JObject
+                    {
+                        ["type"] = "integer"
+                    },
+                    ["String"] = new JObject
+                    {
+                        ["type"] = "string"
+                    }
+                }
+            },
+            ["test::ObjectInput"] = new JObject
+            {
+                ["properties"] = new JObject
+                {
+                    ["Nested"] = new JObject
+                    {
+                        ["$ref"] = "#/types/test::NestedObjectInput"
+                    }
+                }
+            }
+        };
+
+        var actualTypes = schema["types"] as JObject;
+        if (actualTypes == null)
+        {
+            throw new Exception("expected types to be an object");
+        }
+
+        foreach (var expectedType in expectedTypes)
+        {
+            if (!actualTypes.ContainsKey(expectedType.Key))
+            {
+                throw new Exception($"Missing expected type {expectedType.Key}");
+            }
+
+            var actualType = actualTypes[expectedType.Key];
+            Assert.Equal(expectedType.Value.ToString(), actualType.ToString());
+        }
+
     }
 }

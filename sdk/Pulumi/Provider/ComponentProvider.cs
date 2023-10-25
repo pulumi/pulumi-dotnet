@@ -12,28 +12,125 @@ using Newtonsoft.Json.Linq;
 
 namespace Pulumi.Experimental.Provider
 {
-    public class ComponentMetadata
+    internal class ComponentMetadata
     {
+        internal class TypeReference
+        {
+            public readonly string FullReference;
+            public readonly string Token;
+            public readonly bool IsExternal;
+
+            public TypeReference(string fullReference, string token, bool isExternal)
+            {
+                FullReference = fullReference;
+                Token = token;
+                IsExternal = isExternal;
+            }
+        }
+
         public readonly Type? ArgsType;
         public readonly Type ResourceType;
+        public readonly Dictionary<Type, TypeReference> TypeReferences = new Dictionary<Type, TypeReference>();
+        private readonly string _providerName;
 
-        public ComponentMetadata(Type argsType, Type resourceType)
+        private void ComputeTypeReferences(Type argsType)
+        {
+            if (argsType.IsArray)
+            {
+                var elementType = argsType.GetElementType()!;
+                ComputeTypeReferences(elementType);
+            }
+            else if (argsType.IsGenericType)
+            {
+                if (argsType.GetGenericTypeDefinition() == typeof(Input<>))
+                {
+                    var elementType = argsType.GetGenericArguments()[0];
+                    ComputeTypeReferences(elementType);
+                }
+                else if (argsType.GetGenericTypeDefinition() == typeof(InputList<>))
+                {
+                    var elementType = argsType.GetGenericArguments()[0];
+                    ComputeTypeReferences(elementType);
+                }
+                else if (argsType.GetGenericTypeDefinition() == typeof(InputMap<>))
+                {
+                    var elementType = argsType.GetGenericArguments()[0];
+                    ComputeTypeReferences(elementType);
+                }
+                else if (argsType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    var elementType = argsType.GetGenericArguments()[0];
+                    ComputeTypeReferences(elementType);
+                }
+                else if (argsType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                {
+                    var valueType = argsType.GetGenericArguments()[1];
+                    ComputeTypeReferences(valueType);
+                }
+                else if (argsType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
+                {
+                    var valueType = argsType.GetGenericArguments()[1];
+                    ComputeTypeReferences(valueType);
+                }
+                else if (argsType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    var elementType = argsType.GetGenericArguments()[0];
+                    ComputeTypeReferences(elementType);
+                }
+                else if (argsType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
+                {
+                    var elementType = argsType.GetGenericArguments()[0];
+                    ComputeTypeReferences(elementType);
+                }
+            }
+            else
+            {
+                var fullName = argsType.FullName ?? "";
+                var userAssemblyFullName = ResourceType.Assembly.FullName ?? "";
+                var isUserDefinedType = argsType.IsClass && !fullName.StartsWith("System.");
+                if (isUserDefinedType && argsType.Assembly.FullName == userAssemblyFullName)
+                {
+                    // for classes defined by the user, to be encoded within "types" schema section
+                    var typeToken = $"{_providerName}::{argsType.Name}";
+                    var typeReference = $"#/types/{typeToken}";
+                    TypeReferences[argsType] = new TypeReference(
+                        fullReference: typeReference,
+                        token: typeToken,
+                        isExternal: false);
+
+                    foreach (var property in argsType.GetProperties())
+                    {
+                        ComputeTypeReferences(property.PropertyType);
+                    }
+                }
+                else if (isUserDefinedType)
+                {
+                    // other types from external schemas
+                    // TODO: support external schemas
+                }
+            }
+        }
+
+        public ComponentMetadata(string provider, Type argsType, Type resourceType)
         {
             ArgsType = argsType;
             ResourceType = resourceType;
+            _providerName = provider;
+            ComputeTypeReferences(argsType);
         }
 
-        public ComponentMetadata(Type resourceType)
+        public ComponentMetadata(string provider, Type resourceType)
         {
             ArgsType = null;
             ResourceType = resourceType;
+            _providerName = provider;
         }
     }
 
     public class ComponentProviderBuilder
     {
-        public readonly Dictionary<string, Func<ConstructRequest, object, ComponentResource>> ResourceConstructors = new Dictionary<string, Func<ConstructRequest, object, ComponentResource>>();
-        public readonly Dictionary<string, ComponentMetadata> ResourceMetadata = new Dictionary<string, ComponentMetadata>();
+        internal readonly Dictionary<string, Func<ConstructRequest, object, ComponentResource>> ResourceConstructors = new Dictionary<string, Func<ConstructRequest, object, ComponentResource>>();
+        internal readonly Dictionary<string, ComponentMetadata> ResourceMetadata = new Dictionary<string, ComponentMetadata>();
         public string ProviderName { get; set; } = "provider";
         public string ProviderVersion { get; set; } = "0.1.0";
 
@@ -42,7 +139,7 @@ namespace Pulumi.Experimental.Provider
             where U : ComponentResource
         {
             ResourceConstructors[type] = (request, args) => constructor(request, (T)args);
-            ResourceMetadata[type] = new ComponentMetadata(argsType: typeof(T), resourceType: typeof(U));
+            ResourceMetadata[type] = new ComponentMetadata(ProviderName, argsType: typeof(T), resourceType: typeof(U));
             return this;
         }
 
@@ -50,7 +147,7 @@ namespace Pulumi.Experimental.Provider
             where T : ComponentResource
         {
             ResourceConstructors[type] = (request, args) => constructor(request);
-            ResourceMetadata[type] = new ComponentMetadata(resourceType: typeof(T));
+            ResourceMetadata[type] = new ComponentMetadata(ProviderName, resourceType: typeof(T));
             return this;
         }
 
@@ -255,9 +352,18 @@ namespace Pulumi.Experimental.Provider
                 return ContainsNullable(elementType);
             }
 
+            var assemblyFullName = propertyType.Assembly.FullName ?? "";
+            if (propertyType.IsClass && !assemblyFullName.StartsWith("System."))
+            {
+                // treat classes as nullable by default
+                // if users want these to be required, then they can use [Required]
+                return true;
+            }
+
             return false;
         }
-        private JObject PropertyType(Type propertyType)
+
+        private JObject PropertyType(ComponentMetadata metadata, Type propertyType)
         {
             JObject Primitive(string typeName) => new JObject { ["type"] = typeName };
 
@@ -287,7 +393,7 @@ namespace Pulumi.Experimental.Provider
                 return new JObject
                 {
                     ["type"] = "array",
-                    ["items"] = PropertyType(elementType!)
+                    ["items"] = PropertyType(metadata, elementType!)
                 };
             }
 
@@ -299,7 +405,7 @@ namespace Pulumi.Experimental.Provider
                     return new JObject
                     {
                         ["type"] = "array",
-                        ["items"] = PropertyType(elementType!)
+                        ["items"] = PropertyType(metadata, elementType!)
                     };
                 }
 
@@ -309,7 +415,7 @@ namespace Pulumi.Experimental.Provider
                     return new JObject
                     {
                         ["type"] = "array",
-                        ["items"] = PropertyType(elementType!)
+                        ["items"] = PropertyType(metadata, elementType!)
                     };
                 }
 
@@ -320,7 +426,7 @@ namespace Pulumi.Experimental.Provider
                     return new JObject
                     {
                         ["type"] = "object",
-                        ["additionalProperties"] = PropertyType(valueType)
+                        ["additionalProperties"] = PropertyType(metadata, valueType)
                     };
                 }
 
@@ -331,15 +437,23 @@ namespace Pulumi.Experimental.Provider
                     return new JObject
                     {
                         ["type"] = "object",
-                        ["additionalProperties"] = PropertyType(valueType)
+                        ["additionalProperties"] = PropertyType(metadata, valueType)
                     };
                 }
 
                 if (propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     var elementType = propertyType.GetGenericArguments()[0];
-                    return PropertyType(elementType);
+                    return PropertyType(metadata, elementType);
                 }
+            }
+
+            if (metadata.TypeReferences.ContainsKey(propertyType))
+            {
+                return new JObject
+                {
+                    ["$ref"] = metadata.TypeReferences[propertyType].FullReference
+                };
             }
 
             return Primitive("object");
@@ -356,12 +470,24 @@ namespace Pulumi.Experimental.Provider
             return "";
         }
 
+        string DescriptionAttributeContent(Type info)
+        {
+            var descriptionAttribute = info.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault();
+            if (descriptionAttribute is DescriptionAttribute attribute)
+            {
+                return attribute.Description;
+            }
+
+            return "";
+        }
+
         public JObject BuildSchema()
         {
             var schema = new JObject();
             schema["name"] = ProviderName;
             schema["version"] = ProviderVersion;
             var resources = new JObject();
+            var types = new JObject();
             foreach (var pair in ResourceMetadata)
             {
                 var token = pair.Key;
@@ -447,7 +573,7 @@ namespace Pulumi.Experimental.Provider
                             }
                         }
 
-                        var propertySchema = PropertyType(propertyType);
+                        var propertySchema = PropertyType(metadata, propertyType);
                         if (plain)
                         {
                             propertySchema["plain"] = true;
@@ -516,7 +642,7 @@ namespace Pulumi.Experimental.Provider
                         }
                     }
 
-                    var propertySchema = PropertyType(propertyType);
+                    var propertySchema = PropertyType(metadata, propertyType);
                     var documentation = GetDocumentation(property);
                     if (documentation != "")
                     {
@@ -556,8 +682,82 @@ namespace Pulumi.Experimental.Provider
                     resource["description"] = resourceDescription;
                 }
                 resources[token] = resource;
+
+                foreach (var typeReferenceInfo in metadata.TypeReferences)
+                {
+                    var typeReference = typeReferenceInfo.Value;
+                    if (typeReference.IsExternal)
+                    {
+                        continue;
+                    }
+
+                    if (!types.ContainsKey(typeReference.Token))
+                    {
+                        var typeSchema = new JObject();
+                        var typeDescription = GetDocumentation(typeReferenceInfo.Key);
+                        if (typeDescription != "")
+                        {
+                            typeSchema["description"] = typeDescription;
+                        }
+                        typeDescription = DescriptionAttributeContent(typeReferenceInfo.Key);
+                        if (typeDescription != "")
+                        {
+                            typeSchema["description"] = typeDescription;
+                        }
+
+                        var typeProperties = new JObject();
+                        foreach (var property in typeReferenceInfo.Key.GetProperties())
+                        {
+                            var propertyName = property.Name;
+                            var outputAttr = property.GetCustomAttributes(typeof(OutputAttribute), false).FirstOrDefault();
+                            if (outputAttr is OutputAttribute output && output.Name != "")
+                            {
+                                propertyName = output.Name ?? "";
+                            }
+
+                            var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
+                            if (inputAttr is InputAttribute input && input.Name != "")
+                            {
+                                propertyName = input.Name ?? "";
+                            }
+
+                            var propertyType = property.PropertyType;
+                            if (propertyType.IsGenericType)
+                            {
+                                if (propertyType.GetGenericTypeDefinition() == typeof(Output<>))
+                                {
+                                    propertyType = propertyType.GetGenericArguments()[0];
+                                }
+
+                                if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
+                                {
+                                    propertyType = propertyType.GetGenericArguments()[0];
+                                }
+                            }
+
+                            var propertySchema = PropertyType(metadata, propertyType);
+                            var documentation = GetDocumentation(property);
+                            if (documentation != "")
+                            {
+                                propertySchema["description"] = documentation;
+                            }
+
+                            var descriptionAttributeContent = DescriptionAttributeContent(property);
+                            if (descriptionAttributeContent != "")
+                            {
+                                propertySchema["description"] = descriptionAttributeContent;
+                            }
+
+                            typeProperties[propertyName] = propertySchema;
+                        }
+
+                        typeSchema["properties"] = typeProperties;
+                        types[typeReference.Token] = typeSchema;
+                    }
+                }
             }
 
+            schema["types"] = types;
             schema["resources"] = resources;
             return schema;
         }
@@ -595,7 +795,7 @@ namespace Pulumi.Experimental.Provider
 
                 if (argsType != null && args == null)
                 {
-                    throw new Exception($"Failed to deserialize args of type {argsType.FullName}");
+                    throw new Exception($"Failed to deserialize args of type {argsType.FullName} when constructing component of type {request.Type}");
                 }
 
                 var resource = constructor(request, args ?? new object());

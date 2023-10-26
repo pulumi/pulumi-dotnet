@@ -232,7 +232,7 @@ public class SchemaBuilderTests
             var propertyName = property.Name;
             if (!expectedInputProperties.ContainsKey(propertyName))
             {
-                throw new Exception($"Unexpected property {propertyName}");
+                throw new Exception($"Unexpected input property {propertyName}");
             }
 
             var actualProperty = actualInputProperties[propertyName] as JObject;
@@ -248,13 +248,13 @@ public class SchemaBuilderTests
         {
             if (!expectedInputProperties.ContainsKey(property.Key))
             {
-                throw new Exception($"Unexpected property {property.Key}");
+                throw new Exception($"Unexpected input property {property.Key}");
             }
         }
 
         var expectedRequiredInputProperties = new string[]
         {
-            "IntProperty", "StringProperty", "BoolProperty", "DoubleProperty",
+            "StringProperty", "IntProperty", "BoolProperty", "DoubleProperty",
             "StringArrayProperty", "StringListProperty", "StringImmutableArrayProperty",
             "StringDictionaryProperty", "StringImmutableDictionaryProperty",
             "StringInputProperty", "StringInputListProperty", "StringInputMapProperty",
@@ -367,7 +367,7 @@ public class SchemaBuilderTests
             var propertyName = property.Name;
             if (!expectedOutputProperties.ContainsKey(propertyName))
             {
-                throw new Exception($"Unexpected property {propertyName}");
+                throw new Exception($"Unexpected output property {propertyName}");
             }
 
             var actualProperty = actualOutputProperties[propertyName] as JObject;
@@ -383,7 +383,7 @@ public class SchemaBuilderTests
         {
             if (!expectedOutputProperties.ContainsKey(property.Key))
             {
-                throw new Exception($"Unexpected property {property.Key}");
+                throw new Exception($"Unexpected output property {property.Key}");
             }
         }
 
@@ -391,6 +391,7 @@ public class SchemaBuilderTests
         {
             ["test::NestedObjectInput"] = new JObject
             {
+                ["type"] = "object",
                 ["properties"] = new JObject
                 {
                     ["Int"] = new JObject
@@ -401,17 +402,20 @@ public class SchemaBuilderTests
                     {
                         ["type"] = "string"
                     }
-                }
+                },
+                ["required"] = new JArray { "Int", "String" }
             },
             ["test::ObjectInput"] = new JObject
             {
+                ["type"] = "object",
                 ["properties"] = new JObject
                 {
                     ["Nested"] = new JObject
                     {
                         ["$ref"] = "#/types/test::NestedObjectInput"
                     }
-                }
+                },
+                ["required"] = new JArray()
             },
             ["test::TestEnum"] = new JObject
             {

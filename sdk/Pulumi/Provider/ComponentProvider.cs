@@ -142,7 +142,7 @@ namespace Pulumi.Experimental.Provider
         internal readonly Dictionary<string, ComponentMetadata> ResourceMetadata = new Dictionary<string, ComponentMetadata>();
         public string ProviderName { get; set; } = "provider";
         public string ProviderVersion { get; set; } = "0.1.0";
-
+        private Func<JObject, JObject> _extendSchema = schema => schema;
         public ComponentProviderBuilder RegisterComponent<T, U>(string type, Func<ConstructRequest, T, U> constructor)
             where T : ResourceArgs
             where U : ComponentResource
@@ -169,6 +169,12 @@ namespace Pulumi.Experimental.Provider
         public ComponentProviderBuilder Version(string version)
         {
             ProviderVersion = version;
+            return this;
+        }
+
+        public ComponentProviderBuilder ExtendSchema(Func<JObject, JObject> extendSchema)
+        {
+            _extendSchema = extendSchema;
             return this;
         }
 
@@ -256,6 +262,16 @@ namespace Pulumi.Experimental.Provider
 
         private static string GetDocumentation(PropertyInfo propertyInfo)
         {
+            var descriptionAttribute =
+                propertyInfo
+                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                    .FirstOrDefault();
+
+            if (descriptionAttribute is DescriptionAttribute attribute && attribute.Description != "")
+            {
+                return attribute.Description;
+            }
+
             if (propertyInfo.DeclaringType == null)
             {
                 return "";
@@ -277,6 +293,16 @@ namespace Pulumi.Experimental.Provider
 
         private static string GetDocumentation(Type type)
         {
+            var descriptionAttribute =
+                type
+                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                    .FirstOrDefault();
+
+            if (descriptionAttribute is DescriptionAttribute attribute && attribute.Description != "")
+            {
+                return attribute.Description;
+            }
+
             var documentation = GetDocumentation(GetXmlName(type), type.Assembly);
             if (documentation != null)
             {
@@ -468,13 +494,15 @@ namespace Pulumi.Experimental.Provider
             return Primitive("object");
         }
 
-        string DescriptionAttributeContent(PropertyInfo info)
+        string DescriptionContent(PropertyInfo info)
         {
-            var descriptionAttribute = info.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault();
-            if (descriptionAttribute is DescriptionAttribute attribute)
+            var documentation = GetDocumentation(info);
+            if (documentation != "")
             {
-                return attribute.Description;
+                return documentation;
             }
+
+
 
             return "";
         }
@@ -488,6 +516,46 @@ namespace Pulumi.Experimental.Provider
             }
 
             return "";
+        }
+
+        bool IsRequiredProperty(PropertyInfo property)
+        {
+            var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
+            if (inputAttr is InputAttribute attr)
+            {
+                if (attr.IsRequired)
+                {
+                    return true;
+                }
+            }
+
+            var pulumiRequiredAttribute = property
+                .GetCustomAttributes(typeof(Pulumi.RequiredAttribute), false)
+                .FirstOrDefault();
+
+            var requiredAttributeFromDataAnnotations = property
+                .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute))
+                .FirstOrDefault();
+
+            return pulumiRequiredAttribute != null || requiredAttributeFromDataAnnotations != null;
+        }
+
+        bool IsOptionalProperty(PropertyInfo property)
+        {
+            var optionalAttribute = property
+                .GetCustomAttributes(typeof(OptionalAttribute), false)
+                .FirstOrDefault();
+
+            return optionalAttribute != null;
+        }
+
+        bool IsSecretProperty(PropertyInfo property)
+        {
+            var secretAttribute = property
+                .GetCustomAttributes(typeof(SecretAttribute), false)
+                .FirstOrDefault();
+
+            return secretAttribute != null;
         }
 
         public JObject BuildSchema()
@@ -514,47 +582,23 @@ namespace Pulumi.Experimental.Provider
                         var propertyName = property.Name;
                         var propertyType = property.PropertyType;
                         var plain = true;
-                        var secret = false;
+                        var secret = IsSecretProperty(property);
                         var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
                         if (inputAttr is InputAttribute attr)
                         {
                             propertyName = attr.Name;
-                            if (attr.IsRequired)
-                            {
-                                requiredInputs.Add(propertyName);
-                            }
                         }
 
                         var requiredAttribute = property.GetCustomAttributes(typeof(RequiredAttribute), false)
                             .FirstOrDefault();
 
-                        if (requiredAttribute != null)
-                        {
-                            // if using Pulumi.RequiredAttribute, then mark the property as required
-                            requiredInputs.Add(propertyName);
-                        }
 
-                        var requiredAttributeFromDataAnnotations = property
-                            .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute))
-                            .FirstOrDefault();
-
-                        if (requiredAttributeFromDataAnnotations != null)
+                        if (IsRequiredProperty(property) || !ContainsNullable(propertyType))
                         {
-                            // if using System.ComponentModel.DataAnnotations.RequiredAttribute,
-                            // then mark the property as required
-                            requiredInputs.Add(propertyName);
-                        }
-
-                        if (!ContainsNullable(propertyType))
-                        {
-                            requiredInputs.Add(propertyName);
-                        }
-
-                        var secretAttribute = property.GetCustomAttributes(typeof(SecretAttribute), false)
-                            .FirstOrDefault();
-                        if (secretAttribute != null)
-                        {
-                            secret = true;
+                            if (!IsOptionalProperty(property))
+                            {
+                                requiredInputs.Add(propertyName);
+                            }
                         }
 
                         if (propertyType.IsGenericType)
@@ -594,16 +638,10 @@ namespace Pulumi.Experimental.Provider
                             propertySchema["secret"] = true;
                         }
 
-                        var documentation = GetDocumentation(property);
+                        var documentation = DescriptionContent(property);
                         if (documentation != "")
                         {
                             propertySchema["description"] = documentation;
-                        }
-
-                        var descriptionAttributeContent = DescriptionAttributeContent(property);
-                        if (descriptionAttributeContent != "")
-                        {
-                            propertySchema["description"] = descriptionAttributeContent;
                         }
 
                         if (property.Name != propertyName)
@@ -622,6 +660,7 @@ namespace Pulumi.Experimental.Provider
                     }
                 }
 
+                // generate schema for each output property in the component
                 foreach (var property in metadata.ResourceType.GetProperties())
                 {
                     string propertyName = property.Name;
@@ -629,12 +668,6 @@ namespace Pulumi.Experimental.Provider
                     if (outputAttr is OutputAttribute attr && attr.Name != "")
                     {
                         propertyName = attr.Name ?? "";
-                    }
-
-                    var requiredAttribute = property.GetCustomAttributes(typeof(RequiredAttribute), false).FirstOrDefault();
-                    if (requiredAttribute != null)
-                    {
-                        requiredOutputs.Add(propertyName);
                     }
 
                     if (propertyName == "urn")
@@ -651,17 +684,16 @@ namespace Pulumi.Experimental.Provider
                         }
                     }
 
+                    if (IsRequiredProperty(property) || !ContainsNullable(propertyType))
+                    {
+                        requiredOutputs.Add(propertyName);
+                    }
+
                     var propertySchema = PropertyType(metadata, propertyType);
                     var documentation = GetDocumentation(property);
                     if (documentation != "")
                     {
                         propertySchema["description"] = documentation;
-                    }
-
-                    var descriptionAttributeContent = DescriptionAttributeContent(property);
-                    if (descriptionAttributeContent != "")
-                    {
-                        propertySchema["description"] = descriptionAttributeContent;
                     }
 
                     if (property.Name != propertyName)
@@ -728,6 +760,7 @@ namespace Pulumi.Experimental.Provider
                         else
                         {
                             var typeProperties = new JObject();
+                            var requiredTypeProperties = new HashSet<string>();
                             foreach (var property in typeReferenceInfo.Key.GetProperties())
                             {
                                 var propertyName = property.Name;
@@ -752,10 +785,31 @@ namespace Pulumi.Experimental.Provider
                                     {
                                         propertyType = propertyType.GetGenericArguments()[0];
                                     }
-
                                     if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
                                     {
                                         propertyType = propertyType.GetGenericArguments()[0];
+                                    }
+                                    else if (propertyType.GetGenericTypeDefinition() == typeof(InputList<>))
+                                    {
+                                        var elementType = propertyType.GetGenericArguments()[0];
+                                        propertyType = Array.CreateInstance(elementType, 0).GetType();
+                                    }
+                                    else if (propertyType.GetGenericTypeDefinition() == typeof(InputMap<>))
+                                    {
+                                        var elementType = propertyType.GetGenericArguments()[0];
+                                        propertyType = typeof(Dictionary<,>).MakeGenericType(typeof(string), elementType);
+                                    }
+                                    else if (propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                    {
+                                        propertyType = propertyType.GetGenericArguments()[0];
+                                    }
+                                }
+
+                                if (IsRequiredProperty(property) || !ContainsNullable(property.PropertyType))
+                                {
+                                    if (!IsOptionalProperty(property))
+                                    {
+                                        requiredTypeProperties.Add(propertyName);
                                     }
                                 }
 
@@ -766,17 +820,13 @@ namespace Pulumi.Experimental.Provider
                                     propertySchema["description"] = documentation;
                                 }
 
-                                var descriptionAttributeContent = DescriptionAttributeContent(property);
-                                if (descriptionAttributeContent != "")
-                                {
-                                    propertySchema["description"] = descriptionAttributeContent;
-                                }
-
                                 typeProperties[propertyName] = propertySchema;
                             }
-                            typeSchema["properties"] = typeProperties;
-                        }
 
+                            typeSchema["type"] = "object";
+                            typeSchema["properties"] = typeProperties;
+                            typeSchema["required"] = JToken.FromObject(requiredTypeProperties.OrderBy(name => name));
+                        }
 
                         types[typeReference.Token] = typeSchema;
                     }
@@ -785,7 +835,7 @@ namespace Pulumi.Experimental.Provider
 
             schema["types"] = types;
             schema["resources"] = resources;
-            return schema;
+            return _extendSchema(schema);
         }
 
         public ComponentProvider Build() => new ComponentProvider(this);

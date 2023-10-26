@@ -104,6 +104,16 @@ namespace Pulumi
     }
 
     /// <summary>
+    /// Used to annotate a property explicitly as optional. Can be used for properties that made required by default
+    /// such as string. For other primitive types such as int, bool and double,
+    /// you can use int?, bool? or double? respectively.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class OptionalAttribute : Attribute
+    {
+    }
+
+    /// <summary>
     /// Used to annotate the property as a required property in the generated schema
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]

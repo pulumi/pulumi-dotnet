@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Add support for the path option for config operations.
+time: 2023-10-23T15:48:00.000000000+01:00
+custom:
+  PR: "191"

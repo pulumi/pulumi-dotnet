@@ -1,11 +1,7 @@
 on:
   push:
-    tags:
-      - v*.*.*
-    paths-ignore:
-      - "CHANGELOG.md"
-      - "CHANGELOG_PENDING.md"
-      - "README.md"
+    branches: [ main ]
+    paths: [ CHANGELOG.md ]
 
 env:
   GITHUB_TOKEN: ${{ secrets.PULUMI_BOT_TOKEN }}
@@ -35,8 +31,23 @@ jobs:
               ${{ steps.go-cache-paths.outputs.go-build }}
               ${{ steps.go-cache-paths.outputs.go-mod }}
           key: go-cache-${{ hashFiles('**/go.sum') }}
+      - name: Add env vars
+        run: |
+          echo GORELEASER_CURRENT_TAG=$(changie latest) >> $GITHUB_ENV
+          echo RELEASE_NOTES_PATH=.changes/$(changie latest).md >> $GITHUB_ENV
+      - name: Check if release exists
+        # This lets us update CHANGELOG.md and with updated release notes without retriggering a release
+        # that's already happened.
+        id: check-release
+        run: |
+          if [ -z "$(git tag -l ${{ env.GORELEASER_CURRENT_TAG }})" ]; then
+            echo "::set-output name=exists::false"
+          else
+            echo "::set-output name=exists::true"
+          fi
       - name: Run GoReleaser
+        if: steps.check-release.outputs.exists == 'false'
         uses: goreleaser/goreleaser-action@v5
         with:
           version: latest
-          args: -p 3 -f .goreleaser.yml --rm-dist --release-notes=CHANGELOG_PENDING.md
+          args: --clean --release-notes=${{ env.RELEASE_NOTES_PATH }} --verbose --skip-validate

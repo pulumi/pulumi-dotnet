@@ -1,0 +1,6 @@
+component: sdk
+kind: Bug Fixes
+body: Register and await tasks created from `Apply` that don't return anything.
+time: 2023-10-07T18:39:00.00000000+01:00
+custom:
+  PR: "183"

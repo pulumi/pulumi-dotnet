@@ -25,3 +25,6 @@ snapshot:
 
 checksum:
   name_template: 'checksums.txt'
+
+changelog:
+  skip: false

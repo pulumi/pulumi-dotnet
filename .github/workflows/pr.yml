@@ -1,17 +1,9 @@
 on:
   merge_group:
   pull_request:
-    paths-ignore:
-      - 'CHANGELOG.md'
-      - 'CHANGELOG_PENDING.md'
   push:
     branches:
       - main
-    tags:
-      - v*.*.*
-    paths-ignore:
-      - 'CHANGELOG.md'
-      - 'CHANGELOG_PENDING.md'
 
 env:
   PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN_PRODUCTION }}

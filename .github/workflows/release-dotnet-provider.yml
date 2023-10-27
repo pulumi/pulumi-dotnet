@@ -31,10 +31,15 @@ jobs:
               ${{ steps.go-cache-paths.outputs.go-build }}
               ${{ steps.go-cache-paths.outputs.go-mod }}
           key: go-cache-${{ hashFiles('**/go.sum') }}
+      - name: Get the latest version
+        id: latest
+        uses: miniscruff/changie-action@v2
+        with:
+          args: latest
       - name: Add env vars
         run: |
-          echo GORELEASER_CURRENT_TAG=$(changie latest) >> $GITHUB_ENV
-          echo RELEASE_NOTES_PATH=.changes/$(changie latest).md >> $GITHUB_ENV
+          echo GORELEASER_CURRENT_TAG=${{ steps.latest.outputs.output }} >> $GITHUB_ENV
+          echo RELEASE_NOTES_PATH=.changes/${{ steps.latest.outputs.output }}.md >> $GITHUB_ENV
       - name: Check if release exists
         # This lets us update CHANGELOG.md and with updated release notes without retriggering a release
         # that's already happened.

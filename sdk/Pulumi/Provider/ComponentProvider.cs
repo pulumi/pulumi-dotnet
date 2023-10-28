@@ -335,56 +335,54 @@ namespace Pulumi.Experimental.Provider
             return "P:" + GetXmlNameTypeSegment(propertyInfo.DeclaringType.FullName!) + "." + propertyInfo.Name;
         }
 
-        private bool ContainsNullable(Type propertyType)
+
+        private bool IsOptionalPropertyType(Type propertyType)
         {
-            if (propertyType.IsGenericType)
+            bool Is(Type type) => type == propertyType;
+
+
+            if (Is(typeof(InputList<string>)) || Is(typeof(Input<string>)) || Is(typeof(InputMap<string>)))
             {
-                if (propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                // string properties are required by default because the gRPC will always send
+                // a non-null string from the engine to the component. Users can mark the property with
+                // the [Optional] attribute to make it optional on the generated SDKs side of things
+                // the deserializer will handle null inputs of string as empty string
+                return false;
+            }
+
+            var isOptionalProperty =
+                Is(typeof(int?))
+                || Is(typeof(bool?))
+                || Is(typeof(double?))
+                || Is(typeof(Input<int?>))
+                || Is(typeof(Input<bool?>))
+                || Is(typeof(Input<double?>));
+
+            if (isOptionalProperty)
+            {
+                return true;
+            }
+
+            // Reduce Input<'T> to 'T
+            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Input<>))
+            {
+                propertyType = propertyType.GetGenericArguments()[0];
+            }
+
+            // Enums by default are marked as required
+            if (propertyType.IsEnum)
+            {
+                return false;
+            }
+
+            // Nullable enums are optional
+            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var elementType = propertyType.GetGenericArguments()[0];
+                if (elementType.IsEnum)
                 {
                     return true;
                 }
-
-                if (propertyType.GetGenericTypeDefinition() == typeof(List<>))
-                {
-                    var elementType = propertyType.GetGenericArguments()[0];
-                    return ContainsNullable(elementType);
-                }
-
-                if (propertyType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
-                {
-                    var elementType = propertyType.GetGenericArguments()[0];
-                    return ContainsNullable(elementType);
-                }
-
-                if (propertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                {
-                    var valueType = propertyType.GetGenericArguments()[1];
-                    return ContainsNullable(valueType);
-                }
-
-                if (propertyType.GetGenericTypeDefinition() == typeof(Input<>))
-                {
-                    var elementType = propertyType.GetGenericArguments()[0];
-                    return ContainsNullable(elementType);
-                }
-
-                if (propertyType.GetGenericTypeDefinition() == typeof(InputList<>))
-                {
-                    var elementType = propertyType.GetGenericArguments()[0];
-                    return ContainsNullable(elementType);
-                }
-
-                if (propertyType.GetGenericTypeDefinition() == typeof(InputMap<>))
-                {
-                    var elementType = propertyType.GetGenericArguments()[0];
-                    return ContainsNullable(elementType);
-                }
-            }
-
-            if (propertyType.IsArray)
-            {
-                var elementType = propertyType.GetElementType()!;
-                return ContainsNullable(elementType);
             }
 
             var assemblyFullName = propertyType.Assembly.FullName ?? "";
@@ -518,7 +516,7 @@ namespace Pulumi.Experimental.Provider
             return "";
         }
 
-        bool IsRequiredProperty(PropertyInfo property)
+        bool MarkedAsRequired(PropertyInfo property)
         {
             var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
             if (inputAttr is InputAttribute attr)
@@ -540,7 +538,7 @@ namespace Pulumi.Experimental.Provider
             return pulumiRequiredAttribute != null || requiredAttributeFromDataAnnotations != null;
         }
 
-        bool IsOptionalProperty(PropertyInfo property)
+        bool MarkedAsOptional(PropertyInfo property)
         {
             var optionalAttribute = property
                 .GetCustomAttributes(typeof(OptionalAttribute), false)
@@ -589,13 +587,9 @@ namespace Pulumi.Experimental.Provider
                             propertyName = attr.Name;
                         }
 
-                        var requiredAttribute = property.GetCustomAttributes(typeof(RequiredAttribute), false)
-                            .FirstOrDefault();
-
-
-                        if (IsRequiredProperty(property) || !ContainsNullable(propertyType))
+                        if (MarkedAsRequired(property) || !IsOptionalPropertyType(propertyType))
                         {
-                            if (!IsOptionalProperty(property))
+                            if (!MarkedAsOptional(property))
                             {
                                 requiredInputs.Add(propertyName);
                             }
@@ -684,9 +678,12 @@ namespace Pulumi.Experimental.Provider
                         }
                     }
 
-                    if (IsRequiredProperty(property) || !ContainsNullable(propertyType))
+                    if (MarkedAsRequired(property) || !IsOptionalPropertyType(propertyType))
                     {
-                        requiredOutputs.Add(propertyName);
+                        if (!MarkedAsOptional(property))
+                        {
+                            requiredOutputs.Add(propertyName);
+                        }
                     }
 
                     var propertySchema = PropertyType(metadata, propertyType);
@@ -736,11 +733,6 @@ namespace Pulumi.Experimental.Provider
                     {
                         var typeSchema = new JObject();
                         var typeDescription = GetDocumentation(typeReferenceInfo.Key);
-                        if (typeDescription != "")
-                        {
-                            typeSchema["description"] = typeDescription;
-                        }
-                        typeDescription = DescriptionAttributeContent(typeReferenceInfo.Key);
                         if (typeDescription != "")
                         {
                             typeSchema["description"] = typeDescription;
@@ -805,9 +797,9 @@ namespace Pulumi.Experimental.Provider
                                     }
                                 }
 
-                                if (IsRequiredProperty(property) || !ContainsNullable(property.PropertyType))
+                                if (MarkedAsRequired(property) || !IsOptionalPropertyType(property.PropertyType))
                                 {
-                                    if (!IsOptionalProperty(property))
+                                    if (!MarkedAsOptional(property))
                                     {
                                         requiredTypeProperties.Add(propertyName);
                                     }

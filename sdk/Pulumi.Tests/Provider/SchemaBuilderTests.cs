@@ -76,8 +76,7 @@ public class SchemaBuilderTests
     public async Task BuildingSchemaFromTypesWorks()
     {
         var schema =
-            new ComponentProviderBuilder()
-                .Name("test")
+            new SimpleProviderBuilder("test")
                 .RegisterComponent<TestArgs, TestComponent>("token:token:token",
                     (request, args) => new TestComponent(request.Name))
                 .BuildSchema();

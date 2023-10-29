@@ -125,54 +125,91 @@ namespace Pulumi.Experimental.Provider
             ArgsType = argsType;
             ResourceType = resourceType;
             _providerName = provider;
-            ComputeTypeReferences(argsType);
+            foreach (var inputProperty in argsType.GetProperties())
+            {
+                ComputeTypeReferences(inputProperty.PropertyType);
+            }
+            foreach (var outputProperty in resourceType.GetProperties())
+            {
+                ComputeTypeReferences(outputProperty.PropertyType);
+            }
         }
 
         public ComponentMetadata(string provider, Type resourceType)
         {
             ArgsType = null;
             ResourceType = resourceType;
+            foreach (var outputProperty in resourceType.GetProperties())
+            {
+                ComputeTypeReferences(outputProperty.PropertyType);
+            }
             _providerName = provider;
         }
     }
 
-    public class ComponentProviderBuilder
+    public class SimpleProviderBuilder
     {
-        internal readonly Dictionary<string, Func<ConstructRequest, object, ComponentResource>> ResourceConstructors = new Dictionary<string, Func<ConstructRequest, object, ComponentResource>>();
+        internal readonly Dictionary<string, Func<ConstructRequest, object, Task<ComponentResource>>> ResourceConstructors = new Dictionary<string, Func<ConstructRequest, object, Task<ComponentResource>>>();
         internal readonly Dictionary<string, ComponentMetadata> ResourceMetadata = new Dictionary<string, ComponentMetadata>();
-        public string ProviderName { get; set; } = "provider";
+        public string ProviderName { get; set; }
         public string ProviderVersion { get; set; } = "0.1.0";
         private Func<JObject, JObject> _extendSchema = schema => schema;
-        public ComponentProviderBuilder RegisterComponent<T, U>(string type, Func<ConstructRequest, T, U> constructor)
+
+        public SimpleProviderBuilder(string providerName)
+        {
+            ProviderName = providerName;
+        }
+
+        public SimpleProviderBuilder RegisterComponent<T, U>(string type, Func<ConstructRequest, T, U> constructor)
             where T : ResourceArgs
             where U : ComponentResource
         {
-            ResourceConstructors[type] = (request, args) => constructor(request, (T)args);
+            ResourceConstructors[type] = (request, args) =>
+            {
+                var component = constructor(request, (T)args);
+                return Task.FromResult((ComponentResource)component);
+            };
             ResourceMetadata[type] = new ComponentMetadata(ProviderName, argsType: typeof(T), resourceType: typeof(U));
             return this;
         }
 
-        public ComponentProviderBuilder RegisterComponent<T>(string type, Func<ConstructRequest, T> constructor)
+        public SimpleProviderBuilder RegisterComponent<T>(string type, Func<ConstructRequest, T> constructor)
             where T : ComponentResource
         {
-            ResourceConstructors[type] = (request, args) => constructor(request);
+            ResourceConstructors[type] = (request, args) =>
+            {
+                var component = constructor(request);
+                return Task.FromResult((ComponentResource)component);
+            };
+
             ResourceMetadata[type] = new ComponentMetadata(ProviderName, resourceType: typeof(T));
             return this;
         }
 
-        public ComponentProviderBuilder Name(string providerName)
+        public SimpleProviderBuilder RegisterComponent<T>(string type, Func<ConstructRequest, Task<T>> constructor)
+            where T : ComponentResource
         {
-            ProviderName = providerName;
+            ResourceConstructors[type] = async (request, args) => await constructor(request);
+            ResourceMetadata[type] = new ComponentMetadata(ProviderName, resourceType: typeof(T));
             return this;
         }
 
-        public ComponentProviderBuilder Version(string version)
+        public SimpleProviderBuilder RegisterComponent<T, U>(string type, Func<ConstructRequest, T, Task<U>> constructor)
+            where T : ResourceArgs
+            where U : ComponentResource
+        {
+            ResourceConstructors[type] = async (request, args) => await constructor(request, (T)args);
+            ResourceMetadata[type] = new ComponentMetadata(ProviderName, argsType: typeof(T), resourceType: typeof(U));
+            return this;
+        }
+
+        public SimpleProviderBuilder Version(string version)
         {
             ProviderVersion = version;
             return this;
         }
 
-        public ComponentProviderBuilder ExtendSchema(Func<JObject, JObject> extendSchema)
+        public SimpleProviderBuilder ExtendSchema(Func<JObject, JObject> extendSchema)
         {
             _extendSchema = extendSchema;
             return this;
@@ -260,6 +297,17 @@ namespace Pulumi.Experimental.Provider
             }
         }
 
+        static string CleanDocumentation(string documentation)
+        {
+            var lines = documentation.Trim().Split("\n");
+            var cleanedLines = lines.Select(line => line.Replace("<summary>", "")
+                .Replace("</summary>", "")
+                .Replace("///", "")
+                .Trim());
+
+            return string.Join("\n", cleanedLines).TrimStart('\n').TrimEnd('\n');
+        }
+
         private static string GetDocumentation(PropertyInfo propertyInfo)
         {
             var descriptionAttribute =
@@ -279,13 +327,7 @@ namespace Pulumi.Experimental.Provider
             var documentation = GetDocumentation(GetXmlName(propertyInfo), propertyInfo.DeclaringType.Assembly);
             if (documentation != null)
             {
-                var lines = documentation.Trim().Split("\n");
-                var cleanedLines = lines.Select(line => line.Replace("<summary>", "")
-                    .Replace("</summary>", "")
-                    .Replace("///", "")
-                    .Trim());
-
-                return string.Join("\n", cleanedLines).TrimStart('\n').TrimEnd('\n');
+                return CleanDocumentation(documentation);
             }
 
             return "";
@@ -306,13 +348,7 @@ namespace Pulumi.Experimental.Provider
             var documentation = GetDocumentation(GetXmlName(type), type.Assembly);
             if (documentation != null)
             {
-                var lines = documentation.Trim().Split("\n");
-                var cleanedLines = lines.Select(line => line.Replace("<summary>", "")
-                    .Replace("</summary>", "")
-                    .Replace("///", "")
-                    .Trim());
-
-                return string.Join("\n", cleanedLines).TrimStart('\n').TrimEnd('\n');
+                return CleanDocumentation(documentation);
             }
 
             return "";
@@ -830,19 +866,20 @@ namespace Pulumi.Experimental.Provider
             return _extendSchema(schema);
         }
 
-        public ComponentProvider Build() => new ComponentProvider(this);
+        public SimpleProvider Build() => new SimpleProvider(this);
     }
 
-    public class ComponentProvider : Provider
+    public class SimpleProvider : Provider
     {
-        private ComponentProviderBuilder _builder;
+        private readonly SimpleProviderBuilder _builder;
 
-        public ComponentProvider(ComponentProviderBuilder builder)
+        public SimpleProvider(SimpleProviderBuilder builder)
         {
             _builder = builder;
         }
 
-        public static ComponentProviderBuilder Create() => new ComponentProviderBuilder();
+        public static SimpleProviderBuilder Create(string providerName) =>
+            new SimpleProviderBuilder(providerName);
 
         public override Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
@@ -866,7 +903,7 @@ namespace Pulumi.Experimental.Provider
                     throw new Exception($"Failed to deserialize args of type {argsType.FullName} when constructing component of type {request.Type}");
                 }
 
-                var resource = constructor(request, args ?? new object());
+                var resource = await constructor(request, args ?? new object());
                 var urn = await resource.ResolveUrn();
                 var state = await PropertyValue.StateFromComponentResource(resource);
                 return new ConstructResponse(urn, state);

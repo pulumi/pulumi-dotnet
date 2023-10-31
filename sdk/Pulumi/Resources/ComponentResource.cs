@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pulumi
@@ -52,6 +53,49 @@ namespace Pulumi
             this.remote = remote;
         }
 
+        internal static Dictionary<string, object?> CollectOutputProperties(ComponentResource instance)
+        {
+            var outputs = new Dictionary<string, object?>();
+            var currentType = instance.GetType();
+            foreach (var prop in currentType.GetProperties())
+            {
+                if (prop.Name == nameof(Urn))
+                {
+                    continue;
+                }
+
+                var outputAttribute =
+                    prop.GetCustomAttributes(typeof(OutputAttribute), false)
+                        .FirstOrDefault();
+                if (outputAttribute is OutputAttribute attr && attr.Name != null)
+                {
+                    // when using [Output("<name>")] we will export the value of this property
+                    // named as the provided <name>
+                    var value = prop.GetValue(instance);
+                    outputs.Add(attr.Name, value);
+                }
+                else if (outputAttribute is OutputAttribute)
+                {
+                    // otherwise of we only have [Output] we will simply use the name of the property itself
+                    // when exporting the value
+                    var value = prop.GetValue(instance);
+                    outputs.Add(prop.Name, value);
+                }
+                else
+                {
+                    var propertyType = prop.PropertyType;
+                    // only if the type is Output<T> then we will consider it an output property
+                    if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Output<>))
+                    {
+                        var value = prop.GetValue(instance);
+                        outputs.Add(prop.Name, value);
+                    }
+                }
+            }
+
+            return outputs;
+        }
+
         /// <summary>
         /// RegisterOutputs registers synthetic outputs that a component has initialized, usually by
         /// allocating other child sub-resources and propagating their resulting property values.
@@ -61,7 +105,10 @@ namespace Pulumi
         /// state as quickly as possible (instead of waiting until the entire application completes).
         /// </summary>
         protected void RegisterOutputs()
-            => RegisterOutputs(ImmutableDictionary<string, object?>.Empty);
+        {
+            var outputs = CollectOutputProperties(this);
+            RegisterOutputs(outputs);
+        }
 
         protected void RegisterOutputs(IDictionary<string, object?> outputs)
             => RegisterOutputs(Task.FromResult(outputs ?? throw new ArgumentNullException(nameof(outputs))));

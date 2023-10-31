@@ -105,7 +105,11 @@ namespace Pulumi
 
         #region construct from dictionary types
 
-        public static InputMap<V> FromInputDictionary(Input<ImmutableDictionary<string, V>> input)
+        /// <summary>
+        /// Specialized overload used to construct an InputMap from Input of an ImmutableDictionary.
+        /// This function is called using Reflection which is why it is marked internal.
+        /// </summary>
+        internal static InputMap<V> FromInputDictionary(Input<ImmutableDictionary<string, V>> input)
         {
             return new InputMap<V>(input);
         }

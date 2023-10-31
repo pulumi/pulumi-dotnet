@@ -590,7 +590,9 @@ namespace Pulumi.Experimental.Provider
                 var listType = typeof(ImmutableArray<>).MakeGenericType(elementType);
                 var inputListType = typeof(Input<>).MakeGenericType(listType);
                 var inputList = DeserializeValue(value, inputListType);
-                var fromInputList = targetType.GetMethod("FromInputList")!;
+                var fromInputList = targetType.GetMethod(
+                    nameof(InputList<int>.FromInputList),
+                    BindingFlags.NonPublic | BindingFlags.Static)!;
                 return fromInputList.Invoke(null, new [] { inputList });
             }
 
@@ -601,7 +603,9 @@ namespace Pulumi.Experimental.Provider
                 var dictionaryType = typeof(ImmutableDictionary<,>).MakeGenericType(typeof(string), valueType);
                 var inputMapType = typeof(Input<>).MakeGenericType(dictionaryType);
                 var inputDictionary = DeserializeValue(value, inputMapType);
-                var fromInputDictionary = targetType.GetMethod("FromInputDictionary")!;
+                var fromInputDictionary = targetType.GetMethod(
+                    nameof(InputMap<int>.FromInputDictionary),
+                    BindingFlags.NonPublic | BindingFlags.Static)!;
                 return fromInputDictionary.Invoke(null, new [] { inputDictionary });
             }
 

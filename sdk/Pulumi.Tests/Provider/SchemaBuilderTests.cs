@@ -212,11 +212,11 @@ public class SchemaBuilderTests
             },
             ["ObjectInput"] = new JObject
             {
-                ["$ref"] = "#/types/test::ObjectInput"
+                ["$ref"] = "#/types/test:index:ObjectInput"
             },
             ["EnumInput"] = new JObject
             {
-                ["$ref"] = "#/types/test::TestEnum"
+                ["$ref"] = "#/types/test:index:TestEnum"
             }
         };
 
@@ -257,7 +257,7 @@ public class SchemaBuilderTests
             "StringArrayProperty", "StringListProperty", "StringImmutableArrayProperty",
             "StringDictionaryProperty", "StringImmutableDictionaryProperty",
             "StringInputProperty", "StringInputListProperty", "StringInputMapProperty",
-            "SecretStringInputProperty", "overriddenStringProperty"
+            "SecretStringInputProperty", "ObjectInput", "overriddenStringProperty"
         };
 
         var actualRequiredInputProperties = testComponent["requiredInputs"]?.ToObject<string[]>() ?? new string[] { };
@@ -388,7 +388,7 @@ public class SchemaBuilderTests
 
         var expectedTypes = new JObject
         {
-            ["test::NestedObjectInput"] = new JObject
+            ["test:index:NestedObjectInput"] = new JObject
             {
                 ["type"] = "object",
                 ["properties"] = new JObject
@@ -404,19 +404,19 @@ public class SchemaBuilderTests
                 },
                 ["required"] = new JArray { "Int", "String" }
             },
-            ["test::ObjectInput"] = new JObject
+            ["test:index:ObjectInput"] = new JObject
             {
                 ["type"] = "object",
                 ["properties"] = new JObject
                 {
                     ["Nested"] = new JObject
                     {
-                        ["$ref"] = "#/types/test::NestedObjectInput"
+                        ["$ref"] = "#/types/test:index:NestedObjectInput"
                     }
                 },
-                ["required"] = new JArray()
+                ["required"] = new JArray { "Nested" }
             },
-            ["test::TestEnum"] = new JObject
+            ["test:index:TestEnum"] = new JObject
             {
                 ["type"] = "string",
                 ["enum"] = new JArray { "Allow", "Default" }

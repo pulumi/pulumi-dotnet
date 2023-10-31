@@ -98,7 +98,11 @@ namespace Pulumi
 
         #region construct from array
 
-        public static InputList<T> FromInputList(Input<ImmutableArray<T>> values)
+        /// <summary>
+        /// Specialized overload used to construct an InputList from Input of an ImmutableArray.
+        /// This function is called using Reflection which is why it is marked internal.
+        /// </summary>
+        internal static InputList<T> FromInputList(Input<ImmutableArray<T>> values)
         {
             return new InputList<T>(values);
         }

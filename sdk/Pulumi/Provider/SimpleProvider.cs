@@ -91,7 +91,8 @@ namespace Pulumi.Experimental.Provider
                 if (argsType.IsClass && isUserDefinedType && argsType.Assembly.FullName == userAssemblyFullName)
                 {
                     // for classes defined by the user, to be encoded within "types" schema section
-                    var typeToken = $"{_providerName}::{argsType.Name}";
+                    var moduleName = "index";
+                    var typeToken = $"{_providerName}:{moduleName}:{argsType.Name}";
                     var typeReference = $"#/types/{typeToken}";
                     TypeReferences[argsType] = new TypeReference(
                         fullReference: typeReference,
@@ -105,7 +106,8 @@ namespace Pulumi.Experimental.Provider
                 }
                 else if (isUserDefinedType && argsType.IsEnum)
                 {
-                    var typeToken = $"{_providerName}::{argsType.Name}";
+                    var moduleName = "index";
+                    var typeToken = $"{_providerName}:{moduleName}:{argsType.Name}";
                     var typeReference = $"#/types/{typeToken}";
                     TypeReferences[argsType] = new TypeReference(
                         fullReference: typeReference,
@@ -374,25 +376,13 @@ namespace Pulumi.Experimental.Provider
 
         private bool IsOptionalPropertyType(Type propertyType)
         {
-            bool Is(Type type) => type == propertyType;
-
-
-            if (Is(typeof(InputList<string>)) || Is(typeof(Input<string>)) || Is(typeof(InputMap<string>)))
-            {
-                // string properties are required by default because the gRPC will always send
-                // a non-null string from the engine to the component. Users can mark the property with
-                // the [Optional] attribute to make it optional on the generated SDKs side of things
-                // the deserializer will handle null inputs of string as empty string
-                return false;
-            }
-
             var isOptionalProperty =
-                Is(typeof(int?))
-                || Is(typeof(bool?))
-                || Is(typeof(double?))
-                || Is(typeof(Input<int?>))
-                || Is(typeof(Input<bool?>))
-                || Is(typeof(Input<double?>));
+                propertyType == typeof(int?)
+                || propertyType == typeof(bool?)
+                || propertyType == typeof(double?)
+                || propertyType == typeof(Input<int?>)
+                || propertyType == typeof(Input<bool?>)
+                || propertyType == typeof(Input<double?>);
 
             if (isOptionalProperty)
             {
@@ -405,12 +395,6 @@ namespace Pulumi.Experimental.Provider
                 propertyType = propertyType.GetGenericArguments()[0];
             }
 
-            // Enums by default are marked as required
-            if (propertyType.IsEnum)
-            {
-                return false;
-            }
-
             // Nullable enums are optional
             if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
@@ -419,14 +403,6 @@ namespace Pulumi.Experimental.Provider
                 {
                     return true;
                 }
-            }
-
-            var assemblyFullName = propertyType.Assembly.FullName ?? "";
-            if (propertyType.IsClass && !assemblyFullName.StartsWith("System."))
-            {
-                // treat classes as nullable by default
-                // if users want these to be required, then they can use [Required]
-                return true;
             }
 
             return false;
@@ -533,10 +509,8 @@ namespace Pulumi.Experimental.Provider
             var documentation = GetDocumentation(info);
             if (documentation != "")
             {
-                return documentation;
+                return CleanDocumentation(documentation);
             }
-
-
 
             return "";
         }
@@ -550,28 +524,6 @@ namespace Pulumi.Experimental.Provider
             }
 
             return "";
-        }
-
-        bool MarkedAsRequired(PropertyInfo property)
-        {
-            var inputAttr = property.GetCustomAttributes(typeof(InputAttribute), false).FirstOrDefault();
-            if (inputAttr is InputAttribute attr)
-            {
-                if (attr.IsRequired)
-                {
-                    return true;
-                }
-            }
-
-            var pulumiRequiredAttribute = property
-                .GetCustomAttributes(typeof(Pulumi.RequiredAttribute), false)
-                .FirstOrDefault();
-
-            var requiredAttributeFromDataAnnotations = property
-                .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute))
-                .FirstOrDefault();
-
-            return pulumiRequiredAttribute != null || requiredAttributeFromDataAnnotations != null;
         }
 
         bool MarkedAsOptional(PropertyInfo property)
@@ -623,12 +575,10 @@ namespace Pulumi.Experimental.Provider
                             propertyName = attr.Name;
                         }
 
-                        if (MarkedAsRequired(property) || !IsOptionalPropertyType(propertyType))
+                        var optional = IsOptionalPropertyType(propertyType) || MarkedAsOptional(property);
+                        if (!optional)
                         {
-                            if (!MarkedAsOptional(property))
-                            {
-                                requiredInputs.Add(propertyName);
-                            }
+                            requiredInputs.Add(propertyName);
                         }
 
                         if (propertyType.IsGenericType)
@@ -713,13 +663,10 @@ namespace Pulumi.Experimental.Provider
                             propertyType = propertyType.GetGenericArguments()[0];
                         }
                     }
-
-                    if (MarkedAsRequired(property) || !IsOptionalPropertyType(propertyType))
+                    var optional = IsOptionalPropertyType(propertyType) || MarkedAsOptional(property);
+                    if (!optional)
                     {
-                        if (!MarkedAsOptional(property))
-                        {
-                            requiredOutputs.Add(propertyName);
-                        }
+                        requiredOutputs.Add(propertyName);
                     }
 
                     var propertySchema = PropertyType(metadata, propertyType);
@@ -833,12 +780,13 @@ namespace Pulumi.Experimental.Provider
                                     }
                                 }
 
-                                if (MarkedAsRequired(property) || !IsOptionalPropertyType(property.PropertyType))
+                                var optional =
+                                    IsOptionalPropertyType(property.PropertyType)
+                                    || MarkedAsOptional(property);
+
+                                if (!optional)
                                 {
-                                    if (!MarkedAsOptional(property))
-                                    {
-                                        requiredTypeProperties.Add(propertyName);
-                                    }
+                                    requiredTypeProperties.Add(propertyName);
                                 }
 
                                 var propertySchema = PropertyType(metadata, propertyType);

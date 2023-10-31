@@ -114,15 +114,6 @@ namespace Pulumi
     }
 
     /// <summary>
-    /// Used to annotate the property as a required property in the generated schema
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class RequiredAttribute : Attribute
-    {
-
-    }
-
-    /// <summary>
     /// Used to annotate the description of properties or descriptions of component resources
     /// </summary>
     public sealed class DescriptionAttribute : Attribute

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pulumi
@@ -61,7 +62,38 @@ namespace Pulumi
         /// state as quickly as possible (instead of waiting until the entire application completes).
         /// </summary>
         protected void RegisterOutputs()
-            => RegisterOutputs(ImmutableDictionary<string, object?>.Empty);
+        {
+            var outputs = new Dictionary<string, object?>();
+            var currentType = GetType();
+            foreach (var prop in currentType.GetProperties())
+            {
+                if (prop.Name == nameof(Urn))
+                {
+                    continue;
+                }
+
+                var outputAttribute =
+                    prop.GetCustomAttributes(typeof(OutputAttribute), false)
+                        .FirstOrDefault();
+
+                if (outputAttribute is OutputAttribute attr)
+                {
+                    var registerdOutputKey = prop.Name;
+                    if (!string.IsNullOrWhiteSpace(attr.Name))
+                    {
+                        // when using [Output("<name>")] we will export the value of this property
+                        // with its key equal to the provided <name>
+                        registerdOutputKey = attr.Name;
+                    }
+
+                    // otherwise if we only have [Output] we will simply use the name of the property itself
+                    var value = prop.GetValue(this);
+                    outputs.Add(registerdOutputKey, value);
+                }
+            }
+
+            RegisterOutputs(outputs);
+        }
 
         protected void RegisterOutputs(IDictionary<string, object?> outputs)
             => RegisterOutputs(Task.FromResult(outputs ?? throw new ArgumentNullException(nameof(outputs))));

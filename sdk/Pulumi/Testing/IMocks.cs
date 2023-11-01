@@ -25,6 +25,12 @@ namespace Pulumi.Testing
         /// <param name="args">MockCallArgs</param>
         /// <returns>Invocation result, can be either a POCO or a dictionary bag.</returns>
         Task<object> CallAsync(MockCallArgs args);
+
+        /// <summary>
+        /// Invoked when component resources (including instances of Stack) register their outputs
+        /// </summary>
+        /// <param name="args">MockRegisterResourceOutputsRequest</param>
+        Task RegisterResourceOutputs(MockRegisterResourceOutputsRequest args) => Task.CompletedTask;
     }
 
     /// <summary>
@@ -77,5 +83,29 @@ namespace Pulumi.Testing
         /// Provider.
         /// </summary>
         public string? Provider { get; set; }
+    }
+
+    /// <summary>
+    /// MockRegisterResourceOutputsRequest for use in RegisterOutputRequest
+    /// </summary>
+    public class MockRegisterResourceOutputsRequest
+    {
+        /// <summary>
+        /// The URN of the resource of which the outputs are being registered
+        /// </summary>
+        public readonly string Urn;
+
+        /// <summary>
+        /// The outputs which have been registered by the resource
+        /// </summary>
+        public readonly ImmutableDictionary<string, Output<object?>> Outputs;
+
+        public MockRegisterResourceOutputsRequest(
+            string urn,
+            ImmutableDictionary<string, Output<object?>> outputs)
+        {
+            Urn = urn;
+            Outputs = outputs;
+        }
     }
 }

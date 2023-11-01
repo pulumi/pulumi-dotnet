@@ -160,7 +160,14 @@ namespace Pulumi.Testing
             };
         }
 
-        public Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request) => Task.CompletedTask;
+        public async Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request)
+        {
+            await _mocks.RegisterResourceOutputs(new MockRegisterResourceOutputsRequest
+            {
+                Urn = request.Urn,
+                Outputs = ToDictionary(request.Outputs)
+            });
+        }
 
         private static string NewUrn(string parent, string type, string name)
         {

@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Pulumi.Testing;
 using Xunit;
@@ -120,40 +122,45 @@ namespace Pulumi.Tests.Resources
         {
             var mocks = new MinimalMocks();
             var options = new TestOptions();
-            var (resources, outputs) = await Deployment.TestAsync(mocks, options, () =>
+            var resources = await Deployment.TestAsync(mocks, options, () =>
             {
-                var basic = new BasicComponent("basic");
-                // use the logic that collects output properties here to return the outputs as stack outputs
-                // so we can assert their keys and values
-                return ComponentResource.CollectOutputProperties(basic);
+                new BasicComponent("basic");
             });
 
-            Assert.Contains("First", outputs);
-            Assert.Contains("Second", outputs);
-            Assert.Contains("myThird", outputs);
-
-            if (outputs["First"] is Output<string> first)
+            foreach (var resource in resources)
             {
-                var value = await first.GetValueAsync("<unknwon>");
-                Assert.Equal("first", value);
-            }
+                if (resource is BasicComponent basic)
+                {
+                    var urn = await basic.Urn.GetValueAsync("<unknown>");
+                    var outputs = mocks.GetRegisteredOutputs(urn) as IDictionary<string, object>;
+                    Assert.Contains("Second", outputs);
+                    Assert.Contains("myThird", outputs);
 
-            if (outputs["Second"] is Output<string> second)
-            {
-                var value = await second.GetValueAsync("<unknwon>");
-                Assert.Equal("second", value);
-            }
+                    if (outputs["Second"] is Output<string> second)
+                    {
+                        var value = await second.GetValueAsync("<unknwon>");
+                        Assert.Equal("second", value);
+                    }
 
-            if (outputs["myThird"] is Output<string> third)
-            {
-                var value = await third.GetValueAsync("<unknwon>");
-                Assert.Equal("third", value);
+                    if (outputs["myThird"] is Output<string> third)
+                    {
+                        var value = await third.GetValueAsync("<unknwon>");
+                        Assert.Equal("third", value);
+                    }
+                }
             }
         }
     }
 
     class MinimalMocks : IMocks
     {
+        private readonly Dictionary<string, ImmutableDictionary<string, object>> _registeredOutputsByUrn;
+
+        public MinimalMocks()
+        {
+            _registeredOutputsByUrn = new Dictionary<string, ImmutableDictionary<string, object>>();
+        }
+
         public Task<object> CallAsync(MockCallArgs args)
         {
             return Task.FromResult<object>(args);
@@ -163,6 +170,17 @@ namespace Pulumi.Tests.Resources
             MockResourceArgs args)
         {
             return (args.Name + "-id", args.Inputs);
+        }
+
+        public Task RegisterResourceOutputs(MockRegisterResourceOutputsRequest request)
+        {
+            _registeredOutputsByUrn[request.Urn ?? ""] = request.Outputs;
+            return Task.CompletedTask;
+        }
+
+        public ImmutableDictionary<string, object> GetRegisteredOutputs(string urn)
+        {
+            return _registeredOutputsByUrn[urn];
         }
     }
 }

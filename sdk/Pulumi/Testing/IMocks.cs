@@ -93,10 +93,19 @@ namespace Pulumi.Testing
         /// <summary>
         /// The URN of the resource of which the outputs are being registered
         /// </summary>
-        public string? Urn { get; set; }
+        public readonly string Urn;
+
         /// <summary>
         /// The outputs which have been registered by the resource
         /// </summary>
-        public ImmutableDictionary<string, object> Outputs { get; set; } = null!;
+        public readonly ImmutableDictionary<string, Output<object?>> Outputs;
+
+        public MockRegisterResourceOutputsRequest(
+            string urn,
+            ImmutableDictionary<string, Output<object?>> outputs)
+        {
+            Urn = urn;
+            Outputs = outputs;
+        }
     }
 }

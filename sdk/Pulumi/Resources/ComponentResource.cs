@@ -76,19 +76,19 @@ namespace Pulumi
                     prop.GetCustomAttributes(typeof(OutputAttribute), false)
                         .FirstOrDefault();
 
-                if (outputAttribute is OutputAttribute attr && attr.Name != null)
+                if (outputAttribute is OutputAttribute attr)
                 {
-                    // when using [Output("<name>")] we will export the value of this property
-                    // named as the provided <name>
+                    var registerdOutputKey = prop.Name;
+                    if (!string.IsNullOrWhiteSpace(attr.Name))
+                    {
+                        // when using [Output("<name>")] we will export the value of this property
+                        // with its key equal to the provided <name>
+                        registerdOutputKey = attr.Name;
+                    }
+
+                    // otherwise if we only have [Output] we will simply use the name of the property itself
                     var value = prop.GetValue(this);
-                    outputs.Add(attr.Name, value);
-                }
-                else if (outputAttribute is OutputAttribute)
-                {
-                    // otherwise of we only have [Output] we will simply use the name of the property itself
-                    // when exporting the value
-                    var value = prop.GetValue(this);
-                    outputs.Add(prop.Name, value);
+                    outputs.Add(registerdOutputKey, value);
                 }
             }
 

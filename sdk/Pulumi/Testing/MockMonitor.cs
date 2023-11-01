@@ -162,11 +162,18 @@ namespace Pulumi.Testing
 
         public async Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request)
         {
-            await _mocks.RegisterResourceOutputs(new MockRegisterResourceOutputsRequest
+            var outputs = ImmutableDictionary.CreateBuilder<string, Output<object?>>();
+            foreach (var (key, value) in request.Outputs.Fields)
             {
-                Urn = request.Urn,
-                Outputs = ToDictionary(request.Outputs)
-            });
+                var data = Deserializer.Deserialize(value);
+                outputs.Add(key, new Output<object?>(Task.FromResult(data)));
+            }
+
+            var mockRequest = new MockRegisterResourceOutputsRequest(
+                urn: request.Urn,
+                outputs: outputs.ToImmutable());
+
+            await _mocks.RegisterResourceOutputs(mockRequest);
         }
 
         private static string NewUrn(string parent, string type, string name)

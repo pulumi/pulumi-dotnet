@@ -103,6 +103,8 @@ namespace Pulumi.Tests.Resources
 
         class BasicComponent : ComponentResource
         {
+            [Output]
+            private Output<string> PrivateOutputProperty { get; set; }
             public Output<string> First { get; set; }
             [Output]
             public Output<string> Second { get; set; }
@@ -113,6 +115,9 @@ namespace Pulumi.Tests.Resources
                 First = Output.Create("first");
                 Second = Output.Create("second");
                 Third = Output.Create("third");
+                PrivateOutputProperty = Output.Create("private");
+                // RegisterOutputs will only register "Second" and "myThird" since
+                // those are public properties marked with [Output]
                 RegisterOutputs();
             }
         }
@@ -127,38 +132,29 @@ namespace Pulumi.Tests.Resources
                 new BasicComponent("basic");
             });
 
-            foreach (var resource in resources)
-            {
-                if (resource is BasicComponent basic)
-                {
-                    var urn = await basic.Urn.GetValueAsync("<unknown>");
-                    var outputs = mocks.GetRegisteredOutputs(urn) as IDictionary<string, object>;
-                    Assert.Contains("Second", outputs);
-                    Assert.Contains("myThird", outputs);
+            var basic = (BasicComponent)resources.First(resource => resource is BasicComponent);
 
-                    if (outputs["Second"] is Output<string> second)
-                    {
-                        var value = await second.GetValueAsync("<unknwon>");
-                        Assert.Equal("second", value);
-                    }
+            var urn = await basic.Urn.GetValueAsync("<unknown>");
+            var outputs = mocks.GetRegisteredOutputs(urn);
+            Assert.Equal(2, outputs.Count);
+            Assert.True(outputs.ContainsKey("Second"));
+            Assert.True(outputs.ContainsKey("myThird"));
 
-                    if (outputs["myThird"] is Output<string> third)
-                    {
-                        var value = await third.GetValueAsync("<unknwon>");
-                        Assert.Equal("third", value);
-                    }
-                }
-            }
+            var second = await outputs["Second"].GetValueAsync("<unknown>");
+            Assert.Equal("second", second);
+
+            var myThird = await outputs["myThird"].GetValueAsync("<unknown>");
+            Assert.Equal("third", myThird);
         }
     }
 
     class MinimalMocks : IMocks
     {
-        private readonly Dictionary<string, ImmutableDictionary<string, object>> _registeredOutputsByUrn;
+        private readonly Dictionary<string, ImmutableDictionary<string, Output<object?>>> _registeredOutputsByUrn;
 
         public MinimalMocks()
         {
-            _registeredOutputsByUrn = new Dictionary<string, ImmutableDictionary<string, object>>();
+            _registeredOutputsByUrn = new Dictionary<string, ImmutableDictionary<string, Output<object?>>>();
         }
 
         public Task<object> CallAsync(MockCallArgs args)
@@ -178,7 +174,7 @@ namespace Pulumi.Tests.Resources
             return Task.CompletedTask;
         }
 
-        public ImmutableDictionary<string, object> GetRegisteredOutputs(string urn)
+        public ImmutableDictionary<string, Output<object?>> GetRegisteredOutputs(string urn)
         {
             return _registeredOutputsByUrn[urn];
         }

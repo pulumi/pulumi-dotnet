@@ -361,6 +361,34 @@
             The version of the sub-package parameterized.
             </summary>
         </member>
+        <member name="P:Pulumi.Experimental.Provider.Serialization.PropertyValueSerializerOptions.Converters">
+            <summary>
+            Gets the list of user-defined converters that were registered.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.Serialization.PropertyValueSerializerOptions.GetConverter(System.Type)">
+            <summary>
+            Returns the converter for the specified type.
+            </summary>
+            <param name="typeToConvert">The type to return a converter for.</param>
+            <returns>The first converter that supports the given type, or null if there is no converter.</returns>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.Serialization.PropertyValueConverterFactory.CreateConverter(System.Type,Pulumi.Experimental.Provider.Serialization.PropertyValueSerializerOptions)">
+            <summary>
+            Creates a converter for a specified type.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.Serialization.PropertyValueConverterAttribute">
+             <summary>
+             The specified converter type must derive from PropertyValueConverter.
+            
+             When placed on a property, the specified converter will always be used.
+            
+             When placed on a type, the specified converter will be used unless a compatible converter is added to the
+             PropertyValueSerializerOptions.Converters collection or there is another PropertyValueConverterAttribute on a
+             property of the same type.
+             </summary>
+        </member>
         <member name="T:Pulumi.Alias">
             <summary>
             Alias is a description of prior named used for a resource. It can be processed in the

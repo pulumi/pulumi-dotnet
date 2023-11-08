@@ -153,7 +153,8 @@ namespace Pulumi.Experimental.Provider
                 inputAnalysis.Properties,
                 inputAnalysis.Required,
                 outputAnalysis.Properties,
-                outputAnalysis.Required);
+                outputAnalysis.Required,
+                true);
         }
 
         private Type GetArgsType(Type componentType)

@@ -756,3 +756,24 @@ func TestParameterized(t *testing.T) {
 		},
 	})
 }
+
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
+func TestInferredProvider(t *testing.T) {
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join("provider"),
+		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testinferredprovider"}},
+		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+			assert.NotNil(t, stack.Outputs)
+			assert.Equal(t, float64(42), stack.Outputs["echoA"])
+			assert.Equal(t, "hello", stack.Outputs["echoB"])
+			assert.Equal(t, []interface{}{float64(1), "goodbye", true}, stack.Outputs["echoC"])
+		},
+		PrePrepareProject: func(info *engine.Projinfo) error {
+			e := newEnvironmentDotnet(t)
+			e.CWD = info.Root
+			path := info.Proj.Plugins.Providers[0].Path
+			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "--language", "dotnet")
+			return nil
+		},
+	})
+}

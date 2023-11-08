@@ -1,0 +1,72 @@
+{
+  "name": "dotnet-components",
+  "namespace": "",
+  "displayName": "dotnet-components",
+  "version": "0.0.0",
+  "meta": {},
+  "resources": {
+    "dotnet-components:index:Component": {
+      "isComponent": true,
+      "inputProperties": {
+        "complex": {
+          "$ref": "#/types/dotnet-components:index:ComplexType"
+        },
+        "passwordLength": {
+          "type": "integer"
+        }
+      },
+      "requiredInputs": [
+        "passwordLength"
+      ],
+      "type": "object",
+      "properties": {
+        "complexResult": {
+          "$ref": "#/types/dotnet-components:index:ComplexType"
+        },
+        "passwordResult": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "complexResult",
+        "passwordResult"
+      ]
+    }
+  },
+  "types": {
+    "dotnet-components:index:ComplexType": {
+      "type": "object",
+      "properties": {
+        "intValue": {
+          "type": "integer",
+          "plain": true
+        },
+        "name": {
+          "type": "string",
+          "plain": true
+        }
+      },
+      "required": [
+        "intValue",
+        "name"
+      ]
+    }
+  },
+  "language": {
+    "csharp": {
+      "respectSchemaVersion": true
+    },
+    "go": {
+      "respectSchemaVersion": true
+    },
+    "java": {
+      "respectSchemaVersion": true
+    },
+    "nodejs": {
+      "respectSchemaVersion": true
+    },
+    "python": {
+      "respectSchemaVersion": true
+    }
+  }
+}

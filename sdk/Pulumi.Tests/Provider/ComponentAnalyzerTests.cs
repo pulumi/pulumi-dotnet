@@ -87,7 +87,8 @@ public class ComponentAnalyzerTests
                 ["privateKey"] = PropertySpec.String,
                 ["caCert"] = PropertySpec.String
             },
-            new HashSet<string> { "pem", "privateKey" }));
+            new HashSet<string> { "pem", "privateKey" },
+            true));
 
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);
@@ -152,7 +153,8 @@ public class ComponentAnalyzerTests
                 new Dictionary<string, PropertySpec>(),
                 new HashSet<string>(),
                 new Dictionary<string, PropertySpec>(),
-                new HashSet<string>()));
+                new HashSet<string>(),
+                true));
 
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);
@@ -258,7 +260,7 @@ public class ComponentAnalyzerTests
 
         var resources = new Dictionary<string, ResourceSpec>();
         resources.Add("my-component:index:PlainTypesComponent",
-            new ResourceSpec(inputs, requiredInputs, new Dictionary<string, PropertySpec>(), new HashSet<string>()));
+            new ResourceSpec(inputs, requiredInputs, new Dictionary<string, PropertySpec>(), new HashSet<string>(), true));
 
         var types = new Dictionary<string, ComplexTypeSpec>
         {
@@ -365,7 +367,8 @@ public class ComponentAnalyzerTests
                 inputs,
                 requiredInputs,
                 outputs,
-                new HashSet<string> { "simpleList", "complexList" }
+                new HashSet<string> { "simpleList", "complexList" },
+                true
             ));
 
         var types = new Dictionary<string, ComplexTypeSpec>
@@ -480,7 +483,8 @@ public class ComponentAnalyzerTests
                     ["complexDictOutput"] = PropertySpec.CreateDictionary(
                         TypeSpec.CreateReference("#/types/my-component:index:ComplexDictOutputType"))
                 },
-                new HashSet<string> { "dictOutput", "complexDictOutput" }));
+                new HashSet<string> { "dictOutput", "complexDictOutput" },
+                true));
 
         var types = new Dictionary<string, ComplexTypeSpec>
         {
@@ -536,7 +540,8 @@ public class ComponentAnalyzerTests
                 {
                     ["outputArchive"] = PropertySpec.CreateReference("pulumi.json#/Archive")
                 },
-                new HashSet<string> { "outputArchive" }));
+                new HashSet<string> { "outputArchive" },
+                true));
 
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);
@@ -576,7 +581,8 @@ public class ComponentAnalyzerTests
                 {
                     ["outputAsset"] = PropertySpec.CreateReference("pulumi.json#/Asset")
                 },
-                new HashSet<string> { "outputAsset" }));
+                new HashSet<string> { "outputAsset" },
+                true));
 
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);
@@ -624,7 +630,8 @@ public class ComponentAnalyzerTests
                     ["outputAny"] = PropertySpec.CreateReference("pulumi.json#/Any"),
                     ["optionalOutputAny"] = PropertySpec.CreateReference("pulumi.json#/Any")
                 },
-                new HashSet<string> { "outputAny" }));
+                new HashSet<string> { "outputAny" },
+                true));
 
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);
@@ -709,7 +716,8 @@ public class ComponentAnalyzerTests
                 {
                     ["rec"] = PropertySpec.CreateReference("#/types/my-component:index:RecursiveOutputType")
                 },
-                new HashSet<string> { "rec" }));
+                new HashSet<string> { "rec" },
+                true));
 
         var types = new Dictionary<string, ComplexTypeSpec>
         {
@@ -789,7 +797,8 @@ public class ComponentAnalyzerTests
                 {
                     ["rec"] = PropertySpec.CreateReference("#/types/my-component:index:RecursiveTypeBOutput")
                 },
-                new HashSet<string> { "rec" }));
+                new HashSet<string> { "rec" },
+                true));
 
         var types = new Dictionary<string, ComplexTypeSpec>
         {
@@ -893,7 +902,8 @@ public class ComponentAnalyzerTests
                 inputs,
                 new HashSet<string> { "requiredString", "requiredInt", "requiredBool" },
                 outputs,
-                new HashSet<string> { "requiredOutput", "requiredIntOutput" }));
+                new HashSet<string> { "requiredOutput", "requiredIntOutput" },
+                true));
 
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);

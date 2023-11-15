@@ -932,7 +932,7 @@ namespace Pulumi.Automation
                     }
                     if (!string.IsNullOrEmpty(_remoteGitProgramArgs.Auth.Username))
                     {
-                        args.Add("--remote-git-username");
+                        args.Add("--remote-git-auth-username");
                         args.Add(_remoteGitProgramArgs.Auth.Username);
                     }
                 }

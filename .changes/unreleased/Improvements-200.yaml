@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Implement reflection-based RegisterOutputs() for component resources
-time: 2023-10-31T16:37:00.164865+01:00
-custom:
-  PR: "200"

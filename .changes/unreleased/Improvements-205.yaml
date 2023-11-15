@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Support .NET 8.
-time: 2023-11-15T12:53:22.850769699Z
-custom:
-  PR: "205"

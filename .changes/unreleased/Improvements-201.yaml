@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Improvements
+body: Initial implementation of a reflection-based PropertyValue deserializer
+time: 2023-11-18T14:22:27.456364+01:00
+custom:
+  PR: "201"

@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pulumi.Experimental.Provider
 {
@@ -156,7 +157,7 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Unwraps any outer secret or output values.
-        public bool TryUnwrap([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out PropertyValue? value)
+        public bool TryUnwrap([NotNullWhen(true)] out PropertyValue? value)
         {
             if (SecretValue != null)
             {
@@ -193,6 +194,7 @@ namespace Pulumi.Experimental.Provider
                     ArchiveValue == null &&
                     SecretValue == null &&
                     ResourceValue == null &&
+                    OutputValue == null &&
                     !IsComputed;
             }
         }
@@ -401,7 +403,7 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        public bool TryGetObject(out ImmutableDictionary<string, PropertyValue>? value)
+        public bool TryGetObject([NotNullWhen(true)] out ImmutableDictionary<string, PropertyValue>? value)
         {
             if (ObjectValue != null)
             {
@@ -434,7 +436,7 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        public bool TryGetSecret(out PropertyValue? value)
+        public bool TryGetSecret([NotNullWhen(true)] out PropertyValue? value)
         {
             if (SecretValue != null)
             {

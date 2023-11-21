@@ -386,7 +386,7 @@ $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:
         /// The use of reflection is unavoidable because we cannot _statically_ resolve the
         /// generic type T in ImmutableArray[T].
         /// </summary>
-        private bool InitializedByDefault(IList list)
+        internal static bool InitializedByDefault(IList list)
         {
             var concreteType = list.GetType();
             if (concreteType.IsGenericType)

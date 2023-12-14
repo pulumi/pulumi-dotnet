@@ -162,12 +162,12 @@ namespace Pulumi.Automation.Tests
 
             await Assert.ThrowsAsync<CommandException>(() => workspace.AddEnvironmentsAsync(stackName, new[] { "non-existent-env" }));
 
-            await workspace.AddEnvironmentsAsync(stackName, new [] {"automation-api-test-env", "automation-api-test-env-2"});
+            await workspace.AddEnvironmentsAsync(stackName, new[] { "automation-api-test-env", "automation-api-test-env-2" });
             var config = await workspace.GetAllConfigAsync(stackName);
 
             Assert.Equal("test_value", config["node_env_test:new_key"].Value);
             Assert.Equal("business", config["node_env_test:also"].Value);
-            
+
             await workspace.RemoveEnvironmentAsync(stackName, "automation-api-test-env");
             config = await workspace.GetAllConfigAsync(stackName);
             Assert.Equal("business", config["node_env_test:also"].Value);

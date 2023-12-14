@@ -284,7 +284,7 @@ namespace Pulumi.Automation
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task AddEnvironmentsAsync(IEnumerable<string> environments, CancellationToken cancellationToken = default)
             => this.Workspace.AddEnvironmentsAsync(this.Name, environments, cancellationToken);
-        
+
         /// <summary>
         /// Removes environments from a stack's import list.
         /// </summary>

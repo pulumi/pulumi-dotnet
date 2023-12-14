@@ -22,6 +22,7 @@ using Xunit.Abstractions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 using static Pulumi.Automation.Tests.Utility;
+using Xunit.Sdk;
 
 namespace Pulumi.Automation.Tests
 {
@@ -143,6 +144,35 @@ namespace Pulumi.Automation.Tests
             await workspace.RemovePluginAsync(plugin, version);
             plugins = await workspace.ListPluginsAsync();
             Assert.DoesNotContain(plugins, p => p.Name == plugin && p.Version == version);
+        }
+
+        [MoolumiFact]
+        public async Task AddAndRemoveEnvironment()
+        {
+            var projectName = "node_env_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+            });
+
+            var program = PulumiFn.Create<ValidStack>();
+            var stackName = FullyQualifiedStackName(_pulumiOrg, projectName, $"int_test{GetTestSuffix()}");
+            await workspace.CreateStackAsync(stackName);
+
+            await Assert.ThrowsAsync<CommandException>(() => workspace.AddEnvironmentsAsync(stackName, new[] { "non-existent-env" }));
+
+            await workspace.AddEnvironmentsAsync(stackName, new [] {"automation-api-test-env", "automation-api-test-env-2"});
+            var config = await workspace.GetAllConfigAsync(stackName);
+
+            Assert.Equal("test_value", config["node_env_test:new_key"].Value);
+            Assert.Equal("business", config["node_env_test:also"].Value);
+            
+            await workspace.RemoveEnvironmentAsync(stackName, "automation-api-test-env");
+            config = await workspace.GetAllConfigAsync(stackName);
+            Assert.Equal("business", config["node_env_test:also"].Value);
+            Assert.False(config.ContainsKey("node_env_test:new_key"));
+            await workspace.RemoveStackAsync(stackName);
         }
 
         [Fact]

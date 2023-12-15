@@ -711,6 +711,11 @@
             The output properties of all resource objects in Pulumi have type <see cref="T:Pulumi.Output`1"/>.
             </summary>
         </member>
+        <member name="M:Pulumi.Output`1.Apply(System.Func{`0,System.Threading.Tasks.Task})">
+            <summary>
+            <see cref="M:Pulumi.Output`1.Apply``1(System.Func{`0,Pulumi.Output{``0}})"/> for more details.
+            </summary>
+        </member>
         <member name="M:Pulumi.Output`1.Apply``1(System.Func{`0,``0})">
             <summary>
             <see cref="M:Pulumi.Output`1.Apply``1(System.Func{`0,Pulumi.Output{``0}})"/> for more details.
@@ -2567,6 +2572,12 @@
             <param name="args">MockCallArgs</param>
             <returns>Invocation result, can be either a POCO or a dictionary bag.</returns>
         </member>
+        <member name="M:Pulumi.Testing.IMocks.RegisterResourceOutputs(Pulumi.Testing.MockRegisterResourceOutputsRequest)">
+            <summary>
+            Invoked when component resources (including instances of Stack) register their outputs
+            </summary>
+            <param name="args">MockRegisterResourceOutputsRequest</param>
+        </member>
         <member name="T:Pulumi.Testing.MockResourceArgs">
             <summary>
             MockResourceArgs for use in NewResourceAsync
@@ -2615,6 +2626,21 @@
         <member name="P:Pulumi.Testing.MockCallArgs.Provider">
             <summary>
             Provider.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Testing.MockRegisterResourceOutputsRequest">
+            <summary>
+            MockRegisterResourceOutputsRequest for use in RegisterOutputRequest
+            </summary>
+        </member>
+        <member name="F:Pulumi.Testing.MockRegisterResourceOutputsRequest.Urn">
+            <summary>
+            The URN of the resource of which the outputs are being registered
+            </summary>
+        </member>
+        <member name="F:Pulumi.Testing.MockRegisterResourceOutputsRequest.Outputs">
+            <summary>
+            The outputs which have been registered by the resource
             </summary>
         </member>
         <member name="T:Pulumi.Testing.TestOptions">
@@ -3777,6 +3803,15 @@
             the gRPC target of the mapper service.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConvertStateRequest.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertStateRequest.Args">
+            <summary>
+            the args passed to `pulumi import` for this conversion. Normally used to specifiy a state file to
+            import from.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceImport">
             <summary>
             A ResourceImport specifies a resource to import.
@@ -3852,6 +3887,22 @@
         <member name="P:Pulumirpc.ConvertProgramRequest.MapperTarget">
             <summary>
             the gRPC target of the mapper service.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertProgramRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertProgramRequest.LoaderTarget">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertProgramRequest.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertProgramRequest.Args">
+            <summary>
+            the args passed to `pulumi convert` for this conversion. Normally used to specifiy a root file, or conversion options.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConvertProgramResponse.DiagnosticsFieldNumber">
@@ -4699,6 +4750,15 @@
             The target of a codegen.LoaderServer to use for loading schemas.
             </summary>
         </member>
+        <member name="F:Pulumirpc.GenerateProjectRequest.LocalDependenciesFieldNumber">
+            <summary>Field number for the "local_dependencies" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectRequest.LocalDependencies">
+            <summary>
+            local dependencies to use instead of using the package system. This is a map of package name to a local
+            path of a language specific artifact to use for the SDK for that package.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.GenerateProjectResponse.DiagnosticsFieldNumber">
             <summary>Field number for the "diagnostics" field.</summary>
         </member>
@@ -4737,6 +4797,38 @@
         <member name="P:Pulumirpc.GeneratePackageRequest.LoaderTarget">
             <summary>
             The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackRequest.PackageDirectoryFieldNumber">
+            <summary>Field number for the "package_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackRequest.PackageDirectory">
+            <summary>
+            the directory of a package to pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackRequest.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackRequest.Version">
+            <summary>
+            the version to tag the artifact with.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackRequest.DestinationDirectoryFieldNumber">
+            <summary>Field number for the "destination_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackRequest.DestinationDirectory">
+            <summary>
+            the directory to write the packed artifact to.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackResponse.ArtifactPathFieldNumber">
+            <summary>Field number for the "artifact_path" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackResponse.ArtifactPath">
+            <summary>
+            the full path of the packed artifact.
             </summary>
         </member>
         <member name="T:Pulumirpc.LanguageRuntime">
@@ -4828,6 +4920,14 @@
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.GeneratePackage(Pulumirpc.GeneratePackageRequest,Grpc.Core.ServerCallContext)">
             <summary>
             GeneratePackage generates a given pulumi package into a package for this language.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Pack(Pulumirpc.PackRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Pack packs a package into a language specific artifact.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -5175,6 +5275,42 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Pack(Pulumirpc.PackRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Pack packs a package into a language specific artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Pack(Pulumirpc.PackRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Pack packs a package into a language specific artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.PackAsync(Pulumirpc.PackRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Pack packs a package into a language specific artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.PackAsync(Pulumirpc.PackRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Pack packs a package into a language specific artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
         </member>
@@ -5242,6 +5378,15 @@
         <member name="P:Pulumirpc.PluginDependency.Server">
             <summary>
             the URL of a server that can be used to download this plugin, if needed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PluginDependency.ChecksumsFieldNumber">
+            <summary>Field number for the "checksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PluginDependency.Checksums">
+            <summary>
+            a map of the checksums for the plugin, will be empty from old language runtimes. The keys should match
+            the os and architecture names used in pulumi releases, e.g. "darwin-amd64", "windows-arm64".
             </summary>
         </member>
         <member name="T:Pulumirpc.PluginAttach">
@@ -5465,6 +5610,14 @@
         <member name="P:Pulumirpc.CallRequest.PluginDownloadURL">
             <summary>
             the pluginDownloadURL of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CallRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "pluginChecksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallRequest.PluginChecksums">
+            <summary>
+            a map of checksums of the provider to use when servicing this request.
             </summary>
         </member>
         <member name="F:Pulumirpc.CallRequest.ProjectFieldNumber">
@@ -6410,6 +6563,16 @@
             the conversion key for the mapping being requested.
             </summary>
         </member>
+        <member name="F:Pulumirpc.GetMappingRequest.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetMappingRequest.Provider">
+            <summary>
+            the optional provider key for the mapping being requested, if this is empty the provider should assume this
+            request is from an old engine from before GetMappings and should return it's "primary" mapping. If this is set
+            then the `provider` field in GetMappingResponse should be the same.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.GetMappingResponse">
             <summary>
             GetMappingResponse returns convert plugin specific data for this provider. This will normally be human
@@ -6430,6 +6593,34 @@
         <member name="P:Pulumirpc.GetMappingResponse.Data">
             <summary>
             the conversion plugin specific data.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.GetMappingsRequest">
+            <summary>
+            GetMappingsRequest allows providers to return ecosystem specific information without having to send back large data
+            blobs for provider mappings that the engine doesn't then need.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetMappingsRequest.KeyFieldNumber">
+            <summary>Field number for the "key" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetMappingsRequest.Key">
+            <summary>
+            the conversion key for the mapping being requested.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.GetMappingsResponse">
+            <summary>
+            GetMappingsRequest returns a list of providers that this provider can provide mapping information for.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetMappingsResponse.ProvidersFieldNumber">
+            <summary>Field number for the "providers" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetMappingsResponse.Providers">
+            <summary>
+            the provider keys this provider can supply mappings for. For example the Pulumi provider "terraform-template"
+            would return ["template"] for this.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceProvider">
@@ -6596,6 +6787,16 @@
             <summary>
             GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
             response (not an error) if it doesn't have a mapping for the given key.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.GetMappings(Pulumirpc.GetMappingsRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
+            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
+            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -7295,6 +7496,50 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappings(Pulumirpc.GetMappingsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
+            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
+            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappings(Pulumirpc.GetMappingsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
+            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
+            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingsAsync(Pulumirpc.GetMappingsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
+            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
+            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingsAsync(Pulumirpc.GetMappingsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
+            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
+            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
         </member>
@@ -7435,6 +7680,14 @@
         <member name="P:Pulumirpc.ReadResourceRequest.PluginDownloadURL">
             <summary>
             the server url of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadResourceRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "pluginChecksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceRequest.PluginChecksums">
+            <summary>
+            a map of checksums of the provider to use when servicing this request.
             </summary>
         </member>
         <member name="F:Pulumirpc.ReadResourceRequest.SourcePositionFieldNumber">
@@ -7661,6 +7914,14 @@
         <member name="P:Pulumirpc.RegisterResourceRequest.PluginDownloadURL">
             <summary>
             the server URL of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "pluginChecksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.PluginChecksums">
+            <summary>
+            a map of checksums expected for the provider plugin.
             </summary>
         </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.RetainOnDeleteFieldNumber">
@@ -7893,6 +8154,14 @@
             an optional reference to the provider url to use for this invoke.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "pluginChecksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.PluginChecksums">
+            <summary>
+            a map of checksums expected for the provider plugin.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceInvokeRequest.SourcePositionFieldNumber">
             <summary>Field number for the "sourcePosition" field.</summary>
         </member>
@@ -7977,6 +8246,231 @@
             <summary>
             The column in the line
             </summary>
+        </member>
+        <member name="T:Pulumirpc.Testing.LanguageReflection">
+            <summary>Holder for reflection information generated from pulumi/testing/language.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.LanguageReflection.Descriptor">
+            <summary>File descriptor for pulumi/testing/language.proto</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.GetLanguageTestsResponse.TestsFieldNumber">
+            <summary>Field number for the "tests" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.LanguagePluginNameFieldNumber">
+            <summary>Field number for the "language_plugin_name" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.LanguagePluginTargetFieldNumber">
+            <summary>Field number for the "language_plugin_target" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.SnapshotDirectoryFieldNumber">
+            <summary>Field number for the "snapshot_directory" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.TemporaryDirectoryFieldNumber">
+            <summary>Field number for the "temporary_directory" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.CoreSdkDirectoryFieldNumber">
+            <summary>Field number for the "core_sdk_directory" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsResponse.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.RunLanguageTestRequest.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.RunLanguageTestRequest.TestFieldNumber">
+            <summary>Field number for the "test" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.RunLanguageTestResponse.SuccessFieldNumber">
+            <summary>Field number for the "success" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.RunLanguageTestResponse.MessagesFieldNumber">
+            <summary>Field number for the "messages" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.RunLanguageTestResponse.StdoutFieldNumber">
+            <summary>Field number for the "stdout" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.RunLanguageTestResponse.StderrFieldNumber">
+            <summary>Field number for the "stderr" field.</summary>
+        </member>
+        <member name="T:Pulumirpc.Testing.LanguageTest">
+            <summary>
+            LanguageTest is the interface to the pulumi language test framework. This is _highly_ experimental and
+            currently subject to breaking changes without warning.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.LanguageTest.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Pulumirpc.Testing.LanguageTest.LanguageTestBase">
+            <summary>Base class for server-side implementations of LanguageTest</summary>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestBase.GetLanguageTests(Pulumirpc.Testing.GetLanguageTestsRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            GetLanguageTests returns a list of all the language tests.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestBase.PrepareLanguageTests(Pulumirpc.Testing.PrepareLanguageTestsRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            PrepareLanguageTests prepares the engine to run language tests. It sets up a stable artifacts folder
+            (which should be .gitignore'd) and fills it with the core SDK artifact.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestBase.RunLanguageTest(Pulumirpc.Testing.RunLanguageTestRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            RunLanguageTest runs a single test of the language plugin.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Pulumirpc.Testing.LanguageTest.LanguageTestClient">
+            <summary>Client for LanguageTest</summary>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for LanguageTest</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for LanguageTest that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.GetLanguageTests(Pulumirpc.Testing.GetLanguageTestsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetLanguageTests returns a list of all the language tests.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.GetLanguageTests(Pulumirpc.Testing.GetLanguageTestsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetLanguageTests returns a list of all the language tests.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.GetLanguageTestsAsync(Pulumirpc.Testing.GetLanguageTestsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            GetLanguageTests returns a list of all the language tests.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.GetLanguageTestsAsync(Pulumirpc.Testing.GetLanguageTestsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            GetLanguageTests returns a list of all the language tests.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.PrepareLanguageTests(Pulumirpc.Testing.PrepareLanguageTestsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            PrepareLanguageTests prepares the engine to run language tests. It sets up a stable artifacts folder
+            (which should be .gitignore'd) and fills it with the core SDK artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.PrepareLanguageTests(Pulumirpc.Testing.PrepareLanguageTestsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            PrepareLanguageTests prepares the engine to run language tests. It sets up a stable artifacts folder
+            (which should be .gitignore'd) and fills it with the core SDK artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.PrepareLanguageTestsAsync(Pulumirpc.Testing.PrepareLanguageTestsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            PrepareLanguageTests prepares the engine to run language tests. It sets up a stable artifacts folder
+            (which should be .gitignore'd) and fills it with the core SDK artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.PrepareLanguageTestsAsync(Pulumirpc.Testing.PrepareLanguageTestsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            PrepareLanguageTests prepares the engine to run language tests. It sets up a stable artifacts folder
+            (which should be .gitignore'd) and fills it with the core SDK artifact.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.RunLanguageTest(Pulumirpc.Testing.RunLanguageTestRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            RunLanguageTest runs a single test of the language plugin.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.RunLanguageTest(Pulumirpc.Testing.RunLanguageTestRequest,Grpc.Core.CallOptions)">
+            <summary>
+            RunLanguageTest runs a single test of the language plugin.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.RunLanguageTestAsync(Pulumirpc.Testing.RunLanguageTestRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            RunLanguageTest runs a single test of the language plugin.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.RunLanguageTestAsync(Pulumirpc.Testing.RunLanguageTestRequest,Grpc.Core.CallOptions)">
+            <summary>
+            RunLanguageTest runs a single test of the language plugin.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.LanguageTestClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.BindService(Pulumirpc.Testing.LanguageTest.LanguageTestBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Pulumirpc.Testing.LanguageTest.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Testing.LanguageTest.LanguageTestBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="T:Codegen.LoaderReflection">
             <summary>Holder for reflection information generated from pulumi/codegen/loader.proto</summary>

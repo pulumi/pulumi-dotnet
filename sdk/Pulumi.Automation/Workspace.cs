@@ -124,6 +124,25 @@ namespace Pulumi.Automation
         public abstract Task PostCommandCallbackAsync(string stackName, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Adds environments to the end of a stack's import list. Imported environments are merged in order
+        /// per the ESC merge rules. The list of environments behaves as if it were the import list in an anonymous
+        /// environment.
+        /// </summary>
+        /// <param name="stackName">The name of the stack.</param>
+        /// <param name="environments">List of environments to add to the end of the stack's import list.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public abstract Task AddEnvironmentsAsync(string stackName, IEnumerable<string> environments, CancellationToken cancellationToken = default);
+
+
+        /// <summary>
+        /// Removes environments from a stack's import list.
+        /// </summary>
+        /// <param name="stackName">The name of the stack.</param>
+        /// <param name="environment">The name of the environment to remove from the stack's configuration.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public abstract Task RemoveEnvironmentAsync(string stackName, string environment, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Returns the value associated with the specified stack name and key,
         /// scoped to the Workspace.
         /// </summary>

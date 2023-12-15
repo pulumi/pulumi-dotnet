@@ -274,6 +274,25 @@ namespace Pulumi.Automation
         public Task<ImmutableDictionary<string, ConfigValue>> RefreshConfigAsync(CancellationToken cancellationToken = default)
             => this.Workspace.RefreshConfigAsync(this.Name, cancellationToken);
 
+
+        /// <summary>
+        /// Adds environments to the end of a stack's import list. Imported environments are merged in order
+        /// per the ESC merge rules. The list of environments behaves as if it were the import list in an anonymous
+        /// environment.
+        /// </summary>
+        /// <param name="environments">List of environments to add to the end of the stack's import list.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task AddEnvironmentsAsync(IEnumerable<string> environments, CancellationToken cancellationToken = default)
+            => this.Workspace.AddEnvironmentsAsync(this.Name, environments, cancellationToken);
+
+        /// <summary>
+        /// Removes environments from a stack's import list.
+        /// </summary>
+        /// <param name="environment">The name of the environment to remove from the stack's configuration.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public Task RemoveEnvironmentAsync(string environment, CancellationToken cancellationToken = default)
+            => this.Workspace.RemoveEnvironmentAsync(this.Name, environment, cancellationToken);
+
         /// <summary>
         /// Creates or updates the resources in a stack by executing the program in the Workspace.
         /// <para/>

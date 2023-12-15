@@ -540,6 +540,23 @@ namespace Pulumi.Automation
         public override Task PostCommandCallbackAsync(string stackName, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
+
+        /// <inheritdoc/>
+        public override async Task AddEnvironmentsAsync(string stackName, IEnumerable<string> environments, CancellationToken cancellationToken = default)
+        {
+            CheckSupportsEnvironmentsCommands();
+            var args = new List<string> { "config", "env", "add", "--stack", stackName, "--yes" };
+            args.AddRange(environments);
+            await this.RunCommandAsync(args, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public override async Task RemoveEnvironmentAsync(string stackName, string environment, CancellationToken cancellationToken = default)
+        {
+            CheckSupportsEnvironmentsCommands();
+            await this.RunCommandAsync(new[] { "config", "env", "rm", environment, "--stack", stackName, "--yes" }, cancellationToken).ConfigureAwait(false);
+        }
+
         /// <inheritdoc/>
         public override async Task<string> GetTagAsync(string stackName, string key, CancellationToken cancellationToken = default)
         {
@@ -962,6 +979,17 @@ namespace Pulumi.Automation
             }
 
             return args;
+        }
+
+        private void CheckSupportsEnvironmentsCommands()
+        {
+            var version = this._pulumiVersion ?? new SemVersion(3, 0);
+
+            // 3.95 added this command (https://github.com/pulumi/pulumi/releases/tag/v3.95.0)
+            if (version < new SemVersion(3, 95))
+            {
+                throw new InvalidOperationException("The Pulumi CLI version does not support env operations on a stack. Please update the Pulumi CLI.");
+            }
         }
     }
 }

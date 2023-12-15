@@ -566,6 +566,12 @@
         <member name="M:Pulumi.Automation.LocalWorkspace.PostCommandCallbackAsync(System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.AddEnvironmentsAsync(System.String,System.Collections.Generic.IEnumerable{System.String},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.RemoveEnvironmentAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:Pulumi.Automation.LocalWorkspace.GetTagAsync(System.String,System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -1442,6 +1448,24 @@
             <param name="stackName">The name of the stack.</param>
             <param name="cancellationToken">A cancellation token.</param>
         </member>
+        <member name="M:Pulumi.Automation.Workspace.AddEnvironmentsAsync(System.String,System.Collections.Generic.IEnumerable{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Adds environments to the end of a stack's import list. Imported environments are merged in order
+            per the ESC merge rules. The list of environments behaves as if it were the import list in an anonymous
+            environment.
+            </summary>
+            <param name="stackName">The name of the stack.</param>
+            <param name="environments">List of environments to add to the end of the stack's import list.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.RemoveEnvironmentAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Removes environments from a stack's import list.
+            </summary>
+            <param name="stackName">The name of the stack.</param>
+            <param name="environment">The name of the environment to remove from the stack's configuration.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
         <member name="M:Pulumi.Automation.Workspace.GetTagAsync(System.String,System.String,System.Threading.CancellationToken)">
             <summary>
             Returns the value associated with the specified stack name and key,
@@ -1860,6 +1884,22 @@
             <summary>
             Gets and sets the config map used with the last update.
             </summary>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.WorkspaceStack.AddEnvironmentsAsync(System.Collections.Generic.IEnumerable{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Adds environments to the end of a stack's import list. Imported environments are merged in order
+            per the ESC merge rules. The list of environments behaves as if it were the import list in an anonymous
+            environment.
+            </summary>
+            <param name="environments">List of environments to add to the end of the stack's import list.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.WorkspaceStack.RemoveEnvironmentAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Removes environments from a stack's import list.
+            </summary>
+            <param name="environment">The name of the environment to remove from the stack's configuration.</param>
             <param name="cancellationToken">A cancellation token.</param>
         </member>
         <member name="M:Pulumi.Automation.WorkspaceStack.UpAsync(Pulumi.Automation.UpOptions,System.Threading.CancellationToken)">

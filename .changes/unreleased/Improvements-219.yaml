@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Update Grpc dependency.
+time: 2024-01-04T10:08:56.2382789Z
+custom:
+  PR: "219"

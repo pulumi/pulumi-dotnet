@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: '[BREAKING] Drop support for macos-11 and netcore3.1.'
+time: 2024-01-04T14:56:01.3017871Z
+custom:
+  PR: "220"

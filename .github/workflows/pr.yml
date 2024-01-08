@@ -28,7 +28,7 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
       - name: Format Pulumi SDK
         run: dotnet run format-sdk verify
       - name: Build Pulumi SDK
@@ -63,7 +63,7 @@ jobs:
         with:
           go-version: 1.19.x
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
       - name: TestEmptyDotNet
         run: dotnet run integration test TestEmptyDotNet
       - name: TestStackReferenceDotnet

@@ -551,6 +551,14 @@ namespace Pulumi.Automation
         }
 
         /// <inheritdoc/>
+        public override async Task<string[]> ListEnvironmentsAsync(string stackName, CancellationToken cancellationToken = default)
+        {
+            CheckSupportsEnvironmentsListCommand();
+            var result = await this.RunCommandAsync(new[] { "config", "env", "ls", "--stack", stackName, "--json" }, cancellationToken).ConfigureAwait(false);
+            return this._serializer.DeserializeJson<string[]>(result.StandardOutput);
+        }
+
+        /// <inheritdoc/>
         public override async Task RemoveEnvironmentAsync(string stackName, string environment, CancellationToken cancellationToken = default)
         {
             CheckSupportsEnvironmentsCommands();
@@ -989,6 +997,17 @@ namespace Pulumi.Automation
             if (version < new SemVersion(3, 95))
             {
                 throw new InvalidOperationException("The Pulumi CLI version does not support env operations on a stack. Please update the Pulumi CLI.");
+            }
+        }
+
+        private void CheckSupportsEnvironmentsListCommand()
+        {
+            var version = this._pulumiVersion ?? new SemVersion(3, 0);
+
+            // 3.99 added this command (https://github.com/pulumi/pulumi/releases/tag/v3.99.0)
+            if (version < new SemVersion(3, 99))
+            {
+                throw new InvalidOperationException("The Pulumi CLI version does not support env ls operations on a stack. Please update the Pulumi CLI.");
             }
         }
     }

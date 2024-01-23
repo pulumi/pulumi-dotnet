@@ -22,8 +22,6 @@ using Xunit.Abstractions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 using static Pulumi.Automation.Tests.Utility;
-using Xunit.Sdk;
-using Castle.DynamicProxy.Generators;
 
 namespace Pulumi.Automation.Tests
 {
@@ -167,7 +165,7 @@ namespace Pulumi.Automation.Tests
             await stack.AddEnvironmentsAsync(new[] { "automation-api-test-env", "automation-api-test-env-2" });
 
             var environments = await stack.ListEnvironmentsAsync();
-            Assert.Equal(new string[]{"automation-api-test-env", "automation-api-test-env-2"}, environments);
+            Assert.Equal(new string[]{ "automation-api-test-env", "automation-api-test-env-2" }, environments);
             var config = await workspace.GetAllConfigAsync(stackName);
 
             Assert.Equal("test_value", config["node_env_test:new_key"].Value);
@@ -175,7 +173,7 @@ namespace Pulumi.Automation.Tests
 
             await stack.RemoveEnvironmentAsync("automation-api-test-env");
             environments = await stack.ListEnvironmentsAsync();
-            Assert.Equal(new string[]{"automation-api-test-env-2"}, environments);
+            Assert.Equal(new string[]{ "automation-api-test-env-2" }, environments);
 
             config = await workspace.GetAllConfigAsync(stackName);
             Assert.Equal("business", config["node_env_test:also"].Value);

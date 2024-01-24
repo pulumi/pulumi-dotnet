@@ -138,7 +138,7 @@ namespace Pulumi.Automation
         /// </summary>
         /// <param name="stackName">The name of the stack.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        public abstract Task<string[]> ListEnvironmentsAsync(string stackName, CancellationToken cancellationToken = default);
+        public abstract Task<ImmutableList<string>> ListEnvironmentsAsync(string stackName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Removes environments from a stack's import list.

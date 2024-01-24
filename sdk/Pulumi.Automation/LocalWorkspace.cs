@@ -551,11 +551,11 @@ namespace Pulumi.Automation
         }
 
         /// <inheritdoc/>
-        public override async Task<string[]> ListEnvironmentsAsync(string stackName, CancellationToken cancellationToken = default)
+        public override async Task<ImmutableList<string>> ListEnvironmentsAsync(string stackName, CancellationToken cancellationToken = default)
         {
             CheckSupportsEnvironmentsListCommand();
             var result = await this.RunCommandAsync(new[] { "config", "env", "ls", "--stack", stackName, "--json" }, cancellationToken).ConfigureAwait(false);
-            return this._serializer.DeserializeJson<string[]>(result.StandardOutput);
+            return this._serializer.DeserializeJson<string[]>(result.StandardOutput).ToImmutableList();
         }
 
         /// <inheritdoc/>

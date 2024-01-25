@@ -59,6 +59,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="Pulumi.Automation.PulumiSDKVersion">
+      <_Parameter1>$(PulumiSDKVersion)</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Pulumi\Pulumi.csproj" />
   </ItemGroup>
 

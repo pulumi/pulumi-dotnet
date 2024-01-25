@@ -110,13 +110,11 @@ namespace Pulumi.Automation.Commands
         /// <param name="cancellationToken">A cancellation token.</param>
         public static async Task<LocalPulumiCommand> Install(LocalPulumiCommandOptions? options = null, CancellationToken cancellationToken = default)
         {
-            var _assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            if (_assemblyVersion == null)
-            {
-                throw new Exception("Failed to get assembly version.");
-            }
-            var assemblyVersion = new SemVersion(_assemblyVersion.Major, _assemblyVersion.Minor, _assemblyVersion.Build);
-            var version = options?.Version ?? assemblyVersion;
+            var sdkVersion = Assembly.GetExecutingAssembly()
+                .GetCustomAttributes(typeof(PulumiSDKVersion), false)
+                .Cast<PulumiSDKVersion>().First().Version;
+
+            var version = options?.Version ?? sdkVersion;
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             var optionsWithDefaults = new LocalPulumiCommandOptions
             {

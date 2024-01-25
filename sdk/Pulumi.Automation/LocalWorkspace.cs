@@ -78,7 +78,7 @@ namespace Pulumi.Automation
             LocalWorkspaceOptions? options = null,
             CancellationToken cancellationToken = default)
         {
-            var cmd = options?.PulumiCmd ?? await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+            var cmd = options?.PulumiCommand ?? await LocalPulumiCommand.CreateAsync(new LocalPulumiCommandOptions
             {
                 SkipVersionCheck = OptOutOfVersionCheck(options?.EnvironmentVariables)
             }, cancellationToken);
@@ -287,7 +287,7 @@ namespace Pulumi.Automation
                 throw new ArgumentNullException(nameof(args.ProjectSettings));
 
             var ws = new LocalWorkspace(
-                await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+                await LocalPulumiCommand.CreateAsync(new LocalPulumiCommandOptions
                 {
                     SkipVersionCheck = OptOutOfVersionCheck(),
                 }, cancellationToken),
@@ -304,7 +304,7 @@ namespace Pulumi.Automation
             CancellationToken cancellationToken)
         {
             var ws = new LocalWorkspace(
-                await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+                await LocalPulumiCommand.CreateAsync(new LocalPulumiCommandOptions
                 {
                     SkipVersionCheck = OptOutOfVersionCheck()
                 }, cancellationToken),
@@ -316,7 +316,7 @@ namespace Pulumi.Automation
         }
 
         internal LocalWorkspace(
-            IPulumiCmd cmd,
+            IPulumiCommand cmd,
             LocalWorkspaceOptions? options,
             CancellationToken cancellationToken)
             : base(cmd)

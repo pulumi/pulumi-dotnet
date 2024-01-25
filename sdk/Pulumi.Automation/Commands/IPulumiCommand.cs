@@ -9,7 +9,7 @@ using Semver;
 
 namespace Pulumi.Automation.Commands
 {
-    public interface IPulumiCmd
+    public interface IPulumiCommand
     {
         SemVersion? Version { get; }
 

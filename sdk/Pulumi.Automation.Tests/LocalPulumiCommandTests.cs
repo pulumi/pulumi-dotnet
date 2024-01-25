@@ -12,12 +12,12 @@ using Xunit;
 
 namespace Pulumi.Automation.Tests
 {
-    public class LocalPulumiCmdTests
+    public class LocalPulumiCommandTests
     {
         [Fact]
         public async Task CheckVersionCommand()
         {
-            var localCmd = await LocalPulumiCmd.CreateAsync();
+            var localCmd = await LocalPulumiCommand.CreateAsync();
             var extraEnv = new Dictionary<string, string?>();
             var args = new[] { "version" };
 
@@ -64,7 +64,7 @@ namespace Pulumi.Automation.Tests
         public async Task InstallDefaultRoot()
         {
             var requestedVersion = new SemVersion(3, 102, 0);
-            await LocalPulumiCmd.Install(new LocalPulumiCmdOptions { Version = requestedVersion });
+            await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion });
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             var pulumiBin = Path.Combine(home, ".pulumi", "versions", requestedVersion.ToString(), "bin", "pulumi");
             Assert.True(File.Exists(pulumiBin));
@@ -78,13 +78,13 @@ namespace Pulumi.Automation.Tests
             try
             {
                 var requestedVersion = new SemVersion(3, 102, 0);
-                await LocalPulumiCmd.Install(new LocalPulumiCmdOptions { Version = requestedVersion, Root = tempDir });
+                await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion, Root = tempDir });
                 var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 var pulumiBin = Path.Combine(home, ".pulumi", "versions", requestedVersion.ToString(), "bin", "pulumi");
                 FileInfo fi1 = new FileInfo(pulumiBin);
                 var t1 = fi1.CreationTime;
                 // Install again with the same options
-                await LocalPulumiCmd.Install(new LocalPulumiCmdOptions { Version = requestedVersion, Root = tempDir });
+                await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion, Root = tempDir });
                 FileInfo fi2 = new FileInfo(pulumiBin);
                 var t2 = fi2.CreationTime;
                 Assert.Equal(t1, t2);
@@ -105,18 +105,18 @@ namespace Pulumi.Automation.Tests
             {
                 // Install an old version
                 var installed_version = new SemVersion(3, 99, 0);
-                await LocalPulumiCmd.Install(new LocalPulumiCmdOptions { Version = installed_version, Root = dirPath });
+                await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = installed_version, Root = dirPath });
 
                 // Try to create a command with a more recent version
                 var requested_version = new SemVersion(3, 102, 0);
-                await Assert.ThrowsAsync<InvalidOperationException>(() => LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+                await Assert.ThrowsAsync<InvalidOperationException>(() => LocalPulumiCommand.CreateAsync(new LocalPulumiCommandOptions
                 {
                     Version = requested_version,
                     Root = dirPath
                 }));
 
                 // Opting out of the version check works
-                await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+                await LocalPulumiCommand.CreateAsync(new LocalPulumiCommandOptions
                 {
                     Version = requested_version,
                     Root = dirPath,
@@ -135,13 +135,13 @@ namespace Pulumi.Automation.Tests
             var env = new Dictionary<string, string?>{
                 {"PATH", "/usr/bin"}
             };
-            var newEnv = LocalPulumiCmd.PulumiEnvironment(env, "pulumi", false);
+            var newEnv = LocalPulumiCommand.PulumiEnvironment(env, "pulumi", false);
             Assert.Equal("/usr/bin", newEnv["PATH"]);
 
             env = new Dictionary<string, string?>{
                 {"PATH", "/usr/bin"}
             };
-            newEnv = LocalPulumiCmd.PulumiEnvironment(env, "/some/install/root/bin/pulumi", false);
+            newEnv = LocalPulumiCommand.PulumiEnvironment(env, "/some/install/root/bin/pulumi", false);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Assert.Equal("/some/install/root/bin;/usr/bin", newEnv["PATH"]);
@@ -173,12 +173,12 @@ namespace Pulumi.Automation.Tests
 
             if (errorExpected)
             {
-                void ValidatePulumiVersion() => LocalPulumiCmd.ParseAndValidatePulumiVersion(testMinVersion, currentVersion, optOut);
+                void ValidatePulumiVersion() => LocalPulumiCommand.ParseAndValidatePulumiVersion(testMinVersion, currentVersion, optOut);
                 Assert.Throws<InvalidOperationException>(ValidatePulumiVersion);
             }
             else
             {
-                LocalPulumiCmd.ParseAndValidatePulumiVersion(testMinVersion, currentVersion, optOut);
+                LocalPulumiCommand.ParseAndValidatePulumiVersion(testMinVersion, currentVersion, optOut);
             }
         }
 

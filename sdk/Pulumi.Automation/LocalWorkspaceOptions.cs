@@ -25,7 +25,7 @@ namespace Pulumi.Automation
         /// <summary>
         /// The Pulumi CLI installation to use.
         /// </summary>
-        public Commands.IPulumiCmd? PulumiCmd { get; set; }
+        public Commands.IPulumiCommand? PulumiCommand { get; set; }
 
         /// <summary>
         /// The secrets provider to user for encryption and decryption of stack secrets.

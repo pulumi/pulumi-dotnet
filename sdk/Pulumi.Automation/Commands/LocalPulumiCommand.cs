@@ -22,9 +22,9 @@ using Pulumi.Automation.Events;
 namespace Pulumi.Automation.Commands
 {
     /// <summary>
-    /// Options to configure a <see cref="LocalPulumiCmd"/> instance.
+    /// Options to configure a <see cref="LocalPulumiCommand"/> instance.
     /// </summary>
-    public class LocalPulumiCmdOptions
+    public class LocalPulumiCommandOptions
     {
         /// <summary>
         /// The version of the Pulumi CLI to install or the minimum version requirement for an existing installation.
@@ -41,9 +41,9 @@ namespace Pulumi.Automation.Commands
     }
 
     /// <summary>
-    /// A <see cref="IPulumiCmd"/> implementation that uses a locally installed Pulumi CLI.
+    /// A <see cref="IPulumiCommand"/> implementation that uses a locally installed Pulumi CLI.
     /// </summary>
-    public class LocalPulumiCmd : IPulumiCmd
+    public class LocalPulumiCommand : IPulumiCommand
     {
         // TODO: move to shared place with LocalWorkspace
         private static string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
@@ -57,13 +57,13 @@ namespace Pulumi.Automation.Commands
         public SemVersion? Version { get => _version; }
 
         /// <summary>
-        /// Creates a new LocalPulumiCmd instance.
+        /// Creates a new LocalPulumiCommand instance.
         /// </summary>
-        /// <param name="options">Options to configure the LocalPulumiCmd.</param>
+        /// <param name="options">Options to configure the LocalPulumiCommand.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
-        public static async Task<LocalPulumiCmd> CreateAsync(
-            LocalPulumiCmdOptions? options = null,
+        public static async Task<LocalPulumiCommand> CreateAsync(
+            LocalPulumiCommandOptions? options = null,
             CancellationToken cancellationToken = default)
         {
             var command = "pulumi";
@@ -80,10 +80,10 @@ namespace Pulumi.Automation.Commands
 
             var optOut = options?.SkipVersionCheck ?? Environment.GetEnvironmentVariable(SkipVersionCheckVar) != null;
             var version = await GetPulumiVersionAsync(minimumVersion, command, optOut, cancellationToken);
-            return new LocalPulumiCmd(command, version);
+            return new LocalPulumiCommand(command, version);
         }
 
-        private LocalPulumiCmd(string command, SemVersion? version)
+        private LocalPulumiCommand(string command, SemVersion? version)
         {
             _command = command;
             _version = version;
@@ -104,11 +104,11 @@ namespace Pulumi.Automation.Commands
         }
 
         /// <summary>
-        /// Installs the Pulumi CLI if it is not already installed and returns a new LocalPulumiCmd instance.
+        /// Installs the Pulumi CLI if it is not already installed and returns a new LocalPulumiCommand instance.
         /// </summary>
-        /// <param name="options">Options to configure the LocalPulumiCmd.</param>
+        /// <param name="options">Options to configure the LocalPulumiCommand.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        public static async Task<LocalPulumiCmd> Install(LocalPulumiCmdOptions? options = null, CancellationToken cancellationToken = default)
+        public static async Task<LocalPulumiCommand> Install(LocalPulumiCommandOptions? options = null, CancellationToken cancellationToken = default)
         {
             var _assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
             if (_assemblyVersion == null)
@@ -118,7 +118,7 @@ namespace Pulumi.Automation.Commands
             var assemblyVersion = new SemVersion(_assemblyVersion.Major, _assemblyVersion.Minor, _assemblyVersion.Build);
             var version = options?.Version ?? assemblyVersion;
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var optionsWithDefaults = new LocalPulumiCmdOptions
+            var optionsWithDefaults = new LocalPulumiCommandOptions
             {
                 Version = version,
                 Root = options?.Root ?? Path.Combine(home, ".pulumi", "versions", version.ToString())
@@ -285,7 +285,7 @@ namespace Pulumi.Automation.Commands
                 stdErrPipe = PipeTarget.Merge(stdErrPipe, PipeTarget.ToDelegate(onStandardError));
             }
 
-            var pulumiCmd = Cli.Wrap("pulumi")
+            var pulumiCommand = Cli.Wrap("pulumi")
                 .WithArguments(PulumiArgs(args, eventLogFile), escape: true)
                 .WithWorkingDirectory(workingDir)
                 .WithEnvironmentVariables(PulumiEnvironment(additionalEnv, _command, debugCommands: eventLogFile != null))
@@ -293,14 +293,14 @@ namespace Pulumi.Automation.Commands
                 .WithStandardErrorPipe(stdErrPipe)
                 .WithValidation(CommandResultValidation.None); // we check non-0 exit code ourselves
 
-            var pulumiCmdResult = await pulumiCmd.ExecuteAsync(cancellationToken);
+            var pulumiCommandResult = await pulumiCommand.ExecuteAsync(cancellationToken);
 
             var result = new CommandResult(
-                pulumiCmdResult.ExitCode,
+                pulumiCommandResult.ExitCode,
                 standardOutput: stdOutBuffer.ToString(),
                 standardError: stdErrBuffer.ToString());
 
-            if (pulumiCmdResult.ExitCode != 0)
+            if (pulumiCommandResult.ExitCode != 0)
             {
                 throw CommandException.CreateFromResult(result);
             }

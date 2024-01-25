@@ -51,8 +51,6 @@ namespace Pulumi.Automation.Commands
         private readonly string _command;
         private SemVersion? _version;
 
-        internal Task ReadyTask { get; }
-
         /// <summary>
         /// The version of the Pulumi CLI that is being used.
         /// </summary>
@@ -68,22 +66,10 @@ namespace Pulumi.Automation.Commands
             LocalPulumiCmdOptions? options = null,
             CancellationToken cancellationToken = default)
         {
-            var cmd = new LocalPulumiCmd(options, cancellationToken);
-            await cmd.ReadyTask.ConfigureAwait(false);
-            return cmd;
-        }
-
-        private LocalPulumiCmd(LocalPulumiCmdOptions? options, CancellationToken cancellationToken)
-        {
-            var readyTasks = new List<Task>();
-
+            var command = "pulumi";
             if (options?.Root != null)
             {
-                _command = Path.Combine(options.Root, "bin", "pulumi");
-            }
-            else
-            {
-                _command = "pulumi";
+                command = Path.Combine(options.Root, "bin", "pulumi");
             }
 
             var minimumVersion = _minimumVersion;
@@ -93,11 +79,17 @@ namespace Pulumi.Automation.Commands
             }
 
             var optOut = options?.SkipVersionCheck ?? Environment.GetEnvironmentVariable(SkipVersionCheckVar) != null;
-            readyTasks.Add(SetPulumiVersionAsync(minimumVersion, _command, optOut, cancellationToken));
-            ReadyTask = Task.WhenAll(readyTasks);
+            var version = await GetPulumiVersionAsync(minimumVersion, command, optOut, cancellationToken);
+            return new LocalPulumiCmd(command, version);
         }
 
-        private async Task SetPulumiVersionAsync(SemVersion minimumVersion, string command, bool optOut, CancellationToken cancellationToken)
+        private LocalPulumiCmd(string command, SemVersion? version)
+        {
+            _command = command;
+            _version = version;
+        }
+
+        private static async Task<SemVersion?> GetPulumiVersionAsync(SemVersion minimumVersion, string command, bool optOut, CancellationToken cancellationToken)
         {
             var result = await Cli.Wrap(command)
                 .WithArguments("version")
@@ -108,7 +100,7 @@ namespace Pulumi.Automation.Commands
                 throw new Exception($"failed to get pulumi version: {result.StandardOutput ?? ""}");
             }
             var version = result.StandardOutput.Trim().TrimStart('v');
-            _version = ParseAndValidatePulumiVersion(minimumVersion, version, optOut);
+            return ParseAndValidatePulumiVersion(minimumVersion, version, optOut);
         }
 
         /// <summary>

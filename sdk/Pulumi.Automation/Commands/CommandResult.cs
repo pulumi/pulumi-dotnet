@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Pulumi.Automation.Commands
 {
-    internal class CommandResult
+    public class CommandResult
     {
         public int Code { get; }
 

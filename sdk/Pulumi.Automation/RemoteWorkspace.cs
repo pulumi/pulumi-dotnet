@@ -112,7 +112,7 @@ namespace Pulumi.Automation
             };
 
             var ws = new LocalWorkspace(
-                new LocalPulumiCmd(),
+                await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions(), cancellationToken),
                 localArgs,
                 cancellationToken);
             await ws.ReadyTask.ConfigureAwait(false);

@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi.Automation.Events;
+using Semver;
 
 namespace Pulumi.Automation.Commands
 {
-    internal interface IPulumiCmd
+    public interface IPulumiCmd
     {
+        SemVersion? Version { get; }
+
         Task<CommandResult> RunAsync(
             IList<string> args,
             string workingDir,

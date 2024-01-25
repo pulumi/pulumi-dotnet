@@ -33,8 +33,6 @@ namespace Pulumi.Automation
     /// </summary>
     public sealed class LocalWorkspace : Workspace
     {
-        private static readonly SemVersion _minimumVersion = new SemVersion(3, 1, 0);
-
         private readonly LocalSerializer _serializer = new LocalSerializer();
         private readonly bool _ownsWorkingDir;
         private readonly RemoteGitProgramArgs? _remoteGitProgramArgs;
@@ -50,9 +48,8 @@ namespace Pulumi.Automation
         /// <inheritdoc/>
         public override string? PulumiHome { get; }
 
-        private SemVersion? _pulumiVersion;
         /// <inheritdoc/>
-        public override string PulumiVersion => _pulumiVersion?.ToString() ?? throw new InvalidOperationException("Failed to get Pulumi version.");
+        public override string PulumiVersion => _cmd.Version?.ToString() ?? throw new InvalidOperationException("Failed to get Pulumi version.");
 
         /// <inheritdoc/>
         public override string? SecretsProvider { get; }
@@ -81,8 +78,12 @@ namespace Pulumi.Automation
             LocalWorkspaceOptions? options = null,
             CancellationToken cancellationToken = default)
         {
+            var cmd = options?.PulumiCmd ?? await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+            {
+                SkipVersionCheck = OptOutOfVersionCheck(options?.EnvironmentVariables)
+            }, cancellationToken);
             var ws = new LocalWorkspace(
-                new LocalPulumiCmd(),
+                cmd,
                 options,
                 cancellationToken);
             await ws.ReadyTask.ConfigureAwait(false);
@@ -286,7 +287,10 @@ namespace Pulumi.Automation
                 throw new ArgumentNullException(nameof(args.ProjectSettings));
 
             var ws = new LocalWorkspace(
-                new LocalPulumiCmd(),
+                await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+                {
+                    SkipVersionCheck = OptOutOfVersionCheck(),
+                }, cancellationToken),
                 args,
                 cancellationToken);
             await ws.ReadyTask.ConfigureAwait(false);
@@ -300,7 +304,10 @@ namespace Pulumi.Automation
             CancellationToken cancellationToken)
         {
             var ws = new LocalWorkspace(
-                new LocalPulumiCmd(),
+                await LocalPulumiCmd.CreateAsync(new LocalPulumiCmdOptions
+                {
+                    SkipVersionCheck = OptOutOfVersionCheck()
+                }, cancellationToken),
                 args,
                 cancellationToken);
             await ws.ReadyTask.ConfigureAwait(false);
@@ -356,7 +363,7 @@ namespace Pulumi.Automation
 
             this.WorkDir = dir;
 
-            readyTasks.Add(this.PopulatePulumiVersionAsync(cancellationToken));
+            readyTasks.Add(this.CheckRemoteSupport(cancellationToken));
 
             if (options?.ProjectSettings != null)
             {
@@ -394,18 +401,17 @@ namespace Pulumi.Automation
 
         private static readonly string[] _settingsExtensions = { ".yaml", ".yml", ".json" };
 
-        private async Task PopulatePulumiVersionAsync(CancellationToken cancellationToken)
+        private static bool OptOutOfVersionCheck(IDictionary<string, string?>? EnvironmentVariables = null)
         {
-            var result = await this.RunCommandAsync(new[] { "version" }, cancellationToken).ConfigureAwait(false);
-            var versionString = result.StandardOutput.Trim();
-            versionString = versionString.TrimStart('v');
-
-            var hasSkipEnvVar = this.EnvironmentVariables?.ContainsKey(SkipVersionCheckVar) ?? false;
+            var hasSkipEnvVar = EnvironmentVariables?.ContainsKey(SkipVersionCheckVar) ?? false;
             var optOut = hasSkipEnvVar || Environment.GetEnvironmentVariable(SkipVersionCheckVar) != null;
-            this._pulumiVersion = ParseAndValidatePulumiVersion(_minimumVersion, versionString, optOut);
+            return optOut;
+        }
 
+        private async Task CheckRemoteSupport(CancellationToken cancellationToken)
+        {
             // If remote was specified, ensure the CLI supports it.
-            if (!optOut && Remote)
+            if (!OptOutOfVersionCheck(this.EnvironmentVariables) && Remote)
             {
                 // See if `--remote` is present in `pulumi preview --help`'s output.
                 var args = new[] { "preview", "--help" };
@@ -415,31 +421,6 @@ namespace Pulumi.Automation
                     throw new InvalidOperationException("The Pulumi CLI does not support remote operations. Please update the Pulumi CLI.");
                 }
             }
-        }
-
-        internal static SemVersion? ParseAndValidatePulumiVersion(SemVersion minVersion, string currentVersion, bool optOut)
-        {
-            if (!SemVersion.TryParse(currentVersion, SemVersionStyles.Any, out SemVersion? version))
-            {
-                version = null;
-            }
-            if (optOut)
-            {
-                return version;
-            }
-            if (version == null)
-            {
-                throw new InvalidOperationException("Failed to get Pulumi version. This is probably a pulumi error. You can override by version checking by setting {SkipVersionCheckVar}=true.");
-            }
-            if (minVersion.Major < version.Major)
-            {
-                throw new InvalidOperationException($"Major version mismatch. You are using Pulumi CLI version {version} with Automation SDK v{minVersion.Major}. Please update the SDK.");
-            }
-            if (minVersion > version)
-            {
-                throw new InvalidOperationException($"Minimum version requirement failed. The minimum CLI version requirement is {minVersion}, your current CLI version is {version}. Please update the Pulumi CLI.");
-            }
-            return version;
         }
 
         /// <inheritdoc/>
@@ -690,7 +671,7 @@ namespace Pulumi.Automation
         /// <inheritdoc/>
         public override async Task<WhoAmIResult> WhoAmIAsync(CancellationToken cancellationToken = default)
         {
-            var version = this._pulumiVersion;
+            var version = _cmd.Version;
             if (version == null)
             {
                 // Assume an old version. Doesn't really matter what this is as long as it's pre-3.58.
@@ -983,7 +964,7 @@ namespace Pulumi.Automation
 
         private void CheckSupportsEnvironmentsCommands()
         {
-            var version = this._pulumiVersion ?? new SemVersion(3, 0);
+            var version = _cmd.Version ?? new SemVersion(3, 0);
 
             // 3.95 added this command (https://github.com/pulumi/pulumi/releases/tag/v3.95.0)
             if (version < new SemVersion(3, 95))

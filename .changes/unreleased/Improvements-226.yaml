@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Add new API to install the Pulumi CLI from the Automation API
+time: 2024-01-25T13:32:17.304538+01:00
+custom:
+  PR: "226"

@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using Pulumi.Automation.Commands.Exceptions;
 using Pulumi.Automation.Events;
 using Pulumi.Automation.Exceptions;
-using Semver;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Xunit;
@@ -22,7 +21,6 @@ using Xunit.Abstractions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 using static Pulumi.Automation.Tests.Utility;
-using Xunit.Sdk;
 
 namespace Pulumi.Automation.Tests
 {
@@ -1680,36 +1678,6 @@ namespace Pulumi.Automation.Tests
         {
             using var workspace = await LocalWorkspace.CreateAsync();
             Assert.Matches("(\\d+\\.)(\\d+\\.)(\\d+)(-.*)?", workspace.PulumiVersion);
-        }
-
-        [Theory]
-        [InlineData("100.0.0", true, false)]
-        [InlineData("1.0.0", true, false)]
-        [InlineData("2.22.0", false, false)]
-        [InlineData("2.1.0", true, false)]
-        [InlineData("2.21.2", false, false)]
-        [InlineData("2.21.1", false, false)]
-        [InlineData("2.21.0", true, false)]
-        // Note that prerelease < release so this case should error
-        [InlineData("2.21.1-alpha.1234", true, false)]
-        [InlineData("2.20.0", false, true)]
-        [InlineData("2.22.0", false, true)]
-        // Invalid version check
-        [InlineData("invalid", false, true)]
-        [InlineData("invalid", true, false)]
-        public void ValidVersionTheory(string currentVersion, bool errorExpected, bool optOut)
-        {
-            var testMinVersion = new SemVersion(2, 21, 1);
-
-            if (errorExpected)
-            {
-                void ValidatePulumiVersion() => LocalWorkspace.ParseAndValidatePulumiVersion(testMinVersion, currentVersion, optOut);
-                Assert.Throws<InvalidOperationException>(ValidatePulumiVersion);
-            }
-            else
-            {
-                LocalWorkspace.ParseAndValidatePulumiVersion(testMinVersion, currentVersion, optOut);
-            }
         }
 
         [Fact]

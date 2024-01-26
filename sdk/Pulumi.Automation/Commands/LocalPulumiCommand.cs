@@ -145,9 +145,40 @@ namespace Pulumi.Automation.Commands
 
         private static async Task InstallWindowsAsync(SemVersion version, string root, CancellationToken cancellationToken)
         {
-            var scriptPath = await DownloadToTmpFileAsync("https://get.pulumi.com/install.sh", "install-*.ps1", cancellationToken);
-            // TODO:
-            throw new NotImplementedException();
+            var scriptPath = await DownloadToTmpFileAsync("https://get.pulumi.com/install.ps1", "install-*.ps1", cancellationToken);
+            try
+            {
+                var systemRoot = Environment.GetEnvironmentVariable("SystemRoot");
+                string command = systemRoot != null
+                    ? Path.Combine(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
+                    : "powershell.exe";
+                string[] args = {
+                    "-NoProfile",
+                    "-InputFormat",
+                    "None",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    scriptPath,
+                    "-NoEditPath",
+                    "-InstallRoot",
+                    root,
+                    "-Version",
+                    version.ToString()
+                };
+
+                var result = await Cli.Wrap(command).WithArguments(args, escape: true)
+                    .WithValidation(CommandResultValidation.None)
+                    .ExecuteBufferedAsync(cancellationToken);
+                if (result.ExitCode != 0)
+                {
+                    throw new Exception($"Failed to install Pulumi {version} in {root}: {result.StandardError}");
+                }
+            }
+            finally
+            {
+                File.Delete(scriptPath);
+            }
         }
 
         private static async Task InstallPosixAsync(SemVersion version, string root, CancellationToken cancellationToken)

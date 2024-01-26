@@ -145,7 +145,7 @@ namespace Pulumi.Automation.Commands
 
         private static async Task InstallWindowsAsync(SemVersion version, string root, CancellationToken cancellationToken)
         {
-            var scriptPath = await DownloadToTmpFileAsync("https://get.pulumi.com/install.ps1", "install-*.ps1", cancellationToken);
+            var scriptPath = await DownloadToTmpFileAsync("https://get.pulumi.com/install.ps1", "ps1", cancellationToken);
             try
             {
                 var systemRoot = Environment.GetEnvironmentVariable("SystemRoot");
@@ -183,7 +183,7 @@ namespace Pulumi.Automation.Commands
 
         private static async Task InstallPosixAsync(SemVersion version, string root, CancellationToken cancellationToken)
         {
-            var scriptPath = await DownloadToTmpFileAsync("https://get.pulumi.com/install.sh", "install-*.sh", cancellationToken);
+            var scriptPath = await DownloadToTmpFileAsync("https://get.pulumi.com/install.sh", "sh", cancellationToken);
             try
             {
                 var args = new string[] { "--no-edit-path", "--install-root", root, "--version", version.ToString() };

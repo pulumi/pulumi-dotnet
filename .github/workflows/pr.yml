@@ -24,6 +24,16 @@ jobs:
           os="${{ contains(github.event.pull_request.labels.*.name, 'ci/test') && 'ubuntu-latest macos-latest windows-latest' || 'ubuntu-latest' }}"
           echo "matrix={\"os\": $(echo $os | jq -cR 'split(" ")')}" >> $GITHUB_OUTPUT
 
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup dotnet SDK v6.0
+        uses: actions/setup-dotnet@v4
+      - name: Format Pulumi SDK
+        run: dotnet run format-sdk verify
+
   build:
     needs: setup_matrix
     strategy:
@@ -41,8 +51,6 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
-      - name: Format Pulumi SDK
-        run: dotnet run format-sdk verify
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Test Pulumi SDK
@@ -135,7 +143,7 @@ jobs:
       - name: TestDeletedWith
         run: dotnet run integration test TestDeletedWith
   check-pr:
-    needs: ["build", "integration-tests"]
+    needs: ["build", "integration-tests", "format"]
     runs-on: ubuntu-latest
     steps:
       - name: OK

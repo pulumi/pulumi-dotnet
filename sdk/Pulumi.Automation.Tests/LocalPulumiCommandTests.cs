@@ -67,6 +67,10 @@ namespace Pulumi.Automation.Tests
             await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion });
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             var pulumiBin = Path.Combine(home, ".pulumi", "versions", requestedVersion.ToString(), "bin", "pulumi");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                pulumiBin += ".exe";
+            }
             Assert.True(File.Exists(pulumiBin));
         }
 
@@ -81,6 +85,10 @@ namespace Pulumi.Automation.Tests
                 await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion, Root = tempDir });
                 var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 var pulumiBin = Path.Combine(home, ".pulumi", "versions", requestedVersion.ToString(), "bin", "pulumi");
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    pulumiBin += ".exe";
+                }
                 var t1 = File.GetCreationTime(pulumiBin);
                 // Install again with the same options
                 await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion, Root = tempDir });

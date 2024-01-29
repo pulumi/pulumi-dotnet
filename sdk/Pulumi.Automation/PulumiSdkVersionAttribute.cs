@@ -1,19 +1,19 @@
+// Copyright 2016-2024, Pulumi Corporation
+
 using System;
 using Semver;
 
 namespace Pulumi.Automation
 {
     [AttributeUsage(AttributeTargets.Assembly)]
-    public class PulumiSDKVersion : Attribute
+    public sealed class PulumiSdkVersionAttribute : Attribute
     {
-        public SemVersion Version { get; private set; }
+        public SemVersion Version { get; }
 
-        public PulumiSDKVersion() : this("") { }
-
-        public PulumiSDKVersion(string value)
+        public PulumiSdkVersionAttribute(string value)
         {
             value = value.Trim();
-            if (value.StartsWith("v"))
+            if (value.StartsWith('v'))
             {
                 value = value.Substring(1);
             }

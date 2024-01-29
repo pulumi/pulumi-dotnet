@@ -1,4 +1,4 @@
-// Copyright 2016-2021, Pulumi Corporation
+// Copyright 2016-2024, Pulumi Corporation
 
 using System;
 using System.Collections.Generic;
@@ -46,7 +46,7 @@ namespace Pulumi.Automation.Commands
     public class LocalPulumiCommand : IPulumiCommand
     {
         // TODO: move to shared place with LocalWorkspace
-        private static string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
+        private const string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
         private static readonly SemVersion _minimumVersion = new SemVersion(3, 1, 0);
         private readonly string _command;
         private SemVersion? _version;
@@ -111,8 +111,8 @@ namespace Pulumi.Automation.Commands
         public static async Task<LocalPulumiCommand> Install(LocalPulumiCommandOptions? options = null, CancellationToken cancellationToken = default)
         {
             var sdkVersion = Assembly.GetExecutingAssembly()
-                .GetCustomAttributes(typeof(PulumiSDKVersion), false)
-                .Cast<PulumiSDKVersion>().First().Version;
+                .GetCustomAttributes(typeof(PulumiSdkVersionAttribute), false)
+                .Cast<PulumiSdkVersionAttribute>().First().Version;
 
             var version = options?.Version ?? sdkVersion;
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

@@ -1,4 +1,4 @@
-// Copyright 2016-2021, Pulumi Corporation
+// Copyright 2016-2024, Pulumi Corporation
 
 using System;
 using System.Collections.Generic;
@@ -81,12 +81,10 @@ namespace Pulumi.Automation.Tests
                 await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion, Root = tempDir });
                 var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 var pulumiBin = Path.Combine(home, ".pulumi", "versions", requestedVersion.ToString(), "bin", "pulumi");
-                FileInfo fi1 = new FileInfo(pulumiBin);
-                var t1 = fi1.CreationTime;
+                var t1 = File.GetCreationTime(pulumiBin);
                 // Install again with the same options
                 await LocalPulumiCommand.Install(new LocalPulumiCommandOptions { Version = requestedVersion, Root = tempDir });
-                FileInfo fi2 = new FileInfo(pulumiBin);
-                var t2 = fi2.CreationTime;
+                var t2 = File.GetCreationTime(pulumiBin);
                 Assert.Equal(t1, t2);
             }
             finally

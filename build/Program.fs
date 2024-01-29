@@ -177,7 +177,8 @@ let testPulumiAutomationSdk coverage =
     | Some(version) ->
         printfn "Testing Pulumi Automation SDK"
         let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.automation.xml" else ""
-        if Shell.Exec("dotnet", $"test --configuration Release -p:PulumiSDKVersion={version} {coverageArgs}", pulumiAutomationSdkTests) <> 0
+        if Shell.Exec("dotnet", $"test --configuration Release -p:PulumiSdkVersion={version} {coverageArgs}", pulumiAutomationSdkTests) <> 0
+
         then failwith "automation tests failed"
 
 let syncProtoFiles() = GitSync.repository {

@@ -43,7 +43,8 @@ let findGoSDKVersion =
             None    
     with
     | ex ->
-        printfn "Error while trying to find the GO SDK version: %s" ex.Message
+        printfn "Error while trying to find the Go SDK version: %s" ex.Message
+
         None
 
 /// Runs `dotnet clean` command against the solution file,

@@ -62,7 +62,7 @@
 
   <ItemGroup>
     <AssemblyAttribute Include="Pulumi.Automation.PulumiSdkVersionAttribute">
-      <_Parameter1>$(PulumiSDKVersion)</_Parameter1>
+      <_Parameter1>$(PulumiSdkVersion)</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
 

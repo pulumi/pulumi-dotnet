@@ -103,7 +103,8 @@ let buildSdk() =
     | None -> failwith "Could not find the Pulumi SDK version in go.mod"
     | Some(version) ->
         printfn "Building Pulumi SDK"
-        if Shell.Exec("dotnet", "build --configuration Release -p:PulumiSDKVersion=" + version, sdk) <> 0
+        if Shell.Exec("dotnet", "build --configuration Release -p:PulumiSdkVersion=" + version, sdk) <> 0
+
         then failwith "build failed"
 
 /// Publishes packages for Pulumi, Pulumi.Automation and Pulumi.FSharp to nuget.

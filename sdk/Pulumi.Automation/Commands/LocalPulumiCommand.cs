@@ -45,10 +45,9 @@ namespace Pulumi.Automation.Commands
     /// </summary>
     public class LocalPulumiCommand : PulumiCommand
     {
-        // TODO: move to shared place with LocalWorkspace
-        private const string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
         private static readonly SemVersion _minimumVersion = new SemVersion(3, 1, 0);
         private readonly string _command;
+        public const string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
 
         /// <inheritdoc/>
         public override SemVersion? Version { get; }

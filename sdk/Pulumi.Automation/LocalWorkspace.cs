@@ -276,8 +276,6 @@ namespace Pulumi.Automation
         public static Task<WorkspaceStack> CreateOrSelectStackAsync(LocalProgramArgs args, CancellationToken cancellationToken)
             => CreateStackHelperAsync(args, WorkspaceStack.CreateOrSelectAsync, cancellationToken);
 
-        private static string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
-
         private static async Task<WorkspaceStack> CreateStackHelperAsync(
             InlineProgramArgs args,
             Func<string, Workspace, CancellationToken, Task<WorkspaceStack>> initFunc,
@@ -403,8 +401,8 @@ namespace Pulumi.Automation
 
         private static bool OptOutOfVersionCheck(IDictionary<string, string?>? EnvironmentVariables = null)
         {
-            var hasSkipEnvVar = EnvironmentVariables?.ContainsKey(SkipVersionCheckVar) ?? false;
-            var optOut = hasSkipEnvVar || Environment.GetEnvironmentVariable(SkipVersionCheckVar) != null;
+            var hasSkipEnvVar = EnvironmentVariables?.ContainsKey(LocalPulumiCommand.SkipVersionCheckVar) ?? false;
+            var optOut = hasSkipEnvVar || Environment.GetEnvironmentVariable(LocalPulumiCommand.SkipVersionCheckVar) != null;
             return optOut;
         }
 

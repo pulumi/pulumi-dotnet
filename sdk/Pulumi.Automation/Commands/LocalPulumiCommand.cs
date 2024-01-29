@@ -41,20 +41,17 @@ namespace Pulumi.Automation.Commands
     }
 
     /// <summary>
-    /// A <see cref="IPulumiCommand"/> implementation that uses a locally installed Pulumi CLI.
+    /// A <see cref="PulumiCommand"/> implementation that uses a locally installed Pulumi CLI.
     /// </summary>
-    public class LocalPulumiCommand : IPulumiCommand
+    public class LocalPulumiCommand : PulumiCommand
     {
         // TODO: move to shared place with LocalWorkspace
         private const string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
         private static readonly SemVersion _minimumVersion = new SemVersion(3, 1, 0);
         private readonly string _command;
-        private SemVersion? _version;
 
-        /// <summary>
-        /// The version of the Pulumi CLI that is being used.
-        /// </summary>
-        public SemVersion? Version { get => _version; }
+        /// <inheritdoc/>
+        public override SemVersion? Version { get; }
 
         /// <summary>
         /// Creates a new LocalPulumiCommand instance.
@@ -86,7 +83,7 @@ namespace Pulumi.Automation.Commands
         private LocalPulumiCommand(string command, SemVersion? version)
         {
             _command = command;
-            _version = version;
+            Version = version;
         }
 
         private static async Task<SemVersion?> GetPulumiVersionAsync(SemVersion minimumVersion, string command, bool optOut, CancellationToken cancellationToken)
@@ -265,7 +262,7 @@ namespace Pulumi.Automation.Commands
             return version;
         }
 
-        public async Task<CommandResult> RunAsync(
+        public override async Task<CommandResult> RunAsync(
             IList<string> args,
             string workingDir,
             IDictionary<string, string?> additionalEnv,

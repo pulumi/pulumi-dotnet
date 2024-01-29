@@ -9,11 +9,14 @@ using Semver;
 
 namespace Pulumi.Automation.Commands
 {
-    public interface IPulumiCommand
+    public abstract class PulumiCommand
     {
-        SemVersion? Version { get; }
+        /// <summary>
+        /// The version of the Pulumi CLI that is being used.
+        /// </summary>
+        public abstract SemVersion? Version { get; }
 
-        Task<CommandResult> RunAsync(
+        public abstract Task<CommandResult> RunAsync(
             IList<string> args,
             string workingDir,
             IDictionary<string, string?> additionalEnv,

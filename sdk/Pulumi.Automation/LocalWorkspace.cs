@@ -316,7 +316,7 @@ namespace Pulumi.Automation
         }
 
         internal LocalWorkspace(
-            IPulumiCommand cmd,
+            PulumiCommand cmd,
             LocalWorkspaceOptions? options,
             CancellationToken cancellationToken)
             : base(cmd)

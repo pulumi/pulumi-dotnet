@@ -23,9 +23,9 @@ namespace Pulumi.Automation
     /// </summary>
     public abstract class Workspace : IDisposable
     {
-        internal readonly IPulumiCommand _cmd;
+        internal readonly PulumiCommand _cmd;
 
-        internal Workspace(IPulumiCommand cmd)
+        internal Workspace(PulumiCommand cmd)
         {
             this._cmd = cmd;
         }

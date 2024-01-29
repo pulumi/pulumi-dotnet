@@ -138,22 +138,21 @@ namespace Pulumi.Automation.Tests
         [Fact]
         public void PulumiEnvironment()
         {
-            var env = new Dictionary<string, string?>{
-                {"PATH", "/usr/bin"}
-            };
+            // Plain "pulumi" command
+            var env = new Dictionary<string, string?> { { "PATH", "/usr/bin" } };
             var newEnv = LocalPulumiCommand.PulumiEnvironment(env, "pulumi", false);
             Assert.Equal("/usr/bin", newEnv["PATH"]);
 
-            env = new Dictionary<string, string?>{
-                {"PATH", "/usr/bin"}
-            };
-            newEnv = LocalPulumiCommand.PulumiEnvironment(env, "/some/install/root/bin/pulumi", false);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Assert.Equal("/some/install/root/bin;/usr/bin", newEnv["PATH"]);
+                env = new Dictionary<string, string?> { { "PATH", "%SystemRoot%\\system32" } };
+                newEnv = LocalPulumiCommand.PulumiEnvironment(env, "C:\\some\\install\\root\\bin\\pulumi", false);
+                Assert.Equal("C:\\some\\install\\root\\bin;%SystemRoot%\\system32", newEnv["PATH"]);
             }
             else
             {
+                env = new Dictionary<string, string?> { { "PATH", "/usr/bin" } };
+                newEnv = LocalPulumiCommand.PulumiEnvironment(env, "/some/install/root/bin/pulumi", false);
                 Assert.Equal("/some/install/root/bin:/usr/bin", newEnv["PATH"]);
             }
         }

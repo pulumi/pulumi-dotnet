@@ -1,6 +1,7 @@
 open System
 open System.IO
 open System.Linq
+open System.Text.RegularExpressions
 open Fake.IO
 open Fake.Core
 open Publish
@@ -26,6 +27,25 @@ let pulumiAutomationSdkTests = Path.Combine(sdk, "Pulumi.Automation.Tests")
 let pulumiFSharp = Path.Combine(sdk, "Pulumi.FSharp")
 let integrationTests = Path.Combine(repositoryRoot, "integration_tests")
 let pulumiLanguageDotnet = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
+
+// Find the version of the Pulumi Go SDK that we are using for the language plugin.
+let findGoSDKVersion =
+    let goMod = Path.Combine(pulumiLanguageDotnet, "go.mod")
+    try
+        let lines = File.ReadAllLines(goMod)
+        let patternRegex = new Regex("^\\s*github.com/pulumi/pulumi/sdk", RegexOptions.IgnoreCase)
+        match Array.tryFind (patternRegex.IsMatch) lines with
+        | Some(matchingLine) ->
+            let version = matchingLine.Split(' ')[1]
+            let version = version.TrimStart('v')
+            Some(version)
+        | None ->
+            None    
+    with
+    | ex ->
+        printfn "Error while trying to find the Go SDK version: %s" ex.Message
+
+        None
 
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
@@ -79,9 +99,13 @@ let listIntegrationTests() =
 let buildSdk() =
     cleanSdk()
     restoreSdk()
-    printfn "Building Pulumi SDK"
-    if Shell.Exec("dotnet", "build --configuration Release", sdk) <> 0
-    then failwith "build failed"
+    match findGoSDKVersion with
+    | None -> failwith "Could not find the Pulumi SDK version in go.mod"
+    | Some(version) ->
+        printfn "Building Pulumi SDK"
+        if Shell.Exec("dotnet", "build --configuration Release -p:PulumiSdkVersion=" + version, sdk) <> 0
+
+        then failwith "build failed"
 
 /// Publishes packages for Pulumi, Pulumi.Automation and Pulumi.FSharp to nuget.
 /// Requires NUGET_PUBLISH_KEY and PULUMI_VERSION environment variables.
@@ -148,10 +172,14 @@ let testPulumiSdk coverage =
 let testPulumiAutomationSdk coverage =
     cleanSdk()
     restoreSdk()
-    printfn "Testing Pulumi Automation SDK"
-    let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.automation.xml" else ""
-    if Shell.Exec("dotnet", "test --configuration Release" + coverageArgs, pulumiAutomationSdkTests) <> 0
-    then failwith "automation tests failed"
+    match findGoSDKVersion with
+    | None -> failwith "Could not find the Pulumi SDK version in go.mod"
+    | Some(version) ->
+        printfn "Testing Pulumi Automation SDK"
+        let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.automation.xml" else ""
+        if Shell.Exec("dotnet", $"test --configuration Release -p:PulumiSdkVersion={version} {coverageArgs}", pulumiAutomationSdkTests) <> 0
+
+        then failwith "automation tests failed"
 
 let syncProtoFiles() = GitSync.repository {
     remoteRepository = "https://github.com/pulumi/pulumi.git"

@@ -21,6 +21,12 @@ namespace Pulumi.Automation
         /// </summary>
         public string? PulumiHome { get; set; }
 
+
+        /// <summary>
+        /// The Pulumi CLI installation to use.
+        /// </summary>
+        public Commands.PulumiCommand? PulumiCommand { get; set; }
+
         /// <summary>
         /// The secrets provider to user for encryption and decryption of stack secrets.
         /// <para/>

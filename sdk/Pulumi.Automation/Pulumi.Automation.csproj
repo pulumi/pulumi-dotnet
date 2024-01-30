@@ -5,7 +5,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Pulumi</Authors>
     <Company>Pulumi Corp.</Company>
-    <Description>Pulumi Automation API, the programmatic interface for driving Pulumi programs without the CLI.</Description>
+    <Description>Pulumi Automation API, the programmatic interface for driving Pulumi programs
+      without the CLI.</Description>
     <PackageProjectUrl>https://www.pulumi.com</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pulumi/pulumi</RepositoryUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -19,7 +20,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
@@ -56,6 +58,12 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="Pulumi.Automation.PulumiSdkVersionAttribute">
+      <_Parameter1>$(PulumiSdkVersion)</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup>

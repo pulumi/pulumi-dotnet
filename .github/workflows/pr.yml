@@ -142,6 +142,40 @@ jobs:
         run: dotnet run integration test TestProvider
       - name: TestDeletedWith
         run: dotnet run integration test TestDeletedWith
+
+  info:
+    name: gather
+    runs-on: ubuntu-latest
+    outputs:
+      version: "${{ steps.version.outputs.version }}"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Get the latest version
+        id: latest
+        uses: miniscruff/changie-action@v2
+        with:
+          args: next auto
+      - name: Stitch version together
+        id: version
+        run: |
+          TAG="${{ steps.latest.outputs.output }}"
+          TAG="${TAG#v}" # remove prefix
+          OID="$(git rev-parse --short HEAD)"
+          PULUMI_VERSION="$TAG-alpha.$OID"
+          echo "version=${PULUMI_VERSION}" >> $GITHUB_OUTPUT
+
+  release-dev-sdk:
+    name: release-dev-sdk
+    needs: [build, integration-tests, info]
+    uses: ./.github/workflows/release-sdk.yml
+    if: ${{ github.event_name == 'merge_group' }}
+    with:
+      ref: ${{ github.event.release.tag_name }}
+      version: ${{ needs.info.outputs.version }}
+      release-notes: ${{ github.event.release.body }}
+    secrets: inherit
+
   check-pr:
     needs: ["build", "integration-tests", "format"]
     runs-on: ubuntu-latest

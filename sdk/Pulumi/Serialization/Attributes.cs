@@ -108,4 +108,19 @@ namespace Pulumi
             Version = version;
         }
     }
+
+    /// <summary>
+    /// Attribute used by a Pulumi Cloud Provider Package to mark constructor parameters
+    /// whose API name is different from the C# name.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public class ConstructorParameterApiNameAttribute : Attribute
+    {
+        public string ApiName { get; }
+
+        public ConstructorParameterApiNameAttribute(string apiName)
+        {
+            ApiName = apiName;
+        }
+    }
 }

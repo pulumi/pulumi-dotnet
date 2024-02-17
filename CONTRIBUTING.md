@@ -5,6 +5,7 @@ This repo is made up of three main components. The host runtime (pulumi-language
 ## Changelog
 
 Changelog management is done via [`changie`](https://changie.dev/).
+See the [installation](https://changie.dev/guide/installation/) guide for `changie`.
 
 Run `changie new` in the top level directory. Here is an example of what that looks like:
 

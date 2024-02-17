@@ -201,11 +201,11 @@ namespace Pulumi.Serialization
             {
                 var parameter = constructorParameters[i];
                 var parameterName = parameter.Name!;
-                var attribute = parameter.GetCustomAttribute<ConstructorParameterApiNameAttribute>();
+                var attribute = parameter.GetCustomAttribute<ConstructorParameterNameOverrideAttribute>();
 
                 if (attribute != null)
                 {
-                    parameterName = attribute.ApiName;
+                    parameterName = attribute.Name;
                 }
 
                 // Note: TryGetValue may not find a value here.  That can happen for things like

@@ -201,8 +201,7 @@ namespace Pulumi.Serialization
             {
                 var parameter = constructorParameters[i];
                 var parameterName = parameter.Name!;
-                var attribute = parameter.GetCustomAttribute<ConstructorParameterNameOverrideAttribute>();
-
+                var attribute = parameter.GetCustomAttribute<OutputConstructorParameterAttribute>();
                 if (attribute != null)
                 {
                     parameterName = attribute.Name;

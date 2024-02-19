@@ -114,13 +114,13 @@ namespace Pulumi
     /// constructor parameters with a name override.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public class ConstructorParameterNameOverrideAttribute : Attribute
+    public sealed class OutputConstructorParameterAttribute : Attribute
     {
         public string Name { get; }
 
-        public ConstructorParameterNameOverrideAttribute(string apiName)
+        public OutputConstructorParameterAttribute(string name)
         {
-            Name = apiName;
+            Name = name;
         }
     }
 }

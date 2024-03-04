@@ -270,33 +270,9 @@ namespace Pulumi
 
                 // This needs to handle nested potentially secret and unknown Output values, we do this by
                 // hooking options to handle any seen Output<T> values.
-
-                // TODO: This can be simplified in net6.0 to just new System.Text.Json.JsonSerializerOptions(options);
-#if NETCOREAPP3_1
-                var internalOptions = new System.Text.Json.JsonSerializerOptions();
-                internalOptions.AllowTrailingCommas = options?.AllowTrailingCommas ?? internalOptions.AllowTrailingCommas;
-                if (options != null)
-                {
-                    foreach (var converter in options.Converters)
-                    {
-                        internalOptions.Converters.Add(converter);
-                    }
-                }
-                internalOptions.DefaultBufferSize = options?.DefaultBufferSize ?? internalOptions.DefaultBufferSize;
-                internalOptions.DictionaryKeyPolicy = options?.DictionaryKeyPolicy ?? internalOptions.DictionaryKeyPolicy;
-                internalOptions.Encoder = options?.Encoder ?? internalOptions.Encoder;
-                internalOptions.IgnoreNullValues = options?.IgnoreNullValues ?? internalOptions.IgnoreNullValues;
-                internalOptions.IgnoreReadOnlyProperties = options?.IgnoreReadOnlyProperties ?? internalOptions.IgnoreReadOnlyProperties;
-                internalOptions.MaxDepth = options?.MaxDepth ?? internalOptions.MaxDepth;
-                internalOptions.PropertyNameCaseInsensitive = options?.PropertyNameCaseInsensitive ?? internalOptions.PropertyNameCaseInsensitive;
-                internalOptions.PropertyNamingPolicy = options?.PropertyNamingPolicy ?? internalOptions.PropertyNamingPolicy;
-                internalOptions.ReadCommentHandling = options?.ReadCommentHandling ?? internalOptions.ReadCommentHandling;
-                internalOptions.WriteIndented = options?.WriteIndented ?? internalOptions.WriteIndented;
-#else
                 var internalOptions = options == null ?
                     new System.Text.Json.JsonSerializerOptions() :
                     new System.Text.Json.JsonSerializerOptions(options);
-#endif
 
                 // Add the magic converter to allow us to do nested outputs
                 var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);
@@ -341,31 +317,9 @@ namespace Pulumi
                     return new OutputData<T>(result.Resources, default!, false, result.IsSecret);
                 }
 
-#if NETCOREAPP3_1
-                var internalOptions = new System.Text.Json.JsonSerializerOptions();
-                internalOptions.AllowTrailingCommas = options?.AllowTrailingCommas ?? internalOptions.AllowTrailingCommas;
-                if (options != null)
-                {
-                    foreach (var converter in options.Converters)
-                    {
-                        internalOptions.Converters.Add(converter);
-                    }
-                }
-                internalOptions.DefaultBufferSize = options?.DefaultBufferSize ?? internalOptions.DefaultBufferSize;
-                internalOptions.DictionaryKeyPolicy = options?.DictionaryKeyPolicy ?? internalOptions.DictionaryKeyPolicy;
-                internalOptions.Encoder = options?.Encoder ?? internalOptions.Encoder;
-                internalOptions.IgnoreNullValues = options?.IgnoreNullValues ?? internalOptions.IgnoreNullValues;
-                internalOptions.IgnoreReadOnlyProperties = options?.IgnoreReadOnlyProperties ?? internalOptions.IgnoreReadOnlyProperties;
-                internalOptions.MaxDepth = options?.MaxDepth ?? internalOptions.MaxDepth;
-                internalOptions.PropertyNameCaseInsensitive = options?.PropertyNameCaseInsensitive ?? internalOptions.PropertyNameCaseInsensitive;
-                internalOptions.PropertyNamingPolicy = options?.PropertyNamingPolicy ?? internalOptions.PropertyNamingPolicy;
-                internalOptions.ReadCommentHandling = options?.ReadCommentHandling ?? internalOptions.ReadCommentHandling;
-                internalOptions.WriteIndented = options?.WriteIndented ?? internalOptions.WriteIndented;
-#else
                 var internalOptions = options == null ?
                     new System.Text.Json.JsonSerializerOptions() :
                     new System.Text.Json.JsonSerializerOptions(options);
-#endif
 
                 // Add the magic converter to allow us to do nested outputs
                 var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);

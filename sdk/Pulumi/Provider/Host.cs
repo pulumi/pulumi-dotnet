@@ -99,9 +99,6 @@ namespace Pulumi.Experimental.Provider
         private static readonly object _channelsLock = new object();
         public GrpcHost(string engineAddress)
         {
-            // Allow for insecure HTTP/2 transport (only needed for netcoreapp3.x)
-            // https://docs.microsoft.com/en-us/aspnet/core/grpc/troubleshoot?view=aspnetcore-6.0#call-insecure-grpc-services-with-net-core-client
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             // maxRpcMessageSize raises the gRPC Max Message size from `4194304` (4mb) to `419430400` (400mb)
             const int maxRpcMessageSize = 400 * 1024 * 1024;
             if (_engineChannels.TryGetValue(engineAddress, out var engineChannel))

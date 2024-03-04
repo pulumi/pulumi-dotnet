@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Drop support for netcoreapp3.1
+time: 2024-03-04T21:00:58.198958Z
+custom:
+  PR: "235"

@@ -24,7 +24,8 @@ namespace Pulumi
                 Version = options.Version,
                 PluginDownloadURL = options.PluginDownloadURL,
                 RetainOnDelete = options.RetainOnDelete,
-                DeletedWith = options.DeletedWith
+                DeletedWith = options.DeletedWith,
+                XResourceTransforms = options.XResourceTransforms.ToList(),
             };
 
         internal static CustomResourceOptions CreateCustomResourceOptionsCopy(ResourceOptions? options)

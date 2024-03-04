@@ -1,5 +1,7 @@
 // Copyright 2016-2019, Pulumi Corporation
 
+using System.Threading.Tasks;
+
 namespace Pulumi
 {
     /// <summary>
@@ -81,5 +83,87 @@ namespace Pulumi
         /// Only specify one of <see cref="Parent"/> or <see cref="ParentUrn"/> or <see cref="NoParent"/>.
         /// </summary>
         public bool NoParent { get; set; }
+
+        /// <summary>
+        /// Deserialize a wire protocol alias to an alias object.
+        /// </summary>
+        internal static Alias Deserialize(Pulumirpc.Alias alias)
+        {
+            if (alias.AliasCase == Pulumirpc.Alias.AliasOneofCase.Urn)
+            {
+                return new Alias
+                {
+                    Urn = alias.Urn,
+                };
+            }
+
+            var spec = alias.Spec;
+            return new Alias
+            {
+                Name = spec.Name == "" ? null : (Input<string>)spec.Name,
+                Type = spec.Type == "" ? null : (Input<string>)spec.Type,
+                Stack = spec.Stack == "" ? null : (Input<string>)spec.Stack,
+                Project = spec.Project == "" ? null : (Input<string>)spec.Project,
+                Parent = spec.ParentUrn == "" ? null : new DependencyResource(spec.ParentUrn),
+                ParentUrn = spec.ParentUrn == "" ? null : (Input<string>)spec.ParentUrn,
+                NoParent = spec.NoParent,
+            };
+        }
+
+        static async Task<T> Resolve<T>(Input<T>? input, T whenUnknown)
+        {
+            return input == null
+                ? whenUnknown
+                : await input.ToOutput().GetValueAsync(whenUnknown).ConfigureAwait(false);
+        }
+
+        internal async Task<Pulumirpc.Alias> SerializeAsync()
+        {
+            if (Urn != null)
+            {
+                // Alias URN fully provided, use it as is
+                return new Pulumirpc.Alias
+                {
+                    Urn = Urn,
+                };
+            }
+
+            var aliasSpec = new Pulumirpc.Alias.Types.Spec
+            {
+                Name = await Resolve(Name, ""),
+                Type = await Resolve(Type, ""),
+                Stack = await Resolve(Stack, ""),
+                Project = await Resolve(Project, ""),
+            };
+
+            // Here we specify whether the alias has a parent or not.
+            // aliasSpec must only specify one of NoParent or ParentUrn, not both!
+            // this determines the wire format of the alias which is used by the engine.
+            if (Parent == null && ParentUrn == null)
+            {
+                aliasSpec.NoParent = NoParent;
+            }
+            else if (Parent != null)
+            {
+                var aliasParentUrn = await Resolve(Parent.Urn, "");
+                if (!string.IsNullOrEmpty(aliasParentUrn))
+                {
+                    aliasSpec.ParentUrn = aliasParentUrn;
+                }
+            }
+            else
+            {
+                var aliasParentUrn = await Resolve(ParentUrn, "");
+                if (!string.IsNullOrEmpty(aliasParentUrn))
+                {
+                    aliasSpec.ParentUrn = aliasParentUrn;
+                }
+            }
+
+            return new Pulumirpc.Alias
+            {
+                Spec = aliasSpec,
+            };
+        }
     }
 }

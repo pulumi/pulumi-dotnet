@@ -111,7 +111,7 @@ namespace Pulumi.Testing
             return new ReadResourceResponse
             {
                 Urn = urn,
-                Properties = Serializer.CreateStruct(serializedState),
+                Properties = Serializer.CreateStruct(serializedState!),
             };
         }
 
@@ -156,7 +156,7 @@ namespace Pulumi.Testing
             {
                 Id = id ?? request.ImportId,
                 Urn = urn,
-                Object = Serializer.CreateStruct(serializedState),
+                Object = Serializer.CreateStruct(serializedState!),
             };
         }
 
@@ -214,7 +214,7 @@ namespace Pulumi.Testing
         private async Task<Struct> SerializeAsync(object o)
         {
             var dict = await SerializeToDictionary(o).ConfigureAwait(false);
-            return Serializer.CreateStruct(dict);
+            return Serializer.CreateStruct(dict!);
         }
     }
 }

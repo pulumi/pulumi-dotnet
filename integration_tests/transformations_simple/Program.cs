@@ -8,7 +8,7 @@ using Pulumi.Random;
 class MyComponent : ComponentResource
 {
     public RandomString Child { get; }
-    
+
     public MyComponent(string name, ComponentResourceOptions? options = null)
         : base("my:component:MyComponent", name, options)
     {
@@ -24,14 +24,14 @@ class MyOtherComponent : ComponentResource
 {
     public RandomString Child1 { get; }
     public RandomString Child2 { get; }
-    
+
     public MyOtherComponent(string name, ComponentResourceOptions? options = null)
         : base("my:component:MyComponent", name, options)
     {
         this.Child1 = new RandomString($"{name}-child1",
             new RandomStringArgs { Length = 5 },
             new CustomResourceOptions { Parent = this });
-        
+
         this.Child2 = new RandomString($"{name}-child2",
             new RandomStringArgs { Length = 6 },
             new CustomResourceOptions { Parent = this });
@@ -39,14 +39,14 @@ class MyOtherComponent : ComponentResource
 }
 
 class TransformationsStack : Stack
-{   
+{
     public TransformationsStack() : base(new StackOptions { ResourceTransformations = {Scenario3} })
     {
         // Scenario #1 - apply a transformation to a CustomResource
         var res1 = new RandomString("res1", new RandomStringArgs { Length = 5 }, new CustomResourceOptions
         {
             ResourceTransformations =
-            { 
+            {
                 args =>
                 {
                     var options = CustomResourceOptions.Merge(
@@ -56,7 +56,7 @@ class TransformationsStack : Stack
                 }
             }
         });
-        
+
         // Scenario #2 - apply a transformation to a Component to transform its children
         var res2 = new MyComponent("res2", new ComponentResourceOptions
         {
@@ -76,10 +76,10 @@ class TransformationsStack : Stack
                 }
             }
         });
-        
+
         // Scenario #3 - apply a transformation to the Stack to transform all resources in the stack.
         var res3 = new RandomString("res3", new RandomStringArgs { Length = 5 });
-        
+
         // Scenario #4 - transformations are applied in order of decreasing specificity
         // 1. (not in this example) Child transformation
         // 2. First parent transformation
@@ -89,7 +89,7 @@ class TransformationsStack : Stack
         {
             ResourceTransformations = { args => scenario4(args, "value1"), args => scenario4(args, "value2") }
         });
-        
+
         ResourceTransformationResult? scenario4(ResourceTransformationArgs args, string v)
         {
             if (args.Resource.GetResourceType() == RandomStringType && args.Args is RandomStringArgs oldArgs)
@@ -145,18 +145,18 @@ class TransformationsStack : Stack
                                 return child2Args.Length;
                             })
                             .Apply(output => output);
-                        
+
                         var newArgs = new RandomStringArgs {Length = child2Length};
-                        
+
                         return new ResourceTransformationResult(newArgs, args.Options);
                     }
                 }
-                
+
                 return null;
             }
         }
     }
-        
+
     // Scenario #3 - apply a transformation to the Stack to transform all (future) resources in the stack
     private static ResourceTransformationResult? Scenario3(ResourceTransformationArgs args)
     {
@@ -172,7 +172,7 @@ class TransformationsStack : Stack
         }
 
         return null;
-    }   
+    }
 
     private const string RandomStringType = "random:index/randomString:RandomString";
 }

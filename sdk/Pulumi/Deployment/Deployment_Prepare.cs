@@ -1,9 +1,11 @@
 // Copyright 2016-2021, Pulumi Corporation
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 
@@ -119,6 +121,23 @@ namespace Pulumi
             var resourceMonitorSupportsAliasSpecs = await MonitorSupportsAliasSpecs().ConfigureAwait(false);
             var aliases = await PrepareAliases(res, options, resourceMonitorSupportsAliasSpecs).ConfigureAwait(false);
 
+            var transforms = new List<Pulumirpc.Callback>();
+            if (options.XResourceTransforms.Count > 0)
+            {
+                var resourceMonitorSupportsTransforms = await MonitorSupportsTransforms().ConfigureAwait(false);
+                if (!resourceMonitorSupportsTransforms)
+                {
+                    throw new Exception("The Pulumi CLI does not support resource transforms. Please update the Pulumi CLI.");
+                }
+
+                var callbacks = await this.GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
+
+                foreach (var t in options.XResourceTransforms)
+                {
+                    transforms.Add(await AllocateTransform(callbacks.Callbacks, t).ConfigureAwait(false));
+                }
+            }
+
             return new PrepareResult(
                 serializedProps,
                 parentUrn ?? "",
@@ -127,13 +146,185 @@ namespace Pulumi
                 allDirectDependencyUrns,
                 propertyToDirectDependencyUrns,
                 aliases,
-                resourceMonitorSupportsAliasSpecs);
+                resourceMonitorSupportsAliasSpecs,
+                transforms);
 
             void LogExcessive(string message)
             {
                 if (_excessiveDebugOutput)
                     Log.Debug(message);
             }
+        }
+
+        private static async Task<Pulumirpc.Callback> AllocateTransform(Callbacks callbacks, ResourceTransform transform)
+        {
+            var wrapper = new Callback(async (message, token) =>
+            {
+                var request = Pulumirpc.TransformRequest.Parser.ParseFrom(message);
+
+                var props = ImmutableDictionary.CreateBuilder<string, object?>();
+                foreach (var kv in request.Properties.Fields)
+                {
+                    var outputData = Serialization.Deserializer.Deserialize(kv.Value);
+                    // If it's plain just use the value directly
+                    if (outputData.IsKnown && !outputData.IsSecret && outputData.Resources.IsEmpty)
+                    {
+                        props.Add(kv.Key, outputData.Value!);
+                    }
+                    else
+                    {
+                        // Else need to wrap it in an Output<T>
+                        var elementType = typeof(object);
+                        if (outputData.Value != null)
+                        {
+                            elementType = outputData.Value.GetType();
+                        }
+                        var outputDataType = typeof(Pulumi.Serialization.OutputData<>).MakeGenericType(elementType);
+                        var createOutputData = outputDataType.GetConstructor(new[]
+                        {
+                            typeof(ImmutableHashSet<Resource>),
+                            elementType,
+                            typeof(bool),
+                            typeof(bool)
+                        });
+                        if (createOutputData == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"Could not find constructor for type OutputData<T> with parameters " +
+                                $"{nameof(ImmutableHashSet<Resource>)}, {elementType.Name}, bool, bool");
+                        }
+
+                        var typedOutputData = createOutputData.Invoke(new object?[] {
+                            ImmutableHashSet<Resource>.Empty,
+                            outputData.Value,
+                            outputData.IsKnown,
+                            outputData.IsSecret });
+
+                        var createOutputMethod =
+                            typeof(Output<>)
+                                .MakeGenericType(elementType)
+                                .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                                .First(ctor =>
+                                {
+                                    // expected parameter type == Task<OutputData<T>>
+                                    var parameters = ctor.GetParameters();
+                                    return parameters.Length == 1 &&
+                                           parameters[0].ParameterType == typeof(Task<>).MakeGenericType(outputDataType);
+                                })!;
+
+                        var fromResultMethod =
+                            typeof(Task)
+                                .GetMethod("FromResult")!
+                                .MakeGenericMethod(outputDataType)!;
+
+                        var outputObject = createOutputMethod.Invoke(new[] { fromResultMethod.Invoke(null, new[] { typedOutputData }) });
+                        props.Add(kv.Key, outputObject);
+                    }
+                }
+
+                ResourceOptions opts;
+                // Copy all the options from the request
+                if (request.Custom)
+                {
+                    var copts = new CustomResourceOptions();
+                    copts.DeleteBeforeReplace = request.Options.DeleteBeforeReplace;
+                    copts.AdditionalSecretOutputs = request.Options.AdditionalSecretOutputs.ToList();
+                    opts = copts;
+                }
+                else
+                {
+                    var copts = new ComponentResourceOptions();
+                    copts.Providers = request.Options.Providers.Select(p => (ProviderResource)new DependencyProviderResource(p.Value)).ToList();
+                    opts = copts;
+                }
+                opts.Aliases = request.Options.Aliases.Select(a => (Input<Alias>)Alias.Deserialize(a)).ToList();
+                opts.CustomTimeouts = request.Options.CustomTimeouts != null
+                    ? CustomTimeouts.Deserialize(request.Options.CustomTimeouts)
+                    : null;
+                opts.DeletedWith = request.Options.DeletedWith == "" ? null : new DependencyResource(request.Options.DeletedWith);
+                opts.DependsOn = request.Options.DependsOn.Select(u => (Resource)new DependencyResource(u)).ToList();
+                opts.IgnoreChanges = request.Options.IgnoreChanges.ToList();
+                opts.Parent = request.Parent == "" ? null : new DependencyResource(request.Parent);
+                opts.PluginDownloadURL = request.Options.PluginDownloadUrl == "" ? null : request.Options.PluginDownloadUrl;
+                opts.Protect = request.Options.Protect;
+                opts.Provider = request.Options.Provider == "" ? null : new DependencyProviderResource(request.Options.Provider);
+                opts.ReplaceOnChanges = request.Options.ReplaceOnChanges.ToList();
+                opts.RetainOnDelete = request.Options.RetainOnDelete;
+                opts.Version = request.Options.Version;
+
+                var args = new ResourceTransformArgs(
+                    request.Name,
+                    request.Type,
+                    request.Custom,
+                    props.ToImmutable(),
+                    opts);
+
+                var result = await transform(args, token).ConfigureAwait(false);
+
+                var response = new Pulumirpc.TransformResponse();
+                if (result != null)
+                {
+                    response.Properties = Serialization.Serializer.CreateStruct(result.Value.Args);
+
+                    // Copy the options back
+                    var aliases = new List<Pulumirpc.Alias>();
+                    foreach (var alias in result.Value.Options.Aliases)
+                    {
+                        var defaultAliasWhenUnknown = new Alias();
+                        var resolvedAlias = await alias.ToOutput().GetValueAsync(whenUnknown: defaultAliasWhenUnknown).ConfigureAwait(false);
+                        if (ReferenceEquals(resolvedAlias, defaultAliasWhenUnknown))
+                        {
+                            // alias contains unknowns, skip it.
+                            continue;
+                        }
+                        aliases.Add(await resolvedAlias.SerializeAsync().ConfigureAwait(false));
+                    }
+
+                    response.Options = new Pulumirpc.TransformResourceOptions();
+                    response.Options.Aliases.AddRange(aliases);
+                    response.Options.CustomTimeouts = result.Value.Options.CustomTimeouts == null ? null : result.Value.Options.CustomTimeouts.Serialize();
+                    response.Options.DeletedWith = result.Value.Options.DeletedWith == null ? "" : await result.Value.Options.DeletedWith.Urn.GetValueAsync("").ConfigureAwait(false);
+                    await foreach (var dep in result.Value.Options.DependsOn)
+                    {
+                        if (dep == null)
+                        {
+                            continue;
+                        }
+
+                        var res = await dep.ToOutput().GetValueAsync(null!).ConfigureAwait(false);
+                        if (res == null)
+                        {
+                            continue;
+                        }
+
+                        var urn = await res.Urn.GetValueAsync("").ConfigureAwait(false);
+                        response.Options.DependsOn.Add(urn);
+                    }
+                    response.Options.IgnoreChanges.AddRange(result.Value.Options.IgnoreChanges);
+                    response.Options.PluginDownloadUrl = result.Value.Options.PluginDownloadURL ?? "";
+                    response.Options.Protect = result.Value.Options.Protect ?? false;
+                    response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Urn.GetValueAsync("").ConfigureAwait(false);
+                    response.Options.ReplaceOnChanges.AddRange(result.Value.Options.ReplaceOnChanges);
+                    response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete ?? false;
+                    response.Options.Version = result.Value.Options.Version;
+
+                    if (result.Value.Options is CustomResourceOptions customOptions)
+                    {
+                        response.Options.DeleteBeforeReplace = customOptions.DeleteBeforeReplace ?? false;
+                        response.Options.AdditionalSecretOutputs.AddRange(customOptions.AdditionalSecretOutputs);
+                    }
+                    if (result.Value.Options is ComponentResourceOptions componentOptions)
+                    {
+                        foreach (var provider in componentOptions.Providers)
+                        {
+                            var urn = await provider.Urn.GetValueAsync("").ConfigureAwait(false);
+                            response.Options.Providers.Add(provider.Package, urn);
+                        }
+                    }
+                }
+                return response;
+            });
+            return await callbacks.AllocateCallback(wrapper);
         }
 
         static async Task<T> Resolve<T>(Input<T>? input, T whenUnknown)
@@ -162,53 +353,7 @@ namespace Pulumi
                         continue;
                     }
 
-                    if (resolvedAlias.Urn != null)
-                    {
-                        // Alias URN fully provided, use it as is
-                        aliases.Add(new Pulumirpc.Alias
-                        {
-                            Urn = resolvedAlias.Urn
-                        });
-
-                        continue;
-                    }
-
-                    var aliasSpec = new Pulumirpc.Alias.Types.Spec
-                    {
-                        Name = await Resolve(resolvedAlias.Name, ""),
-                        Type = await Resolve(resolvedAlias.Type, ""),
-                        Stack = await Resolve(resolvedAlias.Stack, ""),
-                        Project = await Resolve(resolvedAlias.Project, ""),
-                    };
-
-                    // Here we specify whether the alias has a parent or not.
-                    // aliasSpec must only specify one of NoParent or ParentUrn, not both!
-                    // this determines the wire format of the alias which is used by the engine.
-                    if (resolvedAlias.Parent == null && resolvedAlias.ParentUrn == null)
-                    {
-                        aliasSpec.NoParent = resolvedAlias.NoParent;
-                    }
-                    else if (resolvedAlias.Parent != null)
-                    {
-                        var aliasParentUrn = await Resolve(resolvedAlias.Parent.Urn, "");
-                        if (!string.IsNullOrEmpty(aliasParentUrn))
-                        {
-                            aliasSpec.ParentUrn = aliasParentUrn;
-                        }
-                    }
-                    else
-                    {
-                        var aliasParentUrn = await Resolve(resolvedAlias.ParentUrn, "");
-                        if (!string.IsNullOrEmpty(aliasParentUrn))
-                        {
-                            aliasSpec.ParentUrn = aliasParentUrn;
-                        }
-                    }
-
-                    aliases.Add(new Pulumirpc.Alias
-                    {
-                        Spec = aliasSpec
-                    });
+                    aliases.Add(await resolvedAlias.SerializeAsync().ConfigureAwait(false));
                 }
             }
             else
@@ -223,7 +368,7 @@ namespace Pulumi
                     options.Parent);
                 foreach (var aliasUrn in allAliases)
                 {
-                    var aliasValue = await Resolve(aliasUrn, "");
+                    var aliasValue = await Resolve(aliasUrn, "").ConfigureAwait(false);
                     if (!string.IsNullOrEmpty(aliasValue) && uniqueAliases.Add(aliasValue))
                     {
                         aliases.Add(new Pulumirpc.Alias
@@ -434,6 +579,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
             public readonly HashSet<string> AllDirectDependencyUrns;
             public readonly Dictionary<string, HashSet<string>> PropertyToDirectDependencyUrns;
             public readonly List<Pulumirpc.Alias> Aliases;
+            public readonly List<Pulumirpc.Callback> Transforms;
             /// <summary>
             /// Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
             /// When that is not the case, use only use the URNs of the aliases to populate the AliasURNs field of RegisterResourceRequest,
@@ -450,7 +596,8 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 Dictionary<string,
                 HashSet<string>> propertyToDirectDependencyUrns,
                 List<Pulumirpc.Alias> aliases,
-                bool supportsAliasSpec)
+                bool supportsAliasSpec,
+                List<Pulumirpc.Callback> transforms)
             {
                 SerializedProps = serializedProps;
                 ParentUrn = parentUrn;
@@ -460,6 +607,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 PropertyToDirectDependencyUrns = propertyToDirectDependencyUrns;
                 SupportsAliasSpec = supportsAliasSpec;
                 Aliases = aliases;
+                Transforms = transforms;
             }
         }
     }

@@ -142,6 +142,8 @@ jobs:
         run: dotnet run integration test TestProvider
       - name: TestDeletedWith
         run: dotnet run integration test TestDeletedWith
+      - name: TestDotNetTransforms
+        run: dotnet run integration test TestDotNetTransforms
 
   info:
     name: gather

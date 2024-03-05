@@ -156,10 +156,16 @@ jobs:
         uses: miniscruff/changie-action@v2
         with:
           args: next auto
+        continue-on-error: true
+      - name: Get the next patch version
+        id: patch
+        uses: miniscruff/changie-action@v2
+        with:
+          args: next patch
       - name: Stitch version together
         id: version
         run: |
-          TAG="${{ steps.latest.outputs.output }}"
+          TAG="${{ steps.latest.outputs.output || steps.patch.outputs.output }}"
           TAG="${TAG#v}" # remove prefix
           OID="$(git rev-parse --short HEAD)"
           PULUMI_VERSION="$TAG-alpha.$OID"

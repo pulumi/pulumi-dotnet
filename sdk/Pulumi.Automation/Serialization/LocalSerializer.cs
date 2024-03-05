@@ -61,11 +61,7 @@ namespace Pulumi.Automation.Serialization
             var options = new JsonSerializerOptions
             {
                 AllowTrailingCommas = true,
-#if NETCOREAPP3_1
-                IgnoreNullValues = true,
-#else
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-#endif
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
 

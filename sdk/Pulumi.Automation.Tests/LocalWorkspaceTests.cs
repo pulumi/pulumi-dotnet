@@ -157,16 +157,23 @@ namespace Pulumi.Automation.Tests
             var program = PulumiFn.Create<ValidStack>();
             var stackName = FullyQualifiedStackName(_pulumiOrg, projectName, $"int_test{GetTestSuffix()}");
             await workspace.CreateStackAsync(stackName);
+            var stack = await WorkspaceStack.SelectAsync(stackName, workspace);
 
-            await Assert.ThrowsAsync<CommandException>(() => workspace.AddEnvironmentsAsync(stackName, new[] { "non-existent-env" }));
+            await Assert.ThrowsAsync<CommandException>(() => stack.AddEnvironmentsAsync(new[] { "non-existent-env" }));
 
-            await workspace.AddEnvironmentsAsync(stackName, new[] { "automation-api-test-env", "automation-api-test-env-2" });
+            await stack.AddEnvironmentsAsync(new[] { "automation-api-test-env", "automation-api-test-env-2" });
+
+            var environments = await stack.ListEnvironmentsAsync();
+            Assert.Equal(new string[] { "automation-api-test-env", "automation-api-test-env-2" }, environments);
             var config = await workspace.GetAllConfigAsync(stackName);
 
             Assert.Equal("test_value", config["node_env_test:new_key"].Value);
             Assert.Equal("business", config["node_env_test:also"].Value);
 
-            await workspace.RemoveEnvironmentAsync(stackName, "automation-api-test-env");
+            await stack.RemoveEnvironmentAsync("automation-api-test-env");
+            environments = await stack.ListEnvironmentsAsync();
+            Assert.Equal(new string[] { "automation-api-test-env-2" }, environments);
+
             config = await workspace.GetAllConfigAsync(stackName);
             Assert.Equal("business", config["node_env_test:also"].Value);
             Assert.False(config.ContainsKey("node_env_test:new_key"));

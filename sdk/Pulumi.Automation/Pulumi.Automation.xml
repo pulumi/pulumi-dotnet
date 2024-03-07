@@ -569,6 +569,9 @@
         <member name="M:Pulumi.Automation.LocalWorkspace.AddEnvironmentsAsync(System.String,System.Collections.Generic.IEnumerable{System.String},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.ListEnvironmentsAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:Pulumi.Automation.LocalWorkspace.RemoveEnvironmentAsync(System.String,System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -1456,6 +1459,13 @@
             </summary>
             <param name="stackName">The name of the stack.</param>
             <param name="environments">List of environments to add to the end of the stack's import list.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.ListEnvironmentsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of environments associated with the specified stack name
+            </summary>
+            <param name="stackName">The name of the stack.</param>
             <param name="cancellationToken">A cancellation token.</param>
         </member>
         <member name="M:Pulumi.Automation.Workspace.RemoveEnvironmentAsync(System.String,System.String,System.Threading.CancellationToken)">

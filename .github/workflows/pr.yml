@@ -185,6 +185,17 @@ jobs:
   check-pr:
     needs: ["build", "integration-tests", "format"]
     runs-on: ubuntu-latest
+    if: always() # always report a status
     steps:
-      - name: OK
-        run: echo "OK"
+      - name: Build failed
+        if: ${{ needs.build.result != 'success' }}
+        run: exit 1
+      - name: Integration tests failed
+        if: ${{ needs.integration-tests.result != 'success' }}
+        run: exit 1
+      - name: Format failed
+        if: ${{ needs.format.result != 'success' }}
+        run: exit 1
+      - name: CI succeeded
+        run: exit 0
+

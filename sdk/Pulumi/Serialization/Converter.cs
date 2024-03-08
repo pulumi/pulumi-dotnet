@@ -200,11 +200,17 @@ namespace Pulumi.Serialization
             for (int i = 0, n = constructorParameters.Length; i < n; i++)
             {
                 var parameter = constructorParameters[i];
+                var parameterName = parameter.Name!;
+                var attribute = parameter.GetCustomAttribute<OutputConstructorParameterAttribute>();
+                if (attribute != null)
+                {
+                    parameterName = attribute.Name;
+                }
 
                 // Note: TryGetValue may not find a value here.  That can happen for things like
                 // unknown vals.  That's ok.  We'll pass that through to 'Convert' and will get the
                 // default value needed for the parameter type.
-                dictionary!.TryGetValue(parameter.Name!, out var argValue);
+                dictionary!.TryGetValue(parameterName, out var argValue);
 
                 arguments[i] = ConvertObject(warn, $"{targetType.FullName}({parameter.Name})", argValue, parameter.ParameterType);
             }

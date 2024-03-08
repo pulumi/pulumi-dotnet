@@ -78,6 +78,21 @@ namespace Pulumi
     }
 
     /// <summary>
+    /// Attribute used by a Pulumi Cloud Provider Package to mark
+    /// constructor parameters with a name override.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public sealed class OutputConstructorParameterAttribute : Attribute
+    {
+        public string Name { get; }
+
+        public OutputConstructorParameterAttribute(string name)
+        {
+            Name = name;
+        }
+    }
+
+    /// <summary>
     /// Attribute used by a Pulumi Cloud Provider Package to mark enum types.
     ///
     /// Requirements for a struct-based enum to be (de)serialized are as follows.

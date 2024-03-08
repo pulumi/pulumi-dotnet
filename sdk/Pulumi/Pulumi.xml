@@ -2377,6 +2377,12 @@
                  but is recommended and is what our codegen does.
              </summary>
         </member>
+        <member name="T:Pulumi.OutputConstructorParameterAttribute">
+            <summary>
+            Attribute used by a Pulumi Cloud Provider Package to mark
+            constructor parameters with a name override.
+            </summary>
+        </member>
         <member name="F:Pulumi.Serialization.Constants.UnknownValue">
             <summary>
             Unknown values are encoded as a distinguished string value.
@@ -3650,7 +3656,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Analyzer.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Analyzer.AnalyzerBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -4039,7 +4045,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Converter.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Converter.ConverterBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -4323,7 +4329,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Engine.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Engine.EngineBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -5319,7 +5325,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.LanguageRuntime.LanguageRuntimeBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -7548,7 +7554,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.ResourceProvider.ResourceProviderBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -8207,7 +8213,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.ResourceMonitor.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.ResourceMonitor.ResourceMonitorBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -8467,7 +8473,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Testing.LanguageTest.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Testing.LanguageTest.LanguageTestBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -8594,7 +8600,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Codegen.Loader.BindService(Grpc.Core.ServiceBinderBase,Codegen.Loader.LoaderBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -8723,7 +8729,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Codegen.Mapper.BindService(Grpc.Core.ServiceBinderBase,Codegen.Mapper.MapperBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>

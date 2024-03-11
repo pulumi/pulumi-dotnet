@@ -1,5 +1,6 @@
-// Copyright 2016-2020, Pulumi Corporation
+// Copyright 2016-2024, Pulumi Corporation
 
+using System;
 using System.Collections.Generic;
 
 namespace Pulumi
@@ -20,6 +21,20 @@ namespace Pulumi
         {
             get => _resourceTransformations ??= new List<ResourceTransformation>();
             set => _resourceTransformations = value;
+        }
+
+        private List<ResourceTransform>? _resourceTransforms;
+
+        /// <summary>
+        /// Optional list of transforms to apply to this stack's resources during construction. The transforms are
+        /// applied in order, and are applied after all the transforms of custom and component resources in the stack.
+        ///
+        /// This property is experimental.
+        /// </summary>
+        public List<ResourceTransform> XResourceTransforms
+        {
+            get => _resourceTransforms ??= new List<ResourceTransform>();
+            set => _resourceTransforms = value;
         }
     }
 }

@@ -327,6 +327,11 @@
             Only specify one of <see cref="P:Pulumi.Alias.Parent"/> or <see cref="P:Pulumi.Alias.ParentUrn"/> or <see cref="P:Pulumi.Alias.NoParent"/>.
             </summary>
         </member>
+        <member name="M:Pulumi.Alias.Deserialize(Pulumirpc.Alias)">
+            <summary>
+            Deserialize a wire protocol alias to an alias object.
+            </summary>
+        </member>
         <member name="T:Pulumi.Archive">
             <summary>
             An Archive represents a collection of named assets.
@@ -890,6 +895,21 @@
             and the parent name changed.
             </summary>
         </member>
+        <member name="T:Pulumi.Callback">
+            <summary>
+            A callback function that can be invoked by the engine to perform some operation. The input message will be a
+            byte serialized protobuf message, which the callback function should deserialize and process. The return value
+            is a protobuf message that the SDK will serialize and return to the engine.
+            </summary>
+            <param name="message">A byte serialized protobuf message.</param>
+            <param name="cancellationToken">The async cancellation token.</param>
+            <returns>A protobuf message to be returned to the engine.</returns>
+        </member>
+        <member name="T:Pulumi.Callbacks">
+            <summary>
+            This class implements the callbacks server used by the engine to invoke remote functions in the dotnet process.
+            </summary>
+        </member>
         <member name="T:Pulumi.CallOptions">
             <summary>
             Options to help control the behavior of <see cref="M:Pulumi.Deployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,System.Boolean)"/>.
@@ -969,6 +989,11 @@
             <summary>
             Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
             In which case we no longer compute alias combinations ourselves but instead delegate the work to the engine.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Deployment.MonitorSupportsTransforms">
+            <summary>
+            Returns whether the resource monitor we are connected to supports the "transforms" feature across the RPC interface.
             </summary>
         </member>
         <member name="M:Pulumi.Deployment.EngineLogger.Pulumi#IEngineLogger#DebugAsync(System.String,Pulumi.Resource,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
@@ -2137,6 +2162,14 @@
             parents walking from the resource up to the stack.
             </summary>
         </member>
+        <member name="P:Pulumi.ResourceOptions.XResourceTransforms">
+             <summary>
+             Optional list of transforms to apply to this resource during construction.The transforms are applied in
+             order, and are applied prior to transform applied to parents walking from the resource up to the stack.
+            
+             This property is experimental.
+             </summary>
+        </member>
         <member name="P:Pulumi.ResourceOptions.Aliases">
             <summary>
             An optional list of aliases to treat this resource as matching.
@@ -2171,6 +2204,43 @@
             <summary>
             If set, the providers Delete method will not be called for this resource
             if specified resource is being deleted as well.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceTransform">
+            <summary>
+            ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.XResourceTransforms"/>. A
+            transform is passed the same set of inputs provided to the <see cref="T:Pulumi.Resource"/> constructor, and can
+            optionally return back alternate values for the <c>properties</c> and/or <c>options</c> prior to the resource
+            actually being created. The effect will be as though those <c>properties</c> and/or <c>options</c> were passed
+            in place of the original call to the <see cref="T:Pulumi.Resource"/> constructor. If the transform returns <see
+            langword="null"/>, this indicates that the resource will not be transformed.
+            </summary>
+            <returns>The new values to use for the <c>args</c> and <c>options</c> of the <see cref="T:Pulumi.Resource"/> in place of
+            the originally provided values.</returns>
+        </member>
+        <member name="P:Pulumi.ResourceTransformArgs.Name">
+            <summary>
+            The name of the resource being transformed.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceTransformArgs.Type">
+            <summary>
+            The type of the resource being transformed.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceTransformArgs.Custom">
+            <summary>
+            If this is a custom resource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceTransformArgs.Args">
+            <summary>
+            The original properties passed to the Resource constructor.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceTransformArgs.Options">
+            <summary>
+            The original resource options passed to the Resource constructor.
             </summary>
         </member>
         <member name="T:Pulumi.ResourceTransformation">
@@ -2213,6 +2283,14 @@
             The transformations are applied in order, and are applied after all the transformations of custom
             and component resources in the stack.
             </summary>
+        </member>
+        <member name="P:Pulumi.StackOptions.XResourceTransforms">
+             <summary>
+             Optional list of transforms to apply to this stack's resources during construction. The transforms are
+             applied in order, and are applied after all the transforms of custom and component resources in the stack.
+            
+             This property is experimental.
+             </summary>
         </member>
         <member name="T:Pulumi.StackReference">
             <summary>
@@ -2362,6 +2440,12 @@
              cref="P:Google.Protobuf.WellKnownTypes.Struct.Fields"/> returned by the engine.
              </summary>
         </member>
+        <member name="T:Pulumi.OutputConstructorParameterAttribute">
+            <summary>
+            Attribute used by a Pulumi Cloud Provider Package to mark
+            constructor parameters with a name override.
+            </summary>
+        </member>
         <member name="T:Pulumi.EnumTypeAttribute">
              <summary>
              Attribute used by a Pulumi Cloud Provider Package to mark enum types.
@@ -2376,12 +2460,6 @@
                * Implementing IEquatable, adding ==/=! operators and overriding ToString isn't required,
                  but is recommended and is what our codegen does.
              </summary>
-        </member>
-        <member name="T:Pulumi.OutputConstructorParameterAttribute">
-            <summary>
-            Attribute used by a Pulumi Cloud Provider Package to mark
-            constructor parameters with a name override.
-            </summary>
         </member>
         <member name="F:Pulumi.Serialization.Constants.UnknownValue">
             <summary>
@@ -2875,6 +2953,11 @@
             Disabled policies do not run during a deployment.
             </summary>
         </member>
+        <member name="F:Pulumirpc.EnforcementLevel.Remediate">
+            <summary>
+            Remediated policies actually fixes problems instead of issuing diagnostics.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.AnalyzeRequest.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>
         </member>
@@ -3220,6 +3303,72 @@
             URN of the resource that violates the policy.
             </summary>
         </member>
+        <member name="T:Pulumirpc.Remediation">
+            <summary>
+            Remediation is a single resource remediation result.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Remediation.PolicyNameFieldNumber">
+            <summary>Field number for the "policyName" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Remediation.PolicyName">
+            <summary>
+            Name of the policy that performed the remediation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Remediation.PolicyPackNameFieldNumber">
+            <summary>Field number for the "policyPackName" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Remediation.PolicyPackName">
+            <summary>
+            Name of the policy pack the transform is in.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Remediation.PolicyPackVersionFieldNumber">
+            <summary>Field number for the "policyPackVersion" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Remediation.PolicyPackVersion">
+            <summary>
+            Version of the policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Remediation.DescriptionFieldNumber">
+            <summary>Field number for the "description" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Remediation.Description">
+            <summary>
+            Description of transform rule. e.g., "auto-tag resources."
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Remediation.PropertiesFieldNumber">
+            <summary>Field number for the "properties" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Remediation.Properties">
+            <summary>
+            the transformed properties to use.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Remediation.DiagnosticFieldNumber">
+            <summary>Field number for the "diagnostic" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Remediation.Diagnostic">
+            <summary>
+            an optional warning diagnostic to emit, if a transform failed.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.RemediateResponse">
+            <summary>
+            RemediateResponse contains a sequence of remediations applied, in order.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RemediateResponse.RemediationsFieldNumber">
+            <summary>Field number for the "remediations" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RemediateResponse.Remediations">
+            <summary>
+            the list of remediations that were applied.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AnalyzerInfo">
             <summary>
             AnalyzerInfo provides metadata about a PolicyPack inside an analyzer.
@@ -3414,6 +3563,15 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerBase.Remediate(Pulumirpc.AnalyzeRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Remediate optionally transforms a single resource object. This effectively rewrites
+            a single resource object's properties instead of using what was generated by the program.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.Analyzer.AnalyzerBase.GetAnalyzerInfo(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
             <summary>
             GetAnalyzerInfo returns metadata about the analyzer (e.g., list of policies contained).
@@ -3540,6 +3698,46 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Remediate(Pulumirpc.AnalyzeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Remediate optionally transforms a single resource object. This effectively rewrites
+            a single resource object's properties instead of using what was generated by the program.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Remediate(Pulumirpc.AnalyzeRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Remediate optionally transforms a single resource object. This effectively rewrites
+            a single resource object's properties instead of using what was generated by the program.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.RemediateAsync(Pulumirpc.AnalyzeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Remediate optionally transforms a single resource object. This effectively rewrites
+            a single resource object's properties instead of using what was generated by the program.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.RemediateAsync(Pulumirpc.AnalyzeRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Remediate optionally transforms a single resource object. This effectively rewrites
+            a single resource object's properties instead of using what was generated by the program.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.Analyzer.AnalyzerClient.GetAnalyzerInfo(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
             GetAnalyzerInfo returns metadata about the analyzer (e.g., list of policies contained).
@@ -3656,6 +3854,138 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Analyzer.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Analyzer.AnalyzerBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="T:Pulumirpc.CallbackReflection">
+            <summary>Holder for reflection information generated from pulumi/callback.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.CallbackReflection.Descriptor">
+            <summary>File descriptor for pulumi/callback.proto</summary>
+        </member>
+        <member name="F:Pulumirpc.Callback.TargetFieldNumber">
+            <summary>Field number for the "target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Callback.Target">
+            <summary>
+            the gRPC target of the callback service.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Callback.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Callback.Token">
+            <summary>
+            the service specific unique token for this callback.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CallbackInvokeRequest.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallbackInvokeRequest.Token">
+            <summary>
+            the token for the callback.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CallbackInvokeRequest.RequestFieldNumber">
+            <summary>Field number for the "request" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallbackInvokeRequest.Request">
+            <summary>
+            the serialized protobuf message of the arguments for this callback.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CallbackInvokeResponse.ResponseFieldNumber">
+            <summary>Field number for the "response" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallbackInvokeResponse.Response">
+            <summary>
+            the serialized protobuf message of the response for this callback.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Callbacks">
+            <summary>
+            Callbacks is a service for invoking functions in one runtime from other processes.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.Callbacks.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Pulumirpc.Callbacks.CallbacksBase">
+            <summary>Base class for server-side implementations of Callbacks</summary>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksBase.Invoke(Pulumirpc.CallbackInvokeRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Invoke invokes a given callback, identified by its token.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Pulumirpc.Callbacks.CallbacksClient">
+            <summary>Client for Callbacks</summary>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for Callbacks</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for Callbacks that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.Invoke(Pulumirpc.CallbackInvokeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Invoke invokes a given callback, identified by its token.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.Invoke(Pulumirpc.CallbackInvokeRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Invoke invokes a given callback, identified by its token.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.InvokeAsync(Pulumirpc.CallbackInvokeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Invoke invokes a given callback, identified by its token.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.InvokeAsync(Pulumirpc.CallbackInvokeRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Invoke invokes a given callback, identified by its token.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.CallbacksClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.BindService(Pulumirpc.Callbacks.CallbacksBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Pulumirpc.Callbacks.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Callbacks.CallbacksBase)">
             <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
@@ -3863,12 +4193,44 @@
             the provider PluginDownloadURL to use for the resource, if any.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceImport.LogicalNameFieldNumber">
+            <summary>Field number for the "logical_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.LogicalName">
+            <summary>
+            the logical name of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.IsComponentFieldNumber">
+            <summary>Field number for the "is_component" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.IsComponent">
+            <summary>
+            true if this is a component resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.IsRemoteFieldNumber">
+            <summary>Field number for the "is_remote" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.IsRemote">
+            <summary>
+            true if this is a remote resource. Ignored if is_component is false.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ConvertStateResponse.ResourcesFieldNumber">
             <summary>Field number for the "resources" field.</summary>
         </member>
         <member name="P:Pulumirpc.ConvertStateResponse.Resources">
             <summary>
             a list of resources to import.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertStateResponse.DiagnosticsFieldNumber">
+            <summary>Field number for the "diagnostics" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertStateResponse.Diagnostics">
+            <summary>
+            any diagnostics from state conversion.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConvertProgramRequest.SourceDirectoryFieldNumber">
@@ -4352,6 +4714,48 @@
         <member name="P:Pulumirpc.LanguageReflection.Descriptor">
             <summary>File descriptor for pulumi/language.proto</summary>
         </member>
+        <member name="T:Pulumirpc.ProgramInfo">
+            <summary>
+            ProgramInfo are the common set of options that a language runtime needs to execute or query a program. This
+            is filled in by the engine based on where the `Pulumi.yaml` file was, the `runtime.options` property, and
+            the `main` property.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProgramInfo.RootDirectoryFieldNumber">
+            <summary>Field number for the "root_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProgramInfo.RootDirectory">
+            <summary>
+            the root of the project, where the `Pulumi.yaml` file is located.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProgramInfo.ProgramDirectoryFieldNumber">
+            <summary>Field number for the "program_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProgramInfo.ProgramDirectory">
+            <summary>
+            the absolute path to the directory of the program to execute. Generally, but not required to be,
+            underneath the root directory.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProgramInfo.EntryPointFieldNumber">
+            <summary>Field number for the "entry_point" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProgramInfo.EntryPoint">
+            <summary>
+            the entry point of the program, normally '.' meaning to just use the program directory, but can also be
+            a filename inside the program directory. How that filename is interpreted, if at all, is language
+            specific.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProgramInfo.OptionsFieldNumber">
+            <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProgramInfo.Options">
+            <summary>
+            JSON style options from the `Pulumi.yaml` runtime options section.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AboutResponse">
             <summary>
             AboutResponse returns runtime information about the language.
@@ -4386,7 +4790,7 @@
         </member>
         <member name="P:Pulumirpc.GetProgramDependenciesRequest.Project">
             <summary>
-            the project name.
+            the project name, the engine always sets this to "deprecated" now.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetProgramDependenciesRequest.PwdFieldNumber">
@@ -4411,6 +4815,14 @@
         <member name="P:Pulumirpc.GetProgramDependenciesRequest.TransitiveDependencies">
             <summary>
             if transitive dependencies should be included in the result.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetProgramDependenciesRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetProgramDependenciesRequest.Info">
+            <summary>
+            the program info to use to calculate dependencies.
             </summary>
         </member>
         <member name="F:Pulumirpc.DependencyInfo.NameFieldNumber">
@@ -4442,7 +4854,7 @@
         </member>
         <member name="P:Pulumirpc.GetRequiredPluginsRequest.Project">
             <summary>
-            the project name.
+            the project name, the engine always sets this to "deprecated" now.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetRequiredPluginsRequest.PwdFieldNumber">
@@ -4459,6 +4871,14 @@
         <member name="P:Pulumirpc.GetRequiredPluginsRequest.Program">
             <summary>
             the path to the program.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetRequiredPluginsRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetRequiredPluginsRequest.Info">
+            <summary>
+            the program info to use to calculate plugins.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetRequiredPluginsResponse.PluginsFieldNumber">
@@ -4570,6 +4990,22 @@
             the organization of the stack being deployed into.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RunRequest.ConfigPropertyMapFieldNumber">
+            <summary>Field number for the "configPropertyMap" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunRequest.ConfigPropertyMap">
+            <summary>
+            the configuration variables to apply before running.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunRequest.Info">
+            <summary>
+            the program info to use to execute the program.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RunResponse">
             <summary>
             RunResponse is the response back from the interpreter/source back to the monitor.
@@ -4607,6 +5043,14 @@
         <member name="P:Pulumirpc.InstallDependenciesRequest.IsTerminal">
             <summary>
             if we are running in a terminal and should use ANSI codes
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.InstallDependenciesRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InstallDependenciesRequest.Info">
+            <summary>
+            the program info to use to execute the plugin.
             </summary>
         </member>
         <member name="F:Pulumirpc.InstallDependenciesResponse.StdoutFieldNumber">
@@ -4655,6 +5099,14 @@
         <member name="P:Pulumirpc.RunPluginRequest.Env">
             <summary>
             any environment variables to set as part of the program.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunPluginRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPluginRequest.Info">
+            <summary>
+            the program info to use to execute the plugin.
             </summary>
         </member>
         <member name="F:Pulumirpc.RunPluginResponse.StdoutFieldNumber">
@@ -4803,6 +5255,14 @@
         <member name="P:Pulumirpc.GeneratePackageRequest.LoaderTarget">
             <summary>
             The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GeneratePackageResponse.DiagnosticsFieldNumber">
+            <summary>Field number for the "diagnostics" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageResponse.Diagnostics">
+            <summary>
+            any diagnostics from code generation.
             </summary>
         </member>
         <member name="F:Pulumirpc.PackRequest.PackageDirectoryFieldNumber">
@@ -5474,6 +5934,14 @@
             when true, diff and update will be called with the old outputs and the old inputs.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConfigureRequest.SendsOldInputsToDeleteFieldNumber">
+            <summary>Field number for the "sends_old_inputs_to_delete" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.SendsOldInputsToDelete">
+            <summary>
+            when true, delete will be called with the old outputs and the old inputs.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ConfigureResponse.AcceptSecretsFieldNumber">
             <summary>Field number for the "acceptSecrets" field.</summary>
         </member>
@@ -5594,38 +6062,6 @@
             a map from argument keys to the dependencies of the argument.
             </summary>
         </member>
-        <member name="F:Pulumirpc.CallRequest.ProviderFieldNumber">
-            <summary>Field number for the "provider" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.CallRequest.Provider">
-            <summary>
-            an optional reference to the provider to use for this invoke.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.CallRequest.VersionFieldNumber">
-            <summary>Field number for the "version" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.CallRequest.Version">
-            <summary>
-            the version of the provider to use when servicing this request.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.CallRequest.PluginDownloadURLFieldNumber">
-            <summary>Field number for the "pluginDownloadURL" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.CallRequest.PluginDownloadURL">
-            <summary>
-            the pluginDownloadURL of the provider to use when servicing this request.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.CallRequest.PluginChecksumsFieldNumber">
-            <summary>Field number for the "pluginChecksums" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.CallRequest.PluginChecksums">
-            <summary>
-            a map of checksums of the provider to use when servicing this request.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.CallRequest.ProjectFieldNumber">
             <summary>Field number for the "project" field.</summary>
         </member>
@@ -5690,12 +6126,12 @@
             the organization of the stack being deployed into.
             </summary>
         </member>
-        <member name="F:Pulumirpc.CallRequest.SourcePositionFieldNumber">
-            <summary>Field number for the "sourcePosition" field.</summary>
+        <member name="F:Pulumirpc.CallRequest.AcceptsOutputValuesFieldNumber">
+            <summary>Field number for the "accepts_output_values" field.</summary>
         </member>
-        <member name="P:Pulumirpc.CallRequest.SourcePosition">
+        <member name="P:Pulumirpc.CallRequest.AcceptsOutputValues">
             <summary>
-            the optional source position of the user code that initiated the call.
+            the engine can be passed output values back, returnDependencies can be left blank if returning output values.
             </summary>
         </member>
         <member name="T:Pulumirpc.CallRequest.Types">
@@ -6236,6 +6672,14 @@
             the delete request timeout represented in seconds.
             </summary>
         </member>
+        <member name="F:Pulumirpc.DeleteRequest.OldInputsFieldNumber">
+            <summary>Field number for the "old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeleteRequest.OldInputs">
+            <summary>
+            the old input values of the resource to delete.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ConstructRequest.ProjectFieldNumber">
             <summary>Field number for the "project" field.</summary>
         </member>
@@ -6427,6 +6871,14 @@
         <member name="P:Pulumirpc.ConstructRequest.RetainOnDelete">
             <summary>
             whether to retain the resource in the cloud provider when it is deleted
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.AcceptsOutputValuesFieldNumber">
+            <summary>Field number for the "accepts_output_values" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.AcceptsOutputValues">
+            <summary>
+            the engine can be passed output values back, stateDependencies can be left blank if returning output values.
             </summary>
         </member>
         <member name="T:Pulumirpc.ConstructRequest.Types">
@@ -7976,6 +8428,14 @@
             the optional source position of the user code that initiated the register.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.TransformsFieldNumber">
+            <summary>Field number for the "transforms" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.Transforms">
+            <summary>
+            a list of transforms to apply to the resource before registering it.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -8174,6 +8634,206 @@
         <member name="P:Pulumirpc.ResourceInvokeRequest.SourcePosition">
             <summary>
             the optional source position of the user code that initiated the invoke.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.TokFieldNumber">
+            <summary>Field number for the "tok" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.Tok">
+            <summary>
+            the function token to invoke.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.Args">
+            <summary>
+            the arguments for the function invocation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.ArgDependenciesFieldNumber">
+            <summary>Field number for the "argDependencies" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.ArgDependencies">
+            <summary>
+            a map from argument keys to the dependencies of the argument.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.Provider">
+            <summary>
+            an optional reference to the provider to use for this invoke.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.Version">
+            <summary>
+            the version of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.PluginDownloadURLFieldNumber">
+            <summary>Field number for the "pluginDownloadURL" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.PluginDownloadURL">
+            <summary>
+            the pluginDownloadURL of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "pluginChecksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.PluginChecksums">
+            <summary>
+            a map of checksums of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.SourcePositionFieldNumber">
+            <summary>Field number for the "sourcePosition" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.SourcePosition">
+            <summary>
+            the optional source position of the user code that initiated the call.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceCallRequest.Types">
+            <summary>Container for nested types declared in the ResourceCallRequest message type.</summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceCallRequest.Types.ArgumentDependencies">
+            <summary>
+            ArgumentDependencies describes the resources that a particular argument depends on.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.Types.ArgumentDependencies.UrnsFieldNumber">
+            <summary>Field number for the "urns" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.Types.ArgumentDependencies.Urns">
+            <summary>
+            A list of URNs this argument depends on.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.TransformResourceOptions">
+            <summary>
+            TransformResourceOptions is a subset of all resource options that are relevant to transforms.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.DependsOnFieldNumber">
+            <summary>Field number for the "depends_on" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ProtectFieldNumber">
+            <summary>Field number for the "protect" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.IgnoreChangesFieldNumber">
+            <summary>Field number for the "ignore_changes" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ReplaceOnChangesFieldNumber">
+            <summary>Field number for the "replace_on_changes" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.AliasesFieldNumber">
+            <summary>Field number for the "aliases" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.CustomTimeoutsFieldNumber">
+            <summary>Field number for the "custom_timeouts" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.PluginDownloadUrlFieldNumber">
+            <summary>Field number for the "plugin_download_url" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.RetainOnDeleteFieldNumber">
+            <summary>Field number for the "retain_on_delete" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.DeletedWithFieldNumber">
+            <summary>Field number for the "deleted_with" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.DeleteBeforeReplaceFieldNumber">
+            <summary>Field number for the "delete_before_replace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformResourceOptions.HasDeleteBeforeReplace">
+            <summary>Gets whether the "delete_before_replace" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.TransformResourceOptions.ClearDeleteBeforeReplace">
+            <summary>Clears the value of the "delete_before_replace" field</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.AdditionalSecretOutputsFieldNumber">
+            <summary>Field number for the "additional_secret_outputs" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ProvidersFieldNumber">
+            <summary>Field number for the "providers" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.PluginChecksumsFieldNumber">
+            <summary>Field number for the "plugin_checksums" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformRequest.Type">
+            <summary>
+            the type of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformRequest.Name">
+            <summary>
+            the name of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformRequest.CustomFieldNumber">
+            <summary>Field number for the "custom" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformRequest.Custom">
+            <summary>
+            true if the resource is a custom resource, else it's a component resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformRequest.ParentFieldNumber">
+            <summary>Field number for the "parent" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformRequest.Parent">
+            <summary>
+            the parent of the resource, this can't be changed by the transform.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformRequest.PropertiesFieldNumber">
+            <summary>Field number for the "properties" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformRequest.Properties">
+            <summary>
+            the input properties of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformRequest.OptionsFieldNumber">
+            <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformRequest.Options">
+            <summary>
+            the options for the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResponse.PropertiesFieldNumber">
+            <summary>Field number for the "properties" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformResponse.Properties">
+            <summary>
+            the transformed input properties.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResponse.OptionsFieldNumber">
+            <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformResponse.Options">
+            <summary>
+            the options for the resource.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceMonitor">

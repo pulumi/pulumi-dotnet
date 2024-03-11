@@ -1,4 +1,4 @@
-// Copyright 2016-2021, Pulumi Corporation
+// Copyright 2016-2024, Pulumi Corporation
 
 using System;
 using System.Collections.Immutable;
@@ -69,6 +69,7 @@ namespace Pulumi
                 request.AliasURNs.AddRange(aliasUrns);
             }
 
+            request.Transforms.AddRange(prepareResult.Transforms);
             request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
 
             foreach (var (key, resourceUrns) in prepareResult.PropertyToDirectDependencyUrns)
@@ -103,12 +104,7 @@ namespace Pulumi
                 AcceptResources = !_disableResourceReferences,
                 DeleteBeforeReplace = deleteBeforeReplace ?? false,
                 DeleteBeforeReplaceDefined = deleteBeforeReplace != null,
-                CustomTimeouts = new RegisterResourceRequest.Types.CustomTimeouts
-                {
-                    Create = TimeoutString(options.CustomTimeouts?.Create),
-                    Delete = TimeoutString(options.CustomTimeouts?.Delete),
-                    Update = TimeoutString(options.CustomTimeouts?.Update),
-                },
+                CustomTimeouts = options.CustomTimeouts?.Serialize(),
                 Remote = remote,
                 RetainOnDelete = options.RetainOnDelete ?? false,
                 DeletedWith = deletedWith,
@@ -123,23 +119,6 @@ namespace Pulumi
             request.IgnoreChanges.AddRange(options.IgnoreChanges);
 
             return request;
-        }
-
-        private static string TimeoutString(TimeSpan? timeSpan)
-        {
-            if (timeSpan == null)
-                return "";
-
-            // This will eventually be parsed by go's ParseDuration function here:
-            // https://github.com/pulumi/pulumi/blob/06d4dde8898b2a0de2c3c7ff8e45f97495b89d82/pkg/resource/deploy/source_eval.go#L967
-            //
-            // So we generate a legal duration as allowed by
-            // https://golang.org/pkg/time/#ParseDuration.
-            //
-            // Simply put, we simply convert our ticks to the integral number of nanoseconds
-            // corresponding to it.  Since each tick is 100ns, this can trivially be done just by
-            // appending "00" to it.
-            return timeSpan.Value.Ticks + "00ns";
         }
     }
 }

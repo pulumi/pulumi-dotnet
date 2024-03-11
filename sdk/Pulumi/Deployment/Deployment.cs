@@ -175,6 +175,30 @@ namespace Pulumi
         IEngineLogger IDeploymentInternal.Logger => _logger;
         IRunner IDeploymentInternal.Runner => _runner;
 
+        CallbacksHost? _callbacks;
+        internal async Task<CallbacksHost> GetCallbacksAsync(CancellationToken cancellationToken)
+        {
+            if (_callbacks != null)
+            {
+                return _callbacks;
+            }
+
+            // Atomically allocate a callbacks instance to use
+            var callbacks = new CallbacksHost();
+            var current = Interlocked.CompareExchange(ref _callbacks, callbacks, null);
+            if (current == null)
+            {
+                // We swapped in the new host so start it up
+                await callbacks.StartAsync(cancellationToken);
+                return callbacks;
+            }
+
+            // Someone beat us to it, just return the existing one and dispose of the new one we made.
+            await callbacks.DisposeAsync();
+            return current;
+        }
+
+
         Stack IDeploymentInternal.Stack
         {
             get => Stack;
@@ -229,6 +253,14 @@ namespace Pulumi
         internal Task<bool> MonitorSupportsAliasSpecs()
         {
             return MonitorSupportsFeature("aliasSpecs");
+        }
+
+        /// <summary>
+        /// Returns whether the resource monitor we are connected to supports the "transforms" feature across the RPC interface.
+        /// </summary>
+        internal Task<bool> MonitorSupportsTransforms()
+        {
+            return MonitorSupportsFeature("transforms");
         }
 
         // Because the secrets feature predates the Pulumi .NET SDK, we assume

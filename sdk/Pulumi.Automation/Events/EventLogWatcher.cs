@@ -94,10 +94,17 @@ namespace Pulumi.Automation.Events
 
             await using var fs = new FileStream(LogFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite) { Position = this._position };
             using var reader = new StreamReader(fs);
+            var partialLine = "";
             while (reader.Peek() >= 0)
             {
                 var line = await reader.ReadLineAsync().ConfigureAwait(false);
                 this._position = fs.Position;
+                if (!string.IsNullOrWhiteSpace(line) && !_localSerializer.IsValidJson(line))
+                {
+                    partialLine += line;
+                    continue;
+                }
+                line = partialLine + line;
                 if (!string.IsNullOrWhiteSpace(line) && _localSerializer.IsValidJson(line))
                 {
                     line = line.Trim();

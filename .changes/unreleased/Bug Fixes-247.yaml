@@ -1,0 +1,6 @@
+component: sdk
+kind: Bug Fixes
+body: Allow mocking of RequireOutput for StackReference
+time: 2024-03-26T16:04:55.063225137Z
+custom:
+  PR: "247"

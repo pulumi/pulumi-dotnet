@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Pulumi.Testing;
 using Xunit;
@@ -11,7 +12,71 @@ namespace Pulumi.Tests.Resources
     public class StackReferenceOutputDetailsTests
     {
         [Fact]
-        public async void SupportsPlainText()
+        public async Task SupportsStackReferenceRequiredOutputs()
+        {
+            var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
+            var options = new TestOptions();
+
+            var (resources, outputs) = await Deployment.TestAsync(mocks, options, () =>
+            {
+                var stackReference = new StackReference("my-stack");
+                var output = stackReference.RequireOutput("bucket");
+
+                return new Dictionary<string, object?>()
+                {
+                    ["bucket"] = output,
+                };
+            });
+
+            var bucket = await (outputs["bucket"] as Output<object>).DataTask;
+            Assert.Equal("my-bucket", bucket.Value);
+            Assert.False(bucket.IsSecret);
+        }
+
+        [Fact]
+        public async Task SupportsStackReferenceRequiredOutputsKeyMissing()
+        {
+            var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
+            var options = new TestOptions();
+
+            var ex = await Assert.ThrowsAsync<Pulumi.RunException>(() => Deployment.TestAsync(mocks, options, () =>
+                {
+                    var stackReference = new StackReference("my-stack", null);
+                    var output = stackReference.RequireOutput("bad-name");
+
+                    return new Dictionary<string, object?>()
+                    {
+                        ["bucket"] = output,
+                    };
+                }));
+
+            Assert.Contains("Required output 'bad-name' does not exist on stack 'my-stack'.", ex.Message);
+        }
+
+        [Fact]
+        public async Task SupportsStackReferenceOutputs()
+        {
+            var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
+            var options = new TestOptions();
+
+            var (resources, outputs) = await Deployment.TestAsync(mocks, options, () =>
+            {
+                var stackReference = new StackReference("my-stack");
+                var output = stackReference.GetOutput("bucket");
+
+                return new Dictionary<string, object?>()
+                {
+                    ["bucket"] = output,
+                };
+            });
+
+            var bucket = await (outputs["bucket"] as Output<object?>).DataTask;
+            Assert.Equal("my-bucket", bucket.Value);
+            Assert.False(bucket.IsSecret);
+        }
+
+        [Fact]
+        public async Task SupportsPlainText()
         {
             var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
             var options = new TestOptions();
@@ -31,7 +96,7 @@ namespace Pulumi.Tests.Resources
         }
 
         [Fact]
-        public async void SupportsSecrets()
+        public async Task SupportsSecrets()
         {
             var mocks = new FakeStackOutputMocks("secret", Output.CreateSecret("my-bucket"));
             var options = new TestOptions();
@@ -51,7 +116,7 @@ namespace Pulumi.Tests.Resources
         }
 
         [Fact]
-        public async void Unknowns()
+        public async Task Unknowns()
         {
             var mocks = new FakeStackOutputMocks("something", "foo");
             var options = new TestOptions();

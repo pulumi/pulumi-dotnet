@@ -71,12 +71,11 @@ namespace Pulumi
         public Output<object> RequireOutput(Input<string> name)
         {
             var inputs = (Input<ImmutableDictionary<string, object>>)this.Outputs;
-            var stackName = (Input<string>)this.Name;
-            var value = Output.Tuple(name, stackName, inputs).Apply(v =>
-                v.Item3.TryGetValue(v.Item1, out var result)
+            var value = Output.Tuple(name, inputs).Apply(v =>
+                v.Item2.TryGetValue(v.Item1, out var result)
                     ? result
                     : throw new KeyNotFoundException(
-                        $"Required output '{v.Item1}' does not exist on stack '{v.Item2}'."));
+                        $"Required output '{v.Item1}' does not exist on stack '{base.GetResourceName()}'."));
 
             return value.WithIsSecret(IsSecretOutputName(name));
         }

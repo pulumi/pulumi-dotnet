@@ -1,0 +1,7 @@
+component: sdk/auto
+kind: Bug Fixes
+body: 'Make sure to read complete lines before trying to deserialize them as engine
+  events'
+time: 2024-03-26T10:27:29.381615999+01:00
+custom:
+  PR: "245"

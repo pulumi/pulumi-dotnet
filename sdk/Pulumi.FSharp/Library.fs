@@ -57,7 +57,7 @@ module Ops =
     /// <summary>
     /// Wraps a collection of second types into an InputList{Union{'a,'b}}
     /// </summary>
-    let inputListFromT1<'a> (items: seq<'a>) =
+    let inputListFromT1<'b> (items: seq<'b>) =
         items |> Seq.map Union.FromT1 |> toInputList
 
 /// <summary>

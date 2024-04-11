@@ -79,9 +79,10 @@ namespace Pulumi
         /// </summary>
         internal void RegisterPropertyOutputs()
         {
-            var outputs = (from property in this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            var outputs = (from property in this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
                            let attr = property.GetCustomAttribute<OutputAttribute>()
                            where attr != null
+                           where property.DeclaringType?.IsAssignableFrom(typeof(Stack)) != true
                            let name = attr?.Name ?? property.Name
                            select new KeyValuePair<string, object?>(name, property.GetValue(this))).ToList();
 

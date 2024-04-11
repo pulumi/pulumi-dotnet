@@ -63,6 +63,27 @@ namespace Pulumi.Tests
             throw new XunitException("Should not come here");
         }
 
+        private class ValidDerivedStack : ValidStack
+        {
+            [Output("child")]
+            public Output<string> ChildProperty { get; set; }
+
+            public ValidDerivedStack()
+            {
+                this.ChildProperty = Output.Create("hello from derived stack");
+            }
+        }
+
+        [Fact]
+        public async Task ValidDerivedStackInstantiationSucceeds()
+        {
+            var (stack, outputs) = await Run<ValidDerivedStack>();
+            Assert.Equal(3, outputs.Count);
+            Assert.Same(stack.ExplicitName, outputs["foo"]);
+            Assert.Same(stack.ImplicitName, outputs["ImplicitName"]);
+            Assert.Same(stack.ChildProperty, outputs["child"]);
+        }
+
         private async Task<(T, IDictionary<string, object?>)> Run<T>() where T : Stack, new()
         {
             // Arrange

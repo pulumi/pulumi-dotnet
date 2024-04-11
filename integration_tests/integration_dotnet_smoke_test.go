@@ -34,6 +34,8 @@ func TestEmptyDotNet(t *testing.T) {
 
 // Tests that stack references work in .NET.
 func TestStackReferenceDotnet(t *testing.T) {
+	t.Skip("Temporarily skipping test - pulumi/pulumi#14765, pulumi/pulumi-dotnet#252")
+
 	if owner := os.Getenv("PULUMI_TEST_OWNER"); owner == "" {
 		t.Skipf("Skipping: PULUMI_TEST_OWNER is not set")
 	}

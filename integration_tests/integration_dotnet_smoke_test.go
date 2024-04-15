@@ -34,8 +34,6 @@ func TestEmptyDotNet(t *testing.T) {
 
 // Tests that stack references work in .NET.
 func TestStackReferenceDotnet(t *testing.T) {
-	t.Skip("Temporarily skipping test - pulumi/pulumi#14765, pulumi/pulumi-dotnet#252")
-
 	if owner := os.Getenv("PULUMI_TEST_OWNER"); owner == "" {
 		t.Skipf("Skipping: PULUMI_TEST_OWNER is not set")
 	}
@@ -44,6 +42,9 @@ func TestStackReferenceDotnet(t *testing.T) {
 		RequireService: true,
 		Dir:            "stack_reference",
 		Quick:          true,
+		// SkipRefresh is required because the stack reference is for the stack itself so it always changes and triggers
+		// the --expect-no-changes error.
+		SkipRefresh: true,
 		EditDirs: []integration.EditDir{
 			{
 				Dir:      "step1",

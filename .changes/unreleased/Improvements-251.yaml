@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Handle Outputs in derived Stacks
-time: 2024-04-11T11:10:42.227518+02:00
-custom:
-  PR: "251"

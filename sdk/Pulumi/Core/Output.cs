@@ -528,9 +528,9 @@ namespace Pulumi
         {
             var data = await dataTask.ConfigureAwait(false);
             var resources = data.Resources;
-            // During previews only perform the apply if the engine was able to
+            // Only perform the apply if the engine was able to
             // give us an actual value for this Output.
-            if (!data.IsKnown && Deployment.Instance.IsDryRun)
+            if (!data.IsKnown)
             {
                 return new OutputData<U>(resources, default!, isKnown: false, data.IsSecret);
             }

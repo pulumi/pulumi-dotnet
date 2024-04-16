@@ -77,6 +77,7 @@ namespace Pulumi
         {
             // Run in a try/catch/finally so that we always resolve all the outputs of the resource
             // regardless of whether we encounter an errors computing the action.
+            var keepUnknowns = false;
             try
             {
                 var response = await ReadOrRegisterResourceAsync(
@@ -116,6 +117,10 @@ namespace Pulumi
                         completionSource.SetValue(converted);
                     }
                 }
+
+                if (response.SkipReason > 0) {
+                    keepUnknowns = true;
+                }
             }
             catch (Exception e)
             {
@@ -135,9 +140,9 @@ namespace Pulumi
                 foreach (var source in completionSources.Values)
                 {
                     // Didn't get a value for this field.  Resolve it with a default value.
-                    // If we're in preview, we'll consider this unknown and in a normal
+                    // If we're in preview or the resource was skipped, we'll consider this unknown and in a normal
                     // update we'll consider it known.
-                    source.TrySetDefaultResult(isKnown: !_isDryRun);
+                    source.TrySetDefaultResult(isKnown: !_isDryRun && !keepUnknowns);
                 }
             }
         }

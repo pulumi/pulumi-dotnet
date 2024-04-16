@@ -108,6 +108,7 @@ namespace Pulumi
                 Remote = remote,
                 RetainOnDelete = options.RetainOnDelete ?? false,
                 DeletedWith = deletedWith,
+                SupportsSkipReason = true,
             };
 
             if (customOpts != null)

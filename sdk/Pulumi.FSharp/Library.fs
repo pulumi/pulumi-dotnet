@@ -25,6 +25,11 @@ module Ops =
         result
     
     /// <summary>
+    /// Wraps a collection of raw items into an <see cref="InputList{'a}}" />.
+    /// <summary>
+    let toInputList<'a> (items: seq<'a>) = items |> Seq.map input |> inputList
+
+    /// <summary>
     /// Wraps a collection of key-value pairs into an <see cref="InputMap{'a}}" />.
     /// </summary>
     let inputMap<'a> (items: seq<string * Input<'a>>) =
@@ -43,6 +48,17 @@ module Ops =
     /// </summary>
     let inputUnion2Of2<'a, 'b> (valB: 'b) = InputUnion<'a, 'b>.op_Implicit(valB)
 
+    /// <summary>
+    /// Wraps a collection of first types into an InputList{Union{'a,'b}}
+    /// </summary>
+    let inputListFromT0<'a> (items: seq<'a>) =
+        items |> Seq.map Union.FromT0 |> toInputList
+
+    /// <summary>
+    /// Wraps a collection of second types into an InputList{Union{'a,'b}}
+    /// </summary>
+    let inputListFromT1<'b> (items: seq<'b>) =
+        items |> Seq.map Union.FromT1 |> toInputList
 
 /// <summary>
 /// Pulumi deployment functions.

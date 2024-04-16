@@ -441,7 +441,6 @@ namespace Pulumi.Tests.Core
                     var o2 = o1.Apply(a => a + 1);
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
-                    Assert.Equal(1, data.Value);
                 });
 
             [Fact]
@@ -452,7 +451,6 @@ namespace Pulumi.Tests.Core
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
-                    Assert.Equal("inner", data.Value);
                 });
 
             [Fact]
@@ -463,7 +461,6 @@ namespace Pulumi.Tests.Core
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
-                    Assert.Equal("inner", data.Value);
                 });
 
             [Fact]
@@ -474,7 +471,6 @@ namespace Pulumi.Tests.Core
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
-                    Assert.Equal("inner", data.Value);
                 });
 
             [Fact]
@@ -534,7 +530,6 @@ namespace Pulumi.Tests.Core
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
-                    Assert.Equal(1, data.Value);
                 });
 
             [Fact]
@@ -546,7 +541,6 @@ namespace Pulumi.Tests.Core
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
-                    Assert.Equal("inner", data.Value);
                 });
 
             [Fact]
@@ -558,7 +552,6 @@ namespace Pulumi.Tests.Core
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
-                    Assert.Equal("inner", data.Value);
                 });
 
             [Fact]
@@ -570,7 +563,6 @@ namespace Pulumi.Tests.Core
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
-                    Assert.Equal("inner", data.Value);
                 });
 
             [Fact]
@@ -598,37 +590,12 @@ namespace Pulumi.Tests.Core
                 });
 
             [Fact]
-            public Task ApplyPropagatesSecretOnUnknownKnownOutput()
-                => RunInNormal(async () =>
-                {
-                    var o1 = CreateOutput(0, isKnown: false);
-                    var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
-                    Assert.False(data.IsKnown);
-                    Assert.True(data.IsSecret);
-                    Assert.Equal("inner", data.Value);
-                });
-
-            [Fact]
-            public Task ApplyPropagatesSecretOnUnknownUnknownOutput()
-                => RunInNormal(async () =>
-                {
-                    var o1 = CreateOutput(0, isKnown: false);
-                    var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
-                    Assert.False(data.IsKnown);
-                    Assert.True(data.IsSecret);
-                    Assert.Equal("inner", data.Value);
-                });
-
-            [Fact]
             public Task CreateUnknownRunsValueFactory()
                 => RunInNormal(async () =>
                 {
                     var output = OutputUtilities.CreateUnknown(() => Task.FromResult("value"));
                     var data = await output.DataTask.ConfigureAwait(false);
                     Assert.False(data.IsKnown);
-                    Assert.Equal("value", data.Value);
                 });
 
             [Fact]

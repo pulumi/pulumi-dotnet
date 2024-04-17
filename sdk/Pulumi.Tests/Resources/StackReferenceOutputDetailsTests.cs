@@ -11,6 +11,28 @@ namespace Pulumi.Tests.Resources
     public class StackReferenceOutputDetailsTests
     {
         [Fact]
+        public async void SupportsStackReferenceRequiredOutputs()
+        {
+            var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
+            var options = new TestOptions();
+
+            var (resources, outputs) = await Deployment.TestAsync(mocks, options, () =>
+            {
+                var stackReference = new StackReference("my-stack");
+                var output = stackReference.RequireOutput("bucket");
+
+                return new Dictionary<string, object?>()
+                {
+                    ["bucket"] = output,
+                };
+            });
+
+            var bucket = await (outputs["bucket"] as Output<object>).DataTask;
+            Assert.Equal("my-bucket", bucket.Value);
+            Assert.False(bucket.IsSecret);
+        }
+
+        [Fact]
         public async void SupportsPlainText()
         {
             var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
@@ -95,6 +117,7 @@ namespace Pulumi.Tests.Resources
                 outputs[this.key] = this.val;
 
                 var props = new Dictionary<string, object>();
+                props["name"] = args.Inputs["name"];
                 props["outputs"] = outputs;
                 return (args.Name + "-id", props);
             }

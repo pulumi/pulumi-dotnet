@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Allow apply to have unknown values during updates
+time: 2024-04-16T17:12:57.998257367+02:00
+custom:
+  PR: "258"

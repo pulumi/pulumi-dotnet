@@ -99,7 +99,7 @@ namespace Pulumi
                         i++;
                     }
                     // parse the number
-                    var v = double.Parse(span[0..i]);
+                    var v = double.Parse(span[0..i], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture);
                     // parse the unit
                     span = span[i..];
                     if (span.IsEmpty)

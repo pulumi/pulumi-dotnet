@@ -1,6 +1,7 @@
 // Copyright 2016-2019, Pulumi Corporation
 
 using System;
+using System.Globalization;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -108,7 +109,7 @@ namespace Pulumi
             var v = GetImpl(key, use, insteadOf);
             return v == null
                 ? default(int?)
-                : int.TryParse(v, out var result)
+                : int.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
                     ? result
                     : throw new ConfigTypeException(FullKey(key), v, nameof(Int32));
         }
@@ -133,7 +134,7 @@ namespace Pulumi
             var v = GetImpl(key, use, insteadOf);
             return v == null
                 ? default(double?)
-                : double.TryParse(v, out var result)
+                : double.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out var result)
                     ? result
                     : throw new ConfigTypeException(FullKey(key), v, nameof(Double));
         }

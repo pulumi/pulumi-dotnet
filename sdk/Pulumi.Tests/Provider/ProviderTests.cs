@@ -64,7 +64,7 @@ namespace Pulumi.Tests.Provider
             var server = Pulumi.Experimental.Provider.Provider.Serve(args, "1.0", _ => new TestConfigureProvider(), cts.Token, stdout);
 
             // Grab the port from stdout and create a connection to it
-            var port = int.Parse(stdout.ToString().Trim());
+            var port = int.Parse(stdout.ToString().Trim(), System.Globalization.CultureInfo.InvariantCulture);
 
             // Inititialize the engine channel once for this address
             var channel = GrpcChannel.ForAddress(new Uri($"http://localhost:{port}"), new GrpcChannelOptions

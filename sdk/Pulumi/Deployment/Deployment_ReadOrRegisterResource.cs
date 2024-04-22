@@ -27,7 +27,7 @@ namespace Pulumi
                 CompleteResourceAsync(resource, remote, newDependency, args, options, resource.CompletionSources));
         }
 
-        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies)> ReadOrRegisterResourceAsync(
+        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> ReadOrRegisterResourceAsync(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
             ResourceOptions options)
         {
@@ -43,7 +43,7 @@ namespace Pulumi
                 var urn = result.Fields["urn"].StringValue;
                 var id = result.Fields["id"].StringValue;
                 var state = result.Fields["state"].StructValue;
-                return (urn, id, state, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty);
+                return (urn, id, state, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success);
             }
 
             if (options.Id != null)
@@ -77,6 +77,7 @@ namespace Pulumi
         {
             // Run in a try/catch/finally so that we always resolve all the outputs of the resource
             // regardless of whether we encounter an errors computing the action.
+            var keepUnknowns = false;
             try
             {
                 var response = await ReadOrRegisterResourceAsync(
@@ -116,6 +117,11 @@ namespace Pulumi
                         completionSource.SetValue(converted);
                     }
                 }
+
+                if (response.result != Pulumirpc.Result.Success)
+                {
+                    keepUnknowns = true;
+                }
             }
             catch (Exception e)
             {
@@ -135,9 +141,9 @@ namespace Pulumi
                 foreach (var source in completionSources.Values)
                 {
                     // Didn't get a value for this field.  Resolve it with a default value.
-                    // If we're in preview, we'll consider this unknown and in a normal
+                    // If we're in preview or the resource was skipped, we'll consider this unknown and in a normal
                     // update we'll consider it known.
-                    source.TrySetDefaultResult(isKnown: !_isDryRun);
+                    source.TrySetDefaultResult(isKnown: !_isDryRun && !keepUnknowns);
                 }
             }
         }

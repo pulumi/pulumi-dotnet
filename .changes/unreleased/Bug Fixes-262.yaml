@@ -1,6 +1,0 @@
-component: sdk
-kind: Bug Fixes
-body: Use InvariantCulture when parsing numbers from config
-time: 2024-04-20T09:33:32.326885+01:00
-custom:
-  PR: "262"

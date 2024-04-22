@@ -11,7 +11,7 @@ namespace Pulumi
 {
     public partial class Deployment
     {
-        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies)> RegisterResourceAsync(
+        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> RegisterResourceAsync(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
             ResourceOptions options)
         {
@@ -50,7 +50,7 @@ namespace Pulumi
                 dependencies[key] = urns.ToImmutable();
             }
 
-            return (result.Urn, result.Id, result.Object, dependencies.ToImmutable());
+            return (result.Urn, result.Id, result.Object, dependencies.ToImmutable(), result.Result);
         }
 
         private static void PopulateRequest(RegisterResourceRequest request, PrepareResult prepareResult)
@@ -108,7 +108,7 @@ namespace Pulumi
                 Remote = remote,
                 RetainOnDelete = options.RetainOnDelete ?? false,
                 DeletedWith = deletedWith,
-                SupportsSkipReason = true,
+                SupportsResultReporting = true,
             };
 
             if (customOpts != null)

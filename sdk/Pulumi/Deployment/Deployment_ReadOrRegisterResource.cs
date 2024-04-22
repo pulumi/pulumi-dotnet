@@ -27,7 +27,7 @@ namespace Pulumi
                 CompleteResourceAsync(resource, remote, newDependency, args, options, resource.CompletionSources));
         }
 
-        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies)> ReadOrRegisterResourceAsync(
+        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> ReadOrRegisterResourceAsync(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
             ResourceOptions options)
         {
@@ -43,7 +43,7 @@ namespace Pulumi
                 var urn = result.Fields["urn"].StringValue;
                 var id = result.Fields["id"].StringValue;
                 var state = result.Fields["state"].StructValue;
-                return (urn, id, state, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty);
+                return (urn, id, state, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success);
             }
 
             if (options.Id != null)
@@ -118,7 +118,8 @@ namespace Pulumi
                     }
                 }
 
-                if (response.SkipReason > 0) {
+                if (response.result != Pulumirpc.Result.Success)
+                {
                     keepUnknowns = true;
                 }
             }

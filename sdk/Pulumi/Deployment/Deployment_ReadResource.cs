@@ -9,7 +9,7 @@ namespace Pulumi
 {
     public partial class Deployment
     {
-        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies)> ReadResourceAsync(
+        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> ReadResourceAsync(
             Resource resource, string id, ResourceArgs args, ResourceOptions options)
         {
             var name = resource.GetResourceName();
@@ -42,7 +42,7 @@ namespace Pulumi
             // Now run the operation, serializing the invocation if necessary.
             var response = await this.Monitor.ReadResourceAsync(resource, request).ConfigureAwait(false);
 
-            return (response.Urn, id, response.Properties, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty);
+            return (response.Urn, id, response.Properties, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success);
         }
     }
 }

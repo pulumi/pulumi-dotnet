@@ -1,6 +1,0 @@
-component: sdk
-kind: Bug Fixes
-body: Pin Google.Protobuf to 3.24.
-time: 2024-04-22T09:05:21.830015+01:00
-custom:
-  PR: "263"

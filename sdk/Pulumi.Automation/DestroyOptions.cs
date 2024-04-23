@@ -14,9 +14,9 @@ namespace Pulumi.Automation
         /// </summary>
         public bool? ShowSecrets { get; set; }
 
-	/// <summary>
-	/// Continue to perform the destroy operation despite the occurrence of errors.
-	/// </summary>
-	public bool? ContinueOnError { get; set; }
+        /// <summary>
+        /// Continue to perform the destroy operation despite the occurrence of errors.
+        /// </summary>
+        public bool? ContinueOnError { get; set; }
     }
 }

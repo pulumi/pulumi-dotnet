@@ -36,9 +36,9 @@ namespace Pulumi.Automation
         /// </summary>
         public ILogger? Logger { get; set; }
 
-	/// <summary>
-	/// Continue to perform the update operation despite the occurrence of errors.
-	/// </summary>
-	public bool? ContinueOnError { get; set; }
+        /// <summary>
+        /// Continue to perform the update operation despite the occurrence of errors.
+        /// </summary>
+        public bool? ContinueOnError { get; set; }
     }
 }

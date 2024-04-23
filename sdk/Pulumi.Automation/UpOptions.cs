@@ -35,5 +35,10 @@ namespace Pulumi.Automation
         /// if <see cref="Program"/> is also provided.
         /// </summary>
         public ILogger? Logger { get; set; }
+
+	/// <summary>
+	/// Continue to perform the update operation despite the occurrence of errors.
+	/// </summary>
+	public bool? ContinueOnError { get; set; }
     }
 }

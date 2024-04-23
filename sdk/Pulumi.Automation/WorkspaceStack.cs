@@ -348,6 +348,9 @@ namespace Pulumi.Automation
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
 
+		if (options.ContinueOnError is true)
+		    args.Add("--continue-on-error");
+
                 ApplyUpdateOptions(options, args);
             }
 
@@ -611,6 +614,9 @@ namespace Pulumi.Automation
             {
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
+
+		if (options.ContinueOnError is true)
+		    args.Add("--continue-on-error");
 
                 ApplyUpdateOptions(options, args);
             }

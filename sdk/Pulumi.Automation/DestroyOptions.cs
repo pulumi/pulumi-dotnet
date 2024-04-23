@@ -13,5 +13,10 @@ namespace Pulumi.Automation
         /// Show config secrets when they appear.
         /// </summary>
         public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// Continue to perform the destroy operation despite the occurrence of errors.
+        /// </summary>
+        public bool? ContinueOnError { get; set; }
     }
 }

@@ -1,0 +1,6 @@
+component: sdk
+kind: Bug Fixes
+body: Revert gRPC update that broke large messages.
+time: 2024-04-24T12:22:47.510223+01:00
+custom:
+  PR: "266"

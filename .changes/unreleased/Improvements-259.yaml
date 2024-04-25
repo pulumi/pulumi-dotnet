@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Support the Result field for better support of up --continue-on-error
-time: 2024-04-16T18:16:07.237477918+02:00
-custom:
-  PR: "259"

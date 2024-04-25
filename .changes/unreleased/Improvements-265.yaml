@@ -1,6 +1,0 @@
-component: sdk/auto
-kind: Improvements
-body: Add ContinueOnError option to the automation API
-time: 2024-04-23T15:37:51.574775387+02:00
-custom:
-  PR: "265"

@@ -1,6 +1,0 @@
-component: sdk
-kind: Bug Fixes
-body: Remove Google.Protobuf pinned dependency.
-time: 2024-04-25T19:33:00.906864+01:00
-custom:
-  PR: "268"

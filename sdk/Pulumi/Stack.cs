@@ -126,7 +126,7 @@ namespace Pulumi
             return new ComponentResourceOptions
             {
                 ResourceTransformations = options.ResourceTransformations,
-                XResourceTransforms = options.XResourceTransforms,
+                ResourceTransforms = options.ResourceTransforms,
             };
         }
     }

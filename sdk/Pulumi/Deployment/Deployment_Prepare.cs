@@ -122,7 +122,7 @@ namespace Pulumi
             var aliases = await PrepareAliases(res, options, resourceMonitorSupportsAliasSpecs).ConfigureAwait(false);
 
             var transforms = new List<Pulumirpc.Callback>();
-            if (options.XResourceTransforms.Count > 0)
+            if (options.ResourceTransforms.Count > 0)
             {
                 var resourceMonitorSupportsTransforms = await MonitorSupportsTransforms().ConfigureAwait(false);
                 if (!resourceMonitorSupportsTransforms)
@@ -132,7 +132,7 @@ namespace Pulumi
 
                 var callbacks = await this.GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
 
-                foreach (var t in options.XResourceTransforms)
+                foreach (var t in options.ResourceTransforms)
                 {
                     transforms.Add(await AllocateTransform(callbacks.Callbacks, t).ConfigureAwait(false));
                 }

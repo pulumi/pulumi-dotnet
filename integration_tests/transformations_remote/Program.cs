@@ -20,12 +20,12 @@ class MyComponent : ComponentResource
 
 class TransformsStack : Stack
 {
-    public TransformsStack() : base(new StackOptions { XResourceTransforms = {Scenario3} })
+    public TransformsStack() : base(new StackOptions { ResourceTransforms = {Scenario3} })
     {
         // Scenario #1 - apply a transformation to a CustomResource
         var res1 = new Random("res1", new RandomArgs { Length = 5 }, new CustomResourceOptions
         {
-            XResourceTransforms =
+            ResourceTransforms =
             {
                 async (args, _) =>
                 {
@@ -40,7 +40,7 @@ class TransformsStack : Stack
         // Scenario #2 - apply a transformation to a Component to transform its children
         var res2 = new MyComponent("res2", new ComponentResourceOptions
         {
-            XResourceTransforms =
+            ResourceTransforms =
             {
                 async (args, _) =>
                 {
@@ -71,7 +71,7 @@ class TransformsStack : Stack
         // 4. Stack transformation
         var res4 = new MyComponent("res4", new ComponentResourceOptions
         {
-            XResourceTransforms = { (args, _) => scenario4(args, "default1"), (args, _) => scenario4(args, "default2") }
+            ResourceTransforms = { (args, _) => scenario4(args, "default1"), (args, _) => scenario4(args, "default2") }
         });
 
         async Task<ResourceTransformResult?> scenario4(ResourceTransformArgs args, string v)
@@ -89,7 +89,7 @@ class TransformsStack : Stack
         // Scenario #5 - mutate the properties of a resource
         var res5 = new Random("res5", new RandomArgs { Length = 10 }, new CustomResourceOptions
         {
-            XResourceTransforms =
+            ResourceTransforms =
             {
                 async (args, _) =>
                 {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Pulumi
 {
     /// <summary>
-    /// ResourceTransform is the callback signature for <see cref="ResourceOptions.XResourceTransforms"/>. A
+    /// ResourceTransform is the callback signature for <see cref="ResourceOptions.ResourceTransforms"/>. A
     /// transform is passed the same set of inputs provided to the <see cref="Resource"/> constructor, and can
     /// optionally return back alternate values for the <c>properties</c> and/or <c>options</c> prior to the resource
     /// actually being created. The effect will be as though those <c>properties</c> and/or <c>options</c> were passed

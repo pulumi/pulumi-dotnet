@@ -92,10 +92,8 @@ namespace Pulumi
         /// <summary>
         /// Optional list of transforms to apply to this resource during construction.The transforms are applied in
         /// order, and are applied prior to transform applied to parents walking from the resource up to the stack.
-        ///
-        /// This property is experimental.
         /// </summary>
-        public List<ResourceTransform> XResourceTransforms
+        public List<ResourceTransform> ResourceTransforms
         {
             get => _resourceTransforms ??= new List<ResourceTransform>();
             set => _resourceTransforms = value;

@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Pulumirpc;
 
 namespace Pulumi
 {
@@ -19,5 +21,6 @@ namespace Pulumi
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
             ResourceOptions opts);
         void RegisterResourceOutputs(Resource resource, Output<IDictionary<string, object?>> outputs);
+        Task<CreateNewContextResponse> NewContext(CreateNewContextRequest request);
     }
 }

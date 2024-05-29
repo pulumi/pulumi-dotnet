@@ -176,8 +176,8 @@ namespace Pulumi
                 {
                     // We set the exit code explicitly here in case users
                     // do not bubble up the exit code themselves to
-                    // top-level entry point of the program (for non-inline deployments). 
-                    // For example when users `await Deployment.RunAsync()` 
+                    // top-level entry point of the program (for non-inline deployments).
+                    // For example when users `await Deployment.RunAsync()`
                     // instead of `return await Deployment.RunAsync()`
                     Environment.ExitCode = exitCode;
                 }

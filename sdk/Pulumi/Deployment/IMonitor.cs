@@ -18,5 +18,7 @@ namespace Pulumi
         Task<RegisterResourceResponse> RegisterResourceAsync(Resource resource, RegisterResourceRequest request);
 
         Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request);
+
+        Task<CreateNewContextResponse> CreateNewContextAsync(CreateNewContextRequest request);
     }
 }

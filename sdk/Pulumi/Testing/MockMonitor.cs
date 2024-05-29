@@ -176,6 +176,18 @@ namespace Pulumi.Testing
             await _mocks.RegisterResourceOutputs(mockRequest);
         }
 
+        public async Task<CreateNewContextResponse> CreateNewContextAsync(CreateNewContextRequest request)
+        {
+            await _mocks.NewResourceAsync(new MockResourceArgs
+            {
+
+            }).ConfigureAwait(false);
+            return new CreateNewContextResponse
+            {
+                MonitorTarget = "mock-monitor-target"
+            };
+        }
+
         private static string NewUrn(string parent, string type, string name)
         {
             if (!string.IsNullOrEmpty(parent))

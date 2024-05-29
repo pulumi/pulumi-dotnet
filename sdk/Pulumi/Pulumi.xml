@@ -2162,13 +2162,11 @@
             parents walking from the resource up to the stack.
             </summary>
         </member>
-        <member name="P:Pulumi.ResourceOptions.XResourceTransforms">
-             <summary>
-             Optional list of transforms to apply to this resource during construction.The transforms are applied in
-             order, and are applied prior to transform applied to parents walking from the resource up to the stack.
-            
-             This property is experimental.
-             </summary>
+        <member name="P:Pulumi.ResourceOptions.ResourceTransforms">
+            <summary>
+            Optional list of transforms to apply to this resource during construction.The transforms are applied in
+            order, and are applied prior to transform applied to parents walking from the resource up to the stack.
+            </summary>
         </member>
         <member name="P:Pulumi.ResourceOptions.Aliases">
             <summary>
@@ -2208,7 +2206,7 @@
         </member>
         <member name="T:Pulumi.ResourceTransform">
             <summary>
-            ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.XResourceTransforms"/>. A
+            ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.ResourceTransforms"/>. A
             transform is passed the same set of inputs provided to the <see cref="T:Pulumi.Resource"/> constructor, and can
             optionally return back alternate values for the <c>properties</c> and/or <c>options</c> prior to the resource
             actually being created. The effect will be as though those <c>properties</c> and/or <c>options</c> were passed
@@ -2284,13 +2282,11 @@
             and component resources in the stack.
             </summary>
         </member>
-        <member name="P:Pulumi.StackOptions.XResourceTransforms">
-             <summary>
-             Optional list of transforms to apply to this stack's resources during construction. The transforms are
-             applied in order, and are applied after all the transforms of custom and component resources in the stack.
-            
-             This property is experimental.
-             </summary>
+        <member name="P:Pulumi.StackOptions.ResourceTransforms">
+            <summary>
+            Optional list of transforms to apply to this stack's resources during construction. The transforms are
+            applied in order, and are applied after all the transforms of custom and component resources in the stack.
+            </summary>
         </member>
         <member name="T:Pulumi.StackReference">
             <summary>
@@ -3854,7 +3850,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Analyzer.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Analyzer.AnalyzerBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -3986,7 +3982,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Callbacks.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Callbacks.CallbacksBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -4407,7 +4403,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Converter.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Converter.ConverterBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -4691,7 +4687,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Engine.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Engine.EngineBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -5257,6 +5253,15 @@
             The target of a codegen.LoaderServer to use for loading schemas.
             </summary>
         </member>
+        <member name="F:Pulumirpc.GeneratePackageRequest.LocalDependenciesFieldNumber">
+            <summary>Field number for the "local_dependencies" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageRequest.LocalDependencies">
+            <summary>
+            local dependencies to use instead of using the package system. This is a map of package name to a local
+            path of a language specific artifact to use for the SDK for that package.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.GeneratePackageResponse.DiagnosticsFieldNumber">
             <summary>Field number for the "diagnostics" field.</summary>
         </member>
@@ -5271,14 +5276,6 @@
         <member name="P:Pulumirpc.PackRequest.PackageDirectory">
             <summary>
             the directory of a package to pack.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.PackRequest.VersionFieldNumber">
-            <summary>Field number for the "version" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.PackRequest.Version">
-            <summary>
-            the version to tag the artifact with.
             </summary>
         </member>
         <member name="F:Pulumirpc.PackRequest.DestinationDirectoryFieldNumber">
@@ -5785,7 +5782,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.LanguageRuntime.LanguageRuntimeBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -5878,12 +5875,93 @@
         <member name="P:Pulumirpc.ProviderReflection.Descriptor">
             <summary>File descriptor for pulumi/provider.proto</summary>
         </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Args">
+            <summary>
+            arguments from the command line.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Value">
+            <summary>
+            values from a generated package.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ParameterizeRequest.ParametersOneofCase">
+            <summary>Enum of possible cases for the "parameters" oneof.</summary>
+        </member>
+        <member name="T:Pulumirpc.ParameterizeRequest.Types">
+            <summary>Container for nested types declared in the ParameterizeRequest message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersArgs.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersValue.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Types.ParametersValue.Name">
+            <summary>
+            The sub-package name for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersValue.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Types.ParametersValue.Version">
+            <summary>
+            The sub-package version for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersValue.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Types.ParametersValue.Value">
+            <summary>
+            The embedded value from the sub-package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeResponse.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeResponse.Name">
+            <summary>
+            The name of the sub-package parameterized.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeResponse.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeResponse.Version">
+            <summary>
+            The version of the sub-package parameterized.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.GetSchemaRequest.VersionFieldNumber">
             <summary>Field number for the "version" field.</summary>
         </member>
         <member name="P:Pulumirpc.GetSchemaRequest.Version">
             <summary>
             the schema version.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetSchemaRequest.SubpackageNameFieldNumber">
+            <summary>Field number for the "subpackage_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetSchemaRequest.SubpackageName">
+            <summary>
+            the name of the sub-package to lookup
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetSchemaRequest.SubpackageVersionFieldNumber">
+            <summary>Field number for the "subpackage_version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetSchemaRequest.SubpackageVersion">
+            <summary>
+            the version of the sub-package to lookup
             </summary>
         </member>
         <member name="F:Pulumirpc.GetSchemaResponse.SchemaFieldNumber">
@@ -7093,6 +7171,26 @@
         <member name="T:Pulumirpc.ResourceProvider.ResourceProviderBase">
             <summary>Base class for server-side implementations of ResourceProvider</summary>
         </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.Parameterize(Pulumirpc.ParameterizeRequest,Grpc.Core.ServerCallContext)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.GetSchema(Pulumirpc.GetSchemaRequest,Grpc.Core.ServerCallContext)">
             <summary>
             GetSchema fetches the schema for this resource provider.
@@ -7277,6 +7375,90 @@
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Protected constructor to allow creation of configured clients.</summary>
             <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.Parameterize(Pulumirpc.ParameterizeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.Parameterize(Pulumirpc.ParameterizeRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.ParameterizeAsync(Pulumirpc.ParameterizeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.ParameterizeAsync(Pulumirpc.ParameterizeRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetSchema(Pulumirpc.GetSchemaRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
@@ -8006,7 +8188,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.ResourceProvider.ResourceProviderBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -8436,6 +8618,14 @@
             a list of transforms to apply to the resource before registering it.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.SupportsResultReportingFieldNumber">
+            <summary>Field number for the "supportsResultReporting" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.SupportsResultReporting">
+            <summary>
+            true if the request is from an SDK that supports the result field in the response.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -8533,6 +8723,14 @@
         <member name="P:Pulumirpc.RegisterResourceResponse.PropertyDependencies">
             <summary>
             a map from property keys to the dependencies of the property.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceResponse.ResultFieldNumber">
+            <summary>Field number for the "result" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceResponse.Result">
+            <summary>
+            the reason, whether the resource registration was successful, failed, or skipped.
             </summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceResponse.Types">
@@ -8836,6 +9034,37 @@
             the options for the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.PluginDownloadUrlFieldNumber">
+            <summary>Field number for the "plugin_download_url" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "plugin_checksums" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderResponse.RefFieldNumber">
+            <summary>Field number for the "ref" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterProviderResponse.Ref">
+            <summary>
+            The UUID package reference for this registered provider package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CreateNewContextRequest.ProvidersFieldNumber">
+            <summary>Field number for the "providers" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CreateNewContextRequest.Providers">
+            <summary>
+            the provider refs to register as the default providers.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CreateNewContextResponse.MonitorTargetFieldNumber">
+            <summary>Field number for the "monitor_target" field.</summary>
+        </member>
         <member name="T:Pulumirpc.ResourceMonitor">
             <summary>
             ResourceMonitor is the interface a source uses to talk back to the planning monitor orchestrating the execution.
@@ -8846,6 +9075,15 @@
         </member>
         <member name="T:Pulumirpc.ResourceMonitor.ResourceMonitorBase">
             <summary>Base class for server-side implementations of ResourceMonitor</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.CreateNewContext(Pulumirpc.CreateNewContextRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            CreateNewContext creates a new context for the resource monitor to use for
+            subsequent operations, with the values passed in through the RPC overridden.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="T:Pulumirpc.ResourceMonitor.ResourceMonitorClient">
             <summary>Client for ResourceMonitor</summary>
@@ -8865,6 +9103,46 @@
             <summary>Protected constructor to allow creation of configured clients.</summary>
             <param name="configuration">The client configuration.</param>
         </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.CreateNewContext(Pulumirpc.CreateNewContextRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            CreateNewContext creates a new context for the resource monitor to use for
+            subsequent operations, with the values passed in through the RPC overridden.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.CreateNewContext(Pulumirpc.CreateNewContextRequest,Grpc.Core.CallOptions)">
+            <summary>
+            CreateNewContext creates a new context for the resource monitor to use for
+            subsequent operations, with the values passed in through the RPC overridden.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.CreateNewContextAsync(Pulumirpc.CreateNewContextRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            CreateNewContext creates a new context for the resource monitor to use for
+            subsequent operations, with the values passed in through the RPC overridden.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.CreateNewContextAsync(Pulumirpc.CreateNewContextRequest,Grpc.Core.CallOptions)">
+            <summary>
+            CreateNewContext creates a new context for the resource monitor to use for
+            subsequent operations, with the values passed in through the RPC overridden.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
         </member>
@@ -8873,7 +9151,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.ResourceMonitor.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.ResourceMonitor.ResourceMonitorBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -8936,6 +9214,24 @@
         </member>
         <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.CoreSdkDirectoryFieldNumber">
             <summary>Field number for the "core_sdk_directory" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.CoreSdkVersionFieldNumber">
+            <summary>Field number for the "core_sdk_version" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.SnapshotEditsFieldNumber">
+            <summary>Field number for the "snapshot_edits" field.</summary>
+        </member>
+        <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">
+            <summary>Container for nested types declared in the PrepareLanguageTestsRequest message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.Replacement.PathFieldNumber">
+            <summary>Field number for the "path" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.Replacement.PatternFieldNumber">
+            <summary>Field number for the "pattern" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.Replacement.Replacement_FieldNumber">
+            <summary>Field number for the "replacement" field.</summary>
         </member>
         <member name="F:Pulumirpc.Testing.PrepareLanguageTestsResponse.TokenFieldNumber">
             <summary>Field number for the "token" field.</summary>
@@ -9133,7 +9429,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Pulumirpc.Testing.LanguageTest.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Testing.LanguageTest.LanguageTestBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -9260,7 +9556,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Codegen.Loader.BindService(Grpc.Core.ServiceBinderBase,Codegen.Loader.LoaderBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
@@ -9389,7 +9685,7 @@
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="M:Codegen.Mapper.BindService(Grpc.Core.ServiceBinderBase,Codegen.Mapper.MapperBase)">
-            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
             Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>

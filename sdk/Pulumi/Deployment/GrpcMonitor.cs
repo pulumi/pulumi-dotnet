@@ -69,5 +69,8 @@ namespace Pulumi
 
         public async Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request)
             => await this._client.RegisterResourceOutputsAsync(request);
+
+        public async Task<CreateNewContextResponse> CreateNewContextAsync(CreateNewContextRequest request)
+            => await this._client.CreateNewContextAsync(request);
     }
 }

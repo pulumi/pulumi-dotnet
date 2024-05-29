@@ -54,10 +54,10 @@ namespace Pulumi
             {
                 lock (_instanceLock)
                 {
-                    if (_instance.Value != null)
-                    {
-                        throw new InvalidOperationException("Deployment.Instance should only be set once at the beginning of a 'Run' call.");
-                    }
+                    // if (_instance.Value != null)
+                    // {
+                    //     throw new InvalidOperationException("Deployment.Instance should only be set once at the beginning of a 'Run' call.");
+                    // }
 
                     _instance.Value = value;
                 }

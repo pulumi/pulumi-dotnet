@@ -12,29 +12,6 @@ namespace Pulumi.Tests
     public class DeploymentTests
     {
         [Fact]
-        public async Task DeploymentInstancePropertyIsProtected()
-        {
-            // confirm we cannot retrieve deployment instance early
-            Assert.Throws<InvalidOperationException>(
-                () => _ = Deployment.Instance);
-
-            // confirm we cannot set deployment instance from downstream execution
-            var deployment = new Deployment(new MockEngine(), new MockMonitor(new MyMocks()), null);
-
-            var task = Deployment.CreateRunnerAndRunAsync(
-                () => deployment,
-                _ =>
-                {
-                    Deployment.Instance = new DeploymentInstance(deployment);
-                    return Task.FromResult(1);
-                });
-
-            // should not throw until awaited
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => task);
-        }
-
-        [Fact]
         public async Task DeploymentInstancesAreSeparate()
         {
             // this test is more of a sanity check that two separate

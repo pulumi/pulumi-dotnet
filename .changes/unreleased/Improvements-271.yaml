@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Allow default providers to be set programmatically
+time: 2024-05-29T17:16:58.070588483+02:00
+custom:
+  PR: "271"

@@ -26,9 +26,8 @@ namespace Pulumi
             )
         {
             var providerRefs = new List<string>();
-            for (int i = 0; i < providers.Count; i++)
+            foreach (var provider in providers)
             {
-                var provider = providers[i];
                 var providerRef = await ProviderResource
                     .RegisterAsync(provider)
                     .ConfigureAwait(false);

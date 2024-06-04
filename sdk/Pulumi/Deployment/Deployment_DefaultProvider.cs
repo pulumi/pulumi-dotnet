@@ -22,7 +22,7 @@ namespace Pulumi
 
         public static async Task<IDictionary<string, object?>> WithDefaultProviders(
         Func<IDictionary<string, object?>> func,
-                List<ProviderResource> providers
+                params ProviderResource[] providers
             )
         {
             var providerRefs = new List<string>();

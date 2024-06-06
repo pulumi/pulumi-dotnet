@@ -1,6 +1,3 @@
-using Pulumirpc;
-using Grpc.Core;
-using Google.Protobuf.WellKnownTypes;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -128,7 +125,6 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class InvokeResponse
     {
-
         public IDictionary<string, PropertyValue>? Return { get; set; }
         public IList<CheckFailure>? Failures { get; set; }
     }
@@ -233,7 +229,13 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableArray<string> IgnoreChanges;
         public readonly bool Preview;
 
-        public UpdateRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> olds, ImmutableDictionary<string, PropertyValue> news, TimeSpan timeout, ImmutableArray<string> ignoreChanges, bool preview)
+        public UpdateRequest(string urn,
+            string id,
+            ImmutableDictionary<string, PropertyValue> olds,
+            ImmutableDictionary<string, PropertyValue> news,
+            TimeSpan timeout,
+            ImmutableArray<string> ignoreChanges,
+            bool preview)
         {
             Urn = urn;
             Id = id;
@@ -265,6 +267,62 @@ namespace Pulumi.Experimental.Provider
             Id = id;
             Properties = properties;
             Timeout = timeout;
+        }
+    }
+
+    public sealed class ConstructRequest
+    {
+        public string Type { get; init; }
+        public string Name { get; init; }
+        public ImmutableDictionary<string, PropertyValue> Inputs { get; init; }
+        public ComponentResourceOptions Options { get; init; }
+
+        public ConstructRequest(string type, string name, ImmutableDictionary<string, PropertyValue> inputs, ComponentResourceOptions options)
+        {
+            Type = type;
+            Name = name;
+            Inputs = inputs;
+            Options = options;
+        }
+    }
+
+    public sealed class ConstructResponse
+    {
+        public string Urn { get; init; }
+        public IDictionary<string, PropertyValue> State { get; init; }
+        public IDictionary<string, PropertyDependencies> StateDependencies { get; init; }
+
+        public ConstructResponse(string urn, IDictionary<string, PropertyValue> state, IDictionary<string, PropertyDependencies> stateDependencies)
+        {
+            Urn = urn;
+            State = state;
+            StateDependencies = stateDependencies;
+        }
+    }
+
+    public sealed class CallRequest
+    {
+        public string Tok { get; init; }
+        public ImmutableDictionary<string, PropertyValue> Args { get; init; }
+
+        public CallRequest(string tok, ImmutableDictionary<string, PropertyValue> args)
+        {
+            Tok = tok;
+            Args = args;
+        }
+    }
+
+    public sealed class CallResponse
+    {
+        public IDictionary<string, PropertyValue>? Return { get; init; }
+        public IDictionary<string, PropertyDependencies> ReturnDependencies { get; init; }
+        public IList<CheckFailure>? Failures { get; init; }
+
+        public CallResponse(IDictionary<string, PropertyValue>? @return, IList<CheckFailure>? failures, IDictionary<string, PropertyDependencies> returnDependencies)
+        {
+            Return = @return;
+            Failures = failures;
+            ReturnDependencies = returnDependencies;
         }
     }
 
@@ -323,6 +381,16 @@ namespace Pulumi.Experimental.Provider
         public virtual Task Delete(DeleteRequest request, CancellationToken ct)
         {
             throw new NotImplementedException($"The method '{nameof(Delete)}' is not implemented ");
+        }
+
+        public virtual Task<ConstructResponse> Construct(ConstructRequest request, CancellationToken ct)
+        {
+            throw new NotImplementedException($"The method '{nameof(Construct)}' is not implemented ");
+        }
+
+        public virtual Task<CallResponse> Call(CallRequest request, CancellationToken ct)
+        {
+            throw new NotImplementedException($"The method '{nameof(Call)}' is not implemented ");
         }
 
         public static Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
@@ -422,508 +490,6 @@ namespace Pulumi.Experimental.Provider
             await host.WaitForShutdownAsync(cancellationToken);
 
             host.Dispose();
-        }
-    }
-
-    class ResourceProviderService : ResourceProvider.ResourceProviderBase, IDisposable
-    {
-        readonly Func<IHost, Provider> factory;
-        readonly CancellationTokenSource rootCTS;
-        Provider? implementation;
-        readonly string version;
-
-        Provider Implementation
-        {
-            get
-            {
-                if (implementation == null)
-                {
-                    throw new RpcException(new Status(StatusCode.FailedPrecondition, "Engine host not yet attached"));
-                }
-                return implementation;
-            }
-        }
-
-        private void CreateProvider(string address)
-        {
-            var host = new GrpcHost(address);
-            implementation = factory(host);
-        }
-
-        public ResourceProviderService(Func<IHost, Provider> factory, IConfiguration configuration)
-        {
-            this.factory = factory;
-            this.rootCTS = new CancellationTokenSource();
-
-            var host = configuration.GetValue<string?>("Host", null);
-            if (host != null)
-            {
-                CreateProvider(host);
-            }
-
-            var version = configuration.GetValue<string?>("Version", null);
-            if (version == null)
-            {
-                var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
-                Debug.Assert(entryAssembly != null, "GetEntryAssembly returned null in managed code");
-                var entryName = entryAssembly.GetName();
-                var assemblyVersion = entryName.Version;
-                if (assemblyVersion != null)
-                {
-                    // Pulumi expects semver style versions, so we convert from the .NET version format by
-                    // dropping the revision component.
-                    version = string.Format("{0}.{1}.{2}", assemblyVersion.Major, assemblyVersion.Minor, assemblyVersion.Build);
-                }
-                else
-                {
-                    throw new Exception("Provider.Serve must be called with a version, or an assembly version must be set.");
-                }
-            }
-            this.version = version;
-        }
-
-        public void Dispose()
-        {
-            this.rootCTS.Dispose();
-        }
-
-        public override Task<Empty> Attach(Pulumirpc.PluginAttach request, ServerCallContext context)
-        {
-            CreateProvider(request.Address);
-            return Task.FromResult(new Empty());
-        }
-
-        public override Task<Empty> Cancel(Empty request, ServerCallContext context)
-        {
-            try
-            {
-                this.rootCTS.Cancel();
-                return Task.FromResult(new Empty());
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        private CancellationTokenSource GetToken(ServerCallContext context)
-        {
-            return CancellationTokenSource.CreateLinkedTokenSource(rootCTS.Token, context.CancellationToken);
-        }
-
-        // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
-        // This keeps the PropertyValue.Marshal clean in terms of not handling nulls.
-        private ImmutableDictionary<string, PropertyValue> Marshal(Struct? properties)
-        {
-            if (properties == null)
-            {
-                return ImmutableDictionary<string, PropertyValue>.Empty;
-            }
-            return PropertyValue.Unmarshal(properties);
-        }
-
-        public override async Task<Pulumirpc.CheckResponse> CheckConfig(Pulumirpc.CheckRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.CheckResponse();
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                if (domResponse.Failures != null)
-                {
-                    foreach (var domFailure in domResponse.Failures)
-                    {
-                        var grpcFailure = new Pulumirpc.CheckFailure();
-                        grpcFailure.Property = domFailure.Property;
-                        grpcFailure.Reason = domFailure.Reason;
-                        grpcResponse.Failures.Add(grpcFailure);
-                    }
-                }
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.DiffResponse> DiffConfig(Pulumirpc.DiffRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.DiffResponse();
-                if (domResponse.Changes.HasValue)
-                {
-                    grpcResponse.Changes = domResponse.Changes.Value ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
-                }
-                if (domResponse.Stables != null)
-                {
-                    grpcResponse.Stables.AddRange(domResponse.Stables);
-                }
-                if (domResponse.Replaces != null)
-                {
-                    grpcResponse.Replaces.AddRange(domResponse.Replaces);
-                }
-                grpcResponse.DeleteBeforeReplace = domResponse.DeleteBeforeReplace;
-                if (domResponse.Diffs != null)
-                {
-                    grpcResponse.Diffs.AddRange(domResponse.Diffs);
-                }
-                if (domResponse.DetailedDiff != null)
-                {
-                    foreach (var item in domResponse.DetailedDiff)
-                    {
-                        var domDiff = item.Value;
-                        var grpcDiff = new Pulumirpc.PropertyDiff();
-                        grpcDiff.InputDiff = domDiff.InputDiff;
-                        grpcDiff.Kind = (Pulumirpc.PropertyDiff.Types.Kind)domDiff.Kind;
-                        grpcResponse.DetailedDiff.Add(item.Key, grpcDiff);
-                    }
-                }
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.InvokeResponse> Invoke(Pulumirpc.InvokeRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new InvokeRequest(request.Tok, Marshal(request.Args));
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.Invoke(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.InvokeResponse();
-                grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return);
-                if (domResponse.Failures != null)
-                {
-                    foreach (var domFailure in domResponse.Failures)
-                    {
-                        var grpcFailure = new Pulumirpc.CheckFailure();
-                        grpcFailure.Property = domFailure.Property;
-                        grpcFailure.Reason = domFailure.Reason;
-                        grpcResponse.Failures.Add(grpcFailure);
-                    }
-                }
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.GetSchemaResponse> GetSchema(Pulumirpc.GetSchemaRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new GetSchemaRequest(request.Version);
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.GetSchema(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.GetSchemaResponse();
-                grpcResponse.Schema = domResponse.Schema ?? "";
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.ConfigureResponse> Configure(Pulumirpc.ConfigureRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Marshal(request.Args), request.AcceptSecrets, request.AcceptResources);
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.Configure(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.ConfigureResponse();
-                grpcResponse.AcceptSecrets = domResponse.AcceptSecrets;
-                grpcResponse.SupportsPreview = domResponse.SupportsPreview;
-                grpcResponse.AcceptResources = domResponse.AcceptResources;
-                grpcResponse.AcceptOutputs = domResponse.AcceptOutputs;
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override Task<Pulumirpc.PluginInfo> GetPluginInfo(Empty request, ServerCallContext context)
-        {
-            try
-            {
-                using var cts = GetToken(context);
-                var grpcResponse = new Pulumirpc.PluginInfo();
-                grpcResponse.Version = this.version;
-                return Task.FromResult(grpcResponse);
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.CreateResponse> Create(Pulumirpc.CreateRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new CreateRequest(request.Urn, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout), request.Preview);
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.Create(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.CreateResponse();
-                grpcResponse.Id = domResponse.Id ?? "";
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.ReadResponse> Read(Pulumirpc.ReadRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new ReadRequest(request.Urn, request.Id, Marshal(request.Properties), Marshal(request.Inputs));
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.Read(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.ReadResponse();
-                grpcResponse.Id = domResponse.Id ?? "";
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.CheckResponse> Check(Pulumirpc.CheckRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.Check(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.CheckResponse();
-                grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                if (domResponse.Failures != null)
-                {
-                    foreach (var domFailure in domResponse.Failures)
-                    {
-                        var grpcFailure = new Pulumirpc.CheckFailure();
-                        grpcFailure.Property = domFailure.Property;
-                        grpcFailure.Reason = domFailure.Reason;
-                        grpcResponse.Failures.Add(grpcFailure);
-                    }
-                }
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.DiffResponse> Diff(Pulumirpc.DiffRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.Diff(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.DiffResponse();
-                if (domResponse.Changes.HasValue)
-                {
-                    grpcResponse.Changes = domResponse.Changes.Value ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
-                }
-                if (domResponse.Stables != null)
-                {
-                    grpcResponse.Stables.AddRange(domResponse.Stables);
-                }
-                if (domResponse.Replaces != null)
-                {
-                    grpcResponse.Replaces.AddRange(domResponse.Replaces);
-                }
-                grpcResponse.DeleteBeforeReplace = domResponse.DeleteBeforeReplace;
-                if (domResponse.Diffs != null)
-                {
-                    grpcResponse.Diffs.AddRange(domResponse.Diffs);
-                }
-                if (domResponse.DetailedDiff != null)
-                {
-                    foreach (var item in domResponse.DetailedDiff)
-                    {
-                        var domDiff = item.Value;
-                        var grpcDiff = new Pulumirpc.PropertyDiff();
-                        grpcDiff.InputDiff = domDiff.InputDiff;
-                        grpcDiff.Kind = (Pulumirpc.PropertyDiff.Types.Kind)domDiff.Kind;
-                        grpcResponse.DetailedDiff.Add(item.Key, grpcDiff);
-                    }
-                }
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Pulumirpc.UpdateResponse> Update(Pulumirpc.UpdateRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new UpdateRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), TimeSpan.FromSeconds(request.Timeout), request.IgnoreChanges.ToImmutableArray(), request.Preview);
-                using var cts = GetToken(context);
-                var domResponse = await Implementation.Update(domRequest, cts.Token);
-                var grpcResponse = new Pulumirpc.UpdateResponse();
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
-                return grpcResponse;
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override async Task<Empty> Delete(Pulumirpc.DeleteRequest request, ServerCallContext context)
-        {
-            try
-            {
-                var domRequest = new DeleteRequest(request.Urn, request.Id, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
-                using var cts = GetToken(context);
-                await Implementation.Delete(domRequest, cts.Token);
-                return new Empty();
-            }
-            catch (NotImplementedException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
-            }
-            catch (TaskCanceledException ex)
-            {
-                throw new RpcException(new Status(StatusCode.Cancelled, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
-            }
-        }
-
-        public override Task<Pulumirpc.ConstructResponse> Construct(Pulumirpc.ConstructRequest request, ServerCallContext context)
-        {
-            throw new RpcException(new Status(StatusCode.Unimplemented, "Component resources not yet supported"));
-        }
-
-        public override Task<Pulumirpc.CallResponse> Call(Pulumirpc.CallRequest request, ServerCallContext context)
-        {
-            throw new RpcException(new Status(StatusCode.Unimplemented, "Component resources not yet supported"));
         }
     }
 }

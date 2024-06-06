@@ -609,7 +609,7 @@ namespace Pulumi.Experimental.Provider
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 if (domResponse.Failures != null)
                 {
-                    grpcResponse.Failures.AddRange(MappFailures(domResponse.Failures));
+                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 }
                 return grpcResponse;
             }
@@ -690,7 +690,7 @@ namespace Pulumi.Experimental.Provider
                 grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return);
                 if (domResponse.Failures != null)
                 {
-                    grpcResponse.Failures.AddRange(MappFailures(domResponse.Failures));
+                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 }
                 return grpcResponse;
             }
@@ -848,7 +848,7 @@ namespace Pulumi.Experimental.Provider
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                 if (domResponse.Failures != null)
                 {
-                    grpcResponse.Failures.AddRange(MappFailures(domResponse.Failures));
+                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 }
                 return grpcResponse;
             }
@@ -1061,7 +1061,7 @@ namespace Pulumi.Experimental.Provider
 
                 if (domResponse.Failures != null)
                 {
-                    grpcResponse.Failures.AddRange(MappFailures(domResponse.Failures));
+                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 }
 
                 return grpcResponse;
@@ -1109,7 +1109,7 @@ namespace Pulumi.Experimental.Provider
             return propertyDependencies;
         }
 
-        private static IEnumerable<Pulumirpc.CheckFailure> MappFailures(IEnumerable<CheckFailure> failures)
+        private static IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure> failures)
         {
             return failures.Select(domFailure => new Pulumirpc.CheckFailure
             {

@@ -1,3 +1,6 @@
+using Pulumirpc;
+using Grpc.Core;
+using Google.Protobuf.WellKnownTypes;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,21 +13,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
 using System.Threading;
-using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Pulumirpc;
 
 namespace Pulumi.Experimental.Provider
 {
     public sealed class CheckRequest
     {
         public readonly string Urn;
-
         // Note the Go SDK directly exposes resource.URN and so providers can work with it directly. I've
         // decided _not_ to copy that to the dotnet SDK on the basis that long term I'd like URNs to be opaque
         // tokens to everything but the engine. If CheckRequests need the resource type and name they should
@@ -37,10 +36,7 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
         public readonly ImmutableArray<byte> RandomSeed;
 
-        public CheckRequest(string urn,
-            ImmutableDictionary<string, PropertyValue> oldInputs,
-            ImmutableDictionary<string, PropertyValue> newInputs,
-            ImmutableArray<byte> randomSeed)
+        public CheckRequest(string urn, ImmutableDictionary<string, PropertyValue> oldInputs, ImmutableDictionary<string, PropertyValue> newInputs, ImmutableArray<byte> randomSeed)
         {
             Urn = urn;
             OldInputs = oldInputs;
@@ -78,11 +74,7 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
         public readonly ImmutableArray<string> IgnoreChanges;
 
-        public DiffRequest(string urn,
-            string id,
-            ImmutableDictionary<string, PropertyValue> oldState,
-            ImmutableDictionary<string, PropertyValue> newInputs,
-            ImmutableArray<string> ignoreChanges)
+        public DiffRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> oldState, ImmutableDictionary<string, PropertyValue> newInputs, ImmutableArray<string> ignoreChanges)
         {
             Urn = urn;
             Id = id;
@@ -136,6 +128,7 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class InvokeResponse
     {
+
         public IDictionary<string, PropertyValue>? Return { get; set; }
         public IList<CheckFailure>? Failures { get; set; }
     }
@@ -162,10 +155,7 @@ namespace Pulumi.Experimental.Provider
         public readonly bool AcceptSecrets;
         public readonly bool AcceptResources;
 
-        public ConfigureRequest(ImmutableDictionary<string, string> variables,
-            ImmutableDictionary<string, PropertyValue> args,
-            bool acceptSecrets,
-            bool acceptResources)
+        public ConfigureRequest(ImmutableDictionary<string, string> variables, ImmutableDictionary<string, PropertyValue> args, bool acceptSecrets, bool acceptResources)
         {
             Variables = variables;
             Args = args;
@@ -243,13 +233,7 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableArray<string> IgnoreChanges;
         public readonly bool Preview;
 
-        public UpdateRequest(string urn,
-            string id,
-            ImmutableDictionary<string, PropertyValue> olds,
-            ImmutableDictionary<string, PropertyValue> news,
-            TimeSpan timeout,
-            ImmutableArray<string> ignoreChanges,
-            bool preview)
+        public UpdateRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> olds, ImmutableDictionary<string, PropertyValue> news, TimeSpan timeout, ImmutableArray<string> ignoreChanges, bool preview)
         {
             Urn = urn;
             Id = id;
@@ -414,11 +398,7 @@ namespace Pulumi.Experimental.Provider
             return Serve(args, version, factory, cancellationToken, System.Console.Out);
         }
 
-        public static async Task Serve(string[] args,
-            string? version,
-            Func<IHost, Provider> factory,
-            System.Threading.CancellationToken cancellationToken,
-            System.IO.TextWriter stdout)
+        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
@@ -429,7 +409,10 @@ namespace Pulumi.Experimental.Provider
                     webBuilder
                         .ConfigureKestrel(kestrelOptions =>
                         {
-                            kestrelOptions.Listen(IPAddress.Loopback, 0, listenOptions => { listenOptions.Protocols = HttpProtocols.Http2; });
+                            kestrelOptions.Listen(IPAddress.Loopback, 0, listenOptions =>
+                            {
+                                listenOptions.Protocols = HttpProtocols.Http2;
+                            });
                         })
                         .ConfigureAppConfiguration((context, config) =>
                         {
@@ -442,12 +425,10 @@ namespace Pulumi.Experimental.Provider
                             {
                                 memConfig.Add("Host", args[0]);
                             }
-
                             if (version != null)
                             {
                                 memConfig.Add("Version", version);
                             }
-
                             config.AddInMemoryCollection(memConfig);
                         })
                         .ConfigureLogging(loggingBuilder =>
@@ -470,7 +451,10 @@ namespace Pulumi.Experimental.Provider
                         .Configure(app =>
                         {
                             app.UseRouting();
-                            app.UseEndpoints(endpoints => { endpoints.MapGrpcService<ResourceProviderService>(); });
+                            app.UseEndpoints(endpoints =>
+                            {
+                                endpoints.MapGrpcService<ResourceProviderService>();
+                            });
                         });
                 })
                 .Build();
@@ -516,9 +500,6 @@ namespace Pulumi.Experimental.Provider
         Provider? implementation;
         readonly string version;
 
-        /** Queue of construct calls. */
-        private volatile Task constructCallQueue = Task.CompletedTask;
-
         Provider Implementation
         {
             get
@@ -527,7 +508,6 @@ namespace Pulumi.Experimental.Provider
                 {
                     throw new RpcException(new Status(StatusCode.FailedPrecondition, "Engine host not yet attached"));
                 }
-
                 return implementation;
             }
         }
@@ -567,7 +547,6 @@ namespace Pulumi.Experimental.Provider
                     throw new Exception("Provider.Serve must be called with a version, or an assembly version must be set.");
                 }
             }
-
             this.version = version;
         }
 
@@ -616,7 +595,6 @@ namespace Pulumi.Experimental.Provider
             {
                 return ImmutableDictionary<string, PropertyValue>.Empty;
             }
-
             return PropertyValue.Unmarshal(properties);
         }
 
@@ -624,8 +602,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News),
-                    ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
@@ -634,7 +611,6 @@ namespace Pulumi.Experimental.Provider
                 {
                     grpcResponse.Failures.AddRange(MappFailures(domResponse.Failures));
                 }
-
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -655,34 +631,27 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News),
-                    request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
                 if (domResponse.Changes.HasValue)
                 {
-                    grpcResponse.Changes = domResponse.Changes.Value
-                        ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome
-                        : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
+                    grpcResponse.Changes = domResponse.Changes.Value ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
                 }
-
                 if (domResponse.Stables != null)
                 {
                     grpcResponse.Stables.AddRange(domResponse.Stables);
                 }
-
                 if (domResponse.Replaces != null)
                 {
                     grpcResponse.Replaces.AddRange(domResponse.Replaces);
                 }
-
                 grpcResponse.DeleteBeforeReplace = domResponse.DeleteBeforeReplace;
                 if (domResponse.Diffs != null)
                 {
                     grpcResponse.Diffs.AddRange(domResponse.Diffs);
                 }
-
                 if (domResponse.DetailedDiff != null)
                 {
                     foreach (var item in domResponse.DetailedDiff)
@@ -694,7 +663,6 @@ namespace Pulumi.Experimental.Provider
                         grpcResponse.DetailedDiff.Add(item.Key, grpcDiff);
                     }
                 }
-
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -724,7 +692,6 @@ namespace Pulumi.Experimental.Provider
                 {
                     grpcResponse.Failures.AddRange(MappFailures(domResponse.Failures));
                 }
-
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -770,8 +737,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Marshal(request.Args), request.AcceptSecrets,
-                    request.AcceptResources);
+                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Marshal(request.Args), request.AcceptSecrets, request.AcceptResources);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Configure(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ConfigureResponse();
@@ -875,8 +841,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News),
-                    ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
@@ -885,7 +850,6 @@ namespace Pulumi.Experimental.Provider
                 {
                     grpcResponse.Failures.AddRange(MappFailures(domResponse.Failures));
                 }
-
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -906,34 +870,27 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News),
-                    request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Diff(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
                 if (domResponse.Changes.HasValue)
                 {
-                    grpcResponse.Changes = domResponse.Changes.Value
-                        ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome
-                        : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
+                    grpcResponse.Changes = domResponse.Changes.Value ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
                 }
-
                 if (domResponse.Stables != null)
                 {
                     grpcResponse.Stables.AddRange(domResponse.Stables);
                 }
-
                 if (domResponse.Replaces != null)
                 {
                     grpcResponse.Replaces.AddRange(domResponse.Replaces);
                 }
-
                 grpcResponse.DeleteBeforeReplace = domResponse.DeleteBeforeReplace;
                 if (domResponse.Diffs != null)
                 {
                     grpcResponse.Diffs.AddRange(domResponse.Diffs);
                 }
-
                 if (domResponse.DetailedDiff != null)
                 {
                     foreach (var item in domResponse.DetailedDiff)
@@ -945,7 +902,6 @@ namespace Pulumi.Experimental.Provider
                         grpcResponse.DetailedDiff.Add(item.Key, grpcDiff);
                     }
                 }
-
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -966,8 +922,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new UpdateRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), TimeSpan.FromSeconds(request.Timeout),
-                    request.IgnoreChanges.ToImmutableArray(), request.Preview);
+                var domRequest = new UpdateRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), TimeSpan.FromSeconds(request.Timeout), request.IgnoreChanges.ToImmutableArray(), request.Preview);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Update(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.UpdateResponse();

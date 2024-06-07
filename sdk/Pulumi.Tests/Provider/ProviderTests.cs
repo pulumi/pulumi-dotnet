@@ -54,7 +54,7 @@ namespace Pulumi.Tests.Provider
         {
             this.testHost = testHost;
         }
-        
+
         [Fact]
         public async Task StateIsPersistent()
         {

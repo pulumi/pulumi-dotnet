@@ -27,7 +27,7 @@ public class ProviderServerTestHost<TProvider> : IAsyncLifetime where TProvider 
                  throw new InvalidOperationException($"Unable to create instance of type '{typeof(TProvider).Name}'."));
         await host.StartAsync(cts.Token);
 
-        // Grab the port from stdout and create a connection to it
+        // Grab the uri from the host
         var hostUri = Experimental.Provider.Provider.GetHostUri(host);
 
         // Inititialize the engine channel once for this address

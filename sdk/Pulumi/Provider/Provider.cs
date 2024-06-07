@@ -516,9 +516,9 @@ namespace Pulumi.Experimental.Provider
         
         string EngineAddress => engineAddress ?? throw new RpcException(new Status(StatusCode.FailedPrecondition, "Engine host not yet attached")); 
 
-        private void CreateProvider(string addr)
+        private void CreateProvider(string address)
         {
-            var host = new GrpcHost(addr);
+            var host = new GrpcHost(address);
             implementation = factory(host);
         }
 

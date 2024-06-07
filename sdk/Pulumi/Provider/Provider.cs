@@ -522,7 +522,7 @@ namespace Pulumi.Experimental.Provider
             implementation = factory(host);
         }
 
-        public ResourceProviderService(Func<IHost, Provider> factory, IConfiguration configuration, ILogger? logger)
+        public ResourceProviderService(Func<IHost, Provider> factory, IConfiguration configuration, ILogger<ResourceProviderService>? logger)
         {
             this.factory = factory;
             this.logger = logger;

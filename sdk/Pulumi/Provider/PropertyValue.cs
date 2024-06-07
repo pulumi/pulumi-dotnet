@@ -57,6 +57,16 @@ namespace Pulumi.Experimental.Provider
         {
             return URN == other.URN && Id.Equals(other.Id) && PackageVersion == other.PackageVersion;
         }
+
+        public static bool operator ==(ResourceReference left, ResourceReference right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ResourceReference left, ResourceReference right)
+        {
+            return !(left == right);
+        }
     }
 
     public readonly struct OutputReference : IEquatable<OutputReference>
@@ -100,6 +110,16 @@ namespace Pulumi.Experimental.Provider
                 return Value.Equals(other.Value);
             }
             return false;
+        }
+
+        public static bool operator ==(OutputReference left, OutputReference right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(OutputReference left, OutputReference right)
+        {
+            return !(left == right);
         }
     }
 
@@ -381,7 +401,7 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        public bool TryGetString(out string? value)
+        public bool TryGetString([NotNullWhen(true)] out string? value)
         {
             if (StringValue != null)
             {

@@ -62,7 +62,7 @@ namespace Pulumi
         {
             if (!_callbacks.TryGetValue(request.Token, out var callback))
             {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, string.Format("Callback not found: {}", request.Token)));
+                throw new RpcException(new Status(StatusCode.InvalidArgument, $"Callback not found: {request.Token}"));
             }
 
             try

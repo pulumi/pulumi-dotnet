@@ -25,7 +25,7 @@ using static Pulumi.Automation.Tests.Utility;
 namespace Pulumi.Automation.Tests
 {
     [Collection("PULUMI_BACKEND_URL")]
-    public class LocalWorkspaceTests : IDisposable
+    public sealed class LocalWorkspaceTests : IDisposable
     {
         private static readonly string _pulumiOrg = GetTestOrg();
 

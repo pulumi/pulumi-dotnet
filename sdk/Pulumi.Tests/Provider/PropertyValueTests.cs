@@ -61,14 +61,14 @@ public class PropertyValueTests
         var data = Object(Pair("Length", new PropertyValue(10)));
         var withData = await serializer.Deserialize<UsingNullableArgs>(data);
         Assert.True(withData.Length.HasValue, "Nullable field has a value");
-        Assert.Equal(10, withData.Length.Value);
+        Assert.Equal(10, withData.Length);
     }
 
     class UsingListArgs : ResourceArgs
     {
-        public string[] First { get; set; }
-        public List<string> Second { get; set; }
-        public ImmutableArray<string> Third { get; set; }
+        public string[] First { get; set; } = default!;
+        public List<string> Second { get; set; } = default!;
+        public ImmutableArray<string> Third { get; set; } = default!;
     }
 
     [Fact]
@@ -95,7 +95,7 @@ public class PropertyValueTests
 
     class StringFromNullBecomesEmpty : ResourceArgs
     {
-        public string Data { get; set; }
+        public string Data { get; set; } = string.Empty;
     }
 
     [Fact]
@@ -109,8 +109,8 @@ public class PropertyValueTests
 
     class UsingDictionaryArgs : ResourceArgs
     {
-        public Dictionary<string, string> First { get; set; }
-        public ImmutableDictionary<string, string> Second { get; set; }
+        public Dictionary<string, string> First { get; set; } = default!;
+        public ImmutableDictionary<string, string> Second { get; set; } = default!;
     }
 
     [Fact]
@@ -140,9 +140,9 @@ public class PropertyValueTests
 
     class UsingInputArgs : ResourceArgs
     {
-        public Input<string> Name { get; set; }
-        public InputList<string> Subnets { get; set; }
-        public InputMap<string> Tags { get; set; }
+        public Input<string> Name { get; set; } = default!;
+        public InputList<string> Subnets { get; set; } = default!;
+        public InputMap<string> Tags { get; set; } = default!;
     }
 
     [Fact]
@@ -152,14 +152,14 @@ public class PropertyValueTests
         var data = Object(
             Pair("Name", new PropertyValue("test")),
             Pair("Subnets", Array(
-    new PropertyValue("one"),
+                new PropertyValue("one"),
                 new PropertyValue("two"),
                 new PropertyValue("three"))),
             Pair("Tags", Object(
                 Pair("one", new PropertyValue("one")),
                 Pair("two", new PropertyValue("two")),
                 Pair("three", new PropertyValue("three"))))
-            );
+        );
 
         var args = await serializer.Deserialize<UsingInputArgs>(data);
 
@@ -202,7 +202,7 @@ public class PropertyValueTests
 
     class OptionalIntInputArgs : ResourceArgs
     {
-        public Input<int?> OptionalInteger { get; set; }
+        public Input<int?> OptionalInteger { get; set; } = default!;
     }
 
     [Fact]
@@ -406,9 +406,10 @@ public class PropertyValueTests
     class CustomArgs
     {
         [Input("value_field")]
-        public string Value { get; set; }
+        public string Value { get; set; } = string.Empty;
+
         [Output("name_field")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 
     [Fact]
@@ -448,7 +449,6 @@ public class PropertyValueTests
 
         public TypeWithConstructors()
         {
-
         }
 
         public TypeWithConstructors(int first)
@@ -468,6 +468,7 @@ public class PropertyValueTests
     {
         public int First { get; set; }
         public int? Second { get; set; }
+
         public TypeWithOptionalConstructorParameter(int first)
         {
             First = first * 5;

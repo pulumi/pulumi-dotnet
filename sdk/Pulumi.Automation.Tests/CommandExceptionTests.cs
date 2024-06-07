@@ -11,7 +11,7 @@ using Xunit;
 namespace Pulumi.Automation.Tests
 {
     [Collection("PULUMI_BACKEND_URL")]
-    public class CommandExceptionTests : IDisposable
+    public sealed class CommandExceptionTests : IDisposable
     {
         private string? temporaryDirectory;
 

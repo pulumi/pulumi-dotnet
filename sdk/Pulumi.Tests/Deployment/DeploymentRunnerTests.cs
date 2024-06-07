@@ -43,7 +43,8 @@ namespace Pulumi.Tests
             var deployResult = await Deployment.TryTestAsync<UsingNonGenericTaskInApplyStack>(
                 new EmptyMocks());
             var stack = deployResult.Resources[0] as UsingNonGenericTaskInApplyStack;
-            var resultMessage = await stack.ResultMessage.GetValueAsync("");
+            Assert.NotNull(stack);
+            var resultMessage = await stack!.ResultMessage.GetValueAsync("");
             Assert.Equal("After", resultMessage);
         }
 
@@ -146,7 +147,7 @@ namespace Pulumi.Tests
                 EventId eventId,
                 TState state,
                 Exception? exc,
-                Func<TState, Exception, string> formatter)
+                Func<TState, Exception?, string> formatter)
             {
                 var msg = formatter(state, exc);
                 Write($"{level} {eventId} {msg}");

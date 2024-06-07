@@ -38,8 +38,10 @@ namespace Pulumi
             foreach (var (_, memberName, memberType, _) in all)
             {
                 var fullName = $"[Input] {this.GetType().FullName}.{memberName}";
+#pragma warning disable CA2214
                 // ReSharper disable once VirtualMemberCallInConstructor
                 ValidateMember(memberType, fullName);
+#pragma warning restore CA2214
             }
 
             _inputInfos = all.Select(t =>

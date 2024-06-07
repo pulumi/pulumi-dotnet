@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Pulumi.Tests.Provider;
 
-public class ProviderServerTestHost<TProvider> : IAsyncLifetime where TProvider : Experimental.Provider.Provider
+public abstract class ProviderServerTestHost : IAsyncLifetime
 {
     private IHost? host;
     private GrpcChannel? channel;
@@ -22,9 +22,7 @@ public class ProviderServerTestHost<TProvider> : IAsyncLifetime where TProvider 
         var cts = new System.Threading.CancellationTokenSource();
 
         // Custom stdout so we can see what port Serve chooses
-        host = Experimental.Provider.Provider.BuildHost(args, "1.0",
-            _ => Activator.CreateInstance<TProvider>() ??
-                 throw new InvalidOperationException($"Unable to create instance of type '{typeof(TProvider).Name}'."));
+        host = Experimental.Provider.Provider.BuildHost(args, "1.0", BuildProvider);
         await host.StartAsync(cts.Token);
 
         // Grab the uri from the host
@@ -36,6 +34,8 @@ public class ProviderServerTestHost<TProvider> : IAsyncLifetime where TProvider 
             Credentials = Grpc.Core.ChannelCredentials.Insecure,
         });
     }
+
+    protected abstract Experimental.Provider.Provider BuildProvider(Experimental.Provider.IHost runner);
 
     public async Task DisposeAsync()
     {
@@ -52,5 +52,14 @@ public class ProviderServerTestHost<TProvider> : IAsyncLifetime where TProvider 
             host.Dispose();
             host = null;
         }
+    }
+}
+
+public class ProviderServerTestHost<TProvider> : ProviderServerTestHost where TProvider : Experimental.Provider.Provider
+{
+    protected override Experimental.Provider.Provider BuildProvider(Experimental.Provider.IHost runner)
+    {
+        return Activator.CreateInstance<TProvider>() ??
+               throw new InvalidOperationException($"Unable to create instance of type '{typeof(TProvider).Name}'.");
     }
 }

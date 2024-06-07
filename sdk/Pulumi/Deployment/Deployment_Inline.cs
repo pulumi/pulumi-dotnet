@@ -51,46 +51,51 @@ namespace Pulumi
         {
             var result = new InlineDeploymentResult();
 
-            result.ExitCode = await CreateRunnerAndRunAsync(
+            int? exitCode = null;
+            try
+            {
+                exitCode = await RunInlineAsyncWithResult(settings, runnerFunc).ConfigureAwait(false);
+            }
+            // because we might be newing a generic, reflection comes in to
+            // construct the instance. And if there is an exception in
+            // the constructor of the user-provided TStack, it will be wrapped
+            // in TargetInvocationException - which is not the exception
+            // we want to throw to the consumer.
+            catch (TargetInvocationException ex) when (ex.InnerException != null)
+            {
+                result.ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex.InnerException);
+            }
+            catch (Exception ex)
+            {
+                result.ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
+            }
+
+            // return original exit code if we have it, otherwise fail
+            result.ExitCode =  exitCode ?? -1;
+            return result;
+        }
+        
+        internal static async Task<T> RunInlineAsyncWithResult<T>(InlineDeploymentSettings settings, Func<IRunner, Task<T>> runnerFunc)
+        {
+            return await CreateRunnerAndRunAsync(
                 () => new Deployment(settings),
                 async runner =>
                 {
-                    int? exitCode = null;
-                    try
-                    {
-                        exitCode = await runnerFunc(runner).ConfigureAwait(false);
+                    var result = await runnerFunc(runner).ConfigureAwait(false);
 
-                        // if there was swallowed exceptions from the in-flight tasks we want to either capture
-                        // if it is single or re-throw as an aggregate exception if there is more than 1
-                        if (runner.SwallowedExceptions.Count == 1)
-                        {
-                            ExceptionDispatchInfo.Throw(runner.SwallowedExceptions[0]);
-                        }
-                        else if (runner.SwallowedExceptions.Count > 1)
-                        {
-                            throw new AggregateException(runner.SwallowedExceptions);
-                        }
-                    }
-                    // because we might be newing a generic, reflection comes in to
-                    // construct the instance. And if there is an exception in
-                    // the constructor of the user-provided TStack, it will be wrapped
-                    // in TargetInvocationException - which is not the exception
-                    // we want to throw to the consumer.
-                    catch (TargetInvocationException ex) when (ex.InnerException != null)
+                    // if there was swallowed exceptions from the in-flight tasks we want to either capture
+                    // if it is single or re-throw as an aggregate exception if there is more than 1
+                    if (runner.SwallowedExceptions.Count == 1)
                     {
-                        result.ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex.InnerException);
+                        ExceptionDispatchInfo.Throw(runner.SwallowedExceptions[0]);
                     }
-                    catch (Exception ex)
+                    else if (runner.SwallowedExceptions.Count > 1)
                     {
-                        result.ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
+                        throw new AggregateException(runner.SwallowedExceptions);
                     }
-
-                    // return original exit code if we have it, otherwise fail
-                    return exitCode ?? -1;
+                    return result;
                 })
                 .ConfigureAwait(false);
-
-            return result;
         }
     }
 }

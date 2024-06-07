@@ -495,10 +495,12 @@ namespace Pulumi.Experimental.Provider
 
     class ResourceProviderService : ResourceProvider.ResourceProviderBase, IDisposable
     {
-        readonly Func<IHost, Provider> factory;
-        readonly CancellationTokenSource rootCTS;
-        Provider? implementation;
-        readonly string version;
+        private readonly Func<IHost, Provider> factory;
+        private readonly ILogger? logger;
+        private readonly CancellationTokenSource rootCTS;
+        private Provider? implementation;
+        private readonly string version;
+        private readonly string? engineAddress;
 
         Provider Implementation
         {
@@ -511,22 +513,25 @@ namespace Pulumi.Experimental.Provider
                 return implementation;
             }
         }
+        
+        string EngineAddress => engineAddress ?? throw new RpcException(new Status(StatusCode.FailedPrecondition, "Engine host not yet attached")); 
 
-        private void CreateProvider(string address)
+        private void CreateProvider(string addr)
         {
-            var host = new GrpcHost(address);
+            var host = new GrpcHost(addr);
             implementation = factory(host);
         }
 
-        public ResourceProviderService(Func<IHost, Provider> factory, IConfiguration configuration)
+        public ResourceProviderService(Func<IHost, Provider> factory, IConfiguration configuration, ILogger? logger)
         {
             this.factory = factory;
+            this.logger = logger;
             this.rootCTS = new CancellationTokenSource();
 
-            var host = configuration.GetValue<string?>("Host", null);
-            if (host != null)
+            engineAddress = configuration.GetValue<string?>("Host", null);
+            if (engineAddress != null)
             {
-                CreateProvider(host);
+                CreateProvider(engineAddress);
             }
 
             var version = configuration.GetValue<string?>("Version", null);
@@ -971,7 +976,7 @@ namespace Pulumi.Experimental.Provider
             try
             {
                 var aliases = request.Aliases.Select(urn => (Input<Alias>)new Alias() { Urn = urn }).ToList();
-
+                
                 InputList<Resource> dependsOn = request.Dependencies
                     .Select(urn => new DependencyResource(urn))
                     .ToImmutableArray<Resource>();
@@ -987,10 +992,14 @@ namespace Pulumi.Experimental.Provider
                     Providers = providers,
                     Parent = request.Parent != null ? new DependencyResource(request.Parent) : null,
                 };
-
                 var domRequest = new ConstructRequest(request.Name, request.Type, Marshal(request.Inputs), opts);
                 using var cts = GetToken(context);
-                var domResponse = await Implementation.Construct(domRequest, cts.Token);
+
+
+                var inlineDeploymentSettings = new InlineDeploymentSettings(logger, EngineAddress, request.MonitorEndpoint, request.Config,
+                    request.ConfigSecretKeys, request.Organization, request.Project, request.Stack, request.Parallel, request.DryRun);
+                var domResponse = await Deployment.RunInlineAsyncWithResult(inlineDeploymentSettings, runner => Implementation.Construct(domRequest, cts.Token)).ConfigureAwait(false);
+
                 var state = PropertyValue.Marshal(domResponse.State, out var stateDependencies);
 
                 var grpcResponse = new Pulumirpc.ConstructResponse
@@ -1027,7 +1036,7 @@ namespace Pulumi.Experimental.Provider
                 throw new RpcException(new Status(StatusCode.Internal, ex.Message));
             }
         }
-
+        
         public override async Task<Pulumirpc.CallResponse> Call(Pulumirpc.CallRequest request, ServerCallContext context)
         {
             try
@@ -1038,7 +1047,10 @@ namespace Pulumi.Experimental.Provider
 
                 var domRequest = new CallRequest(request.Tok, domArgs);
                 using var cts = GetToken(context);
-                var domResponse = await Implementation.Call(domRequest, cts.Token);
+
+                var inlineDeploymentSettings = new InlineDeploymentSettings(logger, EngineAddress, request.MonitorEndpoint, request.Config,
+                    request.ConfigSecretKeys, request.Organization, request.Project, request.Stack, request.Parallel, request.DryRun);
+                var domResponse = await Deployment.RunInlineAsyncWithResult(inlineDeploymentSettings, runner => Implementation.Call(domRequest, cts.Token)).ConfigureAwait(false);
 
                 IDictionary<string, PropertyDependencies> returnDependencies = ImmutableDictionary<string, PropertyDependencies>.Empty;
                 var grpcResponse = new Pulumirpc.CallResponse

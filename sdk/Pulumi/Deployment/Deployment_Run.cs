@@ -328,9 +328,9 @@ namespace Pulumi
         // in order to protect the scope of the AsyncLocal Deployment.Instance we cannot elide the task (return it early)
         // if the task is returned early and not awaited, than it is possible for any code that runs before the eventual await
         // to be executed synchronously and thus have multiple calls to one of the Run methods affecting each others Deployment.Instance
-        internal static async Task<int> CreateRunnerAndRunAsync(
+        internal static async Task<T> CreateRunnerAndRunAsync<T>(
             Func<Deployment> deploymentFactory,
-            Func<IRunner, Task<int>> runAsync)
+            Func<IRunner, Task<T>> runAsync)
         {
             var deployment = deploymentFactory();
             Instance = new DeploymentInstance(deployment);

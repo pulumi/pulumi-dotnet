@@ -1,6 +1,0 @@
-component: sdk/provider
-kind: Improvements
-body: Refactor Provider tests in order to prepare integration testing
-time: 2024-06-07T12:20:39.7748217+02:00
-custom:
-    PR: "277"

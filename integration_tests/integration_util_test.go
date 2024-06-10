@@ -35,8 +35,8 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/engine"
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
-	"github.com/pulumi/pulumi/sdk/go/common/util/contract"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"github.com/stretchr/testify/assert"
@@ -106,7 +106,7 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 `, packageReference)
 
 			modifiedProjectContent := strings.ReplaceAll(string(projectContent), "</Project>", modifiedContent)
-			err = os.WriteFile(path, []byte(modifiedProjectContent), 0644)
+			err = os.WriteFile(path, []byte(modifiedProjectContent), 0o644)
 			if err != nil {
 				return err
 			}
@@ -121,7 +121,7 @@ func getProviderPath(providerDir string) string {
 	environ := os.Environ()
 	for _, env := range environ {
 		split := strings.SplitN(env, "=", 2)
-		contract.Assert(len(split) == 2)
+		contract.Assertf(len(split) == 2, "expected split to be of length 2")
 		key, value := split[0], split[1]
 
 		// Case-insensitive compare, as Windows will normally be "Path", not "PATH".
@@ -300,7 +300,7 @@ func testConstructMethodsResources(t *testing.T, lang string) {
 			var hasExpectedResource bool
 			var result string
 			for _, res := range stackInfo.Deployment.Resources {
-				if res.URN.Name().String() == "myrandom" {
+				if res.URN.Name() == "myrandom" {
 					hasExpectedResource = true
 					result = res.Outputs["result"].(string)
 					assert.Equal(t, float64(10), res.Inputs["length"])

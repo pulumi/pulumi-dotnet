@@ -400,10 +400,38 @@ namespace Pulumi.Experimental.Provider
 
         public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
         {
+            using var host = BuildHost(args, version, factory);
+
+            // before starting the host, set up this callback to tell us what port was selected
+            await host.StartAsync(cancellationToken);
+            var uri = GetHostUri(host);
+
+            var port = uri.Port;
+            // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
+            // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
+            // we work around this here so that old engines can use dotnet providers as well.
+            stdout.Write(port.ToString() + "\n");
+
+            await host.WaitForShutdownAsync(cancellationToken);
+        }
+
+        public static Uri GetHostUri(Microsoft.Extensions.Hosting.IHost host)
+        {
+            var serverFeatures = host.Services.GetRequiredService<IServer>().Features;
+            var addressesFeature = serverFeatures.Get<IServerAddressesFeature>();
+            Debug.Assert(addressesFeature != null, "Server should have an IServerAddressesFeature");
+            var addresses = addressesFeature.Addresses.ToList();
+            Debug.Assert(addresses.Count == 1, "Server should only be listening on one address");
+            var uri = new Uri(addresses[0]);
+            return uri;
+        }
+
+        public static Microsoft.Extensions.Hosting.IHost BuildHost(string[] args, string? version, Func<IHost, Provider> factory)
+        {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
 
-            var host = Host.CreateDefaultBuilder()
+            return Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
@@ -458,38 +486,6 @@ namespace Pulumi.Experimental.Provider
                         });
                 })
                 .Build();
-
-            // before starting the host, set up this callback to tell us what port was selected
-            var portTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var portRegistration = host.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStarted.Register(() =>
-            {
-                try
-                {
-                    var serverFeatures = host.Services.GetRequiredService<IServer>().Features;
-                    var addressesFeature = serverFeatures.Get<IServerAddressesFeature>();
-                    Debug.Assert(addressesFeature != null, "Server should have an IServerAddressesFeature");
-                    var addresses = addressesFeature.Addresses.ToList();
-                    Debug.Assert(addresses.Count == 1, "Server should only be listening on one address");
-                    var uri = new Uri(addresses[0]);
-                    portTcs.TrySetResult(uri.Port);
-                }
-                catch (Exception ex)
-                {
-                    portTcs.TrySetException(ex);
-                }
-            });
-
-            await host.StartAsync(cancellationToken);
-
-            var port = await portTcs.Task;
-            // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
-            // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
-            // we work around this here so that old engines can use dotnet providers as well.
-            stdout.Write(port.ToString() + "\n");
-
-            await host.WaitForShutdownAsync(cancellationToken);
-
-            host.Dispose();
         }
     }
 

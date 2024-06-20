@@ -10,7 +10,7 @@ namespace Pulumi
 {
     public partial class Deployment
     {
-        private Deployment(InlineDeploymentSettings settings)
+        private Deployment(IDeploymentBuilder builder, InlineDeploymentSettings settings)
         {
             if (settings is null)
                 throw new ArgumentNullException(nameof(settings));
@@ -32,11 +32,11 @@ namespace Pulumi
             var deploymentLogger = settings.Logger ?? CreateDefaultLogger();
 
             deploymentLogger.LogDebug("Creating deployment engine");
-            Engine = new GrpcEngine(settings.EngineAddr);
+            Engine = builder.BuildEngine(settings.EngineAddr);
             deploymentLogger.LogDebug("Created deployment engine");
 
             deploymentLogger.LogDebug("Creating deployment monitor");
-            Monitor = new GrpcMonitor(settings.MonitorAddr);
+            Monitor = builder.BuildMonitor(settings.MonitorAddr);
             deploymentLogger.LogDebug("Created deployment monitor");
 
             // Tell the runner that we are running inside an inline automation program
@@ -47,14 +47,14 @@ namespace Pulumi
             _logger = new EngineLogger(this, deploymentLogger, Engine);
         }
 
-        internal static async Task<InlineDeploymentResult> RunInlineAsync(InlineDeploymentSettings settings, Func<IRunner, Task<int>> runnerFunc)
+        internal static async Task<InlineDeploymentResult> RunInlineAsync(IDeploymentBuilder deploymentBuilder, InlineDeploymentSettings settings, Func<IRunner, Task<int>> runnerFunc)
         {
             var result = new InlineDeploymentResult();
 
             int? exitCode = null;
             try
             {
-                exitCode = await RunInlineAsyncWithResult(settings, runnerFunc).ConfigureAwait(false);
+                exitCode = await RunInlineAsyncWithResult(deploymentBuilder, settings, runnerFunc).ConfigureAwait(false);
             }
             // because we might be newing a generic, reflection comes in to
             // construct the instance. And if there is an exception in
@@ -75,10 +75,12 @@ namespace Pulumi
             return result;
         }
         
-        internal static async Task<T> RunInlineAsyncWithResult<T>(InlineDeploymentSettings settings, Func<IRunner, Task<T>> runnerFunc)
+        internal static async Task<T> RunInlineAsyncWithResult<T>(IDeploymentBuilder builder,
+            InlineDeploymentSettings settings,
+            Func<IRunner, Task<T>> runnerFunc)
         {
             return await CreateRunnerAndRunAsync(
-                () => new Deployment(settings),
+                () => new Deployment(builder, settings),
                 async runner =>
                 {
                     var result = await runnerFunc(runner).ConfigureAwait(false);

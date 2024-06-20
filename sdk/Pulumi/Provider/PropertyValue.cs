@@ -557,17 +557,19 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        internal static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct properties)
+        internal static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct properties, IDictionary<string, PropertyDependencies>? inputDependencies = default)
         {
             var builder = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
             foreach (var item in properties.Fields)
             {
-                builder.Add(item.Key, Unmarshal(item.Value));
+                PropertyDependencies? dependencies = null;
+                inputDependencies?.TryGetValue(item.Key, out dependencies);
+                builder.Add(item.Key, Unmarshal(item.Value, dependencies));
             }
             return builder.ToImmutable();
         }
 
-        internal static PropertyValue Unmarshal(Value value)
+        internal static PropertyValue Unmarshal(Value value, PropertyDependencies? inputDependencies)
         {
             switch (value.KindCase)
             {
@@ -592,7 +594,7 @@ namespace Pulumi.Experimental.Provider
                         var builder = ImmutableArray.CreateBuilder<PropertyValue>(listValue.Values.Count);
                         foreach (var item in listValue.Values)
                         {
-                            builder.Add(Unmarshal(item));
+                            builder.Add(Unmarshal(item, inputDependencies));
                         }
                         return new PropertyValue(builder.ToImmutable());
                     }
@@ -610,7 +612,7 @@ namespace Pulumi.Experimental.Provider
                                         if (!structValue.Fields.TryGetValue(Constants.ValueName, out var secretValue))
                                             throw new InvalidOperationException("Secrets must have a field called 'value'");
 
-                                        return new PropertyValue(Unmarshal(secretValue));
+                                        return new PropertyValue(Unmarshal(secretValue, inputDependencies));
                                     }
                                 case Constants.SpecialAssetSig:
                                     {
@@ -640,7 +642,7 @@ namespace Pulumi.Experimental.Provider
                                                 var assets = ImmutableDictionary.CreateBuilder<string, AssetOrArchive>();
                                                 foreach (var (name, val) in assetsValue.StructValue.Fields)
                                                 {
-                                                    var innerAssetOrArchive = Unmarshal(val);
+                                                    var innerAssetOrArchive = Unmarshal(val, inputDependencies);
                                                     if (innerAssetOrArchive.AssetValue != null)
                                                     {
                                                         assets[name] = innerAssetOrArchive.AssetValue;
@@ -678,14 +680,14 @@ namespace Pulumi.Experimental.Provider
                                             throw new InvalidOperationException("Value was marked as a Resource, but did not conform to required shape.");
                                         }
 
-                                        return new PropertyValue(new ResourceReference(urn, Unmarshal(id), version));
+                                        return new PropertyValue(new ResourceReference(urn, Unmarshal(id, inputDependencies), version));
                                     }
                                 case Constants.SpecialOutputValueSig:
                                     {
                                         PropertyValue? element = null;
                                         if (structValue.Fields.TryGetValue(Constants.ValueName, out var knownElement))
                                         {
-                                            element = Unmarshal(knownElement);
+                                            element = Unmarshal(knownElement, inputDependencies);
                                         }
                                         var secret = false;
                                         if (structValue.Fields.TryGetValue(Constants.SecretName, out var v))
@@ -701,6 +703,10 @@ namespace Pulumi.Experimental.Provider
                                         }
 
                                         var dependenciesBuilder = ImmutableArray.CreateBuilder<string>();
+                                        if (inputDependencies != null)
+                                        {
+                                            dependenciesBuilder.AddRange(inputDependencies.Urns);
+                                        }
                                         if (structValue.Fields.TryGetValue(Constants.DependenciesName, out var dependencies))
                                         {
                                             if (dependencies.KindCase == Value.KindOneofCase.ListValue)
@@ -745,7 +751,7 @@ namespace Pulumi.Experimental.Provider
                             var builder = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
                             foreach (var item in structValue.Fields)
                             {
-                                builder.Add(item.Key, Unmarshal(item.Value));
+                                builder.Add(item.Key, Unmarshal(item.Value, inputDependencies));
                             }
                             return new PropertyValue(builder.ToImmutable());
                         }

@@ -638,7 +638,7 @@ namespace Pulumi.Experimental.Provider
             {
                 return ImmutableDictionary<string, PropertyValue>.Empty;
             }
-            return PropertyValue.Unmarshal(properties);
+            return PropertyValue.Unmarshal(properties, inputDependencies);
         }
 
         public override async Task<Pulumirpc.CheckResponse> CheckConfig(Pulumirpc.CheckRequest request, ServerCallContext context)

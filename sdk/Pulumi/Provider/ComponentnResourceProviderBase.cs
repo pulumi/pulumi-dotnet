@@ -5,7 +5,7 @@ using Pulumi.Utilities;
 
 namespace Pulumi.Experimental.Provider;
 
-public class ComponentResourceProviderBase : Experimental.Provider.Provider
+public class ComponentResourceProviderBase : Provider
 {
     protected async Task<ConstructResponse> Construct<TResource, TArgs>(
         ConstructRequest request,

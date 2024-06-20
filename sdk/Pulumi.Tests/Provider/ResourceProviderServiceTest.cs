@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Divergic.Logging.Xunit;
 using FluentAssertions;
 using Pulumi.Experimental.Provider;
-using Pulumi.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 using CallRequest = Pulumirpc.CallRequest;
@@ -156,7 +155,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             .BeEquivalentTo(ResourceProviderServiceTestProvider.DependentUrns);
     }
 
-    public class TestBucketArgs
+    public class TestBucketArgs : ResourceArgs
     {
         [Input("stringInput", required: true)]
         public Input<string> StringInput { get; set; } = default!;

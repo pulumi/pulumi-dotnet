@@ -43,12 +43,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	// A exit-code we recognize when the nodejs process exits.  If we see this error, there's no
-	// need for us to print any additional error messages since the user already got a a good
-	// one they can handle.
-	dotnetProcessExitedAfterShowingUserActionableMessage = 32
-)
+// A exit-code we recognize when the nodejs process exits.  If we see this error, there's no
+// need for us to print any additional error messages since the user already got a a good
+// one they can handle.
+var dotnetProcessExitedAfterShowingUserActionableMessage = 32
 
 // Launches the language host RPC endpoint, which in turn fires up an RPC server implementing the
 // LanguageRuntimeServer RPC endpoint.
@@ -134,6 +132,8 @@ func main() {
 // dotnetLanguageHost implements the LanguageRuntimeServer interface
 // for use as an API endpoint.
 type dotnetLanguageHost struct {
+	pulumirpc.UnimplementedLanguageRuntimeServer
+
 	exec                 string
 	engineAddress        string
 	tracing              string
@@ -142,7 +142,6 @@ type dotnetLanguageHost struct {
 }
 
 func newLanguageHost(exec, engineAddress, tracing string, binary string) pulumirpc.LanguageRuntimeServer {
-
 	return &dotnetLanguageHost{
 		exec:          exec,
 		engineAddress: engineAddress,
@@ -154,8 +153,8 @@ func newLanguageHost(exec, engineAddress, tracing string, binary string) pulumir
 // GetRequiredPlugins computes the complete set of anticipated plugins required by a program.
 func (host *dotnetLanguageHost) GetRequiredPlugins(
 	ctx context.Context,
-	req *pulumirpc.GetRequiredPluginsRequest) (*pulumirpc.GetRequiredPluginsResponse, error) {
-
+	req *pulumirpc.GetRequiredPluginsRequest,
+) (*pulumirpc.GetRequiredPluginsResponse, error) {
 	logging.V(5).Infof("GetRequiredPlugins: %v", req.GetProgram())
 
 	if host.binary != "" {
@@ -226,8 +225,8 @@ func (host *dotnetLanguageHost) GetRequiredPlugins(
 }
 
 func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
-	ctx context.Context, engineClient pulumirpc.EngineClient) ([][]string, error) {
-
+	ctx context.Context, engineClient pulumirpc.EngineClient,
+) ([][]string, error) {
 	logging.V(5).Infof("GetRequiredPlugins: Determining pulumi packages")
 
 	// Run the `dotnet list package --include-transitive` command.  Importantly, do not clutter the
@@ -291,8 +290,8 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 }
 
 func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
-	ctx context.Context, engineClient pulumirpc.EngineClient) (string, error) {
-
+	ctx context.Context, engineClient pulumirpc.EngineClient,
+) (string, error) {
 	logging.V(5).Infof("GetRequiredPlugins: Determining package directory")
 
 	// Run the `dotnet nuget locals global-packages --list` command.  Importantly, do not clutter
@@ -346,7 +345,6 @@ func newVersionFile(b []byte, packageName string) *versionFile {
 }
 
 func DeterminePluginDependency(packageDir, packageName, packageVersion string) (*pulumirpc.PluginDependency, error) {
-
 	logging.V(5).Infof("GetRequiredPlugins: Determining plugin dependency: %v, %v, %v",
 		packageDir, packageName, packageVersion)
 
@@ -423,8 +421,8 @@ func DeterminePluginDependency(packageDir, packageName, packageVersion string) (
 }
 
 func (host *dotnetLanguageHost) DotnetBuild(
-	ctx context.Context, req *pulumirpc.GetRequiredPluginsRequest, engineClient pulumirpc.EngineClient) error {
-
+	ctx context.Context, req *pulumirpc.GetRequiredPluginsRequest, engineClient pulumirpc.EngineClient,
+) error {
 	args := []string{"build", "-nologo"}
 
 	if req.GetProgram() != "" {
@@ -444,8 +442,8 @@ func (host *dotnetLanguageHost) DotnetBuild(
 }
 
 func (host *dotnetLanguageHost) RunDotnetCommand(
-	ctx context.Context, engineClient pulumirpc.EngineClient, args []string, logToUser bool) (string, error) {
-
+	ctx context.Context, engineClient pulumirpc.EngineClient, args []string, logToUser bool,
+) (string, error) {
 	commandStr := strings.Join(args, " ")
 	if logging.V(5) {
 		logging.V(5).Infoln("Language host launching process: ", host.exec, commandStr)
@@ -541,7 +539,6 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 			StreamId:  w.streamID,
 			Severity:  w.severity,
 		})
-
 		if err != nil {
 			return 0, err
 		}
@@ -691,8 +688,8 @@ func (host *dotnetLanguageHost) GetPluginInfo(ctx context.Context, req *pbempty.
 }
 
 func (host *dotnetLanguageHost) InstallDependencies(
-	req *pulumirpc.InstallDependenciesRequest, server pulumirpc.LanguageRuntime_InstallDependenciesServer) error {
-
+	req *pulumirpc.InstallDependenciesRequest, server pulumirpc.LanguageRuntime_InstallDependenciesServer,
+) error {
 	closer, stdout, stderr, err := rpcutil.MakeInstallDependenciesStreams(server, req.IsTerminal)
 	if err != nil {
 		return err
@@ -714,7 +711,6 @@ func (host *dotnetLanguageHost) InstallDependencies(
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("`dotnet build` failed to install dependencies: %w", err)
-
 	}
 	stdout.Write([]byte("Finished installing dependencies\n\n"))
 
@@ -725,7 +721,7 @@ func (host *dotnetLanguageHost) InstallDependencies(
 	return nil
 }
 
-func (host *dotnetLanguageHost) About(ctx context.Context, req *pbempty.Empty) (*pulumirpc.AboutResponse, error) {
+func (host *dotnetLanguageHost) About(ctx context.Context, req *pulumirpc.AboutRequest) (*pulumirpc.AboutResponse, error) {
 	getResponse := func(execString string, args ...string) (string, string, error) {
 		ex, err := executable.FindExecutable(execString)
 		if err != nil {
@@ -755,7 +751,8 @@ func (host *dotnetLanguageHost) About(ctx context.Context, req *pbempty.Empty) (
 }
 
 func (host *dotnetLanguageHost) GetProgramDependencies(
-	ctx context.Context, req *pulumirpc.GetProgramDependenciesRequest) (*pulumirpc.GetProgramDependenciesResponse, error) {
+	ctx context.Context, req *pulumirpc.GetProgramDependenciesRequest,
+) (*pulumirpc.GetProgramDependenciesResponse, error) {
 	// dotnet list package
 
 	var err error
@@ -812,7 +809,8 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 }
 
 func (host *dotnetLanguageHost) RunPlugin(
-	req *pulumirpc.RunPluginRequest, server pulumirpc.LanguageRuntime_RunPluginServer) error {
+	req *pulumirpc.RunPluginRequest, server pulumirpc.LanguageRuntime_RunPluginServer,
+) error {
 	logging.V(5).Infof("Attempting to run dotnet plugin in %s", req.Program)
 
 	closer, stdout, stderr, err := rpcutil.MakeRunPluginStreams(server, false)

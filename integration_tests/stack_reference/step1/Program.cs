@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi;
 
@@ -14,8 +15,8 @@ class Program
             var slug = $"{Deployment.Instance.OrganizationName}/{Deployment.Instance.ProjectName}/{Deployment.Instance.StackName}";
             var a = new StackReference(slug);
 
-            var oldVal = (string[])await a.GetValueAsync("val");
-            if (oldVal.Length != 2 || oldVal[0] != "a" || oldVal[1] != "b")
+            var oldVal = (ImmutableArray<object>)await a.GetValueAsync("val");
+            if (oldVal.Length != 2 || (string)oldVal[0] != "a" || (string)oldVal[1] != "b")
             {
                 throw new Exception("Invalid result");
             }

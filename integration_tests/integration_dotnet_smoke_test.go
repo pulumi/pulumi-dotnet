@@ -47,11 +47,11 @@ func TestStackReferenceDotnet(t *testing.T) {
 		SkipRefresh: true,
 		EditDirs: []integration.EditDir{
 			{
-				Dir:      "step1",
+				Dir:      filepath.Join("stack_reference", "step1"),
 				Additive: true,
 			},
 			{
-				Dir:      "step2",
+				Dir:      filepath.Join("stack_reference", "step2"),
 				Additive: true,
 			},
 		},

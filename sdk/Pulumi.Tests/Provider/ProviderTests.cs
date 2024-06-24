@@ -10,8 +10,10 @@ using Xunit;
 
 namespace Pulumi.Tests.Provider
 {
-    public class ProviderServerTest
+    public class ProviderServerTest : IClassFixture<ProviderServerTestHost<ProviderServerTest.TestConfigureProvider>>
     {
+        private readonly ProviderServerTestHost<TestConfigureProvider> testHost;
+
         public sealed class TestConfigureProvider : Pulumi.Experimental.Provider.Provider
         {
             private string configString = "default";
@@ -48,30 +50,18 @@ namespace Pulumi.Tests.Provider
             }
         }
 
+        public ProviderServerTest(ProviderServerTestHost<TestConfigureProvider> testHost)
+        {
+            this.testHost = testHost;
+        }
+
         [Fact]
         public async Task StateIsPersistent()
         {
             // Test that if we serve the TestConfigureProvider and configure it, that internal state is preseved for later calls
 
             // We're not going to call anything on the host so we can just have an empty tcp port to listen on
-            var host = System.Net.Sockets.TcpListener.Create(0);
-            var args = new string[] { host.LocalEndpoint.ToString() };
-
-            var cts = new System.Threading.CancellationTokenSource();
-
-            // Custom stdout so we can see what port Serve chooses
-            var stdout = new System.IO.StringWriter();
-            var server = Pulumi.Experimental.Provider.Provider.Serve(args, "1.0", _ => new TestConfigureProvider(), cts.Token, stdout);
-
-            // Grab the port from stdout and create a connection to it
-            var port = int.Parse(stdout.ToString().Trim(), System.Globalization.CultureInfo.InvariantCulture);
-
-            // Inititialize the engine channel once for this address
-            var channel = GrpcChannel.ForAddress(new Uri($"http://localhost:{port}"), new GrpcChannelOptions
-            {
-                Credentials = Grpc.Core.ChannelCredentials.Insecure,
-            });
-            var provider = new Pulumirpc.ResourceProvider.ResourceProviderClient(channel);
+            var provider = new Pulumirpc.ResourceProvider.ResourceProviderClient(testHost.Channel);
 
             var configureArgs = new Google.Protobuf.WellKnownTypes.Struct();
             configureArgs.Fields.Add("test", Google.Protobuf.WellKnownTypes.Value.ForString("testing"));

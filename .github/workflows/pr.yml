@@ -68,7 +68,7 @@ jobs:
   integration-tests:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-11]
+        os: [ubuntu-latest, windows-latest, macos-12]
         dotnet-version: [6.0.x, 8.0.x]
     runs-on: ${{ matrix.os }}
     steps:
@@ -78,10 +78,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Set up Go 1.19.x
+      - name: Set up Go 1.22.x
         uses: actions/setup-go@v5
         with:
-          go-version: 1.19.x
+          go-version: 1.22.x
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
       - name: TestEmptyDotNet

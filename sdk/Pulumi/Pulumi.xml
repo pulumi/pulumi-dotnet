@@ -2284,13 +2284,11 @@
             and component resources in the stack.
             </summary>
         </member>
-        <member name="P:Pulumi.StackOptions.XResourceTransforms">
-             <summary>
-             Optional list of transforms to apply to this stack's resources during construction. The transforms are
-             applied in order, and are applied after all the transforms of custom and component resources in the stack.
-            
-             This property is experimental.
-             </summary>
+        <member name="P:Pulumi.StackOptions.ResourceTransforms">
+            <summary>
+            Optional list of transforms to apply to this stack's resources during construction. The transforms are
+            applied in order, and are applied after all the transforms of custom and component resources in the stack.
+            </summary>
         </member>
         <member name="T:Pulumi.StackReference">
             <summary>
@@ -2862,6 +2860,12 @@
             The previous urn to alias to.
             </summary>
         </member>
+        <member name="P:Pulumirpc.Alias.HasUrn">
+            <summary>Gets whether the "urn" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.Alias.ClearUrn">
+            <summary> Clears the value of the oneof if it's currently set to "urn" </summary>
+        </member>
         <member name="F:Pulumirpc.Alias.SpecFieldNumber">
             <summary>Field number for the "spec" field.</summary>
         </member>
@@ -2916,6 +2920,12 @@
             The urn of the previous parent.
             </summary>
         </member>
+        <member name="P:Pulumirpc.Alias.Types.Spec.HasParentUrn">
+            <summary>Gets whether the "parentUrn" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.Alias.Types.Spec.ClearParentUrn">
+            <summary> Clears the value of the oneof if it's currently set to "parentUrn" </summary>
+        </member>
         <member name="F:Pulumirpc.Alias.Types.Spec.NoParentFieldNumber">
             <summary>Field number for the "noParent" field.</summary>
         </member>
@@ -2923,6 +2933,12 @@
             <summary>
             Used to indicate the resource previously had no parent. If false this property is ignored.
             </summary>
+        </member>
+        <member name="P:Pulumirpc.Alias.Types.Spec.HasNoParent">
+            <summary>Gets whether the "noParent" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.Alias.Types.Spec.ClearNoParent">
+            <summary> Clears the value of the oneof if it's currently set to "noParent" </summary>
         </member>
         <member name="T:Pulumirpc.Alias.Types.Spec.ParentOneofCase">
             <summary>Enum of possible cases for the "parent" oneof.</summary>
@@ -4756,6 +4772,14 @@
             JSON style options from the `Pulumi.yaml` runtime options section.
             </summary>
         </member>
+        <member name="F:Pulumirpc.AboutRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AboutRequest.Info">
+            <summary>
+            the program info to use.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AboutResponse">
             <summary>
             AboutResponse returns runtime information about the language.
@@ -5069,6 +5093,49 @@
             a line of stderr text.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RuntimeOptionsRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RuntimeOptionsRequest.Info">
+            <summary>
+            The current program info used to evaluate which prompts should be asked.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.KeyFieldNumber">
+            <summary>Field number for the "key" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.DescriptionFieldNumber">
+            <summary>Field number for the "description" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.PromptTypeFieldNumber">
+            <summary>Field number for the "promptType" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.ChoicesFieldNumber">
+            <summary>Field number for the "choices" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.DefaultFieldNumber">
+            <summary>Field number for the "default" field.</summary>
+        </member>
+        <member name="T:Pulumirpc.RuntimeOptionPrompt.Types">
+            <summary>Container for nested types declared in the RuntimeOptionPrompt message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.Types.RuntimeOptionValue.PromptTypeFieldNumber">
+            <summary>Field number for the "promptType" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.Types.RuntimeOptionValue.StringValueFieldNumber">
+            <summary>Field number for the "stringValue" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.Types.RuntimeOptionValue.Int32ValueFieldNumber">
+            <summary>Field number for the "int32Value" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RuntimeOptionsResponse.PromptsFieldNumber">
+            <summary>Field number for the "prompts" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RuntimeOptionsResponse.Prompts">
+            <summary>
+            additional prompts to ask the user
+            </summary>
+        </member>
         <member name="F:Pulumirpc.RunPluginRequest.PwdFieldNumber">
             <summary>Field number for the "pwd" field.</summary>
         </member>
@@ -5117,6 +5184,12 @@
             a line of stdout text.
             </summary>
         </member>
+        <member name="P:Pulumirpc.RunPluginResponse.HasStdout">
+            <summary>Gets whether the "stdout" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.RunPluginResponse.ClearStdout">
+            <summary> Clears the value of the oneof if it's currently set to "stdout" </summary>
+        </member>
         <member name="F:Pulumirpc.RunPluginResponse.StderrFieldNumber">
             <summary>Field number for the "stderr" field.</summary>
         </member>
@@ -5125,6 +5198,12 @@
             a line of stderr text.
             </summary>
         </member>
+        <member name="P:Pulumirpc.RunPluginResponse.HasStderr">
+            <summary>Gets whether the "stderr" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.RunPluginResponse.ClearStderr">
+            <summary> Clears the value of the oneof if it's currently set to "stderr" </summary>
+        </member>
         <member name="F:Pulumirpc.RunPluginResponse.ExitcodeFieldNumber">
             <summary>Field number for the "exitcode" field.</summary>
         </member>
@@ -5132,6 +5211,12 @@
             <summary>
             the exit code of the provider.
             </summary>
+        </member>
+        <member name="P:Pulumirpc.RunPluginResponse.HasExitcode">
+            <summary>Gets whether the "exitcode" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.RunPluginResponse.ClearExitcode">
+            <summary> Clears the value of the oneof if it's currently set to "exitcode" </summary>
         </member>
         <member name="T:Pulumirpc.RunPluginResponse.OutputOneofCase">
             <summary>Enum of possible cases for the "output" oneof.</summary>
@@ -5257,6 +5342,15 @@
             The target of a codegen.LoaderServer to use for loading schemas.
             </summary>
         </member>
+        <member name="F:Pulumirpc.GeneratePackageRequest.LocalDependenciesFieldNumber">
+            <summary>Field number for the "local_dependencies" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageRequest.LocalDependencies">
+            <summary>
+            local dependencies to use instead of using the package system. This is a map of package name to a local
+            path of a language specific artifact to use for the SDK for that package.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.GeneratePackageResponse.DiagnosticsFieldNumber">
             <summary>Field number for the "diagnostics" field.</summary>
         </member>
@@ -5271,14 +5365,6 @@
         <member name="P:Pulumirpc.PackRequest.PackageDirectory">
             <summary>
             the directory of a package to pack.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.PackRequest.VersionFieldNumber">
-            <summary>Field number for the "version" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.PackRequest.Version">
-            <summary>
-            the version to tag the artifact with.
             </summary>
         </member>
         <member name="F:Pulumirpc.PackRequest.DestinationDirectoryFieldNumber">
@@ -5342,7 +5428,15 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>A task indicating completion of the handler.</returns>
         </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.About(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.RuntimeOptionsPrompts(Pulumirpc.RuntimeOptionsRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            RuntimeOptionsPrompts returns a list of additional prompts to ask during `pulumi new`.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.About(Pulumirpc.AboutRequest,Grpc.Core.ServerCallContext)">
             <summary>
             About returns information about the runtime for this language.
             </summary>
@@ -5543,7 +5637,43 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.About(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RuntimeOptionsPrompts(Pulumirpc.RuntimeOptionsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            RuntimeOptionsPrompts returns a list of additional prompts to ask during `pulumi new`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RuntimeOptionsPrompts(Pulumirpc.RuntimeOptionsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            RuntimeOptionsPrompts returns a list of additional prompts to ask during `pulumi new`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RuntimeOptionsPromptsAsync(Pulumirpc.RuntimeOptionsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            RuntimeOptionsPrompts returns a list of additional prompts to ask during `pulumi new`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RuntimeOptionsPromptsAsync(Pulumirpc.RuntimeOptionsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            RuntimeOptionsPrompts returns a list of additional prompts to ask during `pulumi new`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.About(Pulumirpc.AboutRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
             About returns information about the runtime for this language.
             </summary>
@@ -5553,7 +5683,7 @@
             <param name="cancellationToken">An optional token for canceling the call.</param>
             <returns>The response received from the server.</returns>
         </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.About(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.About(Pulumirpc.AboutRequest,Grpc.Core.CallOptions)">
             <summary>
             About returns information about the runtime for this language.
             </summary>
@@ -5561,7 +5691,7 @@
             <param name="options">The options for the call.</param>
             <returns>The response received from the server.</returns>
         </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.AboutAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.AboutAsync(Pulumirpc.AboutRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
             About returns information about the runtime for this language.
             </summary>
@@ -5571,7 +5701,7 @@
             <param name="cancellationToken">An optional token for canceling the call.</param>
             <returns>The call object.</returns>
         </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.AboutAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.AboutAsync(Pulumirpc.AboutRequest,Grpc.Core.CallOptions)">
             <summary>
             About returns information about the runtime for this language.
             </summary>
@@ -5878,12 +6008,93 @@
         <member name="P:Pulumirpc.ProviderReflection.Descriptor">
             <summary>File descriptor for pulumi/provider.proto</summary>
         </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Args">
+            <summary>
+            arguments from the command line.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Value">
+            <summary>
+            values from a generated package.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ParameterizeRequest.ParametersOneofCase">
+            <summary>Enum of possible cases for the "parameters" oneof.</summary>
+        </member>
+        <member name="T:Pulumirpc.ParameterizeRequest.Types">
+            <summary>Container for nested types declared in the ParameterizeRequest message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersArgs.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersValue.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Types.ParametersValue.Name">
+            <summary>
+            The sub-package name for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersValue.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Types.ParametersValue.Version">
+            <summary>
+            The sub-package version for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeRequest.Types.ParametersValue.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeRequest.Types.ParametersValue.Value">
+            <summary>
+            The embedded value from the sub-package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeResponse.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeResponse.Name">
+            <summary>
+            The name of the sub-package parameterized.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ParameterizeResponse.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ParameterizeResponse.Version">
+            <summary>
+            The version of the sub-package parameterized.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.GetSchemaRequest.VersionFieldNumber">
             <summary>Field number for the "version" field.</summary>
         </member>
         <member name="P:Pulumirpc.GetSchemaRequest.Version">
             <summary>
             the schema version.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetSchemaRequest.SubpackageNameFieldNumber">
+            <summary>Field number for the "subpackage_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetSchemaRequest.SubpackageName">
+            <summary>
+            the name of the sub-package to lookup
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GetSchemaRequest.SubpackageVersionFieldNumber">
+            <summary>Field number for the "subpackage_version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetSchemaRequest.SubpackageVersion">
+            <summary>
+            the version of the sub-package to lookup
             </summary>
         </member>
         <member name="F:Pulumirpc.GetSchemaResponse.SchemaFieldNumber">
@@ -7093,6 +7304,26 @@
         <member name="T:Pulumirpc.ResourceProvider.ResourceProviderBase">
             <summary>Base class for server-side implementations of ResourceProvider</summary>
         </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.Parameterize(Pulumirpc.ParameterizeRequest,Grpc.Core.ServerCallContext)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.GetSchema(Pulumirpc.GetSchemaRequest,Grpc.Core.ServerCallContext)">
             <summary>
             GetSchema fetches the schema for this resource provider.
@@ -7277,6 +7508,90 @@
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Protected constructor to allow creation of configured clients.</summary>
             <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.Parameterize(Pulumirpc.ParameterizeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.Parameterize(Pulumirpc.ParameterizeRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.ParameterizeAsync(Pulumirpc.ParameterizeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.ParameterizeAsync(Pulumirpc.ParameterizeRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Parameterize takes either a string array of command line inputs or a value embedded from sdk generation.
+            
+             Providers can be parameterized with either multiple extension packages (which don't define their own provider
+             resources), or with a replacement package (which does define its own provider resource).
+            
+             Parameterize may be called multiple times for extension packages, but for a replacement package it will only be
+             called once. Extension packages may even be called multiple times for the same package name, but with different
+             versions.
+            
+             Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
+             should return the sub-package name and version (which for `ParametersValue` should match the given input).
+             
+             For extension resources their CRUD operations will include the version of which sub-package they correspond to.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetSchema(Pulumirpc.GetSchemaRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
@@ -8436,6 +8751,14 @@
             a list of transforms to apply to the resource before registering it.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.SupportsResultReportingFieldNumber">
+            <summary>Field number for the "supportsResultReporting" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.SupportsResultReporting">
+            <summary>
+            true if the request is from an SDK that supports the result field in the response.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -8533,6 +8856,14 @@
         <member name="P:Pulumirpc.RegisterResourceResponse.PropertyDependencies">
             <summary>
             a map from property keys to the dependencies of the property.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceResponse.ResultFieldNumber">
+            <summary>Field number for the "result" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceResponse.Result">
+            <summary>
+            the reason, whether the resource registration was successful, failed, or skipped.
             </summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceResponse.Types">
@@ -8836,6 +9167,38 @@
             the options for the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.PluginDownloadUrlFieldNumber">
+            <summary>Field number for the "plugin_download_url" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "plugin_checksums" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderRequest.ParameterFieldNumber">
+            <summary>Field number for the "parameter" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterProviderResponse.RefFieldNumber">
+            <summary>Field number for the "ref" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterProviderResponse.Ref">
+            <summary>
+            The UUID package reference for this registered provider package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderParameter.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderParameter.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderParameter.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
         <member name="T:Pulumirpc.ResourceMonitor">
             <summary>
             ResourceMonitor is the interface a source uses to talk back to the planning monitor orchestrating the execution.
@@ -8936,6 +9299,24 @@
         </member>
         <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.CoreSdkDirectoryFieldNumber">
             <summary>Field number for the "core_sdk_directory" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.CoreSdkVersionFieldNumber">
+            <summary>Field number for the "core_sdk_version" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.SnapshotEditsFieldNumber">
+            <summary>Field number for the "snapshot_edits" field.</summary>
+        </member>
+        <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">
+            <summary>Container for nested types declared in the PrepareLanguageTestsRequest message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.Replacement.PathFieldNumber">
+            <summary>Field number for the "path" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.Replacement.PatternFieldNumber">
+            <summary>Field number for the "pattern" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.Replacement.Replacement_FieldNumber">
+            <summary>Field number for the "replacement" field.</summary>
         </member>
         <member name="F:Pulumirpc.Testing.PrepareLanguageTestsResponse.TokenFieldNumber">
             <summary>Field number for the "token" field.</summary>

@@ -35,9 +35,9 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
 
         var cts = new System.Threading.CancellationTokenSource();
 
-        host = Experimental.Provider.Provider.BuildHost(args, "1.0", new MockDeploymentBuilder(), BuildProvider, 
+        host = Experimental.Provider.Provider.BuildHost(args, "1.0", new MockDeploymentBuilder(), BuildProvider,
             builder => builder.ConfigureServices(services =>
-                services.AddLogging(loggingBuilder => 
+                services.AddLogging(loggingBuilder =>
                     loggingBuilder.AddProvider(new DelegatedLoggerProvider(() => LoggerProvider)))));
         await host.StartAsync(cts.Token);
 

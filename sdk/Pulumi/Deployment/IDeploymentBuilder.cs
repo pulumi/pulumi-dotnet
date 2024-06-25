@@ -1,4 +1,4 @@
-﻿namespace Pulumi;
+namespace Pulumi;
 
 internal interface IDeploymentBuilder
 {

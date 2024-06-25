@@ -604,7 +604,7 @@ namespace Pulumi.Experimental.Provider
             });
         }
 
-        private async Task<T> WrapProviderCall<T>(Func<Task<T>> call, [CallerMemberName]string? methodName = default)
+        private async Task<T> WrapProviderCall<T>(Func<Task<T>> call, [CallerMemberName] string? methodName = default)
         {
             try
             {

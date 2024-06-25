@@ -71,10 +71,10 @@ namespace Pulumi
             }
 
             // return original exit code if we have it, otherwise fail
-            result.ExitCode =  exitCode ?? -1;
+            result.ExitCode = exitCode ?? -1;
             return result;
         }
-        
+
         internal static async Task<T> RunInlineAsyncWithResult<T>(IDeploymentBuilder builder,
             InlineDeploymentSettings settings,
             Func<IRunner, Task<T>> runnerFunc)

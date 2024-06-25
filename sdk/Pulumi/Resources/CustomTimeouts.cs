@@ -89,7 +89,7 @@ namespace Pulumi
                 Delete = TimeoutString(Delete),
             };
         }
-        
+
         private static TimeSpan? ParseTimeoutString(string s)
         {
             if (s == null || s == "")
@@ -143,7 +143,8 @@ namespace Pulumi
                 {
                     duration += TimeSpan.FromTicks((long)(v / 100));
                     span = span[2..];
-                } else if (span.StartsWith("µs") || span.StartsWith("us"))
+                }
+                else if (span.StartsWith("µs") || span.StartsWith("us"))
                 {
                     duration += TimeSpan.FromTicks((long)(v * 10));
                     span = span[2..];

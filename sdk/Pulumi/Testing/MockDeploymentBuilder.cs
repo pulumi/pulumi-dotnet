@@ -1,4 +1,4 @@
-﻿namespace Pulumi.Testing;
+namespace Pulumi.Testing;
 
 internal class MockDeploymentBuilder : IDeploymentBuilder
 {

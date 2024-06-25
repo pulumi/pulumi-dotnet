@@ -20,19 +20,18 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
 
     public IHost Host => host ?? throw new InvalidOperationException("Host is not running");
     public GrpcChannel Channel => channel ?? throw new InvalidOperationException("Host is not running");
-
-    public string EngineAddress => enineListener?.LocalEndpoint.ToString() ?? throw new InvalidOperationException("Host is not running");
-    public string MonitoringEndpoint => monitoringListener?.LocalEndpoint.ToString() ?? throw new InvalidOperationException("Host is not running");
     public ILoggerProvider? LoggerProvider { get; set; }
 
     public async Task InitializeAsync()
     {
-        enineListener = TcpListener.Create(0);
-        enineListener.Start();
-        var args = new string[] { EngineAddress };
+        var tcpListener = System.Net.Sockets.TcpListener.Create(0);
+        var localEndpoint = tcpListener.LocalEndpoint.ToString();
+        if (localEndpoint == null)
+        {
+            throw new InvalidOperationException("TcpListener did not bind to a local endpoint.");
+        }
 
-        monitoringListener = TcpListener.Create(0);
-        monitoringListener.Start();
+        var args = new[] { localEndpoint };
 
         var cts = new System.Threading.CancellationTokenSource();
 

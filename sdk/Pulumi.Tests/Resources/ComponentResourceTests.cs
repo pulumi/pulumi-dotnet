@@ -162,10 +162,10 @@ namespace Pulumi.Tests.Resources
             return Task.FromResult<object>(args);
         }
 
-        public async Task<(string? id, object state)> NewResourceAsync(
+        public Task<(string? id, object state)> NewResourceAsync(
             MockResourceArgs args)
         {
-            return (args.Name + "-id", args.Inputs);
+            return Task.FromResult<(string? id, object state)>((args.Name + "-id", args.Inputs));
         }
 
         public Task RegisterResourceOutputs(MockRegisterResourceOutputsRequest request)

@@ -58,7 +58,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             Organization = "SomeOrganization",
             Project = "SomeProject",
             Stack = "SomeStack",
-            MonitorEndpoint = testHost.MonitoringEndpoint,
+            MonitorEndpoint = "https://dummy.test.host",
             Config = { { "key", "value" }, { "secretKey", "secretValue" } },
             ConfigSecretKeys = { "secretKey" },
             CustomTimeouts = (new CustomTimeouts()
@@ -79,7 +79,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         var constructResponse = await provider.ConstructAsync(constructRequest);
 
         Assert.Equal(constructResponse.Urn, $"urn:pulumi:{constructRequest.Stack}::{constructRequest.Project}::{nameof(TestBucket)}::{constructRequest.Name}");
-        constructResponse.State.Fields.Should().ContainSingle(nameof(TestBucket.TestBucketOutput), await args.StringInput.ToOutput().GetValueAsync(default));
+        constructResponse.State.Fields.Should().ContainSingle(nameof(TestBucket.TestBucketOutput), await args.StringInput.ToOutput().GetValueAsync(string.Empty));
         constructResponse.StateDependencies.Should().ContainSingle(stringInputName, new PropertyDependencies(new HashSet<string>() { urnDependentResource }));
     }
 
@@ -118,7 +118,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             Organization = "SomeOrganization",
             Project = "SomeProject",
             Stack = "SomeStack",
-            MonitorEndpoint = testHost.MonitoringEndpoint,
+            MonitorEndpoint = "https://dummy.test.host",
             Config = { { "key", "value" }, { "secretKey", "secretValue" } },
             ConfigSecretKeys = { "secretKey" },
             DryRun = dryRun,

@@ -849,11 +849,12 @@ namespace Pulumi.Automation
             return output.ToImmutableDictionary();
         }
 
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            base.Dispose();
+            base.Dispose(disposing);
 
-            if (this._ownsWorkingDir
+            if (disposing
+                && this._ownsWorkingDir
                 && !string.IsNullOrWhiteSpace(this.WorkDir)
                 && Directory.Exists(this.WorkDir))
             {

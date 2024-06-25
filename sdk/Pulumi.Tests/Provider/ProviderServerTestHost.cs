@@ -17,7 +17,13 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var tcpListener = System.Net.Sockets.TcpListener.Create(0);
-        var args = new string[] { tcpListener.LocalEndpoint.ToString() };
+        var localEndpoint = tcpListener.LocalEndpoint.ToString();
+        if (localEndpoint == null)
+        {
+            throw new InvalidOperationException("TcpListener did not bind to a local endpoint.");
+        }
+
+        var args = new[] { localEndpoint };
 
         var cts = new System.Threading.CancellationTokenSource();
 

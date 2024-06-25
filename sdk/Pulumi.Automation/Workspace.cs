@@ -442,8 +442,17 @@ namespace Pulumi.Automation
             return this._cmd.RunAsync(args, this.WorkDir, env, onStandardOutput, onStandardError, onEngineEvent, cancellationToken);
         }
 
-        public virtual void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

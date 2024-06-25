@@ -64,5 +64,15 @@ namespace Pulumi
 
         public static implicit operator Union<T0, T1>(T0 t) => FromT0(t);
         public static implicit operator Union<T0, T1>(T1 t) => FromT1(t);
+
+        public static bool operator ==(Union<T0, T1> left, Union<T0, T1> right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Union<T0, T1> left, Union<T0, T1> right)
+        {
+            return !(left == right);
+        }
     }
 }

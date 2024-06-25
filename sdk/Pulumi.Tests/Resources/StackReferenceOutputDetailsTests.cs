@@ -27,7 +27,9 @@ namespace Pulumi.Tests.Resources
                 };
             });
 
-            var bucket = await (outputs["bucket"] as Output<object>).DataTask;
+            var bucketOutput = outputs["bucket"] as Output<object>;
+            Assert.NotNull(bucketOutput);
+            var bucket = await bucketOutput!.DataTask;
             Assert.Equal("my-bucket", bucket.Value);
             Assert.False(bucket.IsSecret);
         }
@@ -47,7 +49,9 @@ namespace Pulumi.Tests.Resources
                 };
             });
 
-            var bucket = await (outputs["bucket"] as Task<StackReferenceOutputDetails>);
+            var bucketOutput = outputs["bucket"] as Task<StackReferenceOutputDetails>;
+            Assert.NotNull(bucketOutput);
+            var bucket = await bucketOutput!;
             Assert.Equal("my-bucket", bucket.Value);
             Assert.Null(bucket.SecretValue);
         }
@@ -67,7 +71,9 @@ namespace Pulumi.Tests.Resources
                 };
             });
 
-            var secret = await (outputs["secret"] as Task<StackReferenceOutputDetails>);
+            var secretOutput = outputs["secret"] as Task<StackReferenceOutputDetails>;
+            Assert.NotNull(secretOutput);
+            var secret = await secretOutput!;
             Assert.Null(secret.Value);
             Assert.Equal("my-bucket", secret.SecretValue);
         }
@@ -87,7 +93,9 @@ namespace Pulumi.Tests.Resources
                 };
             });
 
-            var unknown = await (outputs["unknown"] as Task<StackReferenceOutputDetails>);
+            var unknownOutput = outputs["unknown"] as Task<StackReferenceOutputDetails>;
+            Assert.NotNull(unknownOutput);
+            var unknown = await unknownOutput!;
             Assert.Null(unknown.Value);
             Assert.Null(unknown.SecretValue);
         }
@@ -108,7 +116,7 @@ namespace Pulumi.Tests.Resources
             return Task.FromResult<object>(args);
         }
 
-        public async Task<(string? id, object state)> NewResourceAsync(
+        public Task<(string? id, object state)> NewResourceAsync(
             MockResourceArgs args)
         {
             if (args.Type == "pulumi:pulumi:StackReference")
@@ -119,7 +127,7 @@ namespace Pulumi.Tests.Resources
                 var props = new Dictionary<string, object>();
                 props["name"] = args.Inputs["name"];
                 props["outputs"] = outputs;
-                return (args.Name + "-id", props);
+                return Task.FromResult<(string? id, object state)>((args.Name + "-id", props));
             }
             else
             {

@@ -13,13 +13,13 @@ namespace Pulumi.Tests.Resources
             var rpc = new Pulumirpc.RegisterResourceRequest.Types.CustomTimeouts
             {
                 Create = "1m",
-                Update = "1h3m12.99ms100us",
+                Update = "1h3m12.99ms1us100ns",
                 Delete = ""
             };
 
             var timeouts = CustomTimeouts.Deserialize(rpc);
             Assert.Equal(TimeSpan.FromMinutes(1), timeouts.Create);
-            Assert.Equal(TimeSpan.FromHours(1) + TimeSpan.FromMinutes(3) + TimeSpan.FromMilliseconds(12.99) + TimeSpan.FromTicks(1), timeouts.Update);
+            Assert.Equal(TimeSpan.FromHours(1) + TimeSpan.FromMinutes(3) + TimeSpan.FromMilliseconds(12.99) + TimeSpan.FromTicks(10) + TimeSpan.FromTicks(1), timeouts.Update);
             Assert.Null(timeouts.Delete);
         }
     }

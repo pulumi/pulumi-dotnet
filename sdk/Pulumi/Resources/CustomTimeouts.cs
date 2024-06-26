@@ -109,17 +109,14 @@ namespace Pulumi
                 neg = span[0] == '-';
                 span = span[1..];
             }
-
             if (span == "0")
             {
                 return TimeSpan.Zero;
             }
-
             if (span.IsEmpty)
             {
                 throw new ArgumentException("invalid duration " + s);
             }
-
             var duration = TimeSpan.Zero;
             while (!span.IsEmpty)
             {
@@ -129,7 +126,6 @@ namespace Pulumi
                 {
                     i++;
                 }
-
                 // parse the number
                 var v = double.Parse(span[0..i], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture);
                 // parse the unit
@@ -179,12 +175,10 @@ namespace Pulumi
                     throw new ArgumentException("invalid unit in duration " + s);
                 }
             }
-
             if (neg)
             {
                 duration = -duration;
             }
-
             return duration;
         }
     }

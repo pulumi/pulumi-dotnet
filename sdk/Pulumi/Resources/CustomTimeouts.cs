@@ -106,9 +106,15 @@ namespace Pulumi
                     {
                         throw new ArgumentException("missing unit in duration " + s);
                     }
-                    if (span.StartsWith("µs") || span.StartsWith("us"))
+
+                    if (span.StartsWith("ns"))
                     {
                         duration += TimeSpan.FromTicks((long)(v / 100));
+                        span = span[2..];
+                    }
+                    else if (span.StartsWith("µs") || span.StartsWith("us"))
+                    {
+                        duration += TimeSpan.FromTicks((long)(v * 10));
                         span = span[2..];
                     }
                     else if (span.StartsWith("ms"))
@@ -146,7 +152,7 @@ namespace Pulumi
                     duration = -duration;
                 }
                 return duration;
-            };
+            }
 
             return new CustomTimeouts
             {

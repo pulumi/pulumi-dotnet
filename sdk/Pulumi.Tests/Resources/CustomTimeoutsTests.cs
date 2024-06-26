@@ -19,7 +19,7 @@ namespace Pulumi.Tests.Resources
 
             var timeouts = CustomTimeouts.Deserialize(rpc);
             Assert.Equal(TimeSpan.FromMinutes(1), timeouts.Create);
-            Assert.Equal(TimeSpan.FromHours(1) + TimeSpan.FromMinutes(3) + TimeSpan.FromMilliseconds(12.99) + TimeSpan.FromTicks(10) + TimeSpan.FromTicks(1), timeouts.Update);
+            Assert.Equal(TimeSpan.FromHours(1) + TimeSpan.FromMinutes(3) + TimeSpan.FromMilliseconds(12.99) + TimeSpan.FromMilliseconds(1.0 / 1000.0) + TimeSpan.FromMilliseconds(100.0 / 1000_000.0), timeouts.Update);
             Assert.Null(timeouts.Delete);
         }
     }

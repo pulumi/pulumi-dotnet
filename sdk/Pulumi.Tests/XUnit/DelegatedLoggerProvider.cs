@@ -7,16 +7,16 @@ namespace DevSpells.WebApi.Testing;
 public sealed class DelegatedLoggerProvider : ILoggerProvider
 {
     private readonly NullLoggerProvider fallback = NullLoggerProvider.Instance;
-    private readonly Func<ILoggerProvider?> providerAccess1;
+    private readonly Func<ILoggerProvider?> providerAccess;
 
     public DelegatedLoggerProvider(Func<ILoggerProvider?> providerAccess)
     {
-        providerAccess1 = providerAccess;
+        this.providerAccess = providerAccess;
     }
 
     public ILogger CreateLogger(string categoryName)
     {
-        return (providerAccess1() ?? fallback).CreateLogger(categoryName);
+        return (providerAccess() ?? fallback).CreateLogger(categoryName);
     }
 
     public void Dispose()

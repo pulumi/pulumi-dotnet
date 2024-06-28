@@ -164,7 +164,7 @@ namespace Pulumi.Tests
                 }
             }
 
-            public IDisposable BeginScope<TState>(TState state)
+            public IDisposable BeginScope<TState>(TState state) where TState : notnull
             {
                 Write($"BeginScope state={state}");
                 return new Scope()

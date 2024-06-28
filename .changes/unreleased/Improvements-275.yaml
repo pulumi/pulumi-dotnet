@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Improvements
+body: 'Issue #46 Support authoring multi-language components in .NET'
+time: 2024-06-06T15:40:48.4883388+02:00
+custom:
+    PR: "275"

@@ -73,14 +73,14 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         };
         if (serializeArga.Dependencies != null)
         {
-            constructRequest.Dependencies.AddRange(serializeArga.Dependencies.Urns);
+            constructRequest.Dependencies.AddRange(serializeArga.Dependencies.Select(urn => urn.ToString()));
         }
 
         var constructResponse = await provider.ConstructAsync(constructRequest);
 
         Assert.Equal(constructResponse.Urn, $"urn:pulumi:{constructRequest.Stack}::{constructRequest.Project}::{nameof(TestBucket)}::{constructRequest.Name}");
         constructResponse.State.Fields.Should().ContainSingle(nameof(TestBucket.TestBucketOutput), await args.StringInput.ToOutput().GetValueAsync(string.Empty));
-        constructResponse.StateDependencies.Should().ContainSingle(stringInputName, new PropertyDependencies(new HashSet<string>() { urnDependentResource }));
+        constructResponse.StateDependencies.Should().ContainSingle(stringInputName, new Pulumirpc.ConstructResponse.Types.PropertyDependencies{Urns = {urnDependentResource} });
     }
 
     private static async Task<PropertyValue.ValueWithDependencies> Serialize(object args)
@@ -152,7 +152,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             failure.Property == ResourceProviderServiceTestProvider.CheckFailure.Property &&
             failure.Reason == ResourceProviderServiceTestProvider.CheckFailure.Reason);
         callResponse.ReturnDependencies.Should().Contain(kv => kv.Key == ResourceProviderServiceTestProvider.DependentFieldName).Subject.Value.Urns.Should()
-            .BeEquivalentTo(ResourceProviderServiceTestProvider.DependentUrns);
+            .BeEquivalentTo(ResourceProviderServiceTestProvider.DependentUrns.Select(urn => urn.Value));
     }
 
     public class TestBucketArgs : ResourceArgs
@@ -184,7 +184,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         public static readonly CheckFailure CheckFailure = new CheckFailure("missing", "for testing");
 
         public const string DependentFieldName = "dependent";
-        public static readonly ImmutableHashSet<string> DependentUrns = ImmutableHashSet.Create("urn::some::resource", "urn::another::resource");
+        public static readonly ImmutableHashSet<UrnValue> DependentUrns = ImmutableHashSet.Create(new UrnValue("urn::some::resource"), new UrnValue("urn::another::resource"));
 
         public const string BucketType = "bucket";
         public const string VirtualMachineType = "vm";
@@ -213,7 +213,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             };
 
             return AsTask(new CallResponse(response, new List<CheckFailure>() { CheckFailure },
-                new Dictionary<string, PropertyDependencies>() { { DependentFieldName, new PropertyDependencies(DependentUrns) } }));
+                new Dictionary<string, ISet<UrnValue>>() { { DependentFieldName, DependentUrns } }));
         }
 
         private async Task<T> AsTask<T>(T value)

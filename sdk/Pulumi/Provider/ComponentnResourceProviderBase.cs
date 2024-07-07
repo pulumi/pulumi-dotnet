@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Utilities;
@@ -33,6 +34,6 @@ public class ComponentResourceProviderBase : Provider
 
         state = state.Remove(nameof(resource.Urn).ToLowerInvariant());
 
-        return new ConstructResponse(urn, state, ImmutableDictionary<string, PropertyDependencies>.Empty);
+        return new ConstructResponse(new UrnValue(urn), state, ImmutableDictionary<string, ISet<UrnValue>>.Empty);
     }
 }

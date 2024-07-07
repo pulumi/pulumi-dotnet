@@ -28,11 +28,11 @@ namespace Pulumi.Experimental.Provider
 
     public readonly struct ResourceReference : IEquatable<ResourceReference>
     {
-        public readonly string URN;
+        public readonly UrnValue URN;
         public readonly PropertyValue Id;
         public readonly string PackageVersion;
 
-        public ResourceReference(string urn, PropertyValue id, string version)
+        public ResourceReference(UrnValue urn, PropertyValue id, string version)
         {
             URN = urn;
             Id = id;
@@ -72,9 +72,9 @@ namespace Pulumi.Experimental.Provider
     public readonly struct OutputReference : IEquatable<OutputReference>
     {
         public readonly PropertyValue? Value;
-        public readonly ImmutableArray<string> Dependencies;
+        public readonly ImmutableArray<UrnValue> Dependencies;
 
-        public OutputReference(PropertyValue? value, ImmutableArray<string> dependencies)
+        public OutputReference(PropertyValue? value, ImmutableArray<UrnValue> dependencies)
         {
             Value = value;
             Dependencies = dependencies;
@@ -697,7 +697,7 @@ namespace Pulumi.Experimental.Provider
                                             throw new InvalidOperationException("Value was marked as a Resource, but did not conform to required shape.");
                                         }
 
-                                        return new PropertyValue(new ResourceReference(urn, Unmarshal(id), version));
+                                        return new PropertyValue(new ResourceReference(new UrnValue(urn), Unmarshal(id), version));
                                     }
                                 case Constants.SpecialOutputValueSig:
                                     {
@@ -719,7 +719,7 @@ namespace Pulumi.Experimental.Provider
                                             }
                                         }
 
-                                        var dependenciesBuilder = ImmutableArray.CreateBuilder<string>();
+                                        var dependenciesBuilder = ImmutableArray.CreateBuilder<UrnValue>();
                                         if (structValue.Fields.TryGetValue(Constants.DependenciesName, out var dependencies))
                                         {
                                             if (dependencies.KindCase == Value.KindOneofCase.ListValue)
@@ -728,7 +728,7 @@ namespace Pulumi.Experimental.Provider
                                                 {
                                                     if (dependency.KindCase == Value.KindOneofCase.StringValue)
                                                     {
-                                                        dependenciesBuilder.Add(dependency.StringValue);
+                                                        dependenciesBuilder.Add(new UrnValue(dependency.StringValue));
                                                     }
                                                     else
                                                     {

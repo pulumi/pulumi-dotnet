@@ -48,7 +48,7 @@ namespace Pulumi.Experimental.Provider
         /// <summary>
         /// The (optional) resource urn this log is associated with.
         /// </summary>
-        public readonly string? Urn;
+        public readonly Urn? Urn;
 
         /// <summary>
         /// The (optional) stream id that a stream of log messages can be associated with. This allows
@@ -67,7 +67,7 @@ namespace Pulumi.Experimental.Provider
         /// </summary>
         public readonly bool Ephemeral;
 
-        public LogMessage(LogSeverity severity, string message, string? urn = null, int streamId = 0, bool ephemeral = false)
+        public LogMessage(LogSeverity severity, string message, Urn? urn = null, int streamId = 0, bool ephemeral = false)
         {
             Severity = severity;
             Message = message;

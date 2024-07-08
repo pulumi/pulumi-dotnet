@@ -23,7 +23,8 @@ namespace Pulumi.Experimental.Provider
 {
     public sealed class CheckRequest
     {
-        public readonly string Urn;
+        public readonly Urn Urn;
+
         // Note the Go SDK directly exposes resource.URN and so providers can work with it directly. I've
         // decided _not_ to copy that to the dotnet SDK on the basis that long term I'd like URNs to be opaque
         // tokens to everything but the engine. If CheckRequests need the resource type and name they should
@@ -36,7 +37,10 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
         public readonly ImmutableArray<byte> RandomSeed;
 
-        public CheckRequest(string urn, ImmutableDictionary<string, PropertyValue> oldInputs, ImmutableDictionary<string, PropertyValue> newInputs, ImmutableArray<byte> randomSeed)
+        public CheckRequest(Urn urn,
+            ImmutableDictionary<string, PropertyValue> oldInputs,
+            ImmutableDictionary<string, PropertyValue> newInputs,
+            ImmutableArray<byte> randomSeed)
         {
             Urn = urn;
             OldInputs = oldInputs;
@@ -66,7 +70,7 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class DiffRequest
     {
-        public readonly string Urn;
+        public readonly Urn Urn;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly string Id;
@@ -74,7 +78,11 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
         public readonly ImmutableArray<string> IgnoreChanges;
 
-        public DiffRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> oldState, ImmutableDictionary<string, PropertyValue> newInputs, ImmutableArray<string> ignoreChanges)
+        public DiffRequest(Urn urn,
+            string id,
+            ImmutableDictionary<string, PropertyValue> oldState,
+            ImmutableDictionary<string, PropertyValue> newInputs,
+            ImmutableArray<string> ignoreChanges)
         {
             Urn = urn;
             Id = id;
@@ -174,14 +182,14 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class CreateRequest
     {
-        public readonly string Urn;
+        public readonly Urn Urn;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly TimeSpan Timeout;
         public readonly bool Preview;
 
-        public CreateRequest(string urn, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout, bool preview)
+        public CreateRequest(Urn urn, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout, bool preview)
         {
             Urn = urn;
             Properties = properties;
@@ -198,14 +206,14 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class ReadRequest
     {
-        public readonly string Urn;
+        public readonly Urn Urn;
         public readonly string Id;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly ImmutableDictionary<string, PropertyValue> Inputs;
 
-        public ReadRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> properties, ImmutableDictionary<string, PropertyValue> inputs)
+        public ReadRequest(Urn urn, string id, ImmutableDictionary<string, PropertyValue> properties, ImmutableDictionary<string, PropertyValue> inputs)
         {
             Urn = urn;
             Id = id;
@@ -223,7 +231,7 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class UpdateRequest
     {
-        public readonly string Urn;
+        public readonly Urn Urn;
         public readonly string Id;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
@@ -233,7 +241,13 @@ namespace Pulumi.Experimental.Provider
         public readonly ImmutableArray<string> IgnoreChanges;
         public readonly bool Preview;
 
-        public UpdateRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> olds, ImmutableDictionary<string, PropertyValue> news, TimeSpan timeout, ImmutableArray<string> ignoreChanges, bool preview)
+        public UpdateRequest(Urn urn,
+            string id,
+            ImmutableDictionary<string, PropertyValue> olds,
+            ImmutableDictionary<string, PropertyValue> news,
+            TimeSpan timeout,
+            ImmutableArray<string> ignoreChanges,
+            bool preview)
         {
             Urn = urn;
             Id = id;
@@ -252,14 +266,14 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class DeleteRequest
     {
-        public readonly string Urn;
+        public readonly Urn Urn;
         public readonly string Id;
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly TimeSpan Timeout;
 
-        public DeleteRequest(string urn, string id, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout)
+        public DeleteRequest(Urn urn, string id, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout)
         {
             Urn = urn;
             Id = id;
@@ -530,7 +544,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(new Urn(request.Urn), Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
@@ -565,7 +579,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -728,7 +742,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CreateRequest(request.Urn, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout), request.Preview);
+                var domRequest = new CreateRequest(new Urn(request.Urn), Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout), request.Preview);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Create(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CreateResponse();
@@ -754,7 +768,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ReadRequest(request.Urn, request.Id, Marshal(request.Properties), Marshal(request.Inputs));
+                var domRequest = new ReadRequest(new Urn(request.Urn), request.Id, Marshal(request.Properties), Marshal(request.Inputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Read(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ReadResponse();
@@ -781,7 +795,8 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(request.Urn, Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(new Urn(request.Urn), Marshal(request.Olds), Marshal(request.News),
+                    request.RandomSeed.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
@@ -816,7 +831,8 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Marshal(request.Olds), Marshal(request.News),
+                    request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Diff(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -868,7 +884,9 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new UpdateRequest(request.Urn, request.Id, Marshal(request.Olds), Marshal(request.News), TimeSpan.FromSeconds(request.Timeout), request.IgnoreChanges.ToImmutableArray(), request.Preview);
+                var domRequest = new UpdateRequest(new Urn(request.Urn), request.Id, Marshal(request.Olds), Marshal(request.News),
+                    TimeSpan.FromSeconds(request.Timeout),
+                    request.IgnoreChanges.ToImmutableArray(), request.Preview);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Update(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.UpdateResponse();
@@ -893,7 +911,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DeleteRequest(request.Urn, request.Id, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
+                var domRequest = new DeleteRequest(new Urn(request.Urn), request.Id, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
                 using var cts = GetToken(context);
                 await Implementation.Delete(domRequest, cts.Token);
                 return new Empty();

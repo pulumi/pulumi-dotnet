@@ -269,11 +269,11 @@ namespace Pulumi.Experimental.Provider
                 }
 
                 var outputValue = await Serialize(data.Value);
-                var dependantResources = ImmutableArray.CreateBuilder<string>();
+                var dependantResources = ImmutableArray.CreateBuilder<Urn>();
                 foreach (var resource in data.Resources)
                 {
                     var urn = await resource.Urn.GetValueAsync("").ConfigureAwait(false);
-                    dependantResources.Add(urn);
+                    dependantResources.Add(new Urn(urn));
                 }
 
                 var outputProperty = new PropertyValue(new OutputReference(

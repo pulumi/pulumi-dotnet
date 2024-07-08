@@ -258,7 +258,7 @@ public class PropertyValueTests
     public async Task DeserializingBasicInputsWorks()
     {
         var serializer = CreateSerializer();
-        var resources = ImmutableArray.Create(new UrnValue("pulumi:pulumi:Stack"));
+        var resources = ImmutableArray.Create(new Urn("pulumi:pulumi:Stack"));
         var output = new PropertyValue(new OutputReference(
             value: new PropertyValue("Hello"),
             dependencies: resources));
@@ -289,7 +289,7 @@ public class PropertyValueTests
         var secretOutput = new PropertyValue(
             new PropertyValue(new OutputReference(
                 value: new PropertyValue("Hello"),
-                dependencies: ImmutableArray<UrnValue>.Empty)));
+                dependencies: ImmutableArray<Urn>.Empty)));
 
         var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
         var deserializedOutput = deserialized.ToOutput();
@@ -307,7 +307,7 @@ public class PropertyValueTests
         var secretOutput = new PropertyValue(
             new OutputReference(
                 value: new PropertyValue(new PropertyValue("Hello")),
-                dependencies: ImmutableArray<UrnValue>.Empty));
+                dependencies: ImmutableArray<Urn>.Empty));
 
         var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
         var deserializedOutput = deserialized.ToOutput();

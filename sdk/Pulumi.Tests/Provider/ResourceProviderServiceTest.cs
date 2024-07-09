@@ -80,7 +80,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
 
         Assert.Equal(constructResponse.Urn, $"urn:pulumi:{constructRequest.Stack}::{constructRequest.Project}::{nameof(TestBucket)}::{constructRequest.Name}");
         constructResponse.State.Fields.Should().ContainSingle(nameof(TestBucket.TestBucketOutput), await args.StringInput.ToOutput().GetValueAsync(string.Empty));
-        constructResponse.StateDependencies.Should().ContainSingle(stringInputName, new Pulumirpc.ConstructResponse.Types.PropertyDependencies{Urns = {urnDependentResource} });
+        constructResponse.StateDependencies.Should().ContainSingle(stringInputName, new Pulumirpc.ConstructResponse.Types.PropertyDependencies { Urns = { urnDependentResource } });
     }
 
     private static async Task<PropertyValue.ValueWithDependencies> Serialize(object args)

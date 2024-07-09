@@ -184,7 +184,9 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         public static readonly CheckFailure CheckFailure = new CheckFailure("missing", "for testing");
 
         public const string DependentFieldName = "dependent";
-        public static readonly ImmutableHashSet<UrnValue> DependentUrns = ImmutableHashSet.Create(new UrnValue("urn::some::resource"), new UrnValue("urn::another::resource"));
+        public static readonly ImmutableHashSet<Pulumi.Experimental.Provider.Urn> DependentUrns = ImmutableHashSet.Create(
+            new Pulumi.Experimental.Provider.Urn("urn::some::resource"),
+            new Pulumi.Experimental.Provider.Urn("urn::another::resource"));
 
         public const string BucketType = "bucket";
         public const string VirtualMachineType = "vm";
@@ -213,7 +215,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             };
 
             return AsTask(new CallResponse(response, new List<CheckFailure>() { CheckFailure },
-                new Dictionary<string, ISet<UrnValue>>() { { DependentFieldName, DependentUrns } }));
+                new Dictionary<string, ISet<Pulumi.Experimental.Provider.Urn>>() { { DependentFieldName, DependentUrns } }));
         }
 
         private async Task<T> AsTask<T>(T value)

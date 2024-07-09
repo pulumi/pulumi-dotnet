@@ -34,6 +34,6 @@ public class ComponentResourceProviderBase : Provider
 
         state = state.Remove(nameof(resource.Urn).ToLowerInvariant());
 
-        return new ConstructResponse(new UrnValue(urn), state, ImmutableDictionary<string, ISet<UrnValue>>.Empty);
+        return new ConstructResponse(new Urn(urn), state, ImmutableDictionary<string, ISet<Urn>>.Empty);
     }
 }

@@ -29,11 +29,11 @@ namespace Pulumi.Experimental.Provider
 
     public readonly struct ResourceReference : IEquatable<ResourceReference>
     {
-        public readonly UrnValue URN;
+        public readonly Urn URN;
         public readonly PropertyValue Id;
         public readonly string PackageVersion;
 
-        public ResourceReference(UrnValue urn, PropertyValue id, string version)
+        public ResourceReference(Urn urn, PropertyValue id, string version)
         {
             URN = urn;
             Id = id;
@@ -73,9 +73,9 @@ namespace Pulumi.Experimental.Provider
     public readonly struct OutputReference : IEquatable<OutputReference>
     {
         public readonly PropertyValue? Value;
-        public readonly ImmutableArray<UrnValue> Dependencies;
+        public readonly ImmutableArray<Urn> Dependencies;
 
-        public OutputReference(PropertyValue? value, ImmutableArray<UrnValue> dependencies)
+        public OutputReference(PropertyValue? value, ImmutableArray<Urn> dependencies)
         {
             Value = value;
             Dependencies = dependencies;
@@ -577,19 +577,19 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        internal static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct properties, IDictionary<string, ISet<UrnValue>>? inputDependencies = default)
+        internal static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct properties, IDictionary<string, ISet<Urn>>? inputDependencies = default)
         {
             var builder = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
             foreach (var item in properties.Fields)
             {
-                ISet<UrnValue>? dependencies = null;
+                ISet<Urn>? dependencies = null;
                 inputDependencies?.TryGetValue(item.Key, out dependencies);
                 builder.Add(item.Key, Unmarshal(item.Value, dependencies));
             }
             return builder.ToImmutable();
         }
 
-        internal static PropertyValue Unmarshal(Value value, ISet<UrnValue>? inputDependencies)
+        internal static PropertyValue Unmarshal(Value value, ISet<Urn>? inputDependencies)
         {
             switch (value.KindCase)
             {
@@ -700,7 +700,7 @@ namespace Pulumi.Experimental.Provider
                                             throw new InvalidOperationException("Value was marked as a Resource, but did not conform to required shape.");
                                         }
 
-                                        return new PropertyValue(new ResourceReference(new UrnValue(urn), Unmarshal(id, inputDependencies), version));
+                                        return new PropertyValue(new ResourceReference(new Urn(urn), Unmarshal(id, inputDependencies), version));
                                     }
                                 case Constants.SpecialOutputValueSig:
                                     {
@@ -722,7 +722,7 @@ namespace Pulumi.Experimental.Provider
                                             }
                                         }
 
-                                        var dependenciesBuilder = ImmutableArray.CreateBuilder<UrnValue>();
+                                        var dependenciesBuilder = ImmutableArray.CreateBuilder<Urn>();
                                         if (inputDependencies != null)
                                         {
                                             dependenciesBuilder.AddRange(inputDependencies);
@@ -735,7 +735,7 @@ namespace Pulumi.Experimental.Provider
                                                 {
                                                     if (dependency.KindCase == Value.KindOneofCase.StringValue)
                                                     {
-                                                        dependenciesBuilder.Add(new UrnValue(dependency.StringValue));
+                                                        dependenciesBuilder.Add(new Urn(dependency.StringValue));
                                                     }
                                                     else
                                                     {
@@ -788,10 +788,10 @@ namespace Pulumi.Experimental.Provider
             return Marshal(properties, out _);
         }
 
-        internal static Struct Marshal(IDictionary<string, PropertyValue> properties, out IDictionary<string, ISet<UrnValue>> dependencies)
+        internal static Struct Marshal(IDictionary<string, PropertyValue> properties, out IDictionary<string, ISet<Urn>> dependencies)
         {
             var result = new Struct();
-            dependencies = new MapField<string, ISet<UrnValue>>();
+            dependencies = new MapField<string, ISet<Urn>>();
             foreach (var item in properties)
             {
                 var valueWithDependencies = Marshal(item.Value);
@@ -855,14 +855,14 @@ namespace Pulumi.Experimental.Provider
         {
             var result = new Struct();
             result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialOutputValueSig);
-            ISet<UrnValue>? valueDependencies = null;
+            ISet<Urn>? valueDependencies = null;
             if (output.Value != null)
             {
                 (var value, valueDependencies) = Marshal(output.Value);
                 result.Fields[Constants.ValueName] = value;
             }
 
-            ISet<UrnValue> mergedDependencies;
+            ISet<Urn> mergedDependencies;
             if (valueDependencies is { Count: > 0 })
             {
                 mergedDependencies = output.Dependencies.Concat(valueDependencies).ToHashSet();
@@ -899,7 +899,7 @@ namespace Pulumi.Experimental.Provider
                 a =>
                 {
                     var result = new Value[a.Length];
-                    var dependencyUrns = new HashSet<UrnValue>();
+                    var dependencyUrns = new HashSet<Urn>();
                     for (int i = 0; i < a.Length; ++i)
                     {
                         var (marshalledValue, dependencies) = Marshal(a[i]);
@@ -916,7 +916,7 @@ namespace Pulumi.Experimental.Provider
                 o =>
                 {
                     var result = new Struct();
-                    var dependencyUrns = new HashSet<UrnValue>();
+                    var dependencyUrns = new HashSet<Urn>();
                     foreach (var item in o)
                     {
                         var (marshalledValue, dependencies) = Marshal(item.Value);
@@ -968,9 +968,9 @@ namespace Pulumi.Experimental.Provider
         internal readonly struct ValueWithDependencies
         {
             public Value Value { get; init; }
-            public ISet<UrnValue>? Dependencies { get; init; }
+            public ISet<Urn>? Dependencies { get; init; }
 
-            public ValueWithDependencies(Value value, ISet<UrnValue>? dependencies)
+            public ValueWithDependencies(Value value, ISet<Urn>? dependencies)
             {
                 Value = value;
                 Dependencies = dependencies;
@@ -984,7 +984,7 @@ namespace Pulumi.Experimental.Provider
                 };
             }
 
-            public void Deconstruct(out Value value, out ISet<UrnValue>? dependencies)
+            public void Deconstruct(out Value value, out ISet<Urn>? dependencies)
             {
                 value = Value;
                 dependencies = Dependencies;

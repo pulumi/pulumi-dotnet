@@ -264,6 +264,49 @@ namespace Pulumi.Automation.Tests
             }
         }
 
+        [Fact]
+        public async Task BatchImportResourcesIntoStack()
+        {
+            var workDir = ResourcePath(Path.Combine("Data", "import"));
+            using var workspace = await LocalWorkspace.CreateAsync(new()
+            {
+                WorkDir = workDir,
+            });
+
+            var stackName = RandomStackName();
+            try
+            {
+                var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+                var result = await stack.ImportAsync(new()
+                {
+                    Protect = false,
+                    Resources = new()
+                    {
+                        new()
+                        {
+                            Type = "random:index/randomPassword:RandomPassword",
+                            Name = "randomPassword",
+                            Id = "supersecret"
+                        }
+                    }
+                });
+
+                Assert.Equal(UpdateState.Succeeded, result.Summary.Result);
+
+                Assert.Equal(
+                    expected: await File.ReadAllTextAsync(Path.Combine(workDir, "expected_generated_code.yaml")),
+                    actual: result.GeneratedCode);
+
+                var destroyResult = await stack.DestroyAsync();
+                Assert.Equal(UpdateState.Succeeded, destroyResult.Summary.Result);
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+                var stackFilePath = Path.Combine(workDir, $"Pulumi.{stackName}.yaml");
+                File.Delete(stackFilePath);
+            }
+        }
 
         [Fact]
         public async Task ManipulateConfig()

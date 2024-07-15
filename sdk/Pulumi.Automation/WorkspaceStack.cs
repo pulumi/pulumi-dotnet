@@ -710,6 +710,7 @@ namespace Pulumi.Automation
                     if (options.ConverterArgs?.Any() == true)
                     {
                         // pass any additional arguments to the converter
+                        args.Add("--");
                         args.AddRange(options.ConverterArgs);
                     }
                 }

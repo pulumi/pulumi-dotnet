@@ -525,7 +525,7 @@ namespace Pulumi.Experimental.Provider
         private readonly CancellationTokenSource rootCTS;
         private Provider? implementation;
         private readonly string version;
-        private readonly string? engineAddress;
+        private string? engineAddress;
 
         Provider Implementation
         {
@@ -545,6 +545,7 @@ namespace Pulumi.Experimental.Provider
         {
             var host = new GrpcHost(address);
             implementation = factory(host);
+            engineAddress = address;
         }
 
         public ResourceProviderService(Func<IHost, Provider> factory,

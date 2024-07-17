@@ -105,6 +105,46 @@ class TransformsStack : Stack
                 }
             }
         });
+
+        // Scenario #6 - make the length property a secret.
+        var res6 = new Random("res6", new RandomArgs { Length = 10 }, new CustomResourceOptions
+        {
+            ResourceTransforms =
+            {
+                async (args, _) =>
+                {
+                    if (args.Type == "testprovider:index:Random")
+                    {
+                        var resultArgs = args.Args;
+                        var length = (double)resultArgs["length"] * 2;
+                        resultArgs = resultArgs.SetItem("length", Output.CreateSecret(length));
+                        return new ResourceTransformResult(resultArgs, args.Options);
+                    }
+
+                    return null;
+                }
+            }
+        });
+
+        // Scenario #7 - Unsecret
+        var res7 = new Random("res7", new RandomArgs { Length = Output.CreateSecret(21) }, new CustomResourceOptions
+        {
+            ResourceTransforms =
+            {
+                async (args, _) =>
+                {
+                    if (args.Type == "testprovider:index:Random")
+                    {
+                        var resultArgs = args.Args;
+                        var length = ((Output<double>)resultArgs["length"]).Apply(v => v * 2);
+                        resultArgs = resultArgs.SetItem("length", Output.Unsecret(length));
+                        return new ResourceTransformResult(resultArgs, args.Options);
+                    }
+
+                    return null;
+                }
+            }
+        });
     }
 
     // Scenario #3 - apply a transformation to the Stack to transform all (future) resources in the stack

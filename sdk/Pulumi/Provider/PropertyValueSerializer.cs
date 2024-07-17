@@ -19,7 +19,7 @@ namespace Pulumi.Experimental.Provider
 
         private object? DeserializeObject(ImmutableDictionary<string, PropertyValue> inputs, Type targetType, string[] path)
         {
-            var properties = targetType.GetProperties();
+            var properties = targetType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             var objectShape =
                 properties.Select(property => new

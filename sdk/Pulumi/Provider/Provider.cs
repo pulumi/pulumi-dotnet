@@ -1041,7 +1041,7 @@ namespace Pulumi.Experimental.Provider
                     Providers = providers,
                     // TODO: How should parents work?
                     Parent = request.Parent != null ? new DependencyResource(request.Parent) : null,
-                    CustomTimeouts = CustomTimeouts.Deserialize(request.CustomTimeouts),
+                    CustomTimeouts = request.CustomTimeouts != null ? CustomTimeouts.Deserialize(request.CustomTimeouts): null,
                     DeletedWith = string.IsNullOrEmpty(request.DeletedWith) ? null : new DependencyResource(request.DeletedWith),
                     IgnoreChanges = request.IgnoreChanges.ToList(),
                     RetainOnDelete = request.RetainOnDelete,

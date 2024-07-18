@@ -1,6 +1,0 @@
-component: sdk
-kind: Bug Fixes
-body: Add support for deserializing output values and use them from transforms
-time: 2024-07-16T19:46:29.831748-07:00
-custom:
-    PR: "298"

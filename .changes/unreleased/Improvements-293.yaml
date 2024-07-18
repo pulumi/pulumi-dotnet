@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Strongly type URN values in Provider
-time: 2024-07-07T12:42:32.5457649+02:00
-custom:
-    PR: "293"

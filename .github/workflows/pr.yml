@@ -57,6 +57,8 @@ jobs:
         run: dotnet run test-sdk coverage
       - name: Test Pulumi Automation SDK
         run: dotnet run test-automation-sdk coverage
+      - name: Workspace clean (are xml doc file updates committed?)
+        uses: pulumi/git-status-check-action@v1
       - name: Upload coverage data
         uses: codecov/codecov-action@v4
         with:
@@ -200,4 +202,3 @@ jobs:
         run: exit 1
       - name: CI succeeded
         run: exit 0
-

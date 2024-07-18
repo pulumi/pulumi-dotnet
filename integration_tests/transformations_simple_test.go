@@ -107,6 +107,8 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 	foundRes3 := false
 	foundRes4Child := false
 	foundRes5 := false
+	foundRes6 := false
+	foundRes7 := false
 	for _, res := range stack.Deployment.Resources {
 		// "res1" has a transformation which adds additionalSecretOutputs
 		if res.URN.Name() == "res1" {
@@ -159,10 +161,31 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			assert.NotNil(t, length)
 			assert.Equal(t, 20.0, length.(float64))
 		}
+		// "res6" should have made the length a secret
+		if res.URN.Name() == "res6" {
+			foundRes6 = true
+			assert.Equal(t, res.Type, tokens.Type(randomResName))
+			length := res.Inputs["length"]
+			assert.NotNil(t, length)
+			// length should be secret
+			secret, ok := length.(map[string]interface{})
+			assert.True(t, ok, "length should be a secret")
+			assert.Equal(t, resource.SecretSig, secret[resource.SigKey])
+		}
+		// "res6" should have mutated the length and unsecreted it
+		if res.URN.Name() == "res7" {
+			foundRes7 = true
+			assert.Equal(t, res.Type, tokens.Type(randomResName))
+			length := res.Inputs["length"]
+			assert.NotNil(t, length)
+			assert.Equal(t, 42.0, length.(float64))
+		}
 	}
 	assert.True(t, foundRes1)
 	assert.True(t, foundRes2Child)
 	assert.True(t, foundRes3)
 	assert.True(t, foundRes4Child)
 	assert.True(t, foundRes5)
+	assert.True(t, foundRes6)
+	assert.True(t, foundRes7)
 }

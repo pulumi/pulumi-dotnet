@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
+using Pulumi.Serialization;
 
 namespace Pulumi
 {
@@ -166,60 +166,10 @@ namespace Pulumi
                 foreach (var kv in request.Properties.Fields)
                 {
                     var outputData = Serialization.Deserializer.Deserialize(kv.Value);
-                    // If it's plain just use the value directly
-                    if (outputData.IsKnown && !outputData.IsSecret && outputData.Resources.IsEmpty)
-                    {
-                        props.Add(kv.Key, outputData.Value!);
-                    }
-                    else
-                    {
-                        // Else need to wrap it in an Output<T>
-                        var elementType = typeof(object);
-                        if (outputData.Value != null)
-                        {
-                            elementType = outputData.Value.GetType();
-                        }
-                        var outputDataType = typeof(Pulumi.Serialization.OutputData<>).MakeGenericType(elementType);
-                        var createOutputData = outputDataType.GetConstructor(new[]
-                        {
-                            typeof(ImmutableHashSet<Resource>),
-                            elementType,
-                            typeof(bool),
-                            typeof(bool)
-                        });
-                        if (createOutputData == null)
-                        {
-                            throw new InvalidOperationException(
-                                $"Could not find constructor for type OutputData<T> with parameters " +
-                                $"{nameof(ImmutableHashSet<Resource>)}, {elementType.Name}, bool, bool");
-                        }
-
-                        var typedOutputData = createOutputData.Invoke(new object?[] {
-                            ImmutableHashSet<Resource>.Empty,
-                            outputData.Value,
-                            outputData.IsKnown,
-                            outputData.IsSecret });
-
-                        var createOutputMethod =
-                            typeof(Output<>)
-                                .MakeGenericType(elementType)
-                                .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-                                .First(ctor =>
-                                {
-                                    // expected parameter type == Task<OutputData<T>>
-                                    var parameters = ctor.GetParameters();
-                                    return parameters.Length == 1 &&
-                                           parameters[0].ParameterType == typeof(Task<>).MakeGenericType(outputDataType);
-                                })!;
-
-                        var fromResultMethod =
-                            typeof(Task)
-                                .GetMethod("FromResult")!
-                                .MakeGenericMethod(outputDataType)!;
-
-                        var outputObject = createOutputMethod.Invoke(new[] { fromResultMethod.Invoke(null, new[] { typedOutputData }) });
-                        props.Add(kv.Key, outputObject);
-                    }
+                    // The data from the engine will include output values, which will be deserialized
+                    // into instances of `Output<T>`, which will track whether the value is known,
+                    // is secret, and dependencies. We can ignore those values on outputData.
+                    props.Add(kv.Key, outputData.Value);
                 }
 
                 ResourceOptions opts;
@@ -264,7 +214,10 @@ namespace Pulumi
                 var response = new Pulumirpc.TransformResponse();
                 if (result != null)
                 {
-                    response.Properties = Serialization.Serializer.CreateStruct(result.Value.Args);
+                    var serializer = new Serializer(excessiveDebugOutput: false);
+                    var serialized = await serializer.SerializeAsync("Args", result.Value.Args,
+                        keepResources: true, keepOutputValues: true).ConfigureAwait(false);
+                    response.Properties = Serializer.CreateStruct((ImmutableDictionary<string, object?>)serialized!);
 
                     // Copy the options back
                     var aliases = new List<Pulumirpc.Alias>();

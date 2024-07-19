@@ -20,9 +20,13 @@ namespace Pulumi
             if (type == Stack._rootPulumiStackTypeName)
                 return null;
 
-            var stack = InternalInstance.Stack ?? throw new InvalidOperationException($"Calling {nameof(GetRootResourceAsync)} before the stack was registered!");
-            var resUrn = await stack.Urn.GetValueAsync(whenUnknown: default!).ConfigureAwait(false);
-            return resUrn;
+            if (InternalInstance.Stack != null)
+            {
+                var resUrn = await InternalInstance.Stack.Urn.GetValueAsync(whenUnknown: default!)
+                    .ConfigureAwait(false);
+                return resUrn;
+            }
+            return $"urn:pulumi:{InternalInstance.StackName}::{InternalInstance.ProjectName}::{Stack._rootPulumiStackTypeName}::{InternalInstance.GetCurrentStackName()}";
         }
     }
 }

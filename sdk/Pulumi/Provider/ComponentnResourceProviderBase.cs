@@ -29,7 +29,7 @@ public class ComponentResourceProviderBase : Provider
         var stateValue = await serializer.Serialize(resource);
         if (!stateValue.TryGetObject(out var state))
         {
-            throw new InvalidOperationException($"Resource {urn} did not serialize to an object");
+            throw new InvalidOperationException($"Resource {urn} did not serialize to an object.");
         }
 
         state = state.Remove(nameof(resource.Urn).ToLowerInvariant());

@@ -463,7 +463,7 @@ namespace Pulumi.Experimental.Provider
                     webBuilder
                         .ConfigureKestrel(kestrelOptions =>
                         {
-                            kestrelOptions.Listen(IPAddress.Loopback, 0, listenOptions =>
+                            kestrelOptions.Listen(IPAddress.Loopback, 61606, listenOptions =>
                             {
                                 listenOptions.Protocols = HttpProtocols.Http2;
                             });
@@ -474,7 +474,7 @@ namespace Pulumi.Experimental.Provider
                             // note that we also won't read environment variables for config
                             config.Sources.Clear();
 
-                            var memConfig = new Dictionary<string, string>();
+                            var memConfig = new Dictionary<string, string?>();
                             if (args.Length > 0)
                             {
                                 memConfig.Add("Host", args[0]);
@@ -483,7 +483,7 @@ namespace Pulumi.Experimental.Provider
                             {
                                 memConfig.Add("Version", version);
                             }
-                            config.AddInMemoryCollection(memConfig);
+                            config.AddInMemoryCollection(memConfig.AsEnumerable());
                         })
                         .ConfigureLogging(loggingBuilder =>
                         {
@@ -621,7 +621,7 @@ namespace Pulumi.Experimental.Provider
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Error calling {methodName}", methodName);
+                logger?.LogError(ex, "Error calling {MethodName}.", methodName);
                 throw new RpcException(new Status(StatusCode.Internal, ex.Message));
             }
         }

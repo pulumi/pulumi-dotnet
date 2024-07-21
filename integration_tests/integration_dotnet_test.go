@@ -518,3 +518,19 @@ func TestDeletedWith(t *testing.T) {
 		Quick:          true,
 	})
 }
+
+func TestProviderConstruct(t *testing.T) {
+	const testDir = "provider_construct"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+		Quick:          true,
+	})
+}
+
+func TestProviderConstructDependencies(t *testing.T) {
+	const testDir = "provider_construct_dependencies"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+		Quick:          true,
+	})
+}

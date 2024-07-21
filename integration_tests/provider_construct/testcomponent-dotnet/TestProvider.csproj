@@ -7,4 +7,7 @@
     <AssemblyName>pulumi-resource-test</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\sdk\Pulumi\Pulumi.csproj"/>
+  </ItemGroup>
 </Project>

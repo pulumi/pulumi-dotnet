@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "provider_construct", "provider_construct", "{8958EA0A-1F31-41F4-AA66-B385B3ACAD05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProviderConstruct", "provider_construct\dotnet\ProviderConstruct.csproj", "{5C43EEE8-2DC2-4FBB-9129-E2AA74704C78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProvider", "provider_construct\testcomponent-dotnet\TestProvider.csproj", "{56F0B8FB-37F6-434E-AD0F-A0EED6885A05}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "provider_construct_dependencies", "provider_construct_dependencies", "{7C164E0F-E904-467F-8B68-6963DAEB23FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProviderConstructDependencies", "provider_construct_dependencies\dotnet\ProviderConstructDependencies.csproj", "{89621F07-D399-42F9-84CF-7B073096B354}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProvider", "provider_construct_dependencies\testcomponent-dotnet\TestProvider.csproj", "{10F911FC-23DE-432A-936F-2E2BD0DE705F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "utils\Utils.csproj", "{8EC8194A-71A0-4202-B52F-0B2E3D08BE54}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5C43EEE8-2DC2-4FBB-9129-E2AA74704C78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C43EEE8-2DC2-4FBB-9129-E2AA74704C78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C43EEE8-2DC2-4FBB-9129-E2AA74704C78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C43EEE8-2DC2-4FBB-9129-E2AA74704C78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56F0B8FB-37F6-434E-AD0F-A0EED6885A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56F0B8FB-37F6-434E-AD0F-A0EED6885A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56F0B8FB-37F6-434E-AD0F-A0EED6885A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56F0B8FB-37F6-434E-AD0F-A0EED6885A05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89621F07-D399-42F9-84CF-7B073096B354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89621F07-D399-42F9-84CF-7B073096B354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89621F07-D399-42F9-84CF-7B073096B354}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89621F07-D399-42F9-84CF-7B073096B354}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10F911FC-23DE-432A-936F-2E2BD0DE705F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10F911FC-23DE-432A-936F-2E2BD0DE705F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10F911FC-23DE-432A-936F-2E2BD0DE705F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10F911FC-23DE-432A-936F-2E2BD0DE705F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EC8194A-71A0-4202-B52F-0B2E3D08BE54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EC8194A-71A0-4202-B52F-0B2E3D08BE54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EC8194A-71A0-4202-B52F-0B2E3D08BE54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EC8194A-71A0-4202-B52F-0B2E3D08BE54}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5C43EEE8-2DC2-4FBB-9129-E2AA74704C78} = {8958EA0A-1F31-41F4-AA66-B385B3ACAD05}
+		{56F0B8FB-37F6-434E-AD0F-A0EED6885A05} = {8958EA0A-1F31-41F4-AA66-B385B3ACAD05}
+		{89621F07-D399-42F9-84CF-7B073096B354} = {7C164E0F-E904-467F-8B68-6963DAEB23FD}
+		{10F911FC-23DE-432A-936F-2E2BD0DE705F} = {7C164E0F-E904-467F-8B68-6963DAEB23FD}
+	EndGlobalSection
+EndGlobal

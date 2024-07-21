@@ -2162,13 +2162,11 @@
             parents walking from the resource up to the stack.
             </summary>
         </member>
-        <member name="P:Pulumi.ResourceOptions.XResourceTransforms">
-             <summary>
-             Optional list of transforms to apply to this resource during construction.The transforms are applied in
-             order, and are applied prior to transform applied to parents walking from the resource up to the stack.
-            
-             This property is experimental.
-             </summary>
+        <member name="P:Pulumi.ResourceOptions.ResourceTransforms">
+            <summary>
+            Optional list of transforms to apply to this resource during construction.The transforms are applied in
+            order, and are applied prior to transform applied to parents walking from the resource up to the stack.
+            </summary>
         </member>
         <member name="P:Pulumi.ResourceOptions.Aliases">
             <summary>
@@ -2208,7 +2206,7 @@
         </member>
         <member name="T:Pulumi.ResourceTransform">
             <summary>
-            ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.XResourceTransforms"/>. A
+            ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.ResourceTransforms"/>. A
             transform is passed the same set of inputs provided to the <see cref="T:Pulumi.Resource"/> constructor, and can
             optionally return back alternate values for the <c>properties</c> and/or <c>options</c> prior to the resource
             actually being created. The effect will be as though those <c>properties</c> and/or <c>options</c> were passed

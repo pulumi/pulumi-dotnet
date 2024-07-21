@@ -1,9 +1,7 @@
-using System;
-using System.Text;
 using System.Threading.Tasks;
-using Google.Protobuf.WellKnownTypes;
 using Pulumi;
 
+namespace TestProvider;
 
 class ComponentArgs : ResourceArgs
 {

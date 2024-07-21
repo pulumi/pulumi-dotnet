@@ -1,0 +1,6 @@
+component: sdk
+kind: Bug Fixes
+body: Fix race condition in GrpcMonitor's GrpcChannel management
+time: 2024-07-21T08:17:42.5134291+02:00
+custom:
+    PR: "304"

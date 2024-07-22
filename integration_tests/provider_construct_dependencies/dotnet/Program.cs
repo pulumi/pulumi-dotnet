@@ -19,11 +19,21 @@ class Program
             var baseComponent = new Component("baseComponent", new ComponentArgs()
             {
                 TestInput = TestInput,
+                TestInputComplex = new ComplexTypeInput()
+                {
+                    Name = TestInput,
+                    IntValue = TestInput.Length
+                }
             });
 
             var dependentComponent = new Component("dependentComponent", new ComponentArgs()
             {
-                TestInput = baseComponent.TestOutput
+                TestInput = baseComponent.TestOutput,
+                TestInputComplex = baseComponent.TestOutputComplex.Apply(a => new ComplexTypeInput
+                {
+                    Name = TestInput,
+                    IntValue = TestInput.Length
+                })
             });
 
             var result = await OutputUtilities.GetValueAsync(dependentComponent.TestOutput);

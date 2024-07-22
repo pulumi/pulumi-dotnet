@@ -197,7 +197,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         {
             return request.Type switch
             {
-                BucketType => Construct<TestBucket, TestBucketArgs>(request, (name, args, options) => AsTask(new TestBucket(name, args, options))),
+                BucketType => Construct<TestBucketArgs, TestBucket>(request, (name, args, options) => AsTask(new TestBucket(name, args, options))),
                 _ => throw new NotImplementedException()
             };
         }
@@ -224,13 +224,13 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             return value;
         }
 
-        private Task<ConstructResponse> Construct<TResource, TArgs>(
+        private Task<ConstructResponse> Construct<TArgs,TResource>(
             ConstructRequest request,
             Func<string, TArgs, ComponentResourceOptions, TResource> factory
         )
             where TResource : ComponentResource
         {
-            return Construct<TResource, TArgs>(
+            return Construct<TArgs,TResource>(
                 request: request,
                 factory: (name, args, options) => Task.FromResult(factory(name, args, options)));
         }

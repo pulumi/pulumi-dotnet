@@ -67,6 +67,7 @@ namespace Pulumi.Automation.Serialization
 
             options.Converters.Add(new StringToEnumJsonConverter<OperationType, OperationTypeConverter>());
             options.Converters.Add(new StringToEnumJsonConverter<DiffKind, DiffKindConverter>());
+            options.Converters.Add(new StringToEnumJsonConverter<UpdateKind, UpdateKindConverter>());
             options.Converters.Add(new JsonStringEnumConverter(new LowercaseJsonNamingPolicy()));
             options.Converters.Add(new SystemObjectJsonConverter());
             options.Converters.Add(new MapToModelJsonConverter<ConfigValue, ConfigValueModel>());

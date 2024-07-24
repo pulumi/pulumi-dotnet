@@ -10,5 +10,6 @@ namespace Pulumi.Automation
         Rename,
         Destroy,
         Import,
+        ResourceImport,
     }
 }

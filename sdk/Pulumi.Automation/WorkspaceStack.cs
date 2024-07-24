@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -634,6 +636,106 @@ namespace Pulumi.Automation
                 result.StandardOutput,
                 result.StandardError,
                 summary!);
+        }
+
+        /// <summary>
+        /// Import resources into a stack.
+        /// </summary>
+        /// <param name="options">Import options to customize the behaviour of the import operation</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>The output of the import command, including the generated code, if any.</returns>
+        public async Task<ImportResult> ImportAsync(
+            ImportOptions options,
+            CancellationToken cancellationToken = default)
+        {
+            var args = new List<string>
+            {
+                "import",
+                "--yes",
+                "--skip-preview",
+            };
+
+            var tempDirectoryPath = "";
+            try
+            {
+                // for import operations, generate a temporary directory to store the following:
+                //   - the import file when the user specifies resources to import
+                //   - the output file for the generated code
+                // we use the import file as input to the import command
+                // we the output file to read the generated code and return it to the user
+                tempDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+                if (options.Resources?.Any() == true)
+                {
+                    Directory.CreateDirectory(tempDirectoryPath);
+                    var importPath = Path.Combine(tempDirectoryPath, "import.json");
+                    var importContent = new
+                    {
+                        nameTable = options.NameTable,
+                        resources = options.Resources,
+                    };
+
+                    var importJson = JsonSerializer.Serialize(importContent, new JsonSerializerOptions
+                    {
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+
+                    await File.WriteAllTextAsync(importPath, importJson, cancellationToken);
+                    args.Add("--file");
+                    args.Add(importPath);
+                }
+
+                if (options.Protect is false)
+                {
+                    args.Add("--protect=false");
+                }
+
+                var generatedCodeOutputPath = Path.Combine(tempDirectoryPath, "generated.cs");
+                if (options.GenerateCode is false)
+                {
+                    args.Add("--generate-code=false");
+                }
+                else
+                {
+                    args.Add("--out");
+                    args.Add(generatedCodeOutputPath);
+                }
+
+                if (options.Converter != null)
+                {
+                    // if the user specifies a converter, pass it to `--from <converter>` argument of import.
+                    args.Add("--from");
+                    args.Add(options.Converter);
+                    if (options.ConverterArgs?.Any() == true)
+                    {
+                        // pass any additional arguments to the converter
+                        args.Add("--");
+                        args.AddRange(options.ConverterArgs);
+                    }
+                }
+
+                var result = await this.RunCommandAsync(args, options.OnStandardOutput, options.OnStandardError, null, cancellationToken).ConfigureAwait(false);
+                var summary = await this.GetInfoAsync(cancellationToken, options.ShowSecrets).ConfigureAwait(false);
+                var generatedCode =
+                    options.GenerateCode is not false
+                        ? await File.ReadAllTextAsync(generatedCodeOutputPath, cancellationToken).ConfigureAwait(false)
+                        : "";
+
+                return new ImportResult(
+                    standardOutput: result.StandardOutput,
+                    standardError: result.StandardError,
+                    summary: summary!,
+                    generatedCode: generatedCode);
+            }
+            finally
+            {
+                if (tempDirectoryPath != "")
+                {
+                    // clean up the temporary directory we used for the import operation
+                    Directory.Delete(tempDirectoryPath, recursive: true);
+                }
+            }
         }
 
         /// <summary>

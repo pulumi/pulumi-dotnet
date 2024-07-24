@@ -706,6 +706,10 @@ namespace Pulumi.Experimental.Provider
                                         {
                                             element = Unmarshal(knownElement);
                                         }
+                                        else
+                                        {
+                                            element = PropertyValue.Computed;
+                                        }
                                         var secret = false;
                                         if (structValue.Fields.TryGetValue(Constants.SecretName, out var v))
                                         {

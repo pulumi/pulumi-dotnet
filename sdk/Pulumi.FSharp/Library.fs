@@ -26,7 +26,7 @@ module Ops =
     
     /// <summary>
     /// Wraps a collection of raw items into an <see cref="InputList{'a}}" />.
-    /// <summary>
+    /// </summary>
     let toInputList<'a> (items: seq<'a>) = items |> Seq.map input |> inputList
 
     /// <summary>
@@ -51,13 +51,13 @@ module Ops =
     /// <summary>
     /// Wraps a collection of first types into an InputList{Union{'a,'b}}
     /// </summary>
-    let inputListFromT0<'a> (items: seq<'a>) =
+    let inputListFromT0<'a, 'b> (items: seq<'a>) : InputList<Union<'a, 'b>> =
         items |> Seq.map Union.FromT0 |> toInputList
 
     /// <summary>
     /// Wraps a collection of second types into an InputList{Union{'a,'b}}
     /// </summary>
-    let inputListFromT1<'b> (items: seq<'b>) =
+    let inputListFromT1<'a, 'b> (items: seq<'b>) : InputList<Union<'a, 'b>> =
         items |> Seq.map Union.FromT1 |> toInputList
 
 /// <summary>

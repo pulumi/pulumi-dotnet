@@ -3,6 +3,9 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 
@@ -29,6 +32,13 @@ namespace Pulumi.Serialization
             if (TryDeserializeResource(value, out var resource))
             {
                 return new OutputData<T>(ImmutableHashSet<Resource>.Empty, (T)(object)resource, isKnown: true, isSecret);
+            }
+            if (TryDeserializeOutputValue(value, out var outputValue))
+            {
+                // Note that output values don't really fit-in well with the OutputData<T> model, as they deserialize
+                // to instances of Output<T> which already internally track the resources, known-ness, and secret-ness,
+                // so for the OutputData<T> we just use empty resources, mark it as known, and not a secret.
+                return new OutputData<T>(ImmutableHashSet<Resource>.Empty, (T)outputValue, isKnown: true, isSecret: false);
             }
 
             var innerData = func(value);
@@ -239,6 +249,89 @@ namespace Pulumi.Serialization
 
             resource = new DependencyResource(urn);
             return true;
+        }
+
+        private static bool TryDeserializeOutputValue(
+            Value value, [NotNullWhen(true)] out object? result)
+        {
+            if (!IsSpecialStruct(value, out var sig) || sig != Constants.SpecialOutputValueSig)
+            {
+                result = null;
+                return false;
+            }
+
+            bool isKnown = value.StructValue.Fields.TryGetValue(Constants.ValueName, out var val);
+            bool isSecret = value.StructValue.Fields.TryGetValue(Constants.SecretName, out var secret) &&
+                secret.KindCase == Value.KindOneofCase.BoolValue && secret.BoolValue;
+
+            var dependencies = ImmutableHashSet<Resource>.Empty;
+            if (value.StructValue.Fields.TryGetValue(Constants.DependenciesName, out var deps) &&
+                deps.KindCase == Value.KindOneofCase.ListValue)
+            {
+                var resources = ImmutableHashSet.CreateBuilder<Resource>();
+                foreach (var dep in deps.ListValue.Values)
+                {
+                    if (dep.KindCase == Value.KindOneofCase.StringValue)
+                    {
+                        resources.Add(new DependencyResource(dep.StringValue));
+                    }
+                }
+                dependencies = resources.ToImmutable();
+            }
+
+            var resultValue = isKnown ? Deserialize(val).Value : null;
+
+            result = CreateOutput(dependencies, resultValue, isKnown, isSecret);
+            return true;
+        }
+
+        private static object CreateOutput(
+            ImmutableHashSet<Resource> resources, object? value, bool isKnown, bool isSecret)
+        {
+            var elementType = typeof(object);
+            if (value is not null)
+            {
+                elementType = value.GetType();
+            }
+            var outputDataType = typeof(OutputData<>).MakeGenericType(elementType);
+            var createOutputData = outputDataType.GetConstructor(new[]
+            {
+                typeof(ImmutableHashSet<Resource>),
+                elementType,
+                typeof(bool),
+                typeof(bool)
+            });
+            if (createOutputData is null)
+            {
+                throw new InvalidOperationException(
+                    $"Could not find constructor for type OutputData<T> with parameters " +
+                    $"{nameof(ImmutableHashSet<Resource>)}, {elementType.Name}, bool, bool");
+            }
+
+            var typedOutputData = createOutputData.Invoke(new object?[] {
+                resources,
+                value,
+                isKnown,
+                isSecret });
+
+            var createOutputMethod =
+                typeof(Output<>)
+                    .MakeGenericType(elementType)
+                    .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .First(ctor =>
+                    {
+                        // expected parameter type == Task<OutputData<T>>
+                        var parameters = ctor.GetParameters();
+                        return parameters.Length == 1 &&
+                                parameters[0].ParameterType == typeof(Task<>).MakeGenericType(outputDataType);
+                    })!;
+
+            var fromResultMethod =
+                typeof(Task)
+                    .GetMethod("FromResult")!
+                    .MakeGenericMethod(outputDataType)!;
+
+            return createOutputMethod.Invoke(new[] { fromResultMethod.Invoke(null, new[] { typedOutputData }) });
         }
 
         private static bool TryGetStringValue(

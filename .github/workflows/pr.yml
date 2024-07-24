@@ -53,6 +53,8 @@ jobs:
         uses: pulumi/actions@v5
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
+      - name: Workspace clean (are xml doc file updates committed?)
+        uses: pulumi/git-status-check-action@v1
       - name: Test Pulumi SDK
         run: dotnet run test-sdk coverage
       - name: Test Pulumi Automation SDK
@@ -200,4 +202,3 @@ jobs:
         run: exit 1
       - name: CI succeeded
         run: exit 0
-

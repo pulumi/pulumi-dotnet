@@ -1,0 +1,6 @@
+component: sdk
+kind: Bug Fixes
+body: Fix unkown inputs deserialization
+time: 2024-07-24T14:53:11.4857503+02:00
+custom:
+    PR: "306"

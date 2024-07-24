@@ -500,6 +500,26 @@ namespace Pulumi.Experimental.Provider
                     return unknownOutput;
                 }
 
+                object GetOutputData(ImmutableHashSet<Resource>.Builder resources,  PropertyValue propertyValue, bool isSecret)
+                {
+                    object? deserializeValue = null;
+                    var isKnown = false;
+                    if (!propertyValue.IsComputed)
+                    {
+                        deserializeValue = DeserializeValue(propertyValue, elementType, path);
+                        isKnown = true;
+                    }
+
+                    var outputData = createOutputData.Invoke(new object?[]
+                    {
+                        resources.ToImmutable(),
+                        deserializeValue,
+                        isKnown,
+                        isSecret
+                    });
+                    return outputData;
+                }
+
                 if (value.TryGetSecret(out var secretValue))
                 {
                     if (secretValue.IsComputed)
@@ -517,14 +537,7 @@ namespace Pulumi.Experimental.Provider
                             resources.Add(new DependencyResource(dependencyUrn));
                         }
 
-                        var deserializedOutputValue = DeserializeValue(secretOutput.Value, elementType, path);
-                        var outputData = createOutputData.Invoke(new object?[]
-                        {
-                            resources.ToImmutable(),
-                            deserializedOutputValue,
-                            true, // isKnown
-                            true // isSecret
-                        });
+                        var outputData = GetOutputData(resources, secretOutput.Value, true);
 
                         return CreateInput(outputData);
                     }
@@ -561,21 +574,7 @@ namespace Pulumi.Experimental.Provider
                         resources.Add(new DependencyResource(dependencyUrn));
                     }
 
-                    object? deserializeValue = null;
-                    var isKnown = false;
-                    if (!innerOutputValue.IsComputed)
-                    {
-                        deserializeValue = DeserializeValue(innerOutputValue, elementType, path);
-                        isKnown = true;
-                    }
-
-                    var outputData = createOutputData.Invoke(new object?[]
-                    {
-                        resources.ToImmutable(),
-                        deserializeValue,
-                        isKnown,
-                        secret
-                    });
+                    var outputData = GetOutputData(resources, innerOutputValue, secret);
 
                     return CreateInput(outputData);
                 }

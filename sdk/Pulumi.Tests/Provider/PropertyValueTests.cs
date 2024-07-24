@@ -319,7 +319,6 @@ public class PropertyValueTests
     public async Task DeserializingWrappedUnknownOutputSecretWorks()
     {
         var serializer = CreateSerializer();
-        // secretOutput = Secret(Output(Unknown))
         var secretOutput = new PropertyValue(
             new PropertyValue(new OutputReference(
                 value:  PropertyValue.Computed,
@@ -356,7 +355,6 @@ public class PropertyValueTests
     public async Task DeserializingWrappedUnknownSecretInOutputWorks()
     {
         var serializer = CreateSerializer();
-        // secretOutput = Output(Secret(Unknown))
         var secretOutput = new PropertyValue(
             new OutputReference(
                 value: new PropertyValue(PropertyValue.Computed),

@@ -465,7 +465,7 @@ namespace Pulumi.Experimental.Provider
                     webBuilder
                         .ConfigureKestrel(kestrelOptions =>
                         {
-                            kestrelOptions.Listen(IPAddress.Loopback, 61606, listenOptions => { listenOptions.Protocols = HttpProtocols.Http2; });
+                            kestrelOptions.Listen(IPAddress.Loopback, 0, listenOptions => { listenOptions.Protocols = HttpProtocols.Http2; });
                         })
                         .ConfigureAppConfiguration((context, config) =>
                         {

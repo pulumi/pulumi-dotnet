@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi.Utilities;
@@ -92,13 +91,9 @@ public class ComponentResourceProviderBase : Provider
             throw new InvalidOperationException($"URN of resource {request.Name} is not known.");
         }
 
-        var stateValue = await serializer.Serialize(resource);
-        if (!stateValue.TryGetObject(out var state))
-        {
-            throw new InvalidOperationException($"Resource {urn} did not serialize to an object.");
-        }
+        var stateValue = await serializer.StateFromComponentResource(resource);
 
-        return new ConstructResponse(new Urn(urn), state, ImmutableDictionary<string, ISet<Urn>>.Empty);
+        return new ConstructResponse(new Urn(urn), stateValue, ImmutableDictionary<string, ISet<Urn>>.Empty);
     }
 
     public override Task<ConfigureResponse> Configure(ConfigureRequest request, CancellationToken ct)

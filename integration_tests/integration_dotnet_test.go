@@ -543,3 +543,11 @@ func TestProviderConstructDependencies(t *testing.T) {
 		Quick:          true,
 	})
 }
+
+func TestProviderConstructUnknown(t *testing.T) {
+	const testDir = "provider_construct_unknown"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+		Quick:          true,
+	})
+}

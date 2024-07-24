@@ -1,4 +1,4 @@
-name: testingdotnetmlc
+name: provider_construct_dependencies
 runtime: dotnet
 
 plugins:

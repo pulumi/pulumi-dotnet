@@ -25,6 +25,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProvider", "provider_co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pulumi", "..\sdk\Pulumi\Pulumi.csproj", "{857B9A82-82CF-4B69-BEAF-C46471680528}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "provider_construct_unknown", "provider_construct_unknown", "{F5AEB97F-4DB0-4162-8064-146E717116EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProviderConstructUnknown", "provider_construct_unknown\dotnet\ProviderConstructUnknown.csproj", "{EC43AA79-E237-483E-B45B-C321B8AD40F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProvider", "provider_construct_unknown\testcomponent-dotnet\TestProvider.csproj", "{0BBA9FDF-175D-43D9-B4A4-6A773EFA8FD8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +72,14 @@ Global
 		{857B9A82-82CF-4B69-BEAF-C46471680528}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{857B9A82-82CF-4B69-BEAF-C46471680528}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{857B9A82-82CF-4B69-BEAF-C46471680528}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC43AA79-E237-483E-B45B-C321B8AD40F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC43AA79-E237-483E-B45B-C321B8AD40F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC43AA79-E237-483E-B45B-C321B8AD40F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC43AA79-E237-483E-B45B-C321B8AD40F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BBA9FDF-175D-43D9-B4A4-6A773EFA8FD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BBA9FDF-175D-43D9-B4A4-6A773EFA8FD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BBA9FDF-175D-43D9-B4A4-6A773EFA8FD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BBA9FDF-175D-43D9-B4A4-6A773EFA8FD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{183BB567-4562-4E84-B808-E5C6452613E7} = {ADA5BC3D-22F6-4CCE-9C50-2F16D555D397}
@@ -74,5 +88,7 @@ Global
 		{44586A0E-CE8F-4074-AB3C-559262FEA2A9} = {869905CB-4708-4960-B69B-F0535CBF1175}
 		{CCC9EB35-5ECA-46F9-BBA9-3499CBFE88C8} = {F8CF3289-233C-4FFA-BE1C-364AA988DF15}
 		{5F901846-4E07-4379-84E3-5D288E0DF3F8} = {F8CF3289-233C-4FFA-BE1C-364AA988DF15}
+		{EC43AA79-E237-483E-B45B-C321B8AD40F7} = {F5AEB97F-4DB0-4162-8064-146E717116EA}
+		{0BBA9FDF-175D-43D9-B4A4-6A773EFA8FD8} = {F5AEB97F-4DB0-4162-8064-146E717116EA}
 	EndGlobalSection
 EndGlobal

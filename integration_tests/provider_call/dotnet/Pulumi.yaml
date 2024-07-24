@@ -1,4 +1,4 @@
-name: testingdotnetmlc
+name: provider_call
 runtime: dotnet
 
 plugins:

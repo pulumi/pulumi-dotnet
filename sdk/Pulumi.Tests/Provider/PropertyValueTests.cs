@@ -321,7 +321,7 @@ public class PropertyValueTests
         var serializer = CreateSerializer();
         var secretOutput = new PropertyValue(
             new PropertyValue(new OutputReference(
-                value:  PropertyValue.Computed,
+                value: PropertyValue.Computed,
                 dependencies: ImmutableArray<Urn>.Empty)));
 
         var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);

@@ -535,8 +535,8 @@ namespace Pulumi.Experimental.Provider
                     {
                         ImmutableHashSet<Resource>.Empty, // resources
                         deserializedValue, // value
-                        true, // is known
-                        true // is secret
+                        true, // isKnown
+                        true // isSecret
                     });
 
                     // return Output<T>
@@ -561,13 +561,20 @@ namespace Pulumi.Experimental.Provider
                         resources.Add(new DependencyResource(dependencyUrn));
                     }
 
-                    var deserializedValue = DeserializeValue(innerOutputValue, elementType, path);
+                    object? deserializeValue = null;
+                    var isKnown = false;
+                    if (!innerOutputValue.IsComputed)
+                    {
+                        deserializeValue = DeserializeValue(innerOutputValue, elementType, path);
+                        isKnown = true;
+                    }
+
                     var outputData = createOutputData.Invoke(new object?[]
                     {
                         resources.ToImmutable(),
-                        deserializedValue,
-                        true, // isKnown
-                        secret // isSecret
+                        deserializeValue,
+                        isKnown,
+                        secret
                     });
 
                     return CreateInput(outputData);

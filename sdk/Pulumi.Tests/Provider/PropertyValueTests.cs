@@ -282,6 +282,22 @@ public class PropertyValueTests
     }
 
     [Fact]
+    public async Task DeserializingUnknownOutputWorks()
+    {
+        var serializer = CreateSerializer();
+        var output = new PropertyValue(new OutputReference(
+            value: PropertyValue.Computed,
+            dependencies: ImmutableArray<Urn>.Empty));
+
+        var deserialized = await serializer.Deserialize<Input<string>>(output);
+        var deserializedOutput = deserialized.ToOutput();
+        var data = await deserializedOutput.DataTask;
+        Assert.Null(data.Value);
+        Assert.False(data.IsSecret);
+        Assert.False(data.IsKnown);
+    }
+
+    [Fact]
     public async Task DeserializingWrappedOutputSecretWorks()
     {
         var serializer = CreateSerializer();
@@ -300,6 +316,23 @@ public class PropertyValueTests
     }
 
     [Fact]
+    public async Task DeserializingWrappedUnknownOutputSecretWorks()
+    {
+        var serializer = CreateSerializer();
+        var secretOutput = new PropertyValue(
+            new PropertyValue(new OutputReference(
+                value: PropertyValue.Computed,
+                dependencies: ImmutableArray<Urn>.Empty)));
+
+        var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
+        var deserializedOutput = deserialized.ToOutput();
+        var data = await deserializedOutput.DataTask;
+        Assert.Null(data.Value);
+        Assert.True(data.IsSecret);
+        Assert.False(data.IsKnown);
+    }
+
+    [Fact]
     public async Task DeserializingWrappedSecretInOutputWorks()
     {
         var serializer = CreateSerializer();
@@ -315,6 +348,24 @@ public class PropertyValueTests
         Assert.Equal("Hello", data.Value);
         Assert.True(data.IsSecret);
         Assert.True(data.IsKnown);
+    }
+
+
+    [Fact]
+    public async Task DeserializingWrappedUnknownSecretInOutputWorks()
+    {
+        var serializer = CreateSerializer();
+        var secretOutput = new PropertyValue(
+            new OutputReference(
+                value: new PropertyValue(PropertyValue.Computed),
+                dependencies: ImmutableArray<Urn>.Empty));
+
+        var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
+        var deserializedOutput = deserialized.ToOutput();
+        var data = await deserializedOutput.DataTask;
+        Assert.Null(data.Value);
+        Assert.True(data.IsSecret);
+        Assert.False(data.IsKnown);
     }
 
     [Fact]

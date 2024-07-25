@@ -301,7 +301,7 @@ func TestLargeResourceDotNet(t *testing.T) {
 	})
 }
 
-// tests that when a resource transformation throws an exception, the program exists
+// tests that when a resource transformation throws an exception, the program exits
 // and doesn't hang indefinitely.
 func TestFailingTransfomationExitsProgram(t *testing.T) {
 	stderr := &strings.Builder{}

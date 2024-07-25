@@ -92,9 +92,7 @@ namespace Pulumi
 
                     // Use a Task.Run here so that we don't end up aggressively running the actual
                     // logging while holding this lock.
-                    _lastLogTask = _lastLogTask.ContinueWith(
-                        _ => Task.Run(() => LogAsync(severity, message, resource, streamId, ephemeral)),
-                        CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+                    _lastLogTask = Task.Run(() => LogAsync(severity, message, resource, streamId, ephemeral));
                     task = _lastLogTask;
                 }
 

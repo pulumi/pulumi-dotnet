@@ -301,6 +301,19 @@ func TestLargeResourceDotNet(t *testing.T) {
 	})
 }
 
+// tests that when a resource transformation throws an exception, the program exits
+// and doesn't hang indefinitely.
+func TestFailingTransfomationExitsProgram(t *testing.T) {
+	stderr := &strings.Builder{}
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:           "failing_transformation_exits",
+		ExpectFailure: true,
+		Stderr:        stderr,
+	})
+
+	assert.Contains(t, stderr.String(), "Boom!")
+}
+
 // Test remote component construction with a child resource that takes a long time to be created, ensuring it's created.
 //func TestConstructSlowDotnet(t *testing.T) {
 //	localProvider := testComponentSlowLocalProvider(t)

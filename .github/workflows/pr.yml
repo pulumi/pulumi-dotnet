@@ -146,6 +146,8 @@ jobs:
         run: dotnet run integration test TestDeletedWith
       - name: TestDotNetTransforms
         run: dotnet run integration test TestDotNetTransforms
+      - name: TestFailingTransfomationExistProgram
+        run: dotnet run integration test TestFailingTransfomationExistProgram
 
   info:
     name: gather

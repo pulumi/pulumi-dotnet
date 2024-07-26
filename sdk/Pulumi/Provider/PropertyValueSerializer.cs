@@ -915,6 +915,7 @@ namespace Pulumi.Experimental.Provider
             var properties = componentType.GetProperties();
             foreach (var property in properties)
             {
+
                 var outputAttr = property
                     .GetCustomAttributes(typeof(OutputAttribute), false)
                     .FirstOrDefault();
@@ -925,6 +926,13 @@ namespace Pulumi.Experimental.Provider
                     if (!string.IsNullOrWhiteSpace(attr.Name))
                     {
                         propertyName = attr.Name;
+                    }
+
+                    if (Constants.UrnPropertyName.Equals(propertyName))
+                    {
+                        // similar to how component provider state in other languages
+                        // is generated we exclude the resource urn from the state
+                        continue;
                     }
 
                     var value = property.GetValue(component);

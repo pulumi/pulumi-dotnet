@@ -500,7 +500,7 @@ namespace Pulumi.Experimental.Provider
                     return unknownOutput;
                 }
 
-                object GetOutputData(ImmutableHashSet<Resource>.Builder resources,  PropertyValue propertyValue, bool isSecret)
+                object GetOutputData(ImmutableHashSet<Resource>.Builder resources, PropertyValue propertyValue, bool isSecret)
                 {
                     object? deserializeValue = null;
                     var isKnown = false;

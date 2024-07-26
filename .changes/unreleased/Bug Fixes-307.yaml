@@ -1,0 +1,6 @@
+component: sdk
+kind: Bug Fixes
+body: Fix program hanging when a resource transformation throws an exception
+time: 2024-07-25T19:03:20.914101+02:00
+custom:
+    PR: "307"

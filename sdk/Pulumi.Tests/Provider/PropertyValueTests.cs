@@ -68,8 +68,10 @@ public class PropertyValueTests
             Pair("password", new PropertyValue(new PropertyValue("PW"))));
 
         var basicArgs = await serializer.Deserialize<SecretArgs>(data);
-        var pw = await basicArgs.Password.ToOutput().GetValueAsync("");
-        Assert.Equal("PW", pw);
+        var passwordOutput = await basicArgs.Password.ToOutput().DataTask;
+        Assert.True(passwordOutput.IsSecret);
+        Assert.True(passwordOutput.IsKnown);
+        Assert.Equal("PW", passwordOutput.Value);
     }
 
     class UsingNullableArgs : ResourceArgs

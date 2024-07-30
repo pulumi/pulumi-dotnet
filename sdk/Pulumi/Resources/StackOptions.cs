@@ -34,5 +34,16 @@ namespace Pulumi
             get => _resourceTransforms ??= new List<ResourceTransform>();
             set => _resourceTransforms = value;
         }
+
+        private List<InvokeTransform>? _invokeTransforms;
+
+        /// <summary>
+        /// Optional list of transforms to apply to this stack's invokes.
+        /// </summary>
+        public List<InvokeTransform> InvokeTransforms
+        {
+            get => _invokeTransforms ??= new List<InvokeTransform>();
+            set => _invokeTransforms = value;
+        }
     }
 }

@@ -1,0 +1,6 @@
+component: sdk
+kind: Bug Fixes
+body: Fix handling of input properties with backing fields
+time: 2024-07-29T13:07:07.371615+02:00
+custom:
+    PR: "308"

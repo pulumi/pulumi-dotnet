@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -19,14 +20,9 @@ namespace Pulumi.Experimental.Provider
 
         private object? DeserializeObject(ImmutableDictionary<string, PropertyValue> inputs, Type targetType, string[] path)
         {
-            var properties = targetType.GetProperties();
+            var properties = targetType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
-            var objectShape =
-                properties.Select(property => new
-                {
-                    propertyName = PropertyName(property),
-                    propertyType = property.PropertyType
-                }).ToArray();
+            var objectShape = properties.Select(property => new PropInfo(property, PropertyName(property, targetType))).ToArray();
 
             var candidateConstructors = new List<ConstructorInfo>();
             ConstructorInfo? parameterlessConstructor = null;
@@ -44,8 +40,8 @@ namespace Pulumi.Experimental.Provider
                 var parametersMatchShape = parameters.All(param =>
                 {
                     return objectShape.Any(property =>
-                        param.Name == CamelCase(property.propertyName)
-                        && param.ParameterType == property.propertyType);
+                        param.Name == CamelCase(property.Name) &&
+                        param.ParameterType == property.PropertyType);
                 });
 
                 // the shape of the type matches the parameters of the constructor
@@ -55,13 +51,14 @@ namespace Pulumi.Experimental.Provider
                 {
                     foreach (var param in parameters)
                     {
-                        if (param.Name == CamelCase(property.propertyName) && param.ParameterType == property.propertyType)
+                        if (param.Name == CamelCase(property.Name) &&
+                            param.ParameterType == property.PropertyType)
                         {
                             return true;
                         }
                     }
 
-                    return IsNullable(property.propertyType);
+                    return IsNullable(property.PropertyType);
                 });
 
                 if (parametersMatchShape && shapeMatchesParameters)
@@ -112,11 +109,10 @@ namespace Pulumi.Experimental.Provider
                     ? parameterlessConstructor.Invoke(Array.Empty<object>())
                     : Activator.CreateInstance(targetType);
 
-            foreach (var property in properties)
+            foreach (var property in objectShape)
             {
-                var propertyName = PropertyName(property);
-                var propertyPath = path.Append(propertyName).ToArray();
-                if (inputs.TryGetValue(propertyName, out var value))
+                var propertyPath = path.Append(property.Name).ToArray();
+                if (inputs.TryGetValue(property.Name, out var value))
                 {
                     var deserializedValue = DeserializeValue(value, property.PropertyType, propertyPath);
                     property.SetValue(instance, deserializedValue);
@@ -132,7 +128,7 @@ namespace Pulumi.Experimental.Provider
                         // TODO: implement a proper exception type that includes the type info, errors and property value
                         var errorPath = "[" + string.Join(", ", propertyPath) + "]";
                         throw new InvalidOperationException(
-                            $"Could not deserialize object of type {targetType.Name}, missing required property {propertyName} at {errorPath}");
+                            $"Could not deserialize object of type {targetType.Name}, missing required property {property.Name} at {errorPath}");
                     }
 
                     property.SetValue(instance, maybeDeserializedEmptyValue);
@@ -142,18 +138,41 @@ namespace Pulumi.Experimental.Provider
             return instance;
         }
 
+        private sealed record PropInfo
+        {
+            private readonly PropertyInfo _property;
+
+            public PropInfo(PropertyInfo property, string name)
+            {
+                Name = name;
+                _property = property;
+            }
+
+            public Type PropertyType => _property.PropertyType;
+
+            public void SetValue(object? obj, object? value) => _property.SetValue(obj, value);
+
+            public string Name { get; set; }
+
+        }
+
         private bool IsNullable(Type type)
         {
             return !type.IsValueType || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
 
-        private string PropertyName(PropertyInfo property)
+        private string PropertyName(PropertyInfo property, Type declaringType)
         {
             var propertyName = property.Name;
             var inputAttribute =
                 property
                     .GetCustomAttributes(typeof(InputAttribute))
                     .FirstOrDefault();
+
+            if (inputAttribute == null && TryGetBackingField(propertyName, out var inputField))
+            {
+                inputAttribute = inputField.GetCustomAttributes(typeof(InputAttribute)).FirstOrDefault();
+            }
 
             if (inputAttribute is InputAttribute input && !string.IsNullOrWhiteSpace(input.Name))
             {
@@ -171,6 +190,13 @@ namespace Pulumi.Experimental.Provider
             }
 
             return propertyName;
+
+            bool TryGetBackingField(string propName, [NotNullWhen(true)] out FieldInfo? field)
+            {
+                field = declaringType.GetField($"_{CamelCase(propName)}",
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                return field != null;
+            }
         }
 
         public async Task<PropertyValue> Serialize<T>(T value)
@@ -299,7 +325,7 @@ namespace Pulumi.Experimental.Provider
                 var propertyObject = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
                 foreach (var property in targetType.GetProperties())
                 {
-                    var propertyName = PropertyName(property);
+                    var propertyName = PropertyName(property, targetType);
                     var propertyValue = property.GetValue(value);
                     var serializedProperty = await Serialize(propertyValue);
                     propertyObject.Add(propertyName, serializedProperty);

@@ -51,7 +51,7 @@ namespace Pulumi
         /// </summary>
         public Stack(StackOptions? options = null)
             : base(_rootPulumiStackTypeName,
-                $"{Deployment.Instance.ProjectName}-{Deployment.Instance.StackName}",
+                Deployment.Instance.GetCurrentStackName(),
                 ConvertOptions(options))
         {
             Deployment.InternalInstance.Stack = this;

@@ -1,0 +1,7 @@
+name: provider_construct
+runtime: dotnet
+
+plugins:
+  providers:
+    - name: test
+      path: ../testcomponent-dotnet

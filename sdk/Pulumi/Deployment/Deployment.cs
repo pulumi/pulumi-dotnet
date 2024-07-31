@@ -199,10 +199,10 @@ namespace Pulumi
         }
 
 
-        Stack IDeploymentInternal.Stack
+        Stack? IDeploymentInternal.Stack
         {
-            get => Stack;
-            set => Stack = value;
+            get => _stack;
+            set => _stack = value;
         }
 
         private ILogger CreateDefaultLogger()

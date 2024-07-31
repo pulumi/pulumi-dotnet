@@ -10,7 +10,7 @@ namespace Pulumi
         string? GetConfig(string fullKey);
         bool IsConfigSecret(string fullKey);
 
-        Stack Stack { get; set; }
+        Stack? Stack { get; set; }
 
         IEngineLogger Logger { get; }
         IRunner Runner { get; }

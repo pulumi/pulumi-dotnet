@@ -531,3 +531,36 @@ func TestDeletedWith(t *testing.T) {
 		Quick:          true,
 	})
 }
+
+func TestProviderCall(t *testing.T) {
+	const testDir = "provider_call"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+		Quick:          true,
+	})
+}
+
+func TestProviderConstruct(t *testing.T) {
+	const testDir = "provider_construct"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+        Dependencies:   []string{"Fooo"},
+		Quick:          true,
+	})
+}
+
+func TestProviderConstructDependencies(t *testing.T) {
+	const testDir = "provider_construct_dependencies"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+		Quick:          true,
+	})
+}
+
+func TestProviderConstructUnknown(t *testing.T) {
+	const testDir = "provider_construct_unknown"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+		Quick:          true,
+	})
+}

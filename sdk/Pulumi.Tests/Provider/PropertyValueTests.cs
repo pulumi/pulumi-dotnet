@@ -45,6 +45,35 @@ public class PropertyValueTests
         Assert.Equal(10, basicArgs.PasswordLength);
     }
 
+    class SecretArgs : ResourceArgs
+    {
+        [Input("password", required: true)]
+        private Input<string>? _password;
+        public Input<string>? Password
+        {
+            get => _password;
+            set
+            {
+                var emptySecret = Output.CreateSecret(0);
+                _password = Output.Tuple<Input<string>?, int>(value, emptySecret).Apply(t => t.Item1);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task DeserializingSecretArgsWorks()
+    {
+        var serializer = CreateSerializer();
+        var data = Object(
+            Pair("password", new PropertyValue(new PropertyValue("PW"))));
+
+        var basicArgs = await serializer.Deserialize<SecretArgs>(data);
+        var passwordOutput = await basicArgs.Password.ToOutput().DataTask;
+        Assert.True(passwordOutput.IsSecret);
+        Assert.True(passwordOutput.IsKnown);
+        Assert.Equal("PW", passwordOutput.Value);
+    }
+
     class UsingNullableArgs : ResourceArgs
     {
         public int? Length { get; set; }
@@ -69,6 +98,30 @@ public class PropertyValueTests
         public string[] First { get; set; } = default!;
         public List<string> Second { get; set; } = default!;
         public ImmutableArray<string> Third { get; set; } = default!;
+
+        [Input("firstWithField")]
+        private string[]? _firstWithField;
+        public string[] FirstWithField
+        {
+            get => _firstWithField ??= System.Array.Empty<string>();
+            set => _firstWithField = value;
+        }
+
+        [Input("secondWithField")]
+        private List<string>? _secondWithField;
+        public List<string> SecondWithField
+        {
+            get => _secondWithField ??= new List<string>();
+            set => _secondWithField = value;
+        }
+
+        [Input("thirdWithField")]
+        private ImmutableArray<string>? _thirdWithField;
+        public ImmutableArray<string> ThirdWithField
+        {
+            get => _thirdWithField ??= new ImmutableArray<string>();
+            set => _thirdWithField = value;
+        }
     }
 
     [Fact]
@@ -83,7 +136,10 @@ public class PropertyValueTests
         var data = Object(
             Pair("First", array),
             Pair("Second", array),
-            Pair("Third", array));
+            Pair("Third", array),
+            Pair("firstWithField", array),
+            Pair("secondWithField", array),
+            Pair("thirdWithField", array));
 
         var args = await serializer.Deserialize<UsingListArgs>(data);
 
@@ -91,6 +147,9 @@ public class PropertyValueTests
         Assert.Equal(elements, args.First);
         Assert.Equal(elements, args.Second.ToArray());
         Assert.Equal(elements, args.Third.ToArray());
+        Assert.Equal(elements, args.FirstWithField);
+        Assert.Equal(elements, args.SecondWithField.ToArray());
+        Assert.Equal(elements, args.ThirdWithField.ToArray());
     }
 
     class StringFromNullBecomesEmpty : ResourceArgs
@@ -111,6 +170,23 @@ public class PropertyValueTests
     {
         public Dictionary<string, string> First { get; set; } = default!;
         public ImmutableDictionary<string, string> Second { get; set; } = default!;
+
+        [Input("firstWithField")]
+        private Dictionary<string, string>? _firstWithField;
+
+        public Dictionary<string, string> FirstWithField
+        {
+            get => _firstWithField ??= new Dictionary<string, string>();
+            set => _firstWithField = value;
+        }
+
+        [Input("secondWithField")]
+        private ImmutableDictionary<string, string>? _secondWithField;
+        public ImmutableDictionary<string, string> SecondWithField
+        {
+            get => _secondWithField ??= ImmutableDictionary.Create<string, string>();
+            set => _secondWithField = value;
+        }
     }
 
     [Fact]
@@ -120,7 +196,9 @@ public class PropertyValueTests
         var simpleDictionary = Object(Pair("Uno", new PropertyValue("One")));
         var data = Object(
             Pair("First", simpleDictionary),
-            Pair("Second", simpleDictionary));
+            Pair("Second", simpleDictionary),
+            Pair("firstWithField", simpleDictionary),
+            Pair("secondWithField", simpleDictionary));
 
         var args = await serializer.Deserialize<UsingDictionaryArgs>(data);
 
@@ -131,11 +209,15 @@ public class PropertyValueTests
 
         Assert.Equal(expected, args.First);
         Assert.Equal(expected, args.Second.ToDictionary(x => x.Key, y => y.Value));
+        Assert.Equal(expected, args.FirstWithField);
+        Assert.Equal(expected, args.SecondWithField.ToDictionary(x => x.Key, y => y.Value));
 
         var emptyObject = Object();
         var emptyArgs = await serializer.Deserialize<UsingDictionaryArgs>(emptyObject);
         Assert.Null(emptyArgs.First);
         Assert.Null(emptyArgs.Second);
+        Assert.Empty(emptyArgs.FirstWithField);
+        Assert.Empty(emptyArgs.SecondWithField);
     }
 
     class UsingInputArgs : ResourceArgs
@@ -143,6 +225,24 @@ public class PropertyValueTests
         public Input<string> Name { get; set; } = default!;
         public InputList<string> Subnets { get; set; } = default!;
         public InputMap<string> Tags { get; set; } = default!;
+
+        [Input("subnetsWithField", required: true)]
+        private InputList<string>? _subnetsWithField;
+
+        public InputList<string> SubnetsWithField
+        {
+            get => _subnetsWithField ??= new InputList<string>();
+            set => _subnetsWithField = value;
+        }
+
+        [Input("tagsWithField", required: true)]
+        private InputMap<string>? _tagsWithField;
+
+        public InputMap<string> TagsWithField
+        {
+            get => _tagsWithField ??= new InputMap<string>();
+            set => _tagsWithField = value;
+        }
     }
 
     [Fact]
@@ -156,6 +256,14 @@ public class PropertyValueTests
                 new PropertyValue("two"),
                 new PropertyValue("three"))),
             Pair("Tags", Object(
+                Pair("one", new PropertyValue("one")),
+                Pair("two", new PropertyValue("two")),
+                Pair("three", new PropertyValue("three")))),
+            Pair("subnetsWithField", Array(
+                new PropertyValue("one"),
+                new PropertyValue("two"),
+                new PropertyValue("three"))),
+            Pair("tagsWithField", Object(
                 Pair("one", new PropertyValue("one")),
                 Pair("two", new PropertyValue("two")),
                 Pair("three", new PropertyValue("three"))))
@@ -176,6 +284,17 @@ public class PropertyValueTests
             ["two"] = "two",
             ["three"] = "three"
         }, tags);
+
+        var subnetsWithField = await args.SubnetsWithField.ToOutput().GetValueAsync(ImmutableArray<string>.Empty);
+        Assert.Equal(new[] { "one", "two", "three" }, subnetsWithField.ToArray());
+
+        var tagsWithField = await args.TagsWithField.ToOutput().GetValueAsync(ImmutableDictionary<string, string>.Empty);
+        Assert.Equal(new Dictionary<string, string>
+        {
+            ["one"] = "one",
+            ["two"] = "two",
+            ["three"] = "three"
+        }, tagsWithField);
     }
 
     class RequireIntArgs : ResourceArgs

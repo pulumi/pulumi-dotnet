@@ -50,6 +50,9 @@ namespace Pulumi
         public async Task<CallResponse> CallAsync(ResourceCallRequest request)
             => await this._client.CallAsync(request);
 
+        public async Task<RegisterPackageResponse> RegisterPackageAsync(Pulumirpc.RegisterPackageRequest request)
+            => await this._client.RegisterPackageAsync(request);
+
         public async Task<ReadResourceResponse> ReadResourceAsync(Resource resource, ReadResourceRequest request)
             => await this._client.ReadResourceAsync(request);
 

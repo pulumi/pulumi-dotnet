@@ -47,8 +47,12 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        public Output<T> Invoke<T>(string token, InvokeArgs args, InvokeOptions? options = null)
-            => _deployment.Invoke<T>(token, args, options);
+        public Output<T> Invoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            => _deployment.Invoke<T>(token, args, options, registerPackageRequest);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -63,8 +67,12 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        public Output<T> InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options = null)
-            => _deployment.InvokeSingle<T>(token, args, options);
+        public Output<T> InvokeSingle<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            => _deployment.InvokeSingle<T>(token, args, options, registerPackageRequest);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -76,8 +84,12 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        public Task<T> InvokeAsync<T>(string token, InvokeArgs args, InvokeOptions? options = null)
-            => _deployment.InvokeAsync<T>(token, args, options);
+        public Task<T> InvokeAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            => _deployment.InvokeAsync<T>(token, args, options, registerPackageRequest);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -89,15 +101,19 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        public Task<T> InvokeSingleAsync<T>(string token, InvokeArgs args, InvokeOptions? options = null)
-            => _deployment.InvokeSingleAsync<T>(token, args, options);
+        public Task<T> InvokeSingleAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            => _deployment.InvokeSingleAsync<T>(token, args, options, registerPackageRequest);
 
         /// <summary>
-        /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions)"/>, however the
+        /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
         /// return value is ignored.
         /// </summary>
-        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null)
-            => _deployment.InvokeAsync(token, args, options);
+        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null, RegisterPackageRequest? registerPackageRequest = null)
+            => _deployment.InvokeAsync(token, args, options, registerPackageRequest);
 
         /// <summary>
         /// Dynamically calls the function '<paramref name="token"/>', which is offered by a
@@ -109,14 +125,24 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        public Output<T> Call<T>(string token, CallArgs args, Resource? self = null, CallOptions? options = null)
-            => _deployment.Call<T>(token, args, self, options);
+        public Output<T> Call<T>(
+            string token,
+            CallArgs args,
+            Resource? self = null,
+            CallOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            => _deployment.Call<T>(token, args, self, options, registerPackageRequest);
 
         /// <summary>
         /// Same as <see cref="Call{T}"/>, however the return value is ignored.
         /// </summary>
-        public void Call(string token, CallArgs args, Resource? self = null, CallOptions? options = null)
-            => _deployment.Call(token, args, self, options);
+        public void Call(
+            string token,
+            CallArgs args,
+            Resource? self = null,
+            CallOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            => _deployment.Call(token, args, self, options, registerPackageRequest);
 
         internal IDeploymentInternal Internal => (IDeploymentInternal)_deployment;
     }

@@ -10,7 +10,7 @@ namespace Pulumi
     public partial class Deployment
     {
         private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> ReadResourceAsync(
-            Resource resource, string id, ResourceArgs args, ResourceOptions options)
+            Resource resource, string id, ResourceArgs args, ResourceOptions options, RegisterPackageRequest? registerPackageRequest = null)
         {
             var name = resource.GetResourceName();
             var type = resource.GetResourceType();
@@ -18,7 +18,7 @@ namespace Pulumi
             Log.Debug($"Reading resource: id={id}, t=${type}, name=${name}");
 
             var prepareResult = await this.PrepareResourceAsync(
-                label, resource, custom: true, remote: false, args, options).ConfigureAwait(false);
+                label, resource, custom: true, remote: false, args, options, registerPackageRequest).ConfigureAwait(false);
 
             Log.Debug($"ReadResource RPC prepared: id={id}, t={type}, name={name}" +
                 (_excessiveDebugOutput ? $", obj={prepareResult.SerializedProps}" : ""));
@@ -36,6 +36,11 @@ namespace Pulumi
                 AcceptSecrets = true,
                 AcceptResources = !_disableResourceReferences,
             };
+
+            if (prepareResult.PackageRef != null)
+            {
+                request.PackageRef = prepareResult.PackageRef;
+            }
 
             request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
 

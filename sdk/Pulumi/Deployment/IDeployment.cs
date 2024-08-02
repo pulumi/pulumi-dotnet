@@ -36,7 +36,11 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Task<T> InvokeAsync<T>(string token, InvokeArgs args, InvokeOptions? options = null);
+        Task<T> InvokeAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -48,7 +52,11 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Task<T> InvokeSingleAsync<T>(string token, InvokeArgs args, InvokeOptions? options = null);
+        Task<T> InvokeSingleAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -60,7 +68,11 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Output<T> Invoke<T>(string token, InvokeArgs args, InvokeOptions? options = null);
+        Output<T> Invoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -72,13 +84,21 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Output<T> InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options = null);
+        Output<T> InvokeSingle<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null);
 
         /// <summary>
         /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions)"/>, however the
         /// return value is ignored.
         /// </summary>
-        Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null);
+        Task InvokeAsync(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null);
 
         /// <summary>
         /// Dynamically calls the function '<paramref name="token"/>', which is offered by a
@@ -91,11 +111,21 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Output<T> Call<T>(string token, CallArgs args, Resource? self = null, CallOptions? options = null);
+        Output<T> Call<T>(
+            string token,
+            CallArgs args,
+            Resource? self = null,
+            CallOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null);
 
         /// <summary>
         /// Same as <see cref="Call{T}"/>, however the return value is ignored.
         /// </summary>
-        void Call(string token, CallArgs args, Resource? self = null, CallOptions? options = null);
+        void Call(
+            string token,
+            CallArgs args,
+            Resource? self = null,
+            CallOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null);
     }
 }

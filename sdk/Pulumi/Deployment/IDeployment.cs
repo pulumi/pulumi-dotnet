@@ -91,7 +91,7 @@ namespace Pulumi
             RegisterPackageRequest? registerPackageRequest = null);
 
         /// <summary>
-        /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions)"/>, however the
+        /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
         /// return value is ignored.
         /// </summary>
         Task InvokeAsync(

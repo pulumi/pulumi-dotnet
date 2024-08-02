@@ -722,7 +722,7 @@ namespace Pulumi.Tests.Core
 
                 Deployment.Instance = new DeploymentInstance(mock.Object);
 
-                var resource = new CustomResource("type", "name", null);
+                var resource = new CustomResource("type", "name", ResourceArgs.Empty, new CustomResourceOptions());
 
                 var o1 = CreateOutput(new Output<int>[] {
                     CreateOutput(new Resource[] { resource}, 0, true, true),
@@ -812,7 +812,7 @@ namespace Pulumi.Tests.Core
 
                 Deployment.Instance = new DeploymentInstance(mock.Object);
 
-                var resource = new CustomResource("type", "name", null);
+                var resource = new CustomResource("type", "name", ResourceArgs.Empty, new CustomResourceOptions());
 
                 var o1 = CreateOutput(new Resource[] { resource }, "[0,1]", true, true);
                 var o2 = Output.JsonDeserialize<Output<int>[]>(o1);

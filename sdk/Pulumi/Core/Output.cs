@@ -496,7 +496,7 @@ namespace Pulumi
         /// name="func"/>. The result remains an <see cref="Output{T}"/> so that dependent resources
         /// can be properly tracked.
         /// <para/>
-        /// <paramref name="func"/> is not allowed to make resources.
+        /// <paramref name="func"/> should not be used to create resources unless necessary. Creating resources within 'func' can cause unknown behaviour.
         /// <para/>
         /// <paramref name="func"/> can return other <see cref="Output{T}"/>s.  This can be handy if
         /// you have an <c>Output&lt;SomeType&gt;</c> and you want to get a transitive dependency of

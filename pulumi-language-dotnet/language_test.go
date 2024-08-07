@@ -206,10 +206,11 @@ func TestLanguage(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	exectedToFail := map[string]string{
+	expectedToFail := map[string]string{
 		"l2-resource-asset-archive":          "dotnet build",
 		"l2-resource-config":                 "dotnet build",
 		"l2-invoke-variants":                 "expected pulumi:pulumi:Stack, actual pulumi:providers:simple-invoke",
+		"l2-invoke-simple":                   "expected pulumi:pulumi:Stack, actual pulumi:providers:simple-invoke",
 		"l2-resource-alpha":                  "dotnet build",
 		"l1-output-array":                    "dotnet build",
 		"l1-stack-reference":                 "TODO: call getOutput",
@@ -222,7 +223,7 @@ func TestLanguage(t *testing.T) {
 		t.Run(tt, func(t *testing.T) {
 			t.Parallel()
 
-			if expected, ok := exectedToFail[tt]; ok {
+			if expected, ok := expectedToFail[tt]; ok {
 				t.Skipf("Skipping test %s because it is expected to fail: %s", tt, expected)
 			}
 

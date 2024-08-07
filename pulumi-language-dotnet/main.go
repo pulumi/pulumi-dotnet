@@ -934,8 +934,23 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 		return nil, fmt.Errorf("failed to pack: %w", err)
 	}
 
+	var nugetFilePath string
+	err = filepath.Walk(destination, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Ext(path) == ".nupkg" {
+			nugetFilePath = path
+		}
+		return nil
+	})
+
+	if err != nil || nugetFilePath == "" {
+		return nil, fmt.Errorf("couldn't find packed nuget: %w", err)
+	}
+
 	return &pulumirpc.PackResponse{
-		ArtifactPath: destination,
+		ArtifactPath: nugetFilePath,
 	}, nil
 }
 

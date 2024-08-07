@@ -31,7 +31,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RestoreSources>/var/folders/nd/6xpr3lvd0fq_m70v9c6m0lw40000gn/T/TestLanguage2354130582/002/artifacts;$(RestoreSources)</RestoreSources>
+    <RestoreSources>/var/folders/nd/6xpr3lvd0fq_m70v9c6m0lw40000gn/T/TestLanguage3593525656/002/artifacts/Pulumi;$(RestoreSources)</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>

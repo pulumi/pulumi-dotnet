@@ -6,11 +6,11 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<PropertyGroup>
-		<RestoreSources>/var/folders/nd/6xpr3lvd0fq_m70v9c6m0lw40000gn/T/TestLanguage2354130582/002/artifacts;$(RestoreSources)</RestoreSources>
+		<RestoreSources>/var/folders/nd/6xpr3lvd0fq_m70v9c6m0lw40000gn/T/TestLanguage634242161/002/artifacts/Pulumi.Large;/var/folders/nd/6xpr3lvd0fq_m70v9c6m0lw40000gn/T/TestLanguage634242161/002/artifacts/Pulumi;$(RestoreSources)</RestoreSources>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Pulumi" Version="1.0.0" />
 		<PackageReference Include="Pulumi.Large" Version="4.3.2" />
+		<PackageReference Include="Pulumi" Version="1.0.0" />
 	</ItemGroup>
 
 </Project>

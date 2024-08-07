@@ -928,7 +928,6 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	cmd := exec.Command(host.exec, "pack", "-c", "Release", "-o", destination)
 	cmd.Dir = req.PackageDirectory
-	cmd.Env = os.Environ()
 
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("failed to pack: %w", err)

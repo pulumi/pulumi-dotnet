@@ -124,7 +124,7 @@ namespace Pulumi
         /// <param name="options">A bag of options that control this resource's behavior.</param>
         /// <param name="remote">True if this is a remote component resource.</param>
         /// <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
-        /// <param name="registerPackageRequest">Options for package parameterization</param>
+        /// <param name="registerPackageRequest">Options for package parameterization.</param>
         private protected Resource(
             string type, string name, bool custom,
             ResourceArgs args, ResourceOptions options,

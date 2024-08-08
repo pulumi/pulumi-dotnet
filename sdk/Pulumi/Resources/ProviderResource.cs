@@ -23,7 +23,7 @@ namespace Pulumi
         /// <param name="name">The unique name of the provider.</param>
         /// <param name="args">The configuration to use for this provider.</param>
         /// <param name="options">A bag of options that control this provider's behavior.</param>
-        /// <param name="registerPackageRequest">Options for package parameterization</param>
+        /// <param name="registerPackageRequest">Options for package parameterization.</param>
         public ProviderResource(
             string package,
             string name,

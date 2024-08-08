@@ -17,7 +17,8 @@ namespace Pulumi
 
         void ReadOrRegisterResource(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
-            ResourceOptions opts);
+            ResourceOptions opts,
+            RegisterPackageRequest? registerPackageRequest = null);
         void RegisterResourceOutputs(Resource resource, Output<IDictionary<string, object?>> outputs);
     }
 }

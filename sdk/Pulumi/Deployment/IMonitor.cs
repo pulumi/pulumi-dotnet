@@ -13,6 +13,8 @@ namespace Pulumi
 
         Task<CallResponse> CallAsync(ResourceCallRequest request);
 
+        Task<RegisterPackageResponse> RegisterPackageAsync(Pulumirpc.RegisterPackageRequest request);
+
         Task<ReadResourceResponse> ReadResourceAsync(Resource resource, ReadResourceRequest request);
 
         Task<RegisterResourceResponse> RegisterResourceAsync(Resource resource, RegisterResourceRequest request);

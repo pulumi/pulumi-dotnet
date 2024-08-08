@@ -124,10 +124,11 @@ namespace Pulumi
         /// <param name="options">A bag of options that control this resource's behavior.</param>
         /// <param name="remote">True if this is a remote component resource.</param>
         /// <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
+        /// <param name="registerPackageRequest">Options for package parameterization.</param>
         private protected Resource(
             string type, string name, bool custom,
             ResourceArgs args, ResourceOptions options,
-            bool remote = false, bool dependency = false)
+            bool remote = false, bool dependency = false, RegisterPackageRequest? registerPackageRequest = null)
         {
             if (dependency)
             {
@@ -271,7 +272,13 @@ namespace Pulumi
             }
 
             this._aliases = aliases.ToImmutableArray();
-            Deployment.InternalInstance.ReadOrRegisterResource(this, remote, urn => new DependencyResource(urn), args, options);
+            Deployment.InternalInstance.ReadOrRegisterResource(
+                resource: this,
+                remote: remote,
+                newDependency: urn => new DependencyResource(urn),
+                args: args,
+                opts: options,
+                registerPackageRequest: registerPackageRequest);
         }
 
         /// <summary>

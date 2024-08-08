@@ -13,7 +13,8 @@ namespace Pulumi
     {
         private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> RegisterResourceAsync(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
-            ResourceOptions options)
+            ResourceOptions options,
+            RegisterPackageRequest? registerPackageRequest = null)
         {
             var name = resource.GetResourceName();
             var type = resource.GetResourceType();
@@ -30,7 +31,7 @@ namespace Pulumi
             var request = await CreateRegisterResourceRequest(type, name, custom, remote, options);
 
             Log.Debug($"Preparing resource: t={type}, name={name}, custom={custom}, remote={remote}");
-            var prepareResult = await PrepareResourceAsync(label, resource, custom, remote, args, options).ConfigureAwait(false);
+            var prepareResult = await PrepareResourceAsync(label, resource, custom, remote, args, options, registerPackageRequest).ConfigureAwait(false);
             Log.Debug($"Prepared resource: t={type}, name={name}, custom={custom}, remote={remote}");
 
             PopulateRequest(request, prepareResult);
@@ -59,6 +60,10 @@ namespace Pulumi
             request.Parent = prepareResult.ParentUrn;
             request.Provider = prepareResult.ProviderRef;
             request.Providers.Add(prepareResult.ProviderRefs);
+            if (prepareResult.PackageRef != null)
+            {
+                request.PackageRef = prepareResult.PackageRef;
+            }
             if (prepareResult.SupportsAliasSpec)
             {
                 request.Aliases.AddRange(prepareResult.Aliases);

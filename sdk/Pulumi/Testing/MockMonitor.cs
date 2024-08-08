@@ -77,6 +77,14 @@ namespace Pulumi.Testing
             return new CallResponse { Return = await SerializeAsync(result).ConfigureAwait(false) };
         }
 
+        public Task<RegisterPackageResponse> RegisterPackageAsync(Pulumirpc.RegisterPackageRequest request)
+        {
+            return Task.FromResult(new RegisterPackageResponse
+            {
+                Ref = $"{request.Name}-{request.Version}"
+            });
+        }
+
         public async Task<ReadResourceResponse> ReadResourceAsync(Resource resource, ReadResourceRequest request)
         {
             var (id, state) = await _mocks.NewResourceAsync(new MockResourceArgs

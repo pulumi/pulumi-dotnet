@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Support package parameterization for Read/RegisterResource/Call/Invoke
+time: 2024-08-02T14:34:44.919745+02:00
+custom:
+    PR: "311"

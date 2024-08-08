@@ -1,21 +1,28 @@
 // Copyright 2016-2021, Pulumi Corporation
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Pulumi.Serialization;
+using Pulumirpc;
 
 namespace Pulumi
 {
     public partial class Deployment
     {
+        private readonly ConcurrentDictionary<string, Lazy<Task<string?>>> _registeredPackages = new();
+
         private async Task<PrepareResult> PrepareResourceAsync(
             string label, Resource res, bool custom, bool remote,
-            ResourceArgs args, ResourceOptions options)
+            ResourceArgs args,
+            ResourceOptions options,
+            RegisterPackageRequest? registerPackageRequest = null)
         {
             // Before we can proceed, all our dependencies must be finished.
             var type = res.GetResourceType();
@@ -138,6 +145,12 @@ namespace Pulumi
                 }
             }
 
+            string? packageRef = null;
+            if (registerPackageRequest != null)
+            {
+                packageRef = await ResolvePackageRef(registerPackageRequest).ConfigureAwait(false);
+            }
+
             return new PrepareResult(
                 serializedProps,
                 parentUrn ?? "",
@@ -147,13 +160,41 @@ namespace Pulumi
                 propertyToDirectDependencyUrns,
                 aliases,
                 resourceMonitorSupportsAliasSpecs,
-                transforms);
+                transforms,
+                packageRef);
 
             void LogExcessive(string message)
             {
                 if (_excessiveDebugOutput)
                     Log.Debug(message);
             }
+        }
+
+        private static Pulumirpc.RegisterPackageRequest CreateRegisterPackageRequest(RegisterPackageRequest request)
+        {
+            var registerPackageRequest = new Pulumirpc.RegisterPackageRequest
+            {
+                Name = request.Name,
+                Version = request.Version,
+                DownloadUrl = request.DownloadUrl,
+            };
+
+            foreach (var pair in request.Checksums)
+            {
+                registerPackageRequest.Checksums.Add(pair.Key, ByteString.CopyFrom(pair.Value));
+            }
+
+            if (request.Parameterization != null)
+            {
+                registerPackageRequest.Parameterization = new Pulumirpc.Parameterization
+                {
+                    Name = request.Parameterization.Name,
+                    Version = request.Parameterization.Version,
+                    Value = ByteString.CopyFrom(request.Parameterization.Value),
+                };
+            }
+
+            return registerPackageRequest;
         }
 
         private static async Task<Pulumirpc.Callback> AllocateTransform(Callbacks callbacks, ResourceTransform transform)
@@ -285,6 +326,41 @@ namespace Pulumi
             return input == null
                 ? whenUnknown
                 : await input.ToOutput().GetValueAsync(whenUnknown).ConfigureAwait(false);
+        }
+
+        private async Task<string?> ResolvePackageRef(RegisterPackageRequest registerPackageRequest)
+        {
+            var key = $"{registerPackageRequest.Name}-{registerPackageRequest.Version}";
+            if (_registeredPackages.TryGetValue(key, out var packagResolver))
+            {
+                return await packagResolver.Value;
+            }
+
+            async Task<string?> CreateResolver()
+            {
+                try
+                {
+                    var request = CreateRegisterPackageRequest(registerPackageRequest);
+                    var response = await this.Monitor.RegisterPackageAsync(request).ConfigureAwait(false);
+                    return response.Ref;
+                }
+                catch
+                {
+                    if (registerPackageRequest.Parameterization != null)
+                    {
+                        throw;
+                    }
+
+                    return null;
+                }
+            }
+
+            var resolver = _registeredPackages.AddOrUpdate(
+                key,
+                _ => new Lazy<Task<string?>>(CreateResolver),
+                (_, _) => new Lazy<Task<string?>>(CreateResolver));
+
+            return await resolver.Value;
         }
 
         private static async Task<List<Pulumirpc.Alias>> PrepareAliases(
@@ -533,6 +609,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
             public readonly Dictionary<string, HashSet<string>> PropertyToDirectDependencyUrns;
             public readonly List<Pulumirpc.Alias> Aliases;
             public readonly List<Pulumirpc.Callback> Transforms;
+            public readonly string? PackageRef;
             /// <summary>
             /// Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
             /// When that is not the case, use only use the URNs of the aliases to populate the AliasURNs field of RegisterResourceRequest,
@@ -550,7 +627,8 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 HashSet<string>> propertyToDirectDependencyUrns,
                 List<Pulumirpc.Alias> aliases,
                 bool supportsAliasSpec,
-                List<Pulumirpc.Callback> transforms)
+                List<Pulumirpc.Callback> transforms,
+                string? packageRef = null)
             {
                 SerializedProps = serializedProps;
                 ParentUrn = parentUrn;
@@ -561,6 +639,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 SupportsAliasSpec = supportsAliasSpec;
                 Aliases = aliases;
                 Transforms = transforms;
+                PackageRef = packageRef;
             }
         }
     }

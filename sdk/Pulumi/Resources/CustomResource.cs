@@ -34,9 +34,40 @@ namespace Pulumi
         /// <param name="name">The unique name of the resource.</param>
         /// <param name="args">The arguments to use to populate the new resource.</param>
         /// <param name="options">A bag of options that control this resource's behavior.</param>
+        /// <param name="registerPackageRequest">Package parameterization options</param>
 #pragma warning disable RS0022 // Constructor make noninheritable base class inheritable
-        public CustomResource(string type, string name, ResourceArgs? args, CustomResourceOptions? options = null)
-            : this(type, name, args, options, dependency: false)
+        public CustomResource(
+            string type,
+            string name,
+            ResourceArgs? args,
+            CustomResourceOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            : this(type, name, args, options, dependency: false, registerPackageRequest)
+#pragma warning restore RS0022 // Constructor make noninheritable base class inheritable
+        {
+        }
+
+        /// <summary>
+        /// Creates and registers a new managed resource.  <paramref name="type"/> is the fully
+        /// qualified type token and <paramref name="name"/> is the "name" part to use in creating a
+        /// stable and globally unique URN for the object.  <see cref="ResourceOptions.DependsOn"/>
+        /// is an optional list of other resources that this resource depends on, controlling the
+        /// order in which we perform resource operations.  Creating an instance does not necessarily
+        /// perform a create on the physical entity which it represents, and instead, this is
+        /// dependent upon the diffing of the new goal state compared to the current known resource
+        /// state.
+        /// </summary>
+        /// <param name="type">The type of the resource.</param>
+        /// <param name="name">The unique name of the resource.</param>
+        /// <param name="args">The arguments to use to populate the new resource.</param>
+        /// <param name="options">A bag of options that control this resource's behavior.</param>
+#pragma warning disable RS0022 // Constructor make noninheritable base class inheritable
+        public CustomResource(
+            string type,
+            string name,
+            ResourceArgs? args,
+            CustomResourceOptions? options = null)
+            : this(type, name, args, options, dependency: false, null)
 #pragma warning restore RS0022 // Constructor make noninheritable base class inheritable
         {
         }
@@ -56,10 +87,16 @@ namespace Pulumi
         /// <param name="args">The arguments to use to populate the new resource.</param>
         /// <param name="options">A bag of options that control this resource's behavior.</param>
         /// <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
+        /// <param name="registerPackageRequest">Package parameterization options</param>
         private protected CustomResource(
-            string type, string name, ResourceArgs? args, CustomResourceOptions? options = null, bool dependency = false)
+            string type,
+            string name,
+            ResourceArgs? args,
+            CustomResourceOptions? options = null,
+            bool dependency = false,
+            RegisterPackageRequest? registerPackageRequest = null)
             : base(type, name, custom: true, args ?? ResourceArgs.Empty, options ?? new CustomResourceOptions(),
-                   remote: false, dependency: dependency)
+                   remote: false, dependency: dependency, registerPackageRequest)
         {
         }
     }

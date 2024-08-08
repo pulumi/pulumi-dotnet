@@ -712,11 +712,17 @@ namespace Pulumi.Tests.Core
                 mock.Setup(d => d.Stack).Returns(() => null!);
                 mock.Setup(d => d.Runner).Returns(runner.Object);
                 mock.Setup(d => d.Logger).Returns(logger.Object);
-                mock.Setup(d => d.ReadOrRegisterResource(Moq.It.IsAny<Resource>(), Moq.It.IsAny<bool>(), Moq.It.IsAny<System.Func<string, Resource>>(), Moq.It.IsAny<ResourceArgs>(), Moq.It.IsAny<ResourceOptions>()));
+                mock.Setup(d => d.ReadOrRegisterResource(
+                   Moq.It.IsAny<Resource>(),
+                   Moq.It.IsAny<bool>(),
+                   Moq.It.IsAny<System.Func<string, Resource>>(),
+                   Moq.It.IsAny<ResourceArgs>(),
+                   Moq.It.IsAny<ResourceOptions>(),
+                   Moq.It.IsAny<RegisterPackageRequest?>()));
 
                 Deployment.Instance = new DeploymentInstance(mock.Object);
 
-                var resource = new CustomResource("type", "name", null);
+                var resource = new CustomResource("type", "name", ResourceArgs.Empty, new CustomResourceOptions());
 
                 var o1 = CreateOutput(new Output<int>[] {
                     CreateOutput(new Resource[] { resource}, 0, true, true),
@@ -796,11 +802,17 @@ namespace Pulumi.Tests.Core
                 mock.Setup(d => d.Stack).Returns(() => null!);
                 mock.Setup(d => d.Runner).Returns(runner.Object);
                 mock.Setup(d => d.Logger).Returns(logger.Object);
-                mock.Setup(d => d.ReadOrRegisterResource(Moq.It.IsAny<Resource>(), Moq.It.IsAny<bool>(), Moq.It.IsAny<System.Func<string, Resource>>(), Moq.It.IsAny<ResourceArgs>(), Moq.It.IsAny<ResourceOptions>()));
+                mock.Setup(d => d.ReadOrRegisterResource(
+                    Moq.It.IsAny<Resource>(),
+                    Moq.It.IsAny<bool>(),
+                    Moq.It.IsAny<System.Func<string, Resource>>(),
+                    Moq.It.IsAny<ResourceArgs>(),
+                    Moq.It.IsAny<ResourceOptions>(),
+                    Moq.It.IsAny<RegisterPackageRequest?>()));
 
                 Deployment.Instance = new DeploymentInstance(mock.Object);
 
-                var resource = new CustomResource("type", "name", null);
+                var resource = new CustomResource("type", "name", ResourceArgs.Empty, new CustomResourceOptions());
 
                 var o1 = CreateOutput(new Resource[] { resource }, "[0,1]", true, true);
                 var o2 = Output.JsonDeserialize<Output<int>[]>(o1);

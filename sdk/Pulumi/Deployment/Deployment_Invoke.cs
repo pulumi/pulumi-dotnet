@@ -13,28 +13,44 @@ namespace Pulumi
 {
     public sealed partial class Deployment
     {
-        Task IDeployment.InvokeAsync(string token, InvokeArgs args, InvokeOptions? options)
+        Task IDeployment.InvokeAsync(string token, InvokeArgs args, InvokeOptions? options, RegisterPackageRequest? registerPackageRequest)
             => InvokeAsync<object>(token, args, options, convertResult: false);
 
-        Task<T> IDeployment.InvokeAsync<T>(string token, InvokeArgs args, InvokeOptions? options)
+        Task<T> IDeployment.InvokeAsync<T>(string token, InvokeArgs args, InvokeOptions? options, RegisterPackageRequest? registerPackageRequest)
             => InvokeAsync<T>(token, args, options, convertResult: true);
 
-        async Task<T> IDeployment.InvokeSingleAsync<T>(string token, InvokeArgs args, InvokeOptions? options)
+        async Task<T> IDeployment.InvokeSingleAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
         {
-            var outputs = await InvokeAsync<Dictionary<string, T>>(token, args, options, convertResult: true);
+            var outputs = await InvokeAsync<Dictionary<string, T>>(token, args, options, convertResult: true, registerPackageRequest);
             return outputs.Values.First();
         }
 
-        Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOptions? options)
-            => new Output<T>(RawInvoke<T>(token, args, options));
+        Output<T> IDeployment.Invoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
+            => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest));
 
-        Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options)
+        Output<T> IDeployment.InvokeSingle<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
         {
-            var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options));
+            var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest));
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 
-        private async Task<OutputData<T>> RawInvoke<T>(string token, InvokeArgs args, InvokeOptions? options)
+        private async Task<OutputData<T>> RawInvoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest = null)
         {
             // This method backs all `Fn.Invoke()` calls that generate
             // `Output<T>` and may include `Input<T>` values in the
@@ -83,7 +99,7 @@ namespace Pulumi
             }
 
             var protoArgs = serializedArgs.ToSerializationResult();
-            var result = await InvokeRawAsync(token, protoArgs, options).ConfigureAwait(false);
+            var result = await InvokeRawAsync(token, protoArgs, options, registerPackageRequest).ConfigureAwait(false);
             var data = Pulumi.Serialization.Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result",
                                                  new Value { StructValue = result.Serialized });
             var resources = ImmutableHashSet.CreateRange(
@@ -96,9 +112,13 @@ namespace Pulumi
         }
 
         private async Task<T> InvokeAsync<T>(
-            string token, InvokeArgs args, InvokeOptions? options, bool convertResult)
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            bool convertResult,
+            RegisterPackageRequest? registerPackageRequest = null)
         {
-            var result = await InvokeRawAsync(token, args, options).ConfigureAwait(false);
+            var result = await InvokeRawAsync(token, args, options, registerPackageRequest).ConfigureAwait(false);
 
             if (!convertResult)
             {
@@ -109,8 +129,13 @@ namespace Pulumi
             return data.Value;
         }
 
-        private async Task<SerializationResult> InvokeRawAsync(string token, SerializationResult argsSerializationResult, InvokeOptions? options)
+        private async Task<SerializationResult> InvokeRawAsync(
+            string token,
+            SerializationResult argsSerializationResult,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest = null)
         {
+
             var serialized = argsSerializationResult.Serialized;
 
             Log.Debug($"Invoke RPC prepared: token={token}" +
@@ -118,7 +143,7 @@ namespace Pulumi
 
             var provider = await ProviderResource.RegisterAsync(GetProvider(token, options)).ConfigureAwait(false);
 
-            var result = await this.Monitor.InvokeAsync(new ResourceInvokeRequest
+            var invokeRequest = new ResourceInvokeRequest
             {
                 Tok = token,
                 Provider = provider ?? "",
@@ -126,7 +151,18 @@ namespace Pulumi
                 Args = serialized,
                 AcceptResources = !_disableResourceReferences,
                 PluginDownloadURL = options?.PluginDownloadURL ?? "",
-            }).ConfigureAwait(false);
+            };
+
+            if (registerPackageRequest != null)
+            {
+                var packageRef = await ResolvePackageRef(registerPackageRequest).ConfigureAwait(false);
+                if (packageRef != null)
+                {
+                    invokeRequest.PackageRef = packageRef;
+                }
+            }
+
+            var result = await this.Monitor.InvokeAsync(invokeRequest).ConfigureAwait(false);
 
             if (result.Failures.Count > 0)
             {
@@ -167,12 +203,16 @@ namespace Pulumi
             ).ConfigureAwait(false);
         }
 
-        private async Task<SerializationResult> InvokeRawAsync(string token, InvokeArgs args, InvokeOptions? options)
+        private async Task<SerializationResult> InvokeRawAsync(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest = null)
         {
             var keepResources = await this.MonitorSupportsResourceReferences().ConfigureAwait(false);
             var argsSerializationRawResult = await SerializeInvokeArgs(token, args, keepResources);
             var argsSerializationResult = argsSerializationRawResult.ToSerializationResult();
-            return await InvokeRawAsync(token, argsSerializationResult, options);
+            return await InvokeRawAsync(token, argsSerializationResult, options, registerPackageRequest);
         }
 
         private static ProviderResource? GetProvider(string token, InvokeOptions? options)

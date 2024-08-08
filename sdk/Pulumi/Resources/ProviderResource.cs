@@ -23,8 +23,14 @@ namespace Pulumi
         /// <param name="name">The unique name of the provider.</param>
         /// <param name="args">The configuration to use for this provider.</param>
         /// <param name="options">A bag of options that control this provider's behavior.</param>
-        public ProviderResource(string package, string name, ResourceArgs args, CustomResourceOptions? options = null)
-            : this(package, name, args, options, dependency: false)
+        /// <param name="registerPackageRequest">Options for package parameterization.</param>
+        public ProviderResource(
+            string package,
+            string name,
+            ResourceArgs args,
+            CustomResourceOptions? options = null,
+            RegisterPackageRequest? registerPackageRequest = null)
+            : this(package, name, args, options, dependency: false, registerPackageRequest)
         {
         }
 
@@ -36,9 +42,10 @@ namespace Pulumi
         /// <param name="args">The configuration to use for this provider.</param>
         /// <param name="options">A bag of options that control this provider's behavior.</param>
         /// <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
+        /// <param name="registerPackageRequest">Options for package parameterization.</param>
         private protected ProviderResource(
             string package, string name,
-            ResourceArgs args, CustomResourceOptions? options = null, bool dependency = false)
+            ResourceArgs args, CustomResourceOptions? options = null, bool dependency = false, RegisterPackageRequest? registerPackageRequest = null)
             : base($"pulumi:providers:{package}", name, args, options, dependency)
         {
             this.Package = package;

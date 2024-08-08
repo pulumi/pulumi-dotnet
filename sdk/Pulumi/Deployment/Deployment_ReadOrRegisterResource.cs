@@ -12,7 +12,7 @@ namespace Pulumi
     {
         void IDeploymentInternal.ReadOrRegisterResource(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
-            ResourceOptions options)
+            ResourceOptions options, RegisterPackageRequest? registerPackageRequest)
         {
             // ReadOrRegisterResource is called in a fire-and-forget manner.  Make sure we keep
             // track of this task so that the application will not quit until this async work
@@ -24,12 +24,12 @@ namespace Pulumi
             // something that does happen and has to be accounted for.
             _runner.RegisterTask(
                 $"{nameof(IDeploymentInternal.ReadOrRegisterResource)}: {resource.GetResourceType()}-{resource.GetResourceName()}",
-                CompleteResourceAsync(resource, remote, newDependency, args, options, resource.CompletionSources));
+                CompleteResourceAsync(resource, remote, newDependency, args, options, resource.CompletionSources, registerPackageRequest));
         }
 
         private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> ReadOrRegisterResourceAsync(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
-            ResourceOptions options)
+            ResourceOptions options, RegisterPackageRequest? registerPackageRequest = null)
         {
             if (options.Urn != null)
             {
@@ -55,7 +55,7 @@ namespace Pulumi
                         throw new ArgumentException($"{nameof(ResourceOptions)}.{nameof(ResourceOptions.Id)} is only valid for a {nameof(CustomResource)}");
 
                     // If this resource already exists, read its state rather than registering it anew.
-                    return await ReadResourceAsync(resource, id, args, options).ConfigureAwait(false);
+                    return await ReadResourceAsync(resource, id, args, options, registerPackageRequest).ConfigureAwait(false);
                 }
             }
 
@@ -63,7 +63,7 @@ namespace Pulumi
             // resource's properties will be resolved asynchronously after the operation completes,
             // so that dependent computations resolve normally.  If we are just planning, on the
             // other hand, values will never resolve.
-            return await RegisterResourceAsync(resource, remote, newDependency, args, options).ConfigureAwait(false);
+            return await RegisterResourceAsync(resource, remote, newDependency, args, options, registerPackageRequest).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -73,7 +73,9 @@ namespace Pulumi
         /// </summary>
         private async Task CompleteResourceAsync(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
-            ResourceOptions options, ImmutableDictionary<string, IOutputCompletionSource> completionSources)
+            ResourceOptions options,
+            ImmutableDictionary<string, IOutputCompletionSource> completionSources,
+            RegisterPackageRequest? registerPackageRequest = null)
         {
             // Run in a try/catch/finally so that we always resolve all the outputs of the resource
             // regardless of whether we encounter an errors computing the action.
@@ -81,7 +83,7 @@ namespace Pulumi
             try
             {
                 var response = await ReadOrRegisterResourceAsync(
-                    resource, remote, newDependency, args, options).ConfigureAwait(false);
+                    resource, remote, newDependency, args, options, registerPackageRequest).ConfigureAwait(false);
 
                 completionSources[Constants.UrnPropertyName].SetStringValue(response.urn, isKnown: true);
                 if (resource is CustomResource)

@@ -3,7 +3,7 @@
 namespace Pulumi
 {
     /// <summary>
-    /// Options to help control the behavior of <see cref="IDeployment.InvokeAsync{T}(string, InvokeArgs, InvokeOptions)"/>.
+    /// Options to help control the behavior of <see cref="IDeployment.InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>.
     /// </summary>
     public class InvokeOptions
     {

@@ -912,7 +912,7 @@
         </member>
         <member name="T:Pulumi.CallOptions">
             <summary>
-            Options to help control the behavior of <see cref="M:Pulumi.Deployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,System.Boolean)"/>.
+            Options to help control the behavior of <see cref="M:Pulumi.Deployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,System.Boolean,Pulumi.RegisterPackageRequest)"/>.
             </summary>
         </member>
         <member name="P:Pulumi.CallOptions.Parent">
@@ -1107,9 +1107,9 @@
             otherwise we pass the full structure of the Aliases field to the resource monitor.
             </summary>
         </member>
-        <member name="M:Pulumi.Deployment.CompleteResourceAsync(Pulumi.Resource,System.Boolean,System.Func{System.String,Pulumi.Resource},Pulumi.ResourceArgs,Pulumi.ResourceOptions,System.Collections.Immutable.ImmutableDictionary{System.String,Pulumi.Serialization.IOutputCompletionSource})">
+        <member name="M:Pulumi.Deployment.CompleteResourceAsync(Pulumi.Resource,System.Boolean,System.Func{System.String,Pulumi.Resource},Pulumi.ResourceArgs,Pulumi.ResourceOptions,System.Collections.Immutable.ImmutableDictionary{System.String,Pulumi.Serialization.IOutputCompletionSource},Pulumi.RegisterPackageRequest)">
             <summary>
-            Calls <see cref="M:Pulumi.Deployment.ReadOrRegisterResourceAsync(Pulumi.Resource,System.Boolean,System.Func{System.String,Pulumi.Resource},Pulumi.ResourceArgs,Pulumi.ResourceOptions)"/> then completes all the
+            Calls <see cref="M:Pulumi.Deployment.ReadOrRegisterResourceAsync(Pulumi.Resource,System.Boolean,System.Func{System.String,Pulumi.Resource},Pulumi.ResourceArgs,Pulumi.ResourceOptions,Pulumi.RegisterPackageRequest)"/> then completes all the
             <see cref="T:Pulumi.Serialization.IOutputCompletionSource"/> sources on the <paramref name="resource"/> with
             the results of it.
             </summary>
@@ -1382,81 +1382,81 @@
             Whether or not the application is currently being previewed or actually applied.
             </summary>
         </member>
-        <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            The result of <see cref="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin.
             <para/>
-            Similar to the earlier <see cref="M:Pulumi.DeploymentInstance.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/>, but supports passing input values
+            Similar to the earlier <see cref="M:Pulumi.DeploymentInstance.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>, but supports passing input values
             and returns an Output value.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin.
             <para/>
-            Similar to the earlier <see cref="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/>, but supports passing input values
+            Similar to the earlier <see cref="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>, but supports passing input values
             and returns an Output value.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.DeploymentInstance.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.DeploymentInstance.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
+            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
             result value of the provider plugin.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
+            The result of <see cref="M:Pulumi.DeploymentInstance.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
             result value of the provider plugin which is expected to be a dictionary with single value.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.DeploymentInstance.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.DeploymentInstance.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
-            Same as <see cref="M:Pulumi.DeploymentInstance.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/>, however the
+            Same as <see cref="M:Pulumi.DeploymentInstance.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>, however the
             return value is ignored.
             </summary>
         </member>
-        <member name="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)">
+        <member name="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically calls the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)"/> will be a <see cref="T:Pulumi.Output`1"/> resolved to the
+            The result of <see cref="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output`1"/> resolved to the
             result value of the provider plugin.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.DeploymentInstance.Call(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)">
+        <member name="M:Pulumi.DeploymentInstance.Call(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)">
             <summary>
-            Same as <see cref="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)"/>, however the return value is ignored.
+            Same as <see cref="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/>, however the return value is ignored.
             </summary>
         </member>
         <member name="P:Pulumi.IDeployment.StackName">
@@ -1479,81 +1479,81 @@
             Whether or not the application is currently being previewed or actually applied.
             </summary>
         </member>
-        <member name="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.IDeployment.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
+            The result of <see cref="M:Pulumi.IDeployment.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
             result value of the provider plugin.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.IDeployment.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.IDeployment.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.IDeployment.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingleAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:System.Threading.Tasks.Task"/> resolved to the
             result value of the provider plugin that returns a bag of properties with a single value that is returned.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
-            The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin that returns a bag of properties with a single value that is returned.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.IDeployment.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+        <member name="M:Pulumi.IDeployment.InvokeAsync(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
-            Same as <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/>, however the
+            Same as <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>, however the
             return value is ignored.
             </summary>
         </member>
-        <member name="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)">
+        <member name="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically calls the function '<paramref name="token"/>', which is offered by a
-            provider plugin. <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)"/> returns immediately while the operation takes
+            provider plugin. <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/> returns immediately while the operation takes
             place asynchronously in the background, similar to Resource constructors.
             <para/>
-            The result of <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)"/> will be a <see cref="T:Pulumi.Output`1"/> resolved to the
+            The result of <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output`1"/> resolved to the
             result value of the provider plugin.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
-        <member name="M:Pulumi.IDeployment.Call(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)">
+        <member name="M:Pulumi.IDeployment.Call(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)">
             <summary>
-            Same as <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)"/>, however the return value is ignored.
+            Same as <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/>, however the return value is ignored.
             </summary>
         </member>
         <member name="T:Pulumi.InvokeOptions">
             <summary>
-            Options to help control the behavior of <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/>.
+            Options to help control the behavior of <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>.
             </summary>
         </member>
         <member name="P:Pulumi.InvokeOptions.Parent">
@@ -1767,6 +1767,23 @@
             deployments and may be missing (unknown) during planning phases.
             </summary>
         </member>
+        <member name="M:Pulumi.CustomResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions,Pulumi.RegisterPackageRequest)">
+            <summary>
+            Creates and registers a new managed resource.  <paramref name="type"/> is the fully
+            qualified type token and <paramref name="name"/> is the "name" part to use in creating a
+            stable and globally unique URN for the object.  <see cref="P:Pulumi.ResourceOptions.DependsOn"/>
+            is an optional list of other resources that this resource depends on, controlling the
+            order in which we perform resource operations.  Creating an instance does not necessarily
+            perform a create on the physical entity which it represents, and instead, this is
+            dependent upon the diffing of the new goal state compared to the current known resource
+            state.
+            </summary>
+            <param name="type">The type of the resource.</param>
+            <param name="name">The unique name of the resource.</param>
+            <param name="args">The arguments to use to populate the new resource.</param>
+            <param name="options">A bag of options that control this resource's behavior.</param>
+            <param name="registerPackageRequest">Package parameterization options</param>
+        </member>
         <member name="M:Pulumi.CustomResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions)">
             <summary>
             Creates and registers a new managed resource.  <paramref name="type"/> is the fully
@@ -1783,7 +1800,7 @@
             <param name="args">The arguments to use to populate the new resource.</param>
             <param name="options">A bag of options that control this resource's behavior.</param>
         </member>
-        <member name="M:Pulumi.CustomResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions,System.Boolean)">
+        <member name="M:Pulumi.CustomResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions,System.Boolean,Pulumi.RegisterPackageRequest)">
             <summary>
             Creates and registers a new managed resource.  <paramref name="type"/> is the fully
             qualified type token and <paramref name="name"/> is the "name" part to use in creating a
@@ -1799,6 +1816,7 @@
             <param name="args">The arguments to use to populate the new resource.</param>
             <param name="options">A bag of options that control this resource's behavior.</param>
             <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
+            <param name="registerPackageRequest">Package parameterization options</param>
         </member>
         <member name="T:Pulumi.CustomResourceOptions">
             <summary>
@@ -1964,7 +1982,7 @@
             including the usual diffing and update semantics.
             </summary>
         </member>
-        <member name="M:Pulumi.ProviderResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions)">
+        <member name="M:Pulumi.ProviderResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Creates and registers a new provider resource for a particular package.
             </summary>
@@ -1972,8 +1990,9 @@
             <param name="name">The unique name of the provider.</param>
             <param name="args">The configuration to use for this provider.</param>
             <param name="options">A bag of options that control this provider's behavior.</param>
+            <param name="registerPackageRequest">Options for package parameterization</param>
         </member>
-        <member name="M:Pulumi.ProviderResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions,System.Boolean)">
+        <member name="M:Pulumi.ProviderResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.CustomResourceOptions,System.Boolean,Pulumi.RegisterPackageRequest)">
             <summary>
             Creates and registers a new provider resource for a particular package.
             </summary>
@@ -1982,6 +2001,42 @@
             <param name="args">The configuration to use for this provider.</param>
             <param name="options">A bag of options that control this provider's behavior.</param>
             <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
+            <param name="registerPackageRequest">Options for package parameterization.</param>
+        </member>
+        <member name="F:Pulumi.RegisterPackageRequest.PackageParameterization.Name">
+            <summary>
+            The name of the parameterized package
+            </summary>
+        </member>
+        <member name="F:Pulumi.RegisterPackageRequest.PackageParameterization.Version">
+            <summary>
+            The version of the parameterized package
+            </summary>
+        </member>
+        <member name="F:Pulumi.RegisterPackageRequest.PackageParameterization.Value">
+            <summary>
+            The paramter value for the parameterized package
+            </summary>
+        </member>
+        <member name="F:Pulumi.RegisterPackageRequest.Name">
+            <summary>
+            The plugin name
+            </summary>
+        </member>
+        <member name="F:Pulumi.RegisterPackageRequest.Version">
+            <summary>
+            The plugin version
+            </summary>
+        </member>
+        <member name="F:Pulumi.RegisterPackageRequest.DownloadUrl">
+            <summary>
+            the optional plugin download url.
+            </summary>
+        </member>
+        <member name="F:Pulumi.RegisterPackageRequest.Checksums">
+            <summary>
+            the optional plugin checksums
+            </summary>
         </member>
         <member name="T:Pulumi.Resource">
             <summary>
@@ -2076,7 +2131,7 @@
             The specified provider download URL.
             </summary>
         </member>
-        <member name="M:Pulumi.Resource.#ctor(System.String,System.String,System.Boolean,Pulumi.ResourceArgs,Pulumi.ResourceOptions,System.Boolean,System.Boolean)">
+        <member name="M:Pulumi.Resource.#ctor(System.String,System.String,System.Boolean,Pulumi.ResourceArgs,Pulumi.ResourceOptions,System.Boolean,System.Boolean,Pulumi.RegisterPackageRequest)">
             <summary>
             Creates and registers a new resource object.  <paramref name="type"/> is the fully
             qualified type token and <paramref name="name"/> is the "name" part to use in creating a
@@ -2091,6 +2146,7 @@
             <param name="options">A bag of options that control this resource's behavior.</param>
             <param name="remote">True if this is a remote component resource.</param>
             <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
+            <param name="registerPackageRequest">Options for package parameterization</param>
         </member>
         <member name="M:Pulumi.Resource.GetProvider(System.String)">
             <summary>
@@ -5126,6 +5182,9 @@
         <member name="F:Pulumirpc.RuntimeOptionPrompt.Types.RuntimeOptionValue.Int32ValueFieldNumber">
             <summary>Field number for the "int32Value" field.</summary>
         </member>
+        <member name="F:Pulumirpc.RuntimeOptionPrompt.Types.RuntimeOptionValue.DisplayNameFieldNumber">
+            <summary>Field number for the "displayName" field.</summary>
+        </member>
         <member name="F:Pulumirpc.RuntimeOptionsResponse.PromptsFieldNumber">
             <summary>Field number for the "prompts" field.</summary>
         </member>
@@ -5233,6 +5292,14 @@
         <member name="P:Pulumirpc.GenerateProgramRequest.LoaderTarget">
             <summary>
             The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProgramRequest.StrictFieldNumber">
+            <summary>Field number for the "strict" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProgramRequest.Strict">
+            <summary>
+            if PCL binding should be strict or not.
             </summary>
         </member>
         <member name="F:Pulumirpc.GenerateProgramResponse.DiagnosticsFieldNumber">
@@ -6419,9 +6486,15 @@
             <summary>Field number for the "news" field.</summary>
         </member>
         <member name="P:Pulumirpc.CheckRequest.News">
-            <summary>
-            the new Pulumi inputs for this resource.
-            </summary>
+             <summary>
+             the new Pulumi inputs for this resource.
+            
+             Note that if the user specifies the ignoreChanges resource option, the value of news passed
+             to the provider here may differ from the values written in the program source. It will be pre-processed by
+             replacing every ignoreChanges property by a matching value from the old inputs stored in the state.
+            
+             See also: https://www.pulumi.com/docs/concepts/options/ignorechanges/
+             </summary>
         </member>
         <member name="F:Pulumirpc.CheckRequest.RandomSeedFieldNumber">
             <summary>Field number for the "randomSeed" field.</summary>
@@ -6492,7 +6565,7 @@
         </member>
         <member name="P:Pulumirpc.DiffRequest.News">
             <summary>
-            the new input values of resource to diff.
+            the new input values of resource to diff, copied from CheckResponse.inputs.
             </summary>
         </member>
         <member name="F:Pulumirpc.DiffRequest.IgnoreChangesFieldNumber">
@@ -6806,7 +6879,7 @@
         </member>
         <member name="P:Pulumirpc.UpdateRequest.News">
             <summary>
-            the new values of provider inputs for the resource to update.
+            the new values of provider inputs for the resource to update, copied from CheckResponse.inputs.
             </summary>
         </member>
         <member name="F:Pulumirpc.UpdateRequest.TimeoutFieldNumber">
@@ -7315,7 +7388,7 @@
             
              Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
              should return the sub-package name and version (which for `ParametersValue` should match the given input).
-             
+            
              For extension resources their CRUD operations will include the version of which sub-package they correspond to.
              </summary>
              <param name="request">The request received from the client.</param>
@@ -7520,7 +7593,7 @@
             
              Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
              should return the sub-package name and version (which for `ParametersValue` should match the given input).
-             
+            
              For extension resources their CRUD operations will include the version of which sub-package they correspond to.
              </summary>
              <param name="request">The request to send to the server.</param>
@@ -7542,7 +7615,7 @@
             
              Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
              should return the sub-package name and version (which for `ParametersValue` should match the given input).
-             
+            
              For extension resources their CRUD operations will include the version of which sub-package they correspond to.
              </summary>
              <param name="request">The request to send to the server.</param>
@@ -7562,7 +7635,7 @@
             
              Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
              should return the sub-package name and version (which for `ParametersValue` should match the given input).
-             
+            
              For extension resources their CRUD operations will include the version of which sub-package they correspond to.
              </summary>
              <param name="request">The request to send to the server.</param>
@@ -7584,7 +7657,7 @@
             
              Parameterize should work the same for both the `ParametersArgs` input and the `ParametersValue` input. Either way
              should return the sub-package name and version (which for `ParametersValue` should match the given input).
-             
+            
              For extension resources their CRUD operations will include the version of which sub-package they correspond to.
              </summary>
              <param name="request">The request to send to the server.</param>
@@ -8469,6 +8542,14 @@
             the optional source position of the user code that initiated the read.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ReadResourceRequest.PackageRefFieldNumber">
+            <summary>Field number for the "packageRef" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceRequest.PackageRef">
+            <summary>
+            a reference from RegisterProviderRequest.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ReadResourceResponse">
             <summary>
             ReadResourceResponse contains the result of reading a resource's state.
@@ -8757,6 +8838,14 @@
             true if the request is from an SDK that supports the result field in the response.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.PackageRefFieldNumber">
+            <summary>Field number for the "packageRef" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.PackageRef">
+            <summary>
+            a reference from RegisterProviderRequest.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -8965,6 +9054,14 @@
             the optional source position of the user code that initiated the invoke.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.PackageRefFieldNumber">
+            <summary>Field number for the "packageRef" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.PackageRef">
+            <summary>
+            a reference from RegisterProviderRequest.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceCallRequest.TokFieldNumber">
             <summary>Field number for the "tok" field.</summary>
         </member>
@@ -9027,6 +9124,14 @@
         <member name="P:Pulumirpc.ResourceCallRequest.SourcePosition">
             <summary>
             the optional source position of the user code that initiated the call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.PackageRefFieldNumber">
+            <summary>Field number for the "packageRef" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.PackageRef">
+            <summary>
+            a reference from RegisterProviderRequest.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceCallRequest.Types">
@@ -9165,37 +9270,144 @@
             the options for the resource.
             </summary>
         </member>
-        <member name="F:Pulumirpc.RegisterProviderRequest.NameFieldNumber">
-            <summary>Field number for the "name" field.</summary>
-        </member>
-        <member name="F:Pulumirpc.RegisterProviderRequest.VersionFieldNumber">
-            <summary>Field number for the "version" field.</summary>
-        </member>
-        <member name="F:Pulumirpc.RegisterProviderRequest.PluginDownloadUrlFieldNumber">
-            <summary>Field number for the "plugin_download_url" field.</summary>
-        </member>
-        <member name="F:Pulumirpc.RegisterProviderRequest.PluginChecksumsFieldNumber">
-            <summary>Field number for the "plugin_checksums" field.</summary>
-        </member>
-        <member name="F:Pulumirpc.RegisterProviderRequest.ParameterFieldNumber">
-            <summary>Field number for the "parameter" field.</summary>
-        </member>
-        <member name="F:Pulumirpc.RegisterProviderResponse.RefFieldNumber">
-            <summary>Field number for the "ref" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.RegisterProviderResponse.Ref">
+        <member name="T:Pulumirpc.TransformInvokeRequest">
             <summary>
-            The UUID package reference for this registered provider package.
+            TransformInvokeRequest is the request object for the TransformInvoke RPC.
             </summary>
         </member>
-        <member name="F:Pulumirpc.ProviderParameter.NameFieldNumber">
-            <summary>Field number for the "name" field.</summary>
+        <member name="F:Pulumirpc.TransformInvokeRequest.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
         </member>
-        <member name="F:Pulumirpc.ProviderParameter.VersionFieldNumber">
+        <member name="P:Pulumirpc.TransformInvokeRequest.Token">
+            <summary>
+            the token for the invoke request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformInvokeRequest.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformInvokeRequest.Args">
+            <summary>
+            the input args of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformInvokeRequest.OptionsFieldNumber">
+            <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformInvokeRequest.Options">
+            <summary>
+            the options for the resource.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.TransformInvokeResponse">
+            <summary>
+            TransformInvokeResponse is the response object for the TransformInvoke RPC.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformInvokeResponse.ArgsFieldNumber">
+            <summary>Field number for the "args" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformInvokeResponse.Args">
+            <summary>
+            the transformed input args.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformInvokeResponse.OptionsFieldNumber">
+            <summary>Field number for the "options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformInvokeResponse.Options">
+            <summary>
+            the options for the resource.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.TransformInvokeOptions">
+            <summary>
+            TransformInvokeOptions is a subset of all invoke options that are relevant to transforms.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TransformInvokeOptions.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformInvokeOptions.PluginDownloadUrlFieldNumber">
+            <summary>Field number for the "plugin_download_url" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformInvokeOptions.VersionFieldNumber">
             <summary>Field number for the "version" field.</summary>
         </member>
-        <member name="F:Pulumirpc.ProviderParameter.ValueFieldNumber">
+        <member name="F:Pulumirpc.TransformInvokeOptions.PluginChecksumsFieldNumber">
+            <summary>Field number for the "plugin_checksums" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterPackageRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterPackageRequest.Name">
+            <summary>
+            the plugin name.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterPackageRequest.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterPackageRequest.Version">
+            <summary>
+            the plugin version.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterPackageRequest.DownloadUrlFieldNumber">
+            <summary>Field number for the "download_url" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterPackageRequest.DownloadUrl">
+            <summary>
+            the optional plugin download url.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterPackageRequest.ChecksumsFieldNumber">
+            <summary>Field number for the "checksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterPackageRequest.Checksums">
+            <summary>
+            the optional plugin checksums.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterPackageRequest.ParameterizationFieldNumber">
+            <summary>Field number for the "parameterization" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterPackageRequest.Parameterization">
+            <summary>
+            the optional parameterization for this package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterPackageResponse.RefFieldNumber">
+            <summary>Field number for the "ref" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterPackageResponse.Ref">
+            <summary>
+            The UUID package reference for this registered package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Parameterization.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Parameterization.Name">
+            <summary>
+            the parameterized package name.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Parameterization.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Parameterization.Version">
+            <summary>
+            the parameterized package version.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Parameterization.ValueFieldNumber">
             <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Parameterization.Value">
+            <summary>
+            the parameter value for the parameterized package.
+            </summary>
         </member>
         <member name="T:Pulumirpc.ResourceMonitor">
             <summary>
@@ -9207,6 +9419,22 @@
         </member>
         <member name="T:Pulumirpc.ResourceMonitor.ResourceMonitorBase">
             <summary>Base class for server-side implementations of ResourceMonitor</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterStackTransform(Pulumirpc.Callback,Grpc.Core.ServerCallContext)">
+            <summary>
+            Register a resource transform for the stack
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterStackInvokeTransform(Pulumirpc.Callback,Grpc.Core.ServerCallContext)">
+            <summary>
+            Register an invoke transform for the stack
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="T:Pulumirpc.ResourceMonitor.ResourceMonitorClient">
             <summary>Client for ResourceMonitor</summary>
@@ -9225,6 +9453,78 @@
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Protected constructor to allow creation of configured clients.</summary>
             <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackTransform(Pulumirpc.Callback,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register a resource transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackTransform(Pulumirpc.Callback,Grpc.Core.CallOptions)">
+            <summary>
+            Register a resource transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackTransformAsync(Pulumirpc.Callback,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register a resource transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackTransformAsync(Pulumirpc.Callback,Grpc.Core.CallOptions)">
+            <summary>
+            Register a resource transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackInvokeTransform(Pulumirpc.Callback,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register an invoke transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackInvokeTransform(Pulumirpc.Callback,Grpc.Core.CallOptions)">
+            <summary>
+            Register an invoke transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackInvokeTransformAsync(Pulumirpc.Callback,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register an invoke transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackInvokeTransformAsync(Pulumirpc.Callback,Grpc.Core.CallOptions)">
+            <summary>
+            Register an invoke transform for the stack
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>

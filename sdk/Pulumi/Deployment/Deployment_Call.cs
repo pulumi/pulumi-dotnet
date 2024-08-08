@@ -11,19 +11,35 @@ namespace Pulumi
 {
     public sealed partial class Deployment
     {
-        void IDeployment.Call(string token, CallArgs args, Resource? self, CallOptions? options)
-            => Call<object>(token, args, self, options, convertResult: false);
+        void IDeployment.Call(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
+            => Call<object>(token, args, self, options, convertResult: false, registerPackageRequest);
 
-        Output<T> IDeployment.Call<T>(string token, CallArgs args, Resource? self, CallOptions? options)
-            => Call<T>(token, args, self, options, convertResult: true);
+        Output<T> IDeployment.Call<T>(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
+            => Call<T>(token, args, self, options, convertResult: true, registerPackageRequest);
 
-        private Output<T> Call<T>(string token, CallArgs args, Resource? self, CallOptions? options, bool convertResult)
-            => new Output<T>(CallAsync<T>(token, args, self, options, convertResult));
+        private Output<T> Call<T>(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options,
+            bool convertResult,
+            RegisterPackageRequest? registerPackageRequest = null)
+            => new Output<T>(CallAsync<T>(token, args, self, options, convertResult, registerPackageRequest));
 
         private async Task<OutputData<T>> CallAsync<T>(
-            string token, CallArgs args, Resource? self, CallOptions? options, bool convertResult)
+            string token, CallArgs args, Resource? self, CallOptions? options, bool convertResult, RegisterPackageRequest? registerPackageRequest = null)
         {
-            var (result, deps) = await CallRawAsync(token, args, self, options).ConfigureAwait(false);
+            var (result, deps) = await CallRawAsync(token, args, self, options, registerPackageRequest).ConfigureAwait(false);
             if (convertResult)
             {
                 var converted = Pulumi.Serialization.Converter.ConvertValue<T>(err => Log.Warn(err, self), $"{token} result", new Value { StructValue = result });
@@ -34,7 +50,7 @@ namespace Pulumi
         }
 
         private async Task<(Struct Return, ImmutableHashSet<Resource> Dependencies)> CallRawAsync(
-            string token, CallArgs args, Resource? self, CallOptions? options)
+            string token, CallArgs args, Resource? self, CallOptions? options, RegisterPackageRequest? registerPackageRequest = null)
         {
             var label = $"Calling function: token={token} asynchronously";
             Log.Debug(label);
@@ -87,6 +103,15 @@ namespace Pulumi
                 PluginDownloadURL = pluginDownloadURL ?? "",
                 Args = serialized,
             };
+
+            if (registerPackageRequest != null)
+            {
+                var packageRef = await ResolvePackageRef(registerPackageRequest).ConfigureAwait(false);
+                if (packageRef != null)
+                {
+                    request.PackageRef = packageRef;
+                }
+            }
 
             // Add arg dependencies to the request.
             foreach (var (argName, directDependencies) in argDependencies)

@@ -34,115 +34,113 @@ namespace Pulumi
         /// </summary>
         public bool IsDryRun => _deployment.IsDryRun;
 
-        /// <summary>
-        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
-        /// provider plugin.
-        /// <para/>
-        /// The result of <see cref="Invoke"/> will be a <see cref="Output"/> resolved to the
-        /// result value of the provider plugin.
-        /// <para/>
-        /// Similar to the earlier <see cref="InvokeAsync"/>, but supports passing input values
-        /// and returns an Output value.
-        /// <para/>
-        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
-        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
-        /// </summary>
+        /// <inheritdoc />
         public Output<T> Invoke<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null)
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
             => _deployment.Invoke<T>(token, args, options, registerPackageRequest);
 
-        /// <summary>
-        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
-        /// provider plugin.
-        /// <para/>
-        /// The result of <see cref="InvokeSingle"/> will be a <see cref="Output"/> resolved to the
-        /// result value of the provider plugin.
-        /// <para/>
-        /// Similar to the earlier <see cref="InvokeSingleAsync"/>, but supports passing input values
-        /// and returns an Output value.
-        /// <para/>
-        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
-        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
-        /// </summary>
+        /// <inheritdoc />
+        public Output<T> Invoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null)
+            => _deployment.Invoke<T>(token, args, options, null);
+
+        /// <inheritdoc />
         public Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null)
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
             => _deployment.InvokeSingle<T>(token, args, options, registerPackageRequest);
 
-        /// <summary>
-        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
-        /// provider plugin.
-        /// <para/>
-        /// The result of <see cref="InvokeAsync"/> will be a <see cref="Task"/> resolved to the
-        /// result value of the provider plugin.
-        /// <para/>
-        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
-        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
-        /// </summary>
+        /// <inheritdoc />
+        public Output<T> InvokeSingle<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null)
+            => _deployment.InvokeSingle<T>(token, args, options, null);
+
+        /// <inheritdoc />
         public Task<T> InvokeAsync<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null)
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
             => _deployment.InvokeAsync<T>(token, args, options, registerPackageRequest);
 
-        /// <summary>
-        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
-        /// provider plugin.
-        /// <para/>
-        /// The result of <see cref="InvokeSingleAsync"/> will be a <see cref="Task"/> resolved to the
-        /// result value of the provider plugin which is expected to be a dictionary with single value.
-        /// <para/>
-        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
-        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
-        /// </summary>
+        /// <inheritdoc />
+        public Task<T> InvokeAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null)
+            => _deployment.InvokeAsync<T>(token, args, options, null);
+
+        /// <inheritdoc />
         public Task<T> InvokeSingleAsync<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null)
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
             => _deployment.InvokeSingleAsync<T>(token, args, options, registerPackageRequest);
+
+        /// <inheritdoc />
+        public Task<T> InvokeSingleAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null)
+            => _deployment.InvokeSingleAsync<T>(token, args, options, null);
 
         /// <summary>
         /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
         /// return value is ignored.
         /// </summary>
-        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null, RegisterPackageRequest? registerPackageRequest = null)
+        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options, RegisterPackageRequest? registerPackageRequest)
             => _deployment.InvokeAsync(token, args, options, registerPackageRequest);
 
         /// <summary>
-        /// Dynamically calls the function '<paramref name="token"/>', which is offered by a
-        /// provider plugin.
-        /// <para/>
-        /// The result of <see cref="Call{T}"/> will be a <see cref="Output{T}"/> resolved to the
-        /// result value of the provider plugin.
-        /// <para/>
-        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
-        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
+        /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
+        /// return value is ignored.
         /// </summary>
+        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null)
+            => _deployment.InvokeAsync(token, args, options, null);
+
+        /// <inheritdoc />
+        public Output<T> Call<T>(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
+            => _deployment.Call<T>(token, args, self, options, registerPackageRequest);
+
+        /// <inheritdoc />
         public Output<T> Call<T>(
             string token,
             CallArgs args,
             Resource? self = null,
-            CallOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null)
-            => _deployment.Call<T>(token, args, self, options, registerPackageRequest);
+            CallOptions? options = null)
+            => _deployment.Call<T>(token, args, self, options, null);
 
-        /// <summary>
-        /// Same as <see cref="Call{T}"/>, however the return value is ignored.
-        /// </summary>
+        /// <inheritdoc />
+        public void Call(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
+            => _deployment.Call(token, args, self, options, registerPackageRequest);
+
+        /// <inheritdoc />
         public void Call(
             string token,
             CallArgs args,
             Resource? self = null,
-            CallOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null)
-            => _deployment.Call(token, args, self, options, registerPackageRequest);
+            CallOptions? options = null)
+            => _deployment.Call(token, args, self, options, null);
 
         internal IDeploymentInternal Internal => (IDeploymentInternal)_deployment;
     }

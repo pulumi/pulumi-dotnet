@@ -16,8 +16,14 @@ namespace Pulumi
         Task IDeployment.InvokeAsync(string token, InvokeArgs args, InvokeOptions? options, RegisterPackageRequest? registerPackageRequest)
             => InvokeAsync<object>(token, args, options, convertResult: false);
 
+        Task IDeployment.InvokeAsync(string token, InvokeArgs args, InvokeOptions? options)
+            => InvokeAsync<object>(token, args, options, convertResult: false, registerPackageRequest: null);
+
         Task<T> IDeployment.InvokeAsync<T>(string token, InvokeArgs args, InvokeOptions? options, RegisterPackageRequest? registerPackageRequest)
             => InvokeAsync<T>(token, args, options, convertResult: true);
+
+        Task<T> IDeployment.InvokeAsync<T>(string token, InvokeArgs args, InvokeOptions? options)
+            => InvokeAsync<T>(token, args, options, convertResult: false, registerPackageRequest: null);
 
         async Task<T> IDeployment.InvokeSingleAsync<T>(
             string token,
@@ -29,12 +35,29 @@ namespace Pulumi
             return outputs.Values.First();
         }
 
+        async Task<T> IDeployment.InvokeSingleAsync<T>(string token, InvokeArgs args, InvokeOptions? options)
+        {
+            var outputs = await InvokeAsync<Dictionary<string, T>>(
+                token: token,
+                args: args,
+                options: options,
+                convertResult: true,
+                registerPackageRequest: null);
+
+            return outputs.Values.First();
+        }
+
         Output<T> IDeployment.Invoke<T>(
             string token,
             InvokeArgs args,
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest)
             => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest));
+
+        Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOptions? options)
+            => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest: null));
+
+
 
         Output<T> IDeployment.InvokeSingle<T>(
             string token,
@@ -43,6 +66,13 @@ namespace Pulumi
             RegisterPackageRequest? registerPackageRequest)
         {
             var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest));
+            return outputResult.Apply(outputs => outputs.Values.First());
+        }
+
+        Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options)
+        {
+            var outputResult = new Output<Dictionary<string, T>>(
+                RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 

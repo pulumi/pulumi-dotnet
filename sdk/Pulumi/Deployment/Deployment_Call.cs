@@ -21,6 +21,13 @@ namespace Pulumi
             RegisterPackageRequest? registerPackageRequest)
             => Call<object>(token, args, self, options, convertResult: false, registerPackageRequest);
 
+        void IDeployment.Call(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options)
+            => Call<object>(token, args, self, options, convertResult: false, registerPackageRequest: null);
+
         Output<T> IDeployment.Call<T>(
             string token,
             CallArgs args,
@@ -28,6 +35,13 @@ namespace Pulumi
             CallOptions? options,
             RegisterPackageRequest? registerPackageRequest)
             => Call<T>(token, args, self, options, convertResult: true, registerPackageRequest);
+
+        Output<T> IDeployment.Call<T>(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options)
+            => Call<T>(token, args, self, options, convertResult: true, registerPackageRequest: null);
 
         private Output<T> Call<T>(
             string token,

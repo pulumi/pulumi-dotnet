@@ -30,7 +30,7 @@ namespace Pulumi
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
         /// provider plugin.
         /// <para/>
-        /// The result of <see cref="InvokeAsync"/> will be a <see cref="Task"/> resolved to the
+        /// The result of <see cref="InvokeAsync(string, InvokeArgs, InvokeOptions)"/> will be a <see cref="Task"/> resolved to the
         /// result value of the provider plugin.
         /// <para/>
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -39,14 +39,29 @@ namespace Pulumi
         Task<T> InvokeAsync<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null);
+            InvokeOptions? options = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
         /// provider plugin.
         /// <para/>
-        /// The result of <see cref="InvokeSingleAsync"/> will be a <see cref="Task"/> resolved to the
+        /// The result of <see cref="InvokeAsync(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/> will be a <see cref="Task"/> resolved to the
+        /// result value of the provider plugin.
+        /// <para/>
+        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
+        /// </summary>
+        Task<T> InvokeAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? option,
+            RegisterPackageRequest? registerPackageRequest);
+
+        /// <summary>
+        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+        /// provider plugin.
+        /// <para/>
+        /// The result of <see cref="InvokeSingleAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/> will be a <see cref="Task"/> resolved to the
         /// result value of the provider plugin that returns a bag of properties with a single value that is returned.
         /// <para/>
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -55,14 +70,29 @@ namespace Pulumi
         Task<T> InvokeSingleAsync<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null);
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
         /// provider plugin.
         /// <para/>
-        /// The result of <see cref="Invoke"/> will be a <see cref="Output"/> resolved to the
+        /// The result of <see cref="InvokeSingleAsync{T}(string, InvokeArgs, InvokeOptions)"/> will be a <see cref="Task"/> resolved to the
+        /// result value of the provider plugin that returns a bag of properties with a single value that is returned.
+        /// <para/>
+        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
+        /// </summary>
+        Task<T> InvokeSingleAsync<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null);
+
+        /// <summary>
+        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+        /// provider plugin.
+        /// <para/>
+        /// The result of <see cref="Invoke{T}(string, InvokeArgs, InvokeOptions)"/> will be a <see cref="Output"/> resolved to the
         /// result value of the provider plugin.
         /// <para/>
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -71,14 +101,29 @@ namespace Pulumi
         Output<T> Invoke<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null);
+            InvokeOptions? options = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
         /// provider plugin.
         /// <para/>
-        /// The result of <see cref="InvokeSingle"/> will be a <see cref="Output"/> resolved to the
+        /// The result of <see cref="Invoke{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/> will be a <see cref="Output"/> resolved to the
+        /// result value of the provider plugin.
+        /// <para/>
+        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
+        /// </summary>
+        Output<T> Invoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest);
+
+        /// <summary>
+        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+        /// provider plugin.
+        /// <para/>
+        /// The result of <see cref="InvokeSingle{T}(string, InvokeArgs, InvokeOptions)"/> will be a <see cref="Output"/> resolved to the
         /// result value of the provider plugin that returns a bag of properties with a single value that is returned.
         /// <para/>
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -87,8 +132,32 @@ namespace Pulumi
         Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null);
+            InvokeOptions? options = null);
+
+        /// <summary>
+        /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+        /// provider plugin.
+        /// <para/>
+        /// The result of <see cref="InvokeSingle{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/> will be a <see cref="Output"/> resolved to the
+        /// result value of the provider plugin that returns a bag of properties with a single value that is returned.
+        /// <para/>
+        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
+        /// </summary>
+        Output<T> InvokeSingle<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest);
+
+        /// <summary>
+        /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions)"/>, however the
+        /// return value is ignored.
+        /// </summary>
+        Task InvokeAsync(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options = null);
 
         /// <summary>
         /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
@@ -97,15 +166,15 @@ namespace Pulumi
         Task InvokeAsync(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null);
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest);
 
         /// <summary>
         /// Dynamically calls the function '<paramref name="token"/>', which is offered by a
-        /// provider plugin. <see cref="Call{T}"/> returns immediately while the operation takes
+        /// provider plugin. <see cref="Call{T}(string, CallArgs, Resource, CallOptions)"/> returns immediately while the operation takes
         /// place asynchronously in the background, similar to Resource constructors.
         /// <para/>
-        /// The result of <see cref="Call{T}"/> will be a <see cref="Output{T}"/> resolved to the
+        /// The result of <see cref="Call{T}(string, CallArgs, Resource, CallOptions)"/> will be a <see cref="Output{T}"/> resolved to the
         /// result value of the provider plugin.
         /// <para/>
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -115,17 +184,43 @@ namespace Pulumi
             string token,
             CallArgs args,
             Resource? self = null,
-            CallOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null);
+            CallOptions? options = null);
 
         /// <summary>
-        /// Same as <see cref="Call{T}"/>, however the return value is ignored.
+        /// Dynamically calls the function '<paramref name="token"/>', which is offered by a
+        /// provider plugin. <see cref="Call{T}(string, CallArgs, Resource, CallOptions, RegisterPackageRequest)"/> returns immediately while the operation takes
+        /// place asynchronously in the background, similar to Resource constructors.
+        /// <para/>
+        /// The result of <see cref="Call{T}(string, CallArgs, Resource, CallOptions, RegisterPackageRequest)"/> will be a <see cref="Output{T}"/> resolved to the
+        /// result value of the provider plugin.
+        /// <para/>
+        /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+        /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
+        /// </summary>
+        Output<T> Call<T>(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options,
+            RegisterPackageRequest? registerPackageRequest);
+
+        /// <summary>
+        /// Same as <see cref="Call{T}(string, CallArgs, Resource, CallOptions)"/>, however the return value is ignored.
         /// </summary>
         void Call(
             string token,
             CallArgs args,
             Resource? self = null,
-            CallOptions? options = null,
-            RegisterPackageRequest? registerPackageRequest = null);
+            CallOptions? options = null);
+
+        /// <summary>
+        /// Same as <see cref="Call{T}(string, CallArgs, Resource, CallOptions, RegisterPackageRequest)"/>, however the return value is ignored.
+        /// </summary>
+        void Call(
+            string token,
+            CallArgs args,
+            Resource? self,
+            CallOptions? options,
+            RegisterPackageRequest? registerPackageRequest);
     }
 }

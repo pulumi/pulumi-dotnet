@@ -1,6 +1,0 @@
-component: sdk
-kind: Bug Fixes
-body: Fix type annotations for inputListFromT0/1
-time: 2024-07-18T15:00:51.707811Z
-custom:
-    PR: "301"

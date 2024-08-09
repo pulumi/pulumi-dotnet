@@ -25,7 +25,8 @@ namespace Pulumi.Tests.Resources
                 var provider = new ProviderResource(
                     "test",
                     "prov",
-                    ResourceArgs.Empty
+                    ResourceArgs.Empty,
+                    null
                 );
 
                 // The Provider is passed in to the ComponentResource,
@@ -68,7 +69,8 @@ namespace Pulumi.Tests.Resources
                 var provider = new ProviderResource(
                     "test",
                     "prov",
-                    ResourceArgs.Empty
+                    ResourceArgs.Empty,
+                    null
                 );
 
                 // The Provider is passed in to the ComponentResource

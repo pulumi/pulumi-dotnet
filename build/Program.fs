@@ -211,6 +211,25 @@ let runAllIntegrationTests() =
         if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
         then failwith $"Integration test '{testName}' failed"
 
+let fixProtobufFiles(directoryPath: string) =
+    if not (Directory.Exists(directoryPath)) then
+        failwith $"Directory does not exist: {directoryPath}"
+    else
+        let processFile filePath =
+            let code = "global::Pulumirpc.ParseContextHelper.SetRecursionLimit(ref input, 1000);"
+            let oldValue = "void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {"
+            let newValue = oldValue + Environment.NewLine + "      " + code + Environment.NewLine
+
+            let content = File.ReadAllText(filePath)
+            if content.Contains(oldValue) && not (content.Contains(newValue)) then
+                printfn $"Fixing protobuf file {filePath}"
+                let modifiedContent = content.Replace(oldValue, newValue)
+                File.WriteAllText(filePath, modifiedContent)
+
+        // Enumerate files with recursive search
+        for filePath in Directory.EnumerateFiles(directoryPath, "*.cs", SearchOption.AllDirectories) do
+            processFile filePath
+
 [<EntryPoint>]
 let main(args: string[]) : int =
     match args with
@@ -229,6 +248,7 @@ let main(args: string[]) : int =
     | [| "list-integration-tests" |] -> listIntegrationTests()
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()
+    | [| "fix-protobuf-files"; directoryPath |] -> fixProtobufFiles(directoryPath)
 
     | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 

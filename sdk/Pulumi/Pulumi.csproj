@@ -44,7 +44,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="OneOf" Version="3.0.216" />
-    <PackageReference Include="Pulumi.Protobuf" Version="3.20.1" />
     <PackageReference Include="semver" Version="2.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
@@ -69,5 +68,9 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
+
+  <Target Name="ModifyGeneratedFiles" BeforeTargets="CoreCompile">
+    <Exec Command="dotnet run --project ../.. -- fix-protobuf-files $(IntermediateOutputPath)" />
+  </Target>
 
 </Project>

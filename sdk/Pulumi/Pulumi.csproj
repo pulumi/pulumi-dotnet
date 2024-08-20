@@ -44,7 +44,14 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="OneOf" Version="3.0.216" />
-    <PackageReference Include="Pulumi.Protobuf" Version="3.20.1" />
+    <!-- 
+    Note: Pulumi maintains a fork of Google.Protobuf package, to increase the recursion limit.
+    The Pulumi.Protobuf package contains an assembly called Google.Protobuf.dll, as does the Google.Protobuf package
+    that is a transitive dependency of some of the gRPC packages. The forked assembly takes precedence 
+    because it has a higher version number.
+    see: https://github.com/pulumi/pulumi-dotnet/issues/322
+    -->
+    <PackageReference Include="Pulumi.Protobuf" Version="3.27.3" />
     <PackageReference Include="semver" Version="2.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />

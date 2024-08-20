@@ -1,6 +1,0 @@
-component: sdk
-kind: Bug Fixes
-body: Update Pulumi.Protobuf to v3.27.3 (fork)
-time: 2024-08-20T11:46:27.188037-07:00
-custom:
-    PR: "324"

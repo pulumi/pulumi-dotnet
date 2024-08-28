@@ -57,6 +57,15 @@ namespace Pulumi.Automation.Tests
         }
 
         [Fact]
+        public async Task IgnoresUnknownEvents()
+        {
+            using var fx = new Fixture();
+            await fx.Write("{\"unknown\": \"event\"}");
+            await fx.Watcher.Stop();
+            Assert.Equal(1, fx.EventCounter);
+        }
+
+        [Fact]
         public async Task PermitsUserInitiatedCancellation()
         {
             using var fx = new Fixture();

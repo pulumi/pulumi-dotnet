@@ -221,9 +221,14 @@ message CallResponse {
         repeated string urns = 1; // A list of URNs this return value depends on.
     }
 
-    google.protobuf.Struct return = 1;                      // the returned values, if call was successful.
-    map<string, ReturnDependencies> returnDependencies = 2; // a map from return value keys to the dependencies of the return value.
-    repeated CheckFailure failures = 3;                     // the failures if any arguments didn't pass verification.
+    google.protobuf.Struct return = 1;  // the returned values, if call was successful.
+    repeated CheckFailure failures = 3; // the failures if any arguments didn't pass verification.
+
+    // a map from return value keys to the dependencies of the return value.
+    //
+    // returnDependencies will be augmented by the set of dependencies specified in return
+    // via output property values.
+    map<string, ReturnDependencies> returnDependencies = 2;
 }
 
 message CheckRequest {
@@ -287,7 +292,10 @@ message DiffResponse {
     repeated string stables = 2;  // an optional list of properties that will not ever change.
     bool deleteBeforeReplace = 3; // if true, this resource must be deleted before replacing it.
     DiffChanges changes = 4;      // if true, this diff represents an actual difference and thus requires an update.
-    repeated string diffs = 5;    // a list of the properties that changed.
+
+    // a list of the properties that changed. This should only contain top level property names, it does not
+    // support nested properties. For that use detailedDiff.
+    repeated string diffs = 5;
 
     // detailedDiff is an optional field that contains map from each changed property to the type of the change.
     //

@@ -18,6 +18,15 @@ namespace Pulumi
         public static Task<int> RunAsync(Action action)
             => RunAsync(() =>
             {
+                var value = System.Environment.GetEnvironmentVariable("PULUMI_ATTACH_DEBUGGER");
+                if (value != null && value == "true")
+                {
+                    while (!System.Diagnostics.Debugger.IsAttached)
+                    {
+                        // keep waiting until the debugger is attached
+                        System.Threading.Tasks.Task.Delay(1);
+                    }
+                }
                 action();
                 return ImmutableDictionary<string, object?>.Empty;
             });
@@ -171,7 +180,7 @@ namespace Pulumi
         /// in which case an internal TestStack is used to create the resources.
         ///
         /// This function takes the created resources from the TestStack and filters it out of the created resources
-        /// (since it is internal) and obtains the outputs returned, if any from that TestStack. 
+        /// (since it is internal) and obtains the outputs returned, if any from that TestStack.
         /// </summary>
         /// <param name="resources">The created resources from TestAsync</param>
         /// <returns>Resources and outputs</returns>
@@ -199,7 +208,7 @@ namespace Pulumi
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
-        /// Note: Currently, unit tests that call this function 
+        /// Note: Currently, unit tests that call this function
         /// must run serially; parallel execution is not supported.
         /// </summary>
         /// <param name="testMocks">Hooks to mock the engine calls.</param>
@@ -222,7 +231,7 @@ namespace Pulumi
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
-        /// Note: Currently, unit tests that call this function 
+        /// Note: Currently, unit tests that call this function
         /// must run serially; parallel execution is not supported.
         /// </summary>
         /// <param name="testMocks">Hooks to mock the engine calls.</param>
@@ -245,7 +254,7 @@ namespace Pulumi
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
-        /// Note: Currently, unit tests that call this function 
+        /// Note: Currently, unit tests that call this function
         /// must run serially; parallel execution is not supported.
         /// </summary>
         /// <param name="testMocks">Hooks to mock the engine calls.</param>
@@ -268,7 +277,7 @@ namespace Pulumi
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will
         /// run the provided function that creates resources but doesn't actually deploy them
-        /// Note: Currently, unit tests that call this function 
+        /// Note: Currently, unit tests that call this function
         /// must run serially; parallel execution is not supported.
         /// </summary>
         /// <param name="testMocks">Hooks to mock the engine calls.</param>

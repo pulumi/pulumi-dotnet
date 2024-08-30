@@ -1265,7 +1265,7 @@
              in which case an internal TestStack is used to create the resources.
             
              This function takes the created resources from the TestStack and filters it out of the created resources
-             (since it is internal) and obtains the outputs returned, if any from that TestStack. 
+             (since it is internal) and obtains the outputs returned, if any from that TestStack.
              </summary>
              <param name="resources">The created resources from TestAsync</param>
              <returns>Resources and outputs</returns>
@@ -1274,7 +1274,7 @@
             <summary>
             Entry point to test a Pulumi application. Deployment will
             run the provided function that creates resources but doesn't actually deploy them
-            Note: Currently, unit tests that call this function 
+            Note: Currently, unit tests that call this function
             must run serially; parallel execution is not supported.
             </summary>
             <param name="testMocks">Hooks to mock the engine calls.</param>
@@ -1286,7 +1286,7 @@
             <summary>
             Entry point to test a Pulumi application. Deployment will
             run the provided function that creates resources but doesn't actually deploy them
-            Note: Currently, unit tests that call this function 
+            Note: Currently, unit tests that call this function
             must run serially; parallel execution is not supported.
             </summary>
             <param name="testMocks">Hooks to mock the engine calls.</param>
@@ -1298,7 +1298,7 @@
             <summary>
             Entry point to test a Pulumi application. Deployment will
             run the provided function that creates resources but doesn't actually deploy them
-            Note: Currently, unit tests that call this function 
+            Note: Currently, unit tests that call this function
             must run serially; parallel execution is not supported.
             </summary>
             <param name="testMocks">Hooks to mock the engine calls.</param>
@@ -1310,7 +1310,7 @@
             <summary>
             Entry point to test a Pulumi application. Deployment will
             run the provided function that creates resources but doesn't actually deploy them
-            Note: Currently, unit tests that call this function 
+            Note: Currently, unit tests that call this function
             must run serially; parallel execution is not supported.
             </summary>
             <param name="testMocks">Hooks to mock the engine calls.</param>
@@ -4637,6 +4637,22 @@
             empty.
             </summary>
         </member>
+        <member name="F:Pulumirpc.StartDebuggerRequest.ConfigFieldNumber">
+            <summary>Field number for the "config" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StartDebuggerRequest.Config">
+            <summary>
+            the debug configuration parameters.  These are meant to be in the right format for the DAP protocol to consume.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StartDebuggerRequest.MessageFieldNumber">
+            <summary>Field number for the "message" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StartDebuggerRequest.Message">
+            <summary>
+            the string to display to the user with instructions on how to connect to the debugger.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.Engine">
             <summary>
             Engine is an auxiliary service offered to language and resource provider plugins. Its main purpose today is
@@ -5136,6 +5152,22 @@
             the program info to use to execute the program.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RunRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunRequest.LoaderTarget">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunRequest.StartDebuggerFieldNumber">
+            <summary>Field number for the "start_debugger" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunRequest.StartDebugger">
+            <summary>
+            true if the language host is supposed to start the program under a debugger.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RunResponse">
             <summary>
             RunResponse is the response back from the interpreter/source back to the monitor.
@@ -5181,6 +5213,14 @@
         <member name="P:Pulumirpc.InstallDependenciesRequest.Info">
             <summary>
             the program info to use to execute the plugin.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.InstallDependenciesRequest.UseLanguageVersionToolsFieldNumber">
+            <summary>Field number for the "use_language_version_tools" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InstallDependenciesRequest.UseLanguageVersionTools">
+            <summary>
+            if we should use language version tools like pyenv or
             </summary>
         </member>
         <member name="F:Pulumirpc.InstallDependenciesResponse.StdoutFieldNumber">
@@ -5466,6 +5506,15 @@
             <summary>
             local dependencies to use instead of using the package system. This is a map of package name to a local
             path of a language specific artifact to use for the SDK for that package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GeneratePackageRequest.LocalFieldNumber">
+            <summary>Field number for the "local" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GeneratePackageRequest.Local">
+            <summary>
+            if true generates an SDK appropriate for local usage, this may differ from a standard publishable SDK depending
+            on the language.
             </summary>
         </member>
         <member name="F:Pulumirpc.GeneratePackageResponse.DiagnosticsFieldNumber">
@@ -9875,6 +9924,35 @@
         <member name="P:Codegen.LoaderReflection.Descriptor">
             <summary>File descriptor for pulumi/codegen/loader.proto</summary>
         </member>
+        <member name="T:Codegen.Parameterization">
+            <summary>
+            Parameterization specifies the name, version, and value for a parameterized package.
+            </summary>
+        </member>
+        <member name="F:Codegen.Parameterization.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Codegen.Parameterization.Name">
+            <summary>
+            the parameterized package name.
+            </summary>
+        </member>
+        <member name="F:Codegen.Parameterization.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Codegen.Parameterization.Version">
+            <summary>
+            the parameterized package version.
+            </summary>
+        </member>
+        <member name="F:Codegen.Parameterization.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Codegen.Parameterization.Value">
+            <summary>
+            the parameter value for the parameterized package.
+            </summary>
+        </member>
         <member name="T:Codegen.GetSchemaRequest">
             <summary>
             GetSchemaRequest allows the engine to return a schema for a given package and version.
@@ -9894,6 +9972,22 @@
         <member name="P:Codegen.GetSchemaRequest.Version">
             <summary>
             the version for the schema being requested, must be a valid semver or empty.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetSchemaRequest.DownloadUrlFieldNumber">
+            <summary>Field number for the "download_url" field.</summary>
+        </member>
+        <member name="P:Codegen.GetSchemaRequest.DownloadUrl">
+            <summary>
+            the optional download url for the schema being requested.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetSchemaRequest.ParameterizationFieldNumber">
+            <summary>Field number for the "parameterization" field.</summary>
+        </member>
+        <member name="P:Codegen.GetSchemaRequest.Parameterization">
+            <summary>
+            the parameterization for the schema being requested, can be empty.
             </summary>
         </member>
         <member name="T:Codegen.GetSchemaResponse">

@@ -133,6 +133,9 @@ message RunRequest {
     string organization = 12;       // the organization of the stack being deployed into.
     google.protobuf.Struct configPropertyMap = 13; // the configuration variables to apply before running.
     ProgramInfo info = 14; // the program info to use to execute the program.
+    // The target of a codegen.LoaderServer to use for loading schemas.
+    string loader_target = 15;
+    bool attach_debugger = 16;       // true if the language host is supposed to start the program under a debugger.
 }
 
 // RunResponse is the response back from the interpreter/source back to the monitor.
@@ -150,6 +153,8 @@ message InstallDependenciesRequest {
     string directory = 1 [deprecated = true]; // the program's working directory.
     bool is_terminal = 2; // if we are running in a terminal and should use ANSI codes
     ProgramInfo info = 3; // the program info to use to execute the plugin.
+    bool use_language_version_tools = 4; // if we should use language version tools like pyenv or
+                                         // nvm to setup the language version.
 }
 
 message InstallDependenciesResponse {
@@ -250,6 +255,9 @@ message GeneratePackageRequest {
     // local dependencies to use instead of using the package system. This is a map of package name to a local
     // path of a language specific artifact to use for the SDK for that package.
     map<string, string> local_dependencies = 5;
+    // if true generates an SDK appropriate for local usage, this may differ from a standard publishable SDK depending
+    // on the language.
+    bool local = 6;
 }
 
 message GeneratePackageResponse {

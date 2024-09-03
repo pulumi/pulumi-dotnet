@@ -1,4 +1,4 @@
-GO                          := go
+GO := go
 
 install::
 	cd pulumi-language-dotnet && ${GO} install ./...

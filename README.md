@@ -21,9 +21,9 @@ using Pulumi.Aws.S3;
 return await Deployment.RunAsync(() =>
 {
     // Create the bucket, and make it public.
-    var bucket = new Bucket("media", new () 
-    { 
-        Acl = "public-read" 
+    var bucket = new Bucket("media", new ()
+    {
+        Acl = "public-read"
     });
 
     // Add some content.
@@ -84,9 +84,12 @@ dotnet run test-sdk
 # Running tests for the Pulumi Automation SDK
 dotnet run test-automation-sdk
 
+# Install the language plugin
+make install
+
 # Building the language plugin. A binary will be built into the pulumi-language-dotnet folder.
 # this is the binary that will be used by the integration tests.
-dotnet run build-language-plugin
+make build
 
 # Testing the language plugin
 dotnet run test-language-plugin
@@ -108,7 +111,7 @@ dotnet run format-sdk [verify]
 ```
 # Running integration tests
 
-When running integration tests via an IDE like Goland or VSCode, you want the Pulumi CLI to use the `pulumi-language-dotnet` plugin from this repository, not the one that comes bundled with your Pulumi CLI. To do this, in your terminal `dotnet run build-language-plugin` or simply `cd pulumi-language-dotnet && go build`. 
+When running integration tests via an IDE like Goland or VSCode, you want the Pulumi CLI to use the `pulumi-language-dotnet` plugin from this repository, not the one that comes bundled with your Pulumi CLI. To do this, in your terminal `dotnet run build-language-plugin` or simply `cd pulumi-language-dotnet && go build`.
 
 Alternatively, you can run `dotnet run integration test <testName>` or `dotnet run all-integration-tests` which will build the language plugin for you just before running the tests.
 

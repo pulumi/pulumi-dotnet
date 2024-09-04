@@ -708,9 +708,8 @@ func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cm
 
 	debugConfig, err := structpb.NewStruct(map[string]interface{}{
 		"name":      "Pulumi: Program (Dotnet)",
-		"type":      "dotnet",
+		"type":      "coreclr",
 		"request":   "attach",
-		"mode":      "remote",
 		"processId": cmd.Process.Pid,
 	})
 	if err != nil {

@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Pulumi;
 using Pulumi.Utilities;
+#if IMPORT_UTILS
 using Utils;
+#endif
 
 class Program
 {
@@ -14,7 +16,9 @@ class Program
     {
         var returnCode = await Deployment.RunAsync(async () =>
         {
+            #if IMPORT_UTILS
             DebuggerUtils.WaitForDebugger();
+            #endif
 
             var baseComponent = new Component("baseComponent", new ComponentArgs()
             {

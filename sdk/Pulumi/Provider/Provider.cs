@@ -1169,6 +1169,11 @@ namespace Pulumi.Experimental.Provider
         {
             foreach (var argDependency in request.ArgDependencies)
             {
+                if (argDependency.Value.Urns.Count == 0)
+                {
+                    continue;
+                }
+
                 if (domArgs.TryGetValue(argDependency.Key, out var currentValue))
                 {
                     domArgs = domArgs.SetItem(argDependency.Key,

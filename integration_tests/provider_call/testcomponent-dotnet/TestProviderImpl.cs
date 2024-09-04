@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Pulumi;
 using Pulumi.Experimental.Provider;
 
 namespace TestProvider;
@@ -40,9 +41,8 @@ public class TestProviderImpl : ComponentResourceProviderBase
         return CheckResult.Empty;
     }
 
-    private async Task<TestFunctionResult> TestFunctionImpl(ResourceReference? resourceReference, TestFunctionArgs args)
+    private Output<TestFunctionResult> TestFunctionImpl(ResourceReference? resourceReference, TestFunctionArgs args)
     {
-        await Task.Delay(10);
-        return new TestFunctionResult(resourceReference?.URN ?? "", args.TestValue);
+        return Output.Create(Task.Delay(10).ContinueWith(t => new TestFunctionResult(resourceReference?.URN ?? "", args.TestValue)));
     }
 }

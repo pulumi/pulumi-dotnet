@@ -28,7 +28,7 @@ public class ComponentResourceProviderBase : Provider
 {
     protected Task<CallResponse> Call<TArgs, TReturn>(
         CallRequest request,
-        Func<ResourceReference?, TArgs, Task<TReturn>> factory
+        Func<ResourceReference?, TArgs, Output<TReturn>> factory
     ) where TReturn : class
     {
         return Call(request, (_, _) => CheckResult.Empty, factory);
@@ -37,7 +37,7 @@ public class ComponentResourceProviderBase : Provider
     protected Task<CallResponse> Call<TArgs, TReturn>(
         CallRequest request,
         Func<ResourceReference?, TArgs, CheckResult> check,
-        Func<ResourceReference?, TArgs, Task<TReturn>> factory
+        Func<ResourceReference?, TArgs, Output<TReturn>> factory
     ) where TReturn : class
     {
         return Call(request, (self, args) => Task.FromResult(check(self, args)), factory);
@@ -46,7 +46,7 @@ public class ComponentResourceProviderBase : Provider
     protected async Task<CallResponse> Call<TArgs, TReturn>(
         CallRequest request,
         Func<ResourceReference?, TArgs, Task<CheckResult>> check,
-        Func<ResourceReference?, TArgs, Task<TReturn>> factory
+        Func<ResourceReference?, TArgs, Output<TReturn>> factory
     ) where TReturn : class
     {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -60,7 +60,7 @@ public class ComponentResourceProviderBase : Provider
             return new CallResponse(null, checkResult.Failures, ImmutableDictionary<string, ISet<Urn>>.Empty);
         }
 
-        var result = await factory(request.Self, args);
+        var result = await OutputUtilities.GetValueAsync(factory(request.Self, args));
 
         var serializedResult = await serializer.Serialize(result);
 

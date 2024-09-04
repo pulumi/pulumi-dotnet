@@ -224,13 +224,13 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             return value;
         }
 
-        private Task<ConstructResponse> Construct<TArgs,TResource>(
+        private Task<ConstructResponse> Construct<TArgs, TResource>(
             ConstructRequest request,
             Func<string, TArgs, ComponentResourceOptions, TResource> factory
         )
             where TResource : ComponentResource
         {
-            return Construct<TArgs,TResource>(
+            return Construct<TArgs, TResource>(
                 request: request,
                 factory: (name, args, options) => Task.FromResult(factory(name, args, options)));
         }

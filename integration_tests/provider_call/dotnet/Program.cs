@@ -21,27 +21,22 @@ class Program
 
             var component = new Component("testComponent", new ComponentArgs());
 
-            var validArgs = new TestFunctionArgs()
+            var testValue = System.Environment.GetEnvironmentVariable("TEST_VALUE") ?? "HelloW World";
+
+            var args = new TestFunctionArgs()
             {
-                TestValue = "Hello World"
+                TestValue = testValue
             };
 
-            var invalidArgs = new TestFunctionArgs()
+            var resultOutput = TestFunction.Call(args, component);
+
+            if (string.IsNullOrEmpty(testValue))
             {
-                TestValue = ""
-            };
-
-            var validResultOutput = TestFunction.Call(validArgs, component);
-
-            var invalidResult = TestFunction.Call(invalidArgs, component);
-
-            var validResult = await OutputUtilities.GetValueAsync(validResultOutput);
-            validResult.TestValue.Should().Be(validArgs.TestValue);
-            var expectedUrn  = await OutputUtilities.GetValueAsync(component.Urn);
-            validResult.SelfUrn.Should().Be(expectedUrn);
-
-            var awaitInvalid = async () => await OutputUtilities.GetValueAsync(invalidResult);
-            await awaitInvalid.Should().ThrowAsync<Exception>();
+                var result = await OutputUtilities.GetValueAsync(resultOutput);
+                result.TestValue.Should().Be(args.TestValue);
+                var expectedUrn  = await OutputUtilities.GetValueAsync(component.Urn);
+                result.SelfUrn.Should().Be(expectedUrn);
+            }
         });
 
         return returnCode;

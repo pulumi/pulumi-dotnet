@@ -536,6 +536,17 @@ func TestProviderCall(t *testing.T) {
 	const testDir = "provider_call"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, "dotnet"),
+        Env:            []string{"TEST_VALUE=HelloWorld"},
+		Quick:          true,
+	})
+}
+
+func TestProviderCallInvalidArgument(t *testing.T) {
+	const testDir = "provider_call"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(testDir, "dotnet"),
+        Env:            []string{"TEST_VALUE="},
+        ExpectFailure:  true,
 		Quick:          true,
 	})
 }
@@ -544,7 +555,6 @@ func TestProviderConstruct(t *testing.T) {
 	const testDir = "provider_construct"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join(testDir, "dotnet"),
-        Dependencies:   []string{"Fooo"},
 		Quick:          true,
 	})
 }

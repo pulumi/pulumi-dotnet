@@ -15,7 +15,7 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
 {
     private IHost? host;
     private GrpcChannel? channel;
-    private TcpListener? enineListener;
+    private TcpListener? engineListener;
     private TcpListener? monitoringListener;
 
     public IHost Host => host ?? throw new InvalidOperationException("Host is not running");
@@ -69,10 +69,10 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
             host = null;
         }
 
-        if (enineListener != null)
+        if (engineListener != null)
         {
-            enineListener.Stop();
-            enineListener = null;
+            engineListener.Stop();
+            engineListener = null;
         }
 
         if (monitoringListener != null)

@@ -96,7 +96,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
 
     [Theory]
     [InlineData(true, true, 1)]
-    // [InlineData(false, false, 3)]
+    [InlineData(false, false, 3)]
     public async Task Call(bool dryRun, bool acceptsOutputValues, int parallel)
     {
         // Test that if we serve the TestConfigureProvider and configure it, that internal state is preseved for later calls

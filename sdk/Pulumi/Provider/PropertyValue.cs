@@ -30,10 +30,10 @@ namespace Pulumi.Experimental.Provider
     public readonly struct ResourceReference : IEquatable<ResourceReference>
     {
         public readonly Urn URN;
-        public readonly PropertyValue Id;
+        public readonly PropertyValue? Id;
         public readonly string PackageVersion;
 
-        public ResourceReference(Urn urn, PropertyValue id, string version)
+        public ResourceReference(Urn urn, PropertyValue? id, string version)
         {
             URN = urn;
             Id = id;
@@ -56,7 +56,7 @@ namespace Pulumi.Experimental.Provider
 
         public bool Equals(ResourceReference other)
         {
-            return URN == other.URN && Id.Equals(other.Id) && PackageVersion == other.PackageVersion;
+            return URN == other.URN && Equals(Id, other.Id) && PackageVersion == other.PackageVersion;
         }
 
         public static bool operator ==(ResourceReference left, ResourceReference right)
@@ -695,12 +695,13 @@ namespace Pulumi.Experimental.Provider
                                             version = "";
                                         }
 
-                                        if (!structValue.Fields.TryGetValue(Constants.IdPropertyName, out var id))
+                                        PropertyValue? idProperty = null;
+                                        if (structValue.Fields.TryGetValue(Constants.IdPropertyName, out var id))
                                         {
-                                            throw new InvalidOperationException("Value was marked as a Resource, but did not conform to required shape.");
+                                            idProperty = Unmarshal(id, inputDependencies);
                                         }
 
-                                        return new PropertyValue(new ResourceReference(new Urn(urn), Unmarshal(id, inputDependencies), version));
+                                        return new PropertyValue(new ResourceReference(new Urn(urn), idProperty, version));
                                     }
                                 case Constants.SpecialOutputValueSig:
                                     {
@@ -708,10 +709,6 @@ namespace Pulumi.Experimental.Provider
                                         if (structValue.Fields.TryGetValue(Constants.ValueName, out var knownElement))
                                         {
                                             element = Unmarshal(knownElement, inputDependencies);
-                                        }
-                                        else
-                                        {
-                                            element = PropertyValue.Computed;
                                         }
                                         else
                                         {
@@ -959,8 +956,14 @@ namespace Pulumi.Experimental.Provider
                     var result = new Struct();
                     result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialResourceSig);
                     result.Fields[Constants.UrnPropertyName] = Value.ForString(resource.URN);
-                    var (propertyName, dependencies) = Marshal(resource.Id);
-                    result.Fields[Constants.IdPropertyName] = propertyName;
+
+                    ISet<Urn>? dependencies = null;
+                    if (resource.Id != null)
+                    {
+                        (var propertyName, dependencies) = Marshal(resource.Id);
+                        result.Fields[Constants.IdPropertyName] = propertyName;
+                    }
+
                     if (resource.PackageVersion != "")
                     {
                         result.Fields[Constants.ResourceVersionName] = Value.ForString(resource.PackageVersion);

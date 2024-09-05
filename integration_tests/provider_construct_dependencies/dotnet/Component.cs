@@ -30,13 +30,13 @@ public sealed class ComplexTypeOutput
 public sealed class ComplexTypeInput: ResourceArgs
 {
     [Input("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = default!;
 
     [Input("intValue")]
     public int IntValue { get; set; }
 }
 
-class Component : Pulumi.ComponentResource
+class Component : ComponentResource
 {
     public Component(string name, ComponentArgs args, ComponentResourceOptions? opts = null)
         : base("test:index:Test", name, args, opts, remote: true)

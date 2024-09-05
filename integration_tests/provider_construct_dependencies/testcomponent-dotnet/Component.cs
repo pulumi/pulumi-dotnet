@@ -33,7 +33,7 @@ public sealed class ComplexTypeOutput
 public sealed class ComplexTypeInput: ResourceArgs
 {
     [Input("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = default!;
 
     [Input("intValue")]
     public int IntValue { get; set; }

@@ -632,7 +632,7 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
-        // This keeps the PropertyValue.Marshal clean in terms of not handling nulls.
+        // This keeps the PropertyValue. Unmarshal clean in terms of not handling nulls.
         private ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties, IDictionary<string, ISet<Urn>>? inputDependencies = default)
         {
             if (properties == null)
@@ -647,8 +647,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(new Urn(request.Urn), Unmarshal(request.Olds), Unmarshal(request.News),
-                    ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(new Urn(request.Urn), Unmarshal(request.Olds), Unmarshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
@@ -678,8 +677,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
-                    request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News), request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -793,8 +791,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Unmarshal(request.Args), request.AcceptSecrets,
-                    request.AcceptResources);
+                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Unmarshal(request.Args), request.AcceptSecrets, request.AcceptResources);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Configure(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ConfigureResponse();

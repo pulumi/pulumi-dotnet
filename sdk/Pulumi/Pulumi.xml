@@ -4637,18 +4637,18 @@
             empty.
             </summary>
         </member>
-        <member name="F:Pulumirpc.StartDebuggerRequest.ConfigFieldNumber">
+        <member name="F:Pulumirpc.StartDebuggingRequest.ConfigFieldNumber">
             <summary>Field number for the "config" field.</summary>
         </member>
-        <member name="P:Pulumirpc.StartDebuggerRequest.Config">
+        <member name="P:Pulumirpc.StartDebuggingRequest.Config">
             <summary>
             the debug configuration parameters.  These are meant to be in the right format for the DAP protocol to consume.
             </summary>
         </member>
-        <member name="F:Pulumirpc.StartDebuggerRequest.MessageFieldNumber">
+        <member name="F:Pulumirpc.StartDebuggingRequest.MessageFieldNumber">
             <summary>Field number for the "message" field.</summary>
         </member>
-        <member name="P:Pulumirpc.StartDebuggerRequest.Message">
+        <member name="P:Pulumirpc.StartDebuggingRequest.Message">
             <summary>
             the string to display to the user with instructions on how to connect to the debugger.
             </summary>
@@ -4686,6 +4686,15 @@
         <member name="M:Pulumirpc.Engine.EngineBase.SetRootResource(Pulumirpc.SetRootResourceRequest,Grpc.Core.ServerCallContext)">
             <summary>
             SetRootResource sets the URN of the root resource.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineBase.StartDebugging(Pulumirpc.StartDebuggingRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            StartDebugging indicates to the engine that the program has started under a debugger, and the engine
+            should notify the user of how to connect to the debugger.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -4816,6 +4825,46 @@
         <member name="M:Pulumirpc.Engine.EngineClient.SetRootResourceAsync(Pulumirpc.SetRootResourceRequest,Grpc.Core.CallOptions)">
             <summary>
             SetRootResource sets the URN of the root resource.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.StartDebugging(Pulumirpc.StartDebuggingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            StartDebugging indicates to the engine that the program has started under a debugger, and the engine
+            should notify the user of how to connect to the debugger.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.StartDebugging(Pulumirpc.StartDebuggingRequest,Grpc.Core.CallOptions)">
+            <summary>
+            StartDebugging indicates to the engine that the program has started under a debugger, and the engine
+            should notify the user of how to connect to the debugger.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.StartDebuggingAsync(Pulumirpc.StartDebuggingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            StartDebugging indicates to the engine that the program has started under a debugger, and the engine
+            should notify the user of how to connect to the debugger.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.StartDebuggingAsync(Pulumirpc.StartDebuggingRequest,Grpc.Core.CallOptions)">
+            <summary>
+            StartDebugging indicates to the engine that the program has started under a debugger, and the engine
+            should notify the user of how to connect to the debugger.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -5160,10 +5209,10 @@
             The target of a codegen.LoaderServer to use for loading schemas.
             </summary>
         </member>
-        <member name="F:Pulumirpc.RunRequest.StartDebuggerFieldNumber">
-            <summary>Field number for the "start_debugger" field.</summary>
+        <member name="F:Pulumirpc.RunRequest.AttachDebuggerFieldNumber">
+            <summary>Field number for the "attach_debugger" field.</summary>
         </member>
-        <member name="P:Pulumirpc.RunRequest.StartDebugger">
+        <member name="P:Pulumirpc.RunRequest.AttachDebugger">
             <summary>
             true if the language host is supposed to start the program under a debugger.
             </summary>
@@ -6535,14 +6584,6 @@
             the returned values, if call was successful.
             </summary>
         </member>
-        <member name="F:Pulumirpc.CallResponse.ReturnDependenciesFieldNumber">
-            <summary>Field number for the "returnDependencies" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.CallResponse.ReturnDependencies">
-            <summary>
-            a map from return value keys to the dependencies of the return value.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.CallResponse.FailuresFieldNumber">
             <summary>Field number for the "failures" field.</summary>
         </member>
@@ -6550,6 +6591,17 @@
             <summary>
             the failures if any arguments didn't pass verification.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.CallResponse.ReturnDependenciesFieldNumber">
+            <summary>Field number for the "returnDependencies" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallResponse.ReturnDependencies">
+             <summary>
+             a map from return value keys to the dependencies of the return value.
+            
+             returnDependencies will be augmented by the set of dependencies specified in return
+             via output property values.
+             </summary>
         </member>
         <member name="T:Pulumirpc.CallResponse.Types">
             <summary>Container for nested types declared in the CallResponse message type.</summary>
@@ -6771,7 +6823,8 @@
         </member>
         <member name="P:Pulumirpc.DiffResponse.Diffs">
             <summary>
-            a list of the properties that changed.
+            a list of the properties that changed. This should only contain top level property names, it does not
+            support nested properties. For that use detailedDiff.
             </summary>
         </member>
         <member name="F:Pulumirpc.DiffResponse.DetailedDiffFieldNumber">

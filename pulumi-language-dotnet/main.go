@@ -564,19 +564,12 @@ func (host *dotnetLanguageHost) buildDll() error {
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
-	args := []string{"build", "-nologo"}
+	args := []string{"build", "-nologo", "-o", "bin/pulumi-debugging"}
 
 	cmd := exec.Command(host.exec, args...)
 	err := cmd.Run()
 	if err != nil {
 		return errors.Wrapf(err, "failed to build project: %v", err)
-	}
-
-	args = []string{"publish", "-o", "bin/publish"}
-	cmd = exec.Command(host.exec, args...)
-	err = cmd.Run()
-	if err != nil {
-		return errors.Wrapf(err, "failed to publish project: %v", err)
 	}
 
 	err = filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
@@ -585,7 +578,7 @@ func (host *dotnetLanguageHost) buildDll() error {
 		}
 
 		if name, ok := strings.CutSuffix(d.Name(), ".csproj"); ok {
-			host.binary = filepath.Join("bin", "publish", name+".dll")
+			host.binary = filepath.Join("bin", "pulumi-debugging", name+".dll")
 			return filepath.SkipAll
 		}
 		return nil

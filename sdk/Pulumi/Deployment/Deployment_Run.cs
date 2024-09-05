@@ -24,7 +24,7 @@ namespace Pulumi
                     while (!System.Diagnostics.Debugger.IsAttached)
                     {
                         // keep waiting until the debugger is attached
-                        System.Threading.Tasks.Task.Delay(1);
+                        System.Threading.Thread.Sleep(1);
                     }
                 }
                 action();

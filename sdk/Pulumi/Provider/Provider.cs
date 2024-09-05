@@ -530,8 +530,8 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
-        // This keeps the PropertyValue.Marshal clean in terms of not handling nulls.
-        private ImmutableDictionary<string, PropertyValue> Marshal(Struct? properties)
+        // This keeps the PropertyValue.Unmarshal clean in terms of not handling nulls.
+        private ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
         {
             if (properties == null)
             {
@@ -544,7 +544,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(new Urn(request.Urn), Marshal(request.Olds), Marshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
+                var domRequest = new CheckRequest(new Urn(request.Urn), Unmarshal(request.Olds), Unmarshal(request.News), ImmutableArray.ToImmutableArray(request.RandomSeed));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
@@ -579,7 +579,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Marshal(request.Olds), Marshal(request.News), request.IgnoreChanges.ToImmutableArray());
+                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News), request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -631,7 +631,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new InvokeRequest(request.Tok, Marshal(request.Args));
+                var domRequest = new InvokeRequest(request.Tok, Unmarshal(request.Args));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Invoke(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.InvokeResponse();
@@ -691,7 +691,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Marshal(request.Args), request.AcceptSecrets, request.AcceptResources);
+                var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Unmarshal(request.Args), request.AcceptSecrets, request.AcceptResources);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Configure(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ConfigureResponse();
@@ -742,7 +742,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CreateRequest(new Urn(request.Urn), Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout), request.Preview);
+                var domRequest = new CreateRequest(new Urn(request.Urn), Unmarshal(request.Properties), TimeSpan.FromSeconds(request.Timeout), request.Preview);
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Create(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CreateResponse();
@@ -768,7 +768,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new ReadRequest(new Urn(request.Urn), request.Id, Marshal(request.Properties), Marshal(request.Inputs));
+                var domRequest = new ReadRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Properties), Unmarshal(request.Inputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Read(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.ReadResponse();
@@ -795,7 +795,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new CheckRequest(new Urn(request.Urn), Marshal(request.Olds), Marshal(request.News),
+                var domRequest = new CheckRequest(new Urn(request.Urn), Unmarshal(request.Olds), Unmarshal(request.News),
                     request.RandomSeed.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
@@ -831,7 +831,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Marshal(request.Olds), Marshal(request.News),
+                var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
                     request.IgnoreChanges.ToImmutableArray());
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Diff(domRequest, cts.Token);
@@ -884,7 +884,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new UpdateRequest(new Urn(request.Urn), request.Id, Marshal(request.Olds), Marshal(request.News),
+                var domRequest = new UpdateRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
                     TimeSpan.FromSeconds(request.Timeout),
                     request.IgnoreChanges.ToImmutableArray(), request.Preview);
                 using var cts = GetToken(context);
@@ -911,7 +911,7 @@ namespace Pulumi.Experimental.Provider
         {
             try
             {
-                var domRequest = new DeleteRequest(new Urn(request.Urn), request.Id, Marshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
+                var domRequest = new DeleteRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
                 using var cts = GetToken(context);
                 await Implementation.Delete(domRequest, cts.Token);
                 return new Empty();

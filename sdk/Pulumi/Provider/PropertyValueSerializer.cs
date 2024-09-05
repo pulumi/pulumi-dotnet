@@ -286,32 +286,14 @@ namespace Pulumi.Experimental.Provider
                 return new PropertyValue(enumValue);
             }
 
+            if (value is IInput input)
+            {
+                return await SerializeOutput<T>(input.ToOutput());
+            }
+
             if (value is IOutput output)
             {
-                var data = await output.GetDataAsync().ConfigureAwait(false);
-                if (!data.IsKnown)
-                {
-                    return PropertyValue.Computed;
-                }
-
-                var outputValue = await Serialize(data.Value);
-                var dependantResources = ImmutableArray.CreateBuilder<Urn>();
-                foreach (var resource in data.Resources)
-                {
-                    var urn = await resource.Urn.GetValueAsync("").ConfigureAwait(false);
-                    dependantResources.Add(new Urn(urn));
-                }
-
-                var outputProperty = new PropertyValue(new OutputReference(
-                    value: outputValue,
-                    dependencies: dependantResources.ToImmutableArray()));
-
-                if (data.IsSecret)
-                {
-                    return new PropertyValue(outputProperty);
-                }
-
-                return outputProperty;
+                return await SerializeOutput<T>(output);
             }
 
             if (value is InputArgs inputArgs)
@@ -335,6 +317,34 @@ namespace Pulumi.Experimental.Provider
             }
 
             return PropertyValue.Null;
+        }
+
+        private async Task<PropertyValue> SerializeOutput<T>(IOutput output)
+        {
+            var data = await output.GetDataAsync().ConfigureAwait(false);
+            if (!data.IsKnown)
+            {
+                return PropertyValue.Computed;
+            }
+
+            var outputValue = await Serialize(data.Value);
+            var dependantResources = ImmutableArray.CreateBuilder<Urn>();
+            foreach (var resource in data.Resources)
+            {
+                var urn = await resource.Urn.GetValueAsync("").ConfigureAwait(false);
+                dependantResources.Add(new Urn(urn));
+            }
+
+            var outputProperty = new PropertyValue(new OutputReference(
+                value: outputValue,
+                dependencies: dependantResources.ToImmutableArray()));
+
+            if (data.IsSecret)
+            {
+                return new PropertyValue(outputProperty);
+            }
+
+            return outputProperty;
         }
 
         private string DeserializationError(
@@ -920,7 +930,7 @@ namespace Pulumi.Experimental.Provider
                 keepOutputValues: true,
                 ctx: "");
 
-            return PropertyValue.Unmarshal(Serializer.CreateValue(value));
+            return PropertyValue.Unmarshal(Serializer.CreateValue(value), null);
         }
 
         internal async Task<ImmutableDictionary<string, PropertyValue>> StateFromComponentResource(
@@ -941,6 +951,13 @@ namespace Pulumi.Experimental.Provider
                     if (!string.IsNullOrWhiteSpace(attr.Name))
                     {
                         propertyName = attr.Name;
+                    }
+
+                    if (Constants.UrnPropertyName.Equals(propertyName))
+                    {
+                        // similar to how component provider state in other languages
+                        // is generated we exclude the resource urn from the state
+                        continue;
                     }
 
                     var value = property.GetValue(component);

@@ -1,12 +1,12 @@
 using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using DevSpells.WebApi.Testing;
 using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Pulumi.Testing;
+using Pulumi.Tests.Logging;
 using Xunit;
 
 namespace Pulumi.Tests.Provider;

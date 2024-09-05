@@ -56,15 +56,6 @@ namespace Pulumi
             {
                 exitCode = await RunInlineAsyncWithResult(deploymentBuilder, settings, runnerFunc).ConfigureAwait(false);
             }
-            // because we might be newing a generic, reflection comes in to
-            // construct the instance. And if there is an exception in
-            // the constructor of the user-provided TStack, it will be wrapped
-            // in TargetInvocationException - which is not the exception
-            // we want to throw to the consumer.
-            catch (TargetInvocationException ex) when (ex.InnerException != null)
-            {
-                result.ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex.InnerException);
-            }
             catch (Exception ex)
             {
                 result.ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
@@ -83,7 +74,18 @@ namespace Pulumi
                 () => new Deployment(builder, settings),
                 async runner =>
                 {
-                    var result = await runnerFunc(runner).ConfigureAwait(false);
+                    T result;
+                    try
+                    {
+                        result = await runnerFunc(runner).ConfigureAwait(false);
+                    }
+                    // If there is an exception in the constructor of the user-provided TStack,
+                    // it will be wrapped into TargetInvocationException - which is not the exception
+                    // we want to throw to the consumer.
+                    catch (TargetInvocationException ex) when (ex.InnerException != null)
+                    {
+                        throw ex.InnerException;
+                    }
 
                     // if there was swallowed exceptions from the in-flight tasks we want to either capture
                     // if it is single or re-throw as an aggregate exception if there is more than 1

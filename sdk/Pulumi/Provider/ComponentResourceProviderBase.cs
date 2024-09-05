@@ -7,23 +7,6 @@ using Pulumi.Utilities;
 
 namespace Pulumi.Experimental.Provider;
 
-public class CheckResult
-{
-    public static readonly CheckResult Empty = new CheckResult();
-    public bool IsValid => Failures.Count == 0;
-    public IList<CheckFailure> Failures { get; set; }
-
-    private CheckResult()
-        : this(ImmutableList<CheckFailure>.Empty)
-    {
-    }
-
-    public CheckResult(IList<CheckFailure> failures)
-    {
-        Failures = failures;
-    }
-}
-
 public class ComponentResourceProviderBase : Provider
 {
     protected Task<CallResponse> Call<TArgs, TReturn>(
@@ -40,12 +23,12 @@ public class ComponentResourceProviderBase : Provider
         Func<ResourceReference?, TArgs, Output<TReturn>> factory
     ) where TReturn : class
     {
-        return Call(request, (self, args) => Task.FromResult(check(self, args)), factory);
+        return Call(request, (self, args) => Output.Create(check(self, args)), factory);
     }
 
     protected async Task<CallResponse> Call<TArgs, TReturn>(
         CallRequest request,
-        Func<ResourceReference?, TArgs, Task<CheckResult>> check,
+        Func<ResourceReference?, TArgs, Output<CheckResult>> check,
         Func<ResourceReference?, TArgs, Output<TReturn>> factory
     ) where TReturn : class
     {
@@ -54,7 +37,7 @@ public class ComponentResourceProviderBase : Provider
 #pragma warning restore CS0618 // Type or member is obsolete
         var args = await serializer.Deserialize<TArgs>(new PropertyValue(request.Args));
 
-        var checkResult = await check(request.Self, args);
+        var checkResult = await OutputUtilities.GetValueAsync(check(request.Self, args));
         if (!checkResult.IsValid)
         {
             return new CallResponse(null, checkResult.Failures, ImmutableDictionary<string, ISet<Urn>>.Empty);
@@ -68,7 +51,6 @@ public class ComponentResourceProviderBase : Provider
         {
             throw new InvalidOperationException("Expected result to be an object");
         }
-
 
         return new CallResponse(resultObject, new List<CheckFailure>(), ImmutableDictionary<string, ISet<Urn>>.Empty);
     }

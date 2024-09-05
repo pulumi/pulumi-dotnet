@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DevSpells.WebApi.Testing;
+namespace Pulumi.Tests.Logging;
 
 public sealed class DelegatedLoggerProvider : ILoggerProvider
 {

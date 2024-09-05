@@ -6,10 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-
-  <ItemGroup>
-   <ProjectReference Include="..\..\..\sdk\Pulumi\Pulumi.csproj"/>
-    <ProjectReference Include="..\..\utils\Utils.csproj" />
-  </ItemGroup>
-
 </Project>

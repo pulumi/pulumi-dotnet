@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Improvements
+body: Handle dependencies in serialization of PropertyValues
+time: 2024-09-06T07:24:23.6449352+02:00
+custom:
+    PR: "335"

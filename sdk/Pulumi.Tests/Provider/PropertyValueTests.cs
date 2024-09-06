@@ -234,7 +234,6 @@ public class PropertyValueTests
 
         [Input("firstWithField")]
         private string[]? _firstWithField;
-
         public string[] FirstWithField
         {
             get => _firstWithField ??= System.Array.Empty<string>();

@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Add Test Infrastructure
+time: 2024-09-06T08:49:34.1991059+02:00
+custom:
+    PR: "336"

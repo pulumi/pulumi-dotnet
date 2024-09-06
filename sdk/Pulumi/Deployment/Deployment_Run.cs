@@ -72,7 +72,7 @@ namespace Pulumi
         /// <param name="func">Callback that creates stack resources.</param>
         /// <param name="options">Stack options.</param>
         public static Task<int> RunAsync(Func<Task<IDictionary<string, object?>>> func, StackOptions? options = null)
-            => CreateRunnerAndRunAsync(() => new Deployment(), runner => runner.RunAsync(func, options));
+            => CreateRunnerAndRunAsync(() => new Deployment(GrpcDeploymentBuilder.Instance), runner => runner.RunAsync(func, options));
 
         /// <summary>
         /// <see cref="RunAsync{TStack}()"/> is an entry-point to a Pulumi
@@ -101,7 +101,7 @@ namespace Pulumi
         /// </para>
         /// </summary>
         public static Task<int> RunAsync<TStack>() where TStack : Stack, new()
-            => CreateRunnerAndRunAsync(() => new Deployment(), runner => runner.RunAsync<TStack>());
+            => CreateRunnerAndRunAsync(() => new Deployment(GrpcDeploymentBuilder.Instance), runner => runner.RunAsync<TStack>());
 
         /// <summary>
         /// <see cref="RunAsync{TStack}()"/> is an entry-point to a Pulumi
@@ -131,7 +131,7 @@ namespace Pulumi
         /// </para>
         /// </summary>
         public static Task<int> RunAsync<TStack>(IServiceProvider serviceProvider) where TStack : Stack
-            => CreateRunnerAndRunAsync(() => new Deployment(), runner => runner.RunAsync<TStack>(serviceProvider));
+            => CreateRunnerAndRunAsync(() => new Deployment(GrpcDeploymentBuilder.Instance), runner => runner.RunAsync<TStack>(serviceProvider));
 
         /// <summary>
         /// Entry point to test a Pulumi application. Deployment will

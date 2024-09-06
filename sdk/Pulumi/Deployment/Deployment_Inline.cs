@@ -10,7 +10,7 @@ namespace Pulumi
 {
     public partial class Deployment
     {
-        private Deployment(InlineDeploymentSettings settings)
+        private Deployment(IDeploymentBuilder deploymentBuilder, InlineDeploymentSettings settings)
         {
             if (settings is null)
                 throw new ArgumentNullException(nameof(settings));
@@ -32,11 +32,11 @@ namespace Pulumi
             var deploymentLogger = settings.Logger ?? CreateDefaultLogger();
 
             deploymentLogger.LogDebug("Creating deployment engine");
-            Engine = new GrpcEngine(settings.EngineAddr);
+            Engine = deploymentBuilder.BuildEngine(settings.EngineAddr);
             deploymentLogger.LogDebug("Created deployment engine");
 
             deploymentLogger.LogDebug("Creating deployment monitor");
-            Monitor = new GrpcMonitor(settings.MonitorAddr);
+            Monitor = deploymentBuilder.BuildMonitor(settings.MonitorAddr);
             deploymentLogger.LogDebug("Created deployment monitor");
 
             // Tell the runner that we are running inside an inline automation program
@@ -47,12 +47,12 @@ namespace Pulumi
             _logger = new EngineLogger(this, deploymentLogger, Engine);
         }
 
-        internal static async Task<InlineDeploymentResult> RunInlineAsync(InlineDeploymentSettings settings, Func<IRunner, Task<int>> runnerFunc)
+        internal static async Task<InlineDeploymentResult> RunInlineAsync(IDeploymentBuilder deploymentBuilder, InlineDeploymentSettings settings, Func<IRunner, Task<int>> runnerFunc)
         {
             var result = new InlineDeploymentResult();
 
             result.ExitCode = await CreateRunnerAndRunAsync(
-                () => new Deployment(settings),
+                () => new Deployment(deploymentBuilder, settings),
                 async runner =>
                 {
                     int? exitCode = null;

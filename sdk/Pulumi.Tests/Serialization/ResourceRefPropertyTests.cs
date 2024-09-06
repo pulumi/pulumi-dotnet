@@ -100,8 +100,8 @@ namespace Pulumi.Tests.Serialization
                     Fields =
                     {
                         { Constants.SpecialSigKey, new Value { StringValue = Constants.SpecialResourceSig } },
-                        { "urn", new Value { StringValue = urn } },
-                        { "id", new Value { StringValue = id } },
+                        { Constants.UrnPropertyName, new Value { StringValue = urn } },
+                        { Constants.IdPropertyName, new Value { StringValue = id } },
                     }
                 }
             };

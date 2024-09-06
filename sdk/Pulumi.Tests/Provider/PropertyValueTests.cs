@@ -1,3 +1,7 @@
+using Google.Protobuf.WellKnownTypes;
+using Pulumi.Serialization;
+using Pulumi.Tests.Serialization;
+
 namespace Pulumi.Tests.Provider;
 
 using Pulumi.Experimental.Provider;
@@ -74,6 +78,135 @@ public class PropertyValueTests
         Assert.Equal("PW", passwordOutput.Value);
     }
 
+    [Fact]
+    public async Task SerializationRoundtripSecretArgsWorks()
+    {
+        var serializer = CreateSerializer();
+        var password = "SomeSecret";
+        var args = new SecretArgs()
+        {
+            Password = password
+        };
+
+        var data = await serializer.Serialize(args);
+        var basicArgs = await serializer.Deserialize<SecretArgs>(data);
+        var passwordOutput = await basicArgs.Password.ToOutput().DataTask;
+        Assert.True(passwordOutput.IsSecret);
+        Assert.True(passwordOutput.IsKnown);
+        Assert.Equal(password, passwordOutput.Value);
+    }
+
+    class ComplexArgs : ResourceArgs
+    {
+        [Input("topLevel")]
+        public Input<string>? TopLevel { get; set; }
+
+        [Input("nestedList")]
+        public List<Output<string>>? List { get; set; }
+
+        [Input("password", required: true)]
+        private Input<string>? secret;
+
+        public Input<string>? Secret
+        {
+            get => secret;
+            set
+            {
+                var emptySecret = Output.CreateSecret(0);
+                secret = Output.Tuple<Input<string>?, int>(value, emptySecret).Apply(t => t.Item1);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task UnmarshalPropagatesInputDependencies()
+    {
+        // Arrange
+        ISet<Urn> inputDependencies = new HashSet<Urn>
+        {
+            new("urn://some:urn")
+        };
+
+        var propertyValue = await UnmarshallComplexArgs(inputDependencies);
+
+        // Assert
+        new DependenciesValidationVisitor(inputDependencies).Visit(propertyValue);
+    }
+
+    [Fact]
+    public void MarshallCollectsDependencies()
+    {
+        // Arrange
+        Dictionary<string, List<Urn>> expectedDependencies = new();
+
+        ImmutableArray<Urn> AddDependency(string key, string urn)
+        {
+            var u = new Urn($"urn::{urn}");
+            if (!expectedDependencies.TryGetValue(key, out var urns))
+            {
+                urns = new List<Urn>();
+                expectedDependencies[key] = urns;
+            }
+            urns.Add(u);
+
+            return ImmutableArray.Create(u);
+        }
+
+        var propertyValue = new Dictionary<string, PropertyValue>
+        {
+            {
+                nameof(ComplexArgs.TopLevel),
+                new PropertyValue(
+                    new OutputReference(
+                        new PropertyValue(new OutputReference(null, AddDependency(nameof(ComplexArgs.TopLevel), "nestedOutput"))),
+                        AddDependency(nameof(ComplexArgs.TopLevel), nameof(ComplexArgs.TopLevel))))
+            },
+            {
+                nameof(ComplexArgs.List),
+                new PropertyValue(
+                    new List<PropertyValue>{new(new OutputReference(null, AddDependency(nameof(ComplexArgs.List), nameof(ComplexArgs.List))))}.ToImmutableArray())
+            },
+            {
+                nameof(ComplexArgs.Secret),
+                new PropertyValue(
+                    new PropertyValue(new OutputReference(null, AddDependency(nameof(ComplexArgs.Secret), nameof(ComplexArgs.Secret)))))
+            }
+
+        };
+
+        // Act
+        PropertyValue.Marshal(propertyValue, out var dependencies);
+
+        // Assert
+        foreach (var expectedDependency in expectedDependencies)
+        {
+            Assert.Contains(expectedDependency.Key, dependencies);
+            foreach (var dependency in expectedDependency.Value)
+            {
+                Assert.Contains(dependency, dependencies[expectedDependency.Key]);
+            }
+        }
+    }
+
+    private static async Task<PropertyValue> UnmarshallComplexArgs(ISet<Urn> inputDependencies)
+    {
+        var args = new ComplexArgs()
+        {
+            Secret = Output<string>.CreateUnknown("password"),
+            List = new List<Output<string>>
+            {
+                Output<string>.CreateUnknown(nameof(ComplexArgs.List))
+            },
+            TopLevel = Output<string>.CreateUnknown(nameof(ComplexArgs.TopLevel)),
+        };
+
+        // Act
+#pragma warning disable CS0618 // Type or member is obsolete
+        var propertyValue = await PropertyValueSerializer.From(args, inputDependencies);
+#pragma warning restore CS0618 // Type or member is obsolete
+        return propertyValue;
+    }
+
     class UsingNullableArgs : ResourceArgs
     {
         public int? Length { get; set; }
@@ -101,6 +234,7 @@ public class PropertyValueTests
 
         [Input("firstWithField")]
         private string[]? _firstWithField;
+
         public string[] FirstWithField
         {
             get => _firstWithField ??= System.Array.Empty<string>();

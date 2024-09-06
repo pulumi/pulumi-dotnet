@@ -921,7 +921,7 @@ namespace Pulumi.Experimental.Provider
             return null;
         }
 
-        internal static async Task<PropertyValue> From(object? data)
+        internal static async Task<PropertyValue> From(object? data, ISet<Urn>? inputDependencies)
         {
             var serializer = new Serializer(excessiveDebugOutput: false);
             var value = await serializer.SerializeAsync(
@@ -930,7 +930,7 @@ namespace Pulumi.Experimental.Provider
                 keepOutputValues: true,
                 ctx: "");
 
-            return PropertyValue.Unmarshal(Serializer.CreateValue(value), null);
+            return PropertyValue.Unmarshal(Serializer.CreateValue(value), inputDependencies);
         }
 
         internal async Task<ImmutableDictionary<string, PropertyValue>> StateFromComponentResource(
@@ -951,13 +951,6 @@ namespace Pulumi.Experimental.Provider
                     if (!string.IsNullOrWhiteSpace(attr.Name))
                     {
                         propertyName = attr.Name;
-                    }
-
-                    if (Constants.UrnPropertyName.Equals(propertyName))
-                    {
-                        // similar to how component provider state in other languages
-                        // is generated we exclude the resource urn from the state
-                        continue;
                     }
 
                     var value = property.GetValue(component);

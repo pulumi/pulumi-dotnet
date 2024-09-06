@@ -286,32 +286,58 @@ namespace Pulumi.Experimental.Provider
                 return new PropertyValue(enumValue);
             }
 
-            if (value is IOutput output)
+            async Task<PropertyValue> SerializeOutput(IOutput output)
             {
                 var data = await output.GetDataAsync().ConfigureAwait(false);
-                if (!data.IsKnown)
+
+                PropertyValue? element = null;
+                if (data.IsKnown)
                 {
-                    return PropertyValue.Computed;
+                    element = await Serialize(data.Value);
                 }
 
-                var outputValue = await Serialize(data.Value);
-                var dependantResources = ImmutableArray.CreateBuilder<Urn>();
+                var dependantResources = ImmutableHashSet.CreateBuilder<Urn>();
                 foreach (var resource in data.Resources)
                 {
                     var urn = await resource.Urn.GetValueAsync("").ConfigureAwait(false);
                     dependantResources.Add(new Urn(urn));
                 }
 
-                var outputProperty = new PropertyValue(new OutputReference(
-                    value: outputValue,
-                    dependencies: dependantResources.ToImmutableArray()));
+                PropertyValue outputValue;
+                if (dependantResources.Count == 0)
+                {
+                    if (element != null)
+                    {
+                        outputValue = element;
+                    }
+                    else
+                    {
+                        outputValue = PropertyValue.Computed;
+                    }
+                }
+                else
+                {
+                    outputValue = new PropertyValue(new OutputReference(
+                        value: element,
+                        dependencies: dependantResources.ToImmutable()));
+                }
 
                 if (data.IsSecret)
                 {
-                    return new PropertyValue(outputProperty);
+                    return new PropertyValue(outputValue);
                 }
 
-                return outputProperty;
+                return outputValue;
+            }
+
+            if (value is IInput input)
+            {
+                return await SerializeOutput(input.ToOutput());
+            }
+
+            if (value is IOutput output)
+            {
+                return await SerializeOutput(output);
             }
 
             if (value is InputArgs inputArgs)

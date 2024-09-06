@@ -72,9 +72,9 @@ namespace Pulumi.Experimental.Provider
     public readonly struct OutputReference : IEquatable<OutputReference>
     {
         public readonly PropertyValue? Value;
-        public readonly ImmutableArray<Urn> Dependencies;
+        public readonly ImmutableHashSet<Urn> Dependencies;
 
-        public OutputReference(PropertyValue? value, ImmutableArray<Urn> dependencies)
+        public OutputReference(PropertyValue? value, ImmutableHashSet<Urn> dependencies)
         {
             Value = value;
             Dependencies = dependencies;
@@ -96,7 +96,7 @@ namespace Pulumi.Experimental.Provider
 
         public bool Equals(OutputReference other)
         {
-            if (!Dependencies.Equals(other.Dependencies))
+            if (!Dependencies.SetEquals(other.Dependencies))
             {
                 return false;
             }
@@ -120,6 +120,11 @@ namespace Pulumi.Experimental.Provider
         public static bool operator !=(OutputReference left, OutputReference right)
         {
             return !(left == right);
+        }
+
+        public override string ToString()
+        {
+            return $"Output({Value}, {Dependencies})";
         }
     }
 
@@ -707,10 +712,6 @@ namespace Pulumi.Experimental.Provider
                                         {
                                             element = Unmarshal(knownElement);
                                         }
-                                        else
-                                        {
-                                            element = PropertyValue.Computed;
-                                        }
                                         var secret = false;
                                         if (structValue.Fields.TryGetValue(Constants.SecretName, out var v))
                                         {
@@ -724,7 +725,7 @@ namespace Pulumi.Experimental.Provider
                                             }
                                         }
 
-                                        var dependenciesBuilder = ImmutableArray.CreateBuilder<Urn>();
+                                        var dependenciesBuilder = ImmutableHashSet.CreateBuilder<Urn>();
                                         if (structValue.Fields.TryGetValue(Constants.DependenciesName, out var dependencies))
                                         {
                                             if (dependencies.KindCase == Value.KindOneofCase.ListValue)
@@ -843,7 +844,7 @@ namespace Pulumi.Experimental.Provider
                 result.Fields[Constants.ValueName] = Marshal(output.Value);
             }
 
-            var dependencies = new Value[output.Dependencies.Length];
+            var dependencies = new Value[output.Dependencies.Count];
             var i = 0;
             foreach (var dependency in output.Dependencies)
             {

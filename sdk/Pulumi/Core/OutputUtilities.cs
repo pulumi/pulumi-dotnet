@@ -43,6 +43,31 @@ namespace Pulumi.Utilities
             => Output<T>.CreateUnknown(valueFactory);
 
         /// <summary>
+        /// Create an output with the given dependency.
+        /// Note: generally this should never be used in normal programs, it is exposed for tests.
+        /// </summary>
+        public static Output<T> WithDependency<T>(Output<T> output, Resource resource)
+        {
+            if (output is null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            if (resource is null)
+            {
+                throw new ArgumentNullException(nameof(resource));
+            }
+
+            var newTask = output.DataTask.ContinueWith(t =>
+            {
+                var data = t.Result;
+                return new Serialization.OutputData<T>(data.Resources.Add(resource), data.Value, data.IsKnown, data.IsSecret);
+            }, TaskContinuationOptions.ExecuteSynchronously);
+
+            return new Output<T>(newTask);
+        }
+
+        /// <summary>
         /// Retrieve the known status of the given output.
         /// Note: generally, this should never be used in combination with await for
         /// a program control flow to avoid deadlock situations.

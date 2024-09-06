@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Hosting;
+using Pulumi.Testing;
 using Xunit;
 
 namespace Pulumi.Tests.Provider;
@@ -28,7 +29,7 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
         var cts = new System.Threading.CancellationTokenSource();
 
         // Custom stdout so we can see what port Serve chooses
-        host = Experimental.Provider.Provider.BuildHost(args, "1.0", BuildProvider);
+        host = Experimental.Provider.Provider.BuildHost(args, "1.0", new MockDeploymentBuilder(), BuildProvider);
         await host.StartAsync(cts.Token);
 
         // Grab the uri from the host

@@ -346,7 +346,7 @@ namespace Pulumi.Experimental.Provider
 
         public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
         {
-            using var host = BuildHost(args, version, factory);
+            using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
 
             // before starting the host, set up this callback to tell us what port was selected
             await host.StartAsync(cancellationToken);
@@ -373,6 +373,15 @@ namespace Pulumi.Experimental.Provider
         }
 
         public static Microsoft.Extensions.Hosting.IHost BuildHost(string[] args, string? version, Func<IHost, Provider> factory)
+        {
+            return BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
+        }
+
+        internal static Microsoft.Extensions.Hosting.IHost BuildHost(
+            string[] args,
+            string? version,
+            IDeploymentBuilder deploymentBuilder,
+            Func<IHost, Provider> factory)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;

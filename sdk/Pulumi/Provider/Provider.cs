@@ -541,7 +541,7 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Helper to marshal CheckFailures from the domain to the GRPC layer.
-        private IEnumerable<Pulumirpc.CheckFailure> mapFailures(IEnumerable<CheckFailure>? failures)
+        private IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
         {
             if (failures != null)
             {
@@ -564,7 +564,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                grpcResponse.Failures.AddRange(mapFailures(domResponse.Failures));
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -642,7 +642,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Invoke(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.InvokeResponse();
                 grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return);
-                grpcResponse.Failures.AddRange(mapFailures(domResponse.Failures));
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -798,7 +798,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                grpcResponse.Failures.AddRange(mapFailures(domResponse.Failures));
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 return grpcResponse;
             }
             catch (NotImplementedException ex)

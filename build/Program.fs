@@ -197,6 +197,17 @@ let syncProtoFiles() = GitSync.repository {
     ]
 }
 
+let syncPulumiTestLanguage() = GitSync.repository {
+    remoteRepository = "https://github.com/pulumi/pulumi.git"
+    localRepositoryPath = repositoryRoot
+    contents = [
+        GitSync.folder {
+            sourcePath = [ "cmd"; "pulumi-test-language" ]
+            destinationPath = [ "cmd"; "pulumi-test-language" ]
+        }
+    ]
+}
+
 let runSpecificIntegrationTest(testName: string) =
     buildLanguagePlugin()
     cleanSdk()
@@ -226,6 +237,7 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
     | [| "sync-proto-files" |] -> syncProtoFiles()
+    | [| "sync-pulumi-test-language" |] -> syncPulumiTestLanguage()
     | [| "list-integration-tests" |] -> listIntegrationTests()
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()

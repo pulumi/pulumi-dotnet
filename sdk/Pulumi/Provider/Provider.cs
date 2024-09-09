@@ -374,6 +374,11 @@ namespace Pulumi.Experimental.Provider
 
         public static Microsoft.Extensions.Hosting.IHost BuildHost(string[] args, string? version, Func<IHost, Provider> factory)
         {
+            return BuildHost(args, version, factory, hostFactory: (address) => new GrpcHost(address));
+        }
+
+        public static Microsoft.Extensions.Hosting.IHost BuildHost(string[] args, string? version, Func<IHost, Provider> factory, Func<string, IHost> hostFactory)
+        {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
 
@@ -414,6 +419,7 @@ namespace Pulumi.Experimental.Provider
                         {
                             // to be injected into ResourceProviderService
                             services.AddSingleton(factory);
+                            services.AddSingleton(hostFactory);
                             services.AddSingleton<ResourceProviderService>();
 
                             services.AddGrpc(grpcOptions =>
@@ -437,6 +443,7 @@ namespace Pulumi.Experimental.Provider
 
     class ResourceProviderService : ResourceProvider.ResourceProviderBase, IDisposable
     {
+        readonly Func<string, IHost> hostFactory;
         readonly Func<IHost, Provider> factory;
         readonly CancellationTokenSource rootCTS;
         Provider? implementation;
@@ -456,12 +463,13 @@ namespace Pulumi.Experimental.Provider
 
         private void CreateProvider(string address)
         {
-            var host = new GrpcHost(address);
+            var host = hostFactory(address);
             implementation = factory(host);
         }
 
-        public ResourceProviderService(Func<IHost, Provider> factory, IConfiguration configuration)
+        public ResourceProviderService(Func<string, IHost> hostFactory, Func<IHost, Provider> factory, IConfiguration configuration)
         {
+            this.hostFactory = hostFactory;
             this.factory = factory;
             this.rootCTS = new CancellationTokenSource();
 

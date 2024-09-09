@@ -631,14 +631,14 @@ namespace Pulumi.Experimental.Provider
 
         // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
         // This keeps the PropertyValue. Unmarshal clean in terms of not handling nulls.
-        private ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties, IDictionary<string, ISet<Urn>>? inputDependencies = default)
+        private ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
         {
             if (properties == null)
             {
                 return ImmutableDictionary<string, PropertyValue>.Empty;
             }
 
-            return PropertyValue.Unmarshal(properties, inputDependencies);
+            return PropertyValue.Unmarshal(properties);
         }
 
         // Helper to marshal CheckFailures from the domain to the GRPC layer.
@@ -665,10 +665,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                if (domResponse.Failures != null)
-                {
-                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
-                }
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
 
                 return grpcResponse;
             }
@@ -747,10 +744,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Invoke(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.InvokeResponse();
                 grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return);
-                if (domResponse.Failures != null)
-                {
-                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
-                }
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
 
                 return grpcResponse;
             }
@@ -907,10 +901,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                if (domResponse.Failures != null)
-                {
-                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
-                }
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
 
                 return grpcResponse;
             }
@@ -1068,10 +1059,8 @@ namespace Pulumi.Experimental.Provider
                     },
                 };
 
-                var inputDependencies =
-                    request.InputDependencies.ToDictionary(kv => kv.Key, kv => (ISet<Urn>)kv.Value.Urns.Select(urn => new Urn(urn)).ToHashSet());
                 var domRequest = new ConstructRequest(request.Type, request.Name,
-                    Unmarshal(request.Inputs, inputDependencies), opts);
+                    Unmarshal(request.Inputs), opts);
                 using var cts = GetToken(context);
 
                 var inlineDeploymentSettings = new InlineDeploymentSettings(logger, EngineAddress, request.MonitorEndpoint, request.Config,
@@ -1080,7 +1069,7 @@ namespace Pulumi.Experimental.Provider
                     .RunInlineAsyncWithResult(deploymentBuilder, inlineDeploymentSettings, runner => Implementation.Construct(domRequest, cts.Token))
                     .ConfigureAwait(false);
 
-                var state = PropertyValue.Marshal(domResponse.State, out var stateDependencies);
+                var state = PropertyValue.Marshal(domResponse.State);
 
                 var grpcResponse = new Pulumirpc.ConstructResponse
                 {
@@ -1088,18 +1077,6 @@ namespace Pulumi.Experimental.Provider
                     State = state,
                 };
                 grpcResponse.StateDependencies.Add(domResponse.StateDependencies.ToDictionary(kv => kv.Key, kv => BuildPropertyDependencies(kv.Value)));
-
-                foreach (var stateDependency in stateDependencies)
-                {
-                    if (grpcResponse.StateDependencies.TryGetValue(stateDependency.Key, out var existing))
-                    {
-                        existing.Urns.AddRange(stateDependency.Value.Select(urn => urn.Value));
-                    }
-                    else
-                    {
-                        grpcResponse.StateDependencies.Add(stateDependency.Key, BuildPropertyDependencies(stateDependency.Value));
-                    }
-                }
 
                 return grpcResponse;
             });
@@ -1135,26 +1112,11 @@ namespace Pulumi.Experimental.Provider
                 IDictionary<string, ISet<Urn>> returnDependencies = ImmutableDictionary<string, ISet<Urn>>.Empty;
                 var grpcResponse = new Pulumirpc.CallResponse
                 {
-                    Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return, out returnDependencies)
+                    Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return)
                 };
                 grpcResponse.ReturnDependencies.Add(domResponse.ReturnDependencies.ToDictionary(kv => kv.Key, kv => BuildReturnDependencies(kv.Value)));
 
-                foreach (var returnDependency in returnDependencies)
-                {
-                    if (grpcResponse.ReturnDependencies.TryGetValue(returnDependency.Key, out var existing))
-                    {
-                        existing.Urns.AddRange(returnDependency.Value.Select(urn => urn.Value));
-                    }
-                    else
-                    {
-                        grpcResponse.ReturnDependencies.Add(returnDependency.Key, BuildReturnDependencies(returnDependency.Value));
-                    }
-                }
-
-                if (domResponse.Failures != null)
-                {
-                    grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
-                }
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
 
                 return grpcResponse;
             });
@@ -1174,7 +1136,7 @@ namespace Pulumi.Experimental.Provider
                 {
                     domArgs = domArgs.SetItem(argDependency.Key,
                         new PropertyValue(new OutputReference(currentValue,
-                            argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableArray())));
+                            argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableHashSet())));
                 }
             }
 
@@ -1193,15 +1155,6 @@ namespace Pulumi.Experimental.Provider
             var propertyDependencies = new Pulumirpc.CallResponse.Types.ReturnDependencies();
             propertyDependencies.Urns.AddRange(dependencies.Select(urn => urn.Value));
             return propertyDependencies;
-        }
-
-        private static IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure> failures)
-        {
-            return failures.Select(domFailure => new Pulumirpc.CheckFailure
-            {
-                Property = domFailure.Property,
-                Reason = domFailure.Reason
-            });
         }
     }
 }

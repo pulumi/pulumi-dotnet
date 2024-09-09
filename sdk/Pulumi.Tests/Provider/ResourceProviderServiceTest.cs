@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Divergic.Logging.Xunit;
 using FluentAssertions;
+using Google.Protobuf.WellKnownTypes;
 using Pulumi.Experimental.Provider;
 using Xunit;
 using Xunit.Abstractions;
@@ -45,7 +46,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         var urnDependentResource = "urn::dependent::resource";
         var constructRequest = new Pulumirpc.ConstructRequest()
         {
-            Inputs = serializeArga.Value.StructValue,
+            Inputs = serializeArga.StructValue,
             InputDependencies =
             {
                 {
@@ -71,10 +72,6 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             RetainOnDelete = retainOnDelete,
             Parallel = parallel,
         };
-        if (serializeArga.Dependencies != null)
-        {
-            constructRequest.Dependencies.AddRange(serializeArga.Dependencies.Select(urn => urn.ToString()));
-        }
 
         var constructResponse = await provider.ConstructAsync(constructRequest);
 
@@ -83,7 +80,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         constructResponse.StateDependencies.Should().ContainSingle(stringInputName, new Pulumirpc.ConstructResponse.Types.PropertyDependencies { Urns = { urnDependentResource } });
     }
 
-    private static async Task<PropertyValue.ValueWithDependencies> Serialize(object args)
+    private static async Task<Value> Serialize(object args)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         var propertyValueSerializer = new PropertyValueSerializer();
@@ -124,30 +121,16 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             DryRun = dryRun,
             Parallel = parallel,
             Tok = "SomeMethod",
-            Args = serializeArgs.Value.StructValue,
+            Args = serializeArgs.StructValue,
             ArgDependencies = { },
             AcceptsOutputValues = acceptsOutputValues
         };
-        if (serializeArgs.Dependencies != null)
-        {
-            foreach (var arg in serializeArgs.Value.StructValue.Fields)
-            {
-                if (arg.Value.StructValue == null || !arg.Value.StructValue.Fields.TryGetValue(Constants.DependenciesName, out var dependencies))
-                {
-                    continue;
-                }
-
-                var argumentDependencies = new CallRequest.Types.ArgumentDependencies();
-                argumentDependencies.Urns.AddRange(dependencies.ListValue.Values.Select(v => v.StringValue));
-                callRequest.ArgDependencies.Add(arg.Key, argumentDependencies);
-            }
-        }
 
         var callResponse = await provider.CallAsync(callRequest);
         Assert.True(callResponse.Return.Fields.TryGetValue(ResourceProviderServiceTestProvider.Tok, out var tokResponse));
         Assert.Equal(tokResponse!.StringValue, callRequest.Tok);
         Assert.True(callResponse.Return.Fields.TryGetValue(ResourceProviderServiceTestProvider.Args, out var argsResponse));
-        argsResponse.Should().BeEquivalentTo(serializeArgs.Value);
+        argsResponse.Should().BeEquivalentTo(serializeArgs);
         callResponse.Failures.Should().ContainSingle(failure =>
             failure.Property == ResourceProviderServiceTestProvider.CheckFailure.Property &&
             failure.Reason == ResourceProviderServiceTestProvider.CheckFailure.Reason);

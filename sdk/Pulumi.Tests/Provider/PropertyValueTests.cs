@@ -377,7 +377,7 @@ public class PropertyValueTests
     public async Task DeserializingBasicInputsWorks()
     {
         var serializer = CreateSerializer();
-        var resources = ImmutableArray.Create(new Urn("pulumi:pulumi:Stack"));
+        var resources = ImmutableHashSet.Create(new Urn("pulumi:pulumi:Stack"));
         var output = new PropertyValue(new OutputReference(
             value: new PropertyValue("Hello"),
             dependencies: resources));
@@ -406,7 +406,7 @@ public class PropertyValueTests
         var serializer = CreateSerializer();
         var output = new PropertyValue(new OutputReference(
             value: PropertyValue.Computed,
-            dependencies: ImmutableArray<Urn>.Empty));
+            dependencies: ImmutableHashSet<Urn>.Empty));
 
         var deserialized = await serializer.Deserialize<Input<string>>(output);
         var deserializedOutput = deserialized.ToOutput();
@@ -424,7 +424,7 @@ public class PropertyValueTests
         var secretOutput = new PropertyValue(
             new PropertyValue(new OutputReference(
                 value: new PropertyValue("Hello"),
-                dependencies: ImmutableArray<Urn>.Empty)));
+                dependencies: ImmutableHashSet<Urn>.Empty)));
 
         var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
         var deserializedOutput = deserialized.ToOutput();
@@ -441,7 +441,7 @@ public class PropertyValueTests
         var secretOutput = new PropertyValue(
             new PropertyValue(new OutputReference(
                 value: PropertyValue.Computed,
-                dependencies: ImmutableArray<Urn>.Empty)));
+                dependencies: ImmutableHashSet<Urn>.Empty)));
 
         var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
         var deserializedOutput = deserialized.ToOutput();
@@ -459,7 +459,7 @@ public class PropertyValueTests
         var secretOutput = new PropertyValue(
             new OutputReference(
                 value: new PropertyValue(new PropertyValue("Hello")),
-                dependencies: ImmutableArray<Urn>.Empty));
+                dependencies: ImmutableHashSet<Urn>.Empty));
 
         var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
         var deserializedOutput = deserialized.ToOutput();
@@ -477,7 +477,7 @@ public class PropertyValueTests
         var secretOutput = new PropertyValue(
             new OutputReference(
                 value: new PropertyValue(PropertyValue.Computed),
-                dependencies: ImmutableArray<Urn>.Empty));
+                dependencies: ImmutableHashSet<Urn>.Empty));
 
         var deserialized = await serializer.Deserialize<Input<string>>(secretOutput);
         var deserializedOutput = deserialized.ToOutput();
@@ -497,6 +497,46 @@ public class PropertyValueTests
         Assert.Equal(new PropertyValue(true), await serializer.Serialize(true));
         Assert.Equal(new PropertyValue(false), await serializer.Serialize(false));
         Assert.Equal(PropertyValue.Null, await serializer.Serialize<object?>(null));
+    }
+
+    [Fact]
+    public async Task SerializingOutputsWorks()
+    {
+        var serializer = CreateSerializer();
+
+        var plainOutput = Output.Create("Hello");
+        var serialized = await serializer.Serialize(plainOutput);
+        var expected = new PropertyValue("Hello");
+        Assert.Equal(expected, serialized);
+
+        var plainUnknown = OutputUtilities.CreateUnknown("");
+        serialized = await serializer.Serialize(plainUnknown);
+        expected = PropertyValue.Computed;
+        Assert.Equal(expected, serialized);
+
+        var secretUnknown = Output.CreateSecret(OutputUtilities.CreateUnknown(""));
+        serialized = await serializer.Serialize(secretUnknown);
+        expected = new PropertyValue(PropertyValue.Computed);
+        Assert.Equal(expected, serialized);
+
+        var resource = new DependencyResource("urn:pulumi::stack::proj::type::name");
+        var unknownWithDeps = OutputUtilities.WithDependency(OutputUtilities.CreateUnknown(""), resource);
+        serialized = await serializer.Serialize(unknownWithDeps);
+        expected = new PropertyValue(new OutputReference(
+            null,
+            ImmutableHashSet.Create(new Urn("urn:pulumi::stack::proj::type::name"))));
+        Assert.Equal(expected, serialized);
+    }
+
+    [Fact]
+    public async Task SerializingInputsWork()
+    {
+        var serializer = CreateSerializer();
+
+        var input = (Input<string>)"Hello";
+        var serialized = await serializer.Serialize(input);
+        var expected = new PropertyValue("Hello");
+        Assert.Equal(expected, serialized);
     }
 
     [Fact]

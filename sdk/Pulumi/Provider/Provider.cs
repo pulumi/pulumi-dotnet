@@ -417,11 +417,7 @@ namespace Pulumi.Experimental.Provider
             return Serve(args, version, factory, cancellationToken, System.Console.Out);
         }
 
-        public static async Task Serve(string[] args,
-            string? version,
-            Func<IHost, Provider> factory,
-            System.Threading.CancellationToken cancellationToken,
-            System.IO.TextWriter stdout)
+        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
         {
             using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
 
@@ -465,7 +461,10 @@ namespace Pulumi.Experimental.Provider
                     webBuilder
                         .ConfigureKestrel(kestrelOptions =>
                         {
-                            kestrelOptions.Listen(IPAddress.Loopback, 0, listenOptions => { listenOptions.Protocols = HttpProtocols.Http2; });
+                            kestrelOptions.Listen(IPAddress.Loopback, 0, listenOptions =>
+                            {
+                                listenOptions.Protocols = HttpProtocols.Http2;
+                            });
                         })
                         .ConfigureAppConfiguration((context, config) =>
                         {
@@ -478,12 +477,10 @@ namespace Pulumi.Experimental.Provider
                             {
                                 memConfig.Add("Host", args[0]);
                             }
-
                             if (version != null)
                             {
                                 memConfig.Add("Version", version);
                             }
-
                             config.AddInMemoryCollection(memConfig);
                         })
                         .ConfigureLogging(loggingBuilder =>
@@ -507,7 +504,10 @@ namespace Pulumi.Experimental.Provider
                         .Configure(app =>
                         {
                             app.UseRouting();
-                            app.UseEndpoints(endpoints => { endpoints.MapGrpcService<ResourceProviderService>(); });
+                            app.UseEndpoints(endpoints =>
+                            {
+                                endpoints.MapGrpcService<ResourceProviderService>();
+                            });
                         });
                     configuration?.Invoke(webBuilder);
                 })
@@ -533,7 +533,6 @@ namespace Pulumi.Experimental.Provider
                 {
                     throw new RpcException(new Status(StatusCode.FailedPrecondition, "Engine host not yet attached"));
                 }
-
                 return implementation;
             }
         }
@@ -581,7 +580,6 @@ namespace Pulumi.Experimental.Provider
                     throw new Exception("Provider.Serve must be called with a version, or an assembly version must be set.");
                 }
             }
-
             this.version = version;
         }
 
@@ -643,6 +641,21 @@ namespace Pulumi.Experimental.Provider
             return PropertyValue.Unmarshal(properties, inputDependencies);
         }
 
+        // Helper to marshal CheckFailures from the domain to the GRPC layer.
+        private IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
+        {
+            if (failures != null)
+            {
+                foreach (var domFailure in failures)
+                {
+                    var grpcFailure = new Pulumirpc.CheckFailure();
+                    grpcFailure.Property = domFailure.Property;
+                    grpcFailure.Reason = domFailure.Reason;
+                    yield return grpcFailure;
+                }
+            }
+        }
+
         public override async Task<Pulumirpc.CheckResponse> CheckConfig(Pulumirpc.CheckRequest request, ServerCallContext context)
         {
             try
@@ -683,27 +696,21 @@ namespace Pulumi.Experimental.Provider
                 var grpcResponse = new Pulumirpc.DiffResponse();
                 if (domResponse.Changes.HasValue)
                 {
-                    grpcResponse.Changes = domResponse.Changes.Value
-                        ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome
-                        : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
+                    grpcResponse.Changes = domResponse.Changes.Value ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
                 }
-
                 if (domResponse.Stables != null)
                 {
                     grpcResponse.Stables.AddRange(domResponse.Stables);
                 }
-
                 if (domResponse.Replaces != null)
                 {
                     grpcResponse.Replaces.AddRange(domResponse.Replaces);
                 }
-
                 grpcResponse.DeleteBeforeReplace = domResponse.DeleteBeforeReplace;
                 if (domResponse.Diffs != null)
                 {
                     grpcResponse.Diffs.AddRange(domResponse.Diffs);
                 }
-
                 if (domResponse.DetailedDiff != null)
                 {
                     foreach (var item in domResponse.DetailedDiff)
@@ -715,7 +722,6 @@ namespace Pulumi.Experimental.Provider
                         grpcResponse.DetailedDiff.Add(item.Key, grpcDiff);
                     }
                 }
-
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -933,27 +939,21 @@ namespace Pulumi.Experimental.Provider
                 var grpcResponse = new Pulumirpc.DiffResponse();
                 if (domResponse.Changes.HasValue)
                 {
-                    grpcResponse.Changes = domResponse.Changes.Value
-                        ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome
-                        : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
+                    grpcResponse.Changes = domResponse.Changes.Value ? Pulumirpc.DiffResponse.Types.DiffChanges.DiffSome : Pulumirpc.DiffResponse.Types.DiffChanges.DiffNone;
                 }
-
                 if (domResponse.Stables != null)
                 {
                     grpcResponse.Stables.AddRange(domResponse.Stables);
                 }
-
                 if (domResponse.Replaces != null)
                 {
                     grpcResponse.Replaces.AddRange(domResponse.Replaces);
                 }
-
                 grpcResponse.DeleteBeforeReplace = domResponse.DeleteBeforeReplace;
                 if (domResponse.Diffs != null)
                 {
                     grpcResponse.Diffs.AddRange(domResponse.Diffs);
                 }
-
                 if (domResponse.DetailedDiff != null)
                 {
                     foreach (var item in domResponse.DetailedDiff)
@@ -965,7 +965,6 @@ namespace Pulumi.Experimental.Provider
                         grpcResponse.DetailedDiff.Add(item.Key, grpcDiff);
                     }
                 }
-
                 return grpcResponse;
             }
             catch (NotImplementedException ex)

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Google.Protobuf.Collections;
 
 namespace Pulumi.Experimental.Provider
 {
@@ -73,9 +72,9 @@ namespace Pulumi.Experimental.Provider
     public readonly struct OutputReference : IEquatable<OutputReference>
     {
         public readonly PropertyValue? Value;
-        public readonly ImmutableArray<Urn> Dependencies;
+        public readonly ImmutableHashSet<Urn> Dependencies;
 
-        public OutputReference(PropertyValue? value, ImmutableArray<Urn> dependencies)
+        public OutputReference(PropertyValue? value, ImmutableHashSet<Urn> dependencies)
         {
             Value = value;
             Dependencies = dependencies;
@@ -97,7 +96,7 @@ namespace Pulumi.Experimental.Provider
 
         public bool Equals(OutputReference other)
         {
-            if (!Dependencies.Equals(other.Dependencies))
+            if (!Dependencies.SetEquals(other.Dependencies))
             {
                 return false;
             }
@@ -121,6 +120,11 @@ namespace Pulumi.Experimental.Provider
         public static bool operator !=(OutputReference left, OutputReference right)
         {
             return !(left == right);
+        }
+
+        public override string ToString()
+        {
+            return $"Output({Value}, {Dependencies})";
         }
     }
 
@@ -577,19 +581,17 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        internal static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct properties, IDictionary<string, ISet<Urn>>? inputDependencies = default)
+        internal static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct properties)
         {
             var builder = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
             foreach (var item in properties.Fields)
             {
-                ISet<Urn>? dependencies = null;
-                inputDependencies?.TryGetValue(item.Key, out dependencies);
-                builder.Add(item.Key, Unmarshal(item.Value, dependencies));
+                builder.Add(item.Key, Unmarshal(item.Value));
             }
             return builder.ToImmutable();
         }
 
-        internal static PropertyValue Unmarshal(Value value, ISet<Urn>? inputDependencies)
+        internal static PropertyValue Unmarshal(Value value)
         {
             switch (value.KindCase)
             {
@@ -614,7 +616,7 @@ namespace Pulumi.Experimental.Provider
                         var builder = ImmutableArray.CreateBuilder<PropertyValue>(listValue.Values.Count);
                         foreach (var item in listValue.Values)
                         {
-                            builder.Add(Unmarshal(item, inputDependencies));
+                            builder.Add(Unmarshal(item));
                         }
                         return new PropertyValue(builder.ToImmutable());
                     }
@@ -632,7 +634,7 @@ namespace Pulumi.Experimental.Provider
                                         if (!structValue.Fields.TryGetValue(Constants.ValueName, out var secretValue))
                                             throw new InvalidOperationException("Secrets must have a field called 'value'");
 
-                                        return new PropertyValue(Unmarshal(secretValue, inputDependencies));
+                                        return new PropertyValue(Unmarshal(secretValue));
                                     }
                                 case Constants.SpecialAssetSig:
                                     {
@@ -662,7 +664,7 @@ namespace Pulumi.Experimental.Provider
                                                 var assets = ImmutableDictionary.CreateBuilder<string, AssetOrArchive>();
                                                 foreach (var (name, val) in assetsValue.StructValue.Fields)
                                                 {
-                                                    var innerAssetOrArchive = Unmarshal(val, inputDependencies);
+                                                    var innerAssetOrArchive = Unmarshal(val);
                                                     if (innerAssetOrArchive.AssetValue != null)
                                                     {
                                                         assets[name] = innerAssetOrArchive.AssetValue;
@@ -698,7 +700,7 @@ namespace Pulumi.Experimental.Provider
                                         PropertyValue? idProperty = null;
                                         if (structValue.Fields.TryGetValue(Constants.IdPropertyName, out var id))
                                         {
-                                            idProperty = Unmarshal(id, inputDependencies);
+                                            idProperty = Unmarshal(id);
                                         }
 
                                         return new PropertyValue(new ResourceReference(new Urn(urn), idProperty, version));
@@ -708,11 +710,7 @@ namespace Pulumi.Experimental.Provider
                                         PropertyValue? element = null;
                                         if (structValue.Fields.TryGetValue(Constants.ValueName, out var knownElement))
                                         {
-                                            element = Unmarshal(knownElement, inputDependencies);
-                                        }
-                                        else
-                                        {
-                                            element = PropertyValue.Computed;
+                                            element = Unmarshal(knownElement);
                                         }
                                         var secret = false;
                                         if (structValue.Fields.TryGetValue(Constants.SecretName, out var v))
@@ -727,11 +725,7 @@ namespace Pulumi.Experimental.Provider
                                             }
                                         }
 
-                                        var dependenciesBuilder = ImmutableArray.CreateBuilder<Urn>();
-                                        if (inputDependencies != null)
-                                        {
-                                            dependenciesBuilder.AddRange(inputDependencies);
-                                        }
+                                        var dependenciesBuilder = ImmutableHashSet.CreateBuilder<Urn>();
                                         if (structValue.Fields.TryGetValue(Constants.DependenciesName, out var dependencies))
                                         {
                                             if (dependencies.KindCase == Value.KindOneofCase.ListValue)
@@ -776,7 +770,7 @@ namespace Pulumi.Experimental.Provider
                             var builder = ImmutableDictionary.CreateBuilder<string, PropertyValue>();
                             foreach (var item in structValue.Fields)
                             {
-                                builder.Add(item.Key, Unmarshal(item.Value, inputDependencies));
+                                builder.Add(item.Key, Unmarshal(item.Value));
                             }
                             return new PropertyValue(builder.ToImmutable());
                         }
@@ -790,23 +784,11 @@ namespace Pulumi.Experimental.Provider
 
         internal static Struct Marshal(IDictionary<string, PropertyValue> properties)
         {
-            return Marshal(properties, out _);
-        }
-
-        internal static Struct Marshal(IDictionary<string, PropertyValue> properties, out IDictionary<string, ISet<Urn>> dependencies)
-        {
             var result = new Struct();
-            dependencies = new MapField<string, ISet<Urn>>();
             foreach (var item in properties)
             {
-                var valueWithDependencies = Marshal(item.Value);
-                result.Fields[item.Key] = valueWithDependencies.Value;
-                if (valueWithDependencies.Dependencies != null)
-                {
-                    dependencies[item.Key] = valueWithDependencies.Dependencies;
-                }
+                result.Fields[item.Key] = Marshal(item.Value);
             }
-
             return result;
         }
 
@@ -835,10 +817,8 @@ namespace Pulumi.Experimental.Provider
                 {
                     innerStruct.Fields[item.Key] = MarshalAssetOrArchive(item.Value);
                 }
-
                 result.Fields[archive.PropName] = Value.ForStruct(innerStruct);
             }
-
             return Value.ForStruct(result);
         }
 
@@ -852,51 +832,33 @@ namespace Pulumi.Experimental.Provider
             {
                 return MarshalArchive(archive);
             }
-
             throw new InvalidOperationException("Internal error, AssetOrArchive was neither an Asset or Archive");
         }
 
-        private static ValueWithDependencies MarshalOutput(OutputReference output, bool secret)
+        private static Value MarshalOutput(OutputReference output, bool secret)
         {
             var result = new Struct();
             result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialOutputValueSig);
-            ISet<Urn>? valueDependencies = null;
             if (output.Value != null)
             {
-                (var value, valueDependencies) = Marshal(output.Value);
-                result.Fields[Constants.ValueName] = value;
+                result.Fields[Constants.ValueName] = Marshal(output.Value);
             }
 
-            ISet<Urn> mergedDependencies;
-            if (valueDependencies is { Count: > 0 })
-            {
-                mergedDependencies = output.Dependencies.Concat(valueDependencies).ToHashSet();
-            }
-            else
-            {
-                mergedDependencies = output.Dependencies.ToHashSet();
-            }
-
-            var dependencies = new Value[mergedDependencies.Count];
+            var dependencies = new Value[output.Dependencies.Count];
             var i = 0;
-            foreach (var dependency in mergedDependencies)
+            foreach (var dependency in output.Dependencies)
             {
                 dependencies[i++] = Value.ForString(dependency);
             }
-
             result.Fields[Constants.DependenciesName] = Value.ForList(dependencies);
             result.Fields[Constants.SecretName] = Value.ForBool(secret);
 
-            return new ValueWithDependencies
-            {
-                Value = Value.ForStruct(result),
-                Dependencies = mergedDependencies.Count > 0 ? mergedDependencies : null
-            };
+            return Value.ForStruct(result);
         }
 
-        internal static ValueWithDependencies Marshal(PropertyValue value)
+        internal static Value Marshal(PropertyValue value)
         {
-            return value.Match<ValueWithDependencies>(
+            return value.Match<Value>(
                 () => Value.ForNull(),
                 b => Value.ForBool(b),
                 n => Value.ForNumber(n),
@@ -904,36 +866,20 @@ namespace Pulumi.Experimental.Provider
                 a =>
                 {
                     var result = new Value[a.Length];
-                    var dependencyUrns = new HashSet<Urn>();
                     for (int i = 0; i < a.Length; ++i)
                     {
-                        var (marshalledValue, dependencies) = Marshal(a[i]);
-                        result[i] = marshalledValue;
-                        if (dependencies != null)
-                        {
-                            dependencyUrns.AddRange(dependencies);
-                        }
+                        result[i] = Marshal(a[i]);
                     }
-
-                    return new ValueWithDependencies(Value.ForList(result),
-                        dependencyUrns.Count > 0 ? dependencyUrns : null);
+                    return Value.ForList(result);
                 },
                 o =>
                 {
                     var result = new Struct();
-                    var dependencyUrns = new HashSet<Urn>();
                     foreach (var item in o)
                     {
-                        var (marshalledValue, dependencies) = Marshal(item.Value);
-                        result.Fields[item.Key] = marshalledValue;
-                        if (dependencies != null)
-                        {
-                            dependencyUrns.AddRange(dependencies);
-                        }
+                        result.Fields[item.Key] = Marshal(item.Value);
                     }
-
-                    return new ValueWithDependencies(Value.ForStruct(result),
-                        dependencyUrns.Count > 0 ? dependencyUrns : null);
+                    return Value.ForStruct(result);
                 },
                 asset => MarshalAsset(asset),
                 archive => MarshalArchive(archive),
@@ -944,62 +890,29 @@ namespace Pulumi.Experimental.Provider
                     {
                         return MarshalOutput(secret.OutputValue.Value, true);
                     }
-
                     var result = new Struct();
                     result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialSecretSig);
-                    var (secretValue, dependencies) = Marshal(secret);
-                    result.Fields[Constants.ValueName] = secretValue;
-                    return new ValueWithDependencies(Value.ForStruct(result), dependencies);
+                    result.Fields[Constants.ValueName] = Marshal(secret);
+                    return Value.ForStruct(result);
                 },
                 resource =>
                 {
                     var result = new Struct();
                     result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialResourceSig);
                     result.Fields[Constants.UrnPropertyName] = Value.ForString(resource.URN);
-
-                    ISet<Urn>? dependencies = null;
                     if (resource.Id != null)
                     {
-                        (var propertyName, dependencies) = Marshal(resource.Id);
-                        result.Fields[Constants.IdPropertyName] = propertyName;
+                        result.Fields[Constants.IdPropertyName] = Marshal(resource.Id);
                     }
-
                     if (resource.PackageVersion != "")
                     {
                         result.Fields[Constants.ResourceVersionName] = Value.ForString(resource.PackageVersion);
                     }
-
-                    return new ValueWithDependencies(Value.ForStruct(result), dependencies);
+                    return Value.ForStruct(result);
                 },
                 output => MarshalOutput(output, false),
                 () => Value.ForString(Constants.UnknownValue)
             );
-        }
-
-        internal readonly struct ValueWithDependencies
-        {
-            public Value Value { get; init; }
-            public ISet<Urn>? Dependencies { get; init; }
-
-            public ValueWithDependencies(Value value, ISet<Urn>? dependencies)
-            {
-                Value = value;
-                Dependencies = dependencies;
-            }
-
-            public static implicit operator ValueWithDependencies(Value value)
-            {
-                return new ValueWithDependencies()
-                {
-                    Value = value
-                };
-            }
-
-            public void Deconstruct(out Value value, out ISet<Urn>? dependencies)
-            {
-                value = Value;
-                dependencies = Dependencies;
-            }
         }
     }
 }

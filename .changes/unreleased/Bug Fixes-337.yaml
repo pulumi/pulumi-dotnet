@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Bug Fixes
+body: Fix output value serialization.
+time: 2024-09-06T23:06:09.346266+01:00
+custom:
+  PR: "337"

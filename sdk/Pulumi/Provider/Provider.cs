@@ -540,6 +540,21 @@ namespace Pulumi.Experimental.Provider
             return PropertyValue.Unmarshal(properties);
         }
 
+        // Helper to marshal CheckFailures from the domain to the GRPC layer.
+        private IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
+        {
+            if (failures != null)
+            {
+                foreach (var domFailure in failures)
+                {
+                    var grpcFailure = new Pulumirpc.CheckFailure();
+                    grpcFailure.Property = domFailure.Property;
+                    grpcFailure.Reason = domFailure.Reason;
+                    yield return grpcFailure;
+                }
+            }
+        }
+
         public override async Task<Pulumirpc.CheckResponse> CheckConfig(Pulumirpc.CheckRequest request, ServerCallContext context)
         {
             try
@@ -549,16 +564,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.CheckConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                if (domResponse.Failures != null)
-                {
-                    foreach (var domFailure in domResponse.Failures)
-                    {
-                        var grpcFailure = new Pulumirpc.CheckFailure();
-                        grpcFailure.Property = domFailure.Property;
-                        grpcFailure.Reason = domFailure.Reason;
-                        grpcResponse.Failures.Add(grpcFailure);
-                    }
-                }
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -636,16 +642,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Invoke(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.InvokeResponse();
                 grpcResponse.Return = domResponse.Return == null ? null : PropertyValue.Marshal(domResponse.Return);
-                if (domResponse.Failures != null)
-                {
-                    foreach (var domFailure in domResponse.Failures)
-                    {
-                        var grpcFailure = new Pulumirpc.CheckFailure();
-                        grpcFailure.Property = domFailure.Property;
-                        grpcFailure.Reason = domFailure.Reason;
-                        grpcResponse.Failures.Add(grpcFailure);
-                    }
-                }
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 return grpcResponse;
             }
             catch (NotImplementedException ex)
@@ -801,16 +798,7 @@ namespace Pulumi.Experimental.Provider
                 var domResponse = await Implementation.Check(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.CheckResponse();
                 grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
-                if (domResponse.Failures != null)
-                {
-                    foreach (var domFailure in domResponse.Failures)
-                    {
-                        var grpcFailure = new Pulumirpc.CheckFailure();
-                        grpcFailure.Property = domFailure.Property;
-                        grpcFailure.Reason = domFailure.Reason;
-                        grpcResponse.Failures.Add(grpcFailure);
-                    }
-                }
+                grpcResponse.Failures.AddRange(MapFailures(domResponse.Failures));
                 return grpcResponse;
             }
             catch (NotImplementedException ex)

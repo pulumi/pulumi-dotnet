@@ -611,7 +611,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		return nil, err
 	}
 
-	dotnetExec := host.exec
+	executable := host.exec
 	args := []string{}
 
 	switch {
@@ -620,7 +620,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		args = append(args, binaryPath)
 	case binaryPath != "":
 		// Self-contained executable: run it directly.
-		dotnetExec = binaryPath
+		executable = binaryPath
 	default:
 		// Run from source.
 		args = append(args, "run")
@@ -642,7 +642,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		logging.V(5).Infoln("Language host launching process: ", host.exec, commandStr)
 	}
 
-	cmd := exec.Command(dotnetExec, args...) // nolint: gas // intentionally running dynamic program name.
+	cmd := exec.Command(executable, args...) // nolint: gas // intentionally running dynamic program name.
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	var errResult string

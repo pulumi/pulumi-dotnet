@@ -559,7 +559,7 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 	return len(val), nil
 }
 
-func (host *dotnetLanguageHost) buildDll() error {
+func (host *dotnetLanguageHost) buildDll() (string, error) {
 	// If we are running from source, we need to build the project.
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
@@ -569,30 +569,35 @@ func (host *dotnetLanguageHost) buildDll() error {
 	cmd := exec.Command(host.exec, args...)
 	err := cmd.Run()
 	if err != nil {
-		return errors.Wrapf(err, "failed to build project: %v", err)
+		return "", errors.Wrapf(err, "failed to build project: %v", err)
 	}
 
+	var binaryPath string
 	err = filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		if name, ok := strings.CutSuffix(d.Name(), ".csproj"); ok {
-			host.binary = filepath.Join("bin", "pulumi-debugging", name+".dll")
+			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
 			return filepath.SkipAll
 		}
 		return nil
 	})
 
-	return nil
+	return binaryPath, err
 }
 
 // Run is the RPC endpoint for LanguageRuntimeServer::Run
 func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunRequest) (*pulumirpc.RunResponse, error) {
+	binaryPath := host.binary
 	if req.GetAttachDebugger() && host.binary == "" {
-		err := host.buildDll()
+		binaryPath, err := host.buildDll()
 		if err != nil {
 			return nil, err
+		}
+		if binaryPath == "" {
+			return nil, errors.New("failed to find .csproj file, and could not start debugging")
 		}
 	}
 	config, err := host.constructConfig(req)
@@ -610,12 +615,12 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 	args := []string{}
 
 	switch {
-	case host.binary != "" && strings.HasSuffix(host.binary, ".dll"):
+	case binaryPath != "" && strings.HasSuffix(binaryPath, ".dll"):
 		// Portable pre-compiled dll: run `dotnet <name>.dll`
-		args = append(args, host.binary)
-	case host.binary != "":
+		args = append(args, binaryPath)
+	case binaryPath != "":
 		// Self-contained executable: run it directly.
-		dotnetExec = host.binary
+		dotnetExec = binaryPath
 	default:
 		// Run from source.
 		args = append(args, "run")

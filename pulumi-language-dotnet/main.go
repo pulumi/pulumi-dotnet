@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -35,12 +36,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/cmdutil"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/executable"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/logging"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/version"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // A exit-code we recognize when the nodejs process exits.  If we see this error, there's no
@@ -150,6 +154,22 @@ func newLanguageHost(exec, engineAddress, tracing string, binary string) pulumir
 	}
 }
 
+func (host *dotnetLanguageHost) connectToEngine() (pulumirpc.EngineClient, io.Closer, error) {
+	// Make a connection to the real engine that we will log messages to.
+	conn, err := grpc.Dial(
+		host.engineAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		rpcutil.GrpcChannelOptions(),
+	)
+	if err != nil {
+		return nil, nil, fmt.Errorf("language host could not make connection to engine: %w", err)
+	}
+
+	// Make a client around that connection.
+	engineClient := pulumirpc.NewEngineClient(conn)
+	return engineClient, conn, nil
+}
+
 // GetRequiredPlugins computes the complete set of anticipated plugins required by a program.
 func (host *dotnetLanguageHost) GetRequiredPlugins(
 	ctx context.Context,
@@ -162,19 +182,11 @@ func (host *dotnetLanguageHost) GetRequiredPlugins(
 		return &pulumirpc.GetRequiredPluginsResponse{}, nil
 	}
 
-	// Make a connection to the real engine that we will log messages to.
-	conn, err := grpc.Dial(
-		host.engineAddress,
-		grpc.WithInsecure(),
-		rpcutil.GrpcChannelOptions(),
-	)
+	engineClient, closer, err := host.connectToEngine()
 	if err != nil {
-		return nil, errors.Wrapf(err, "language host could not make connection to engine")
+		return nil, err
 	}
-
-	// Make a client around that connection.  We can then make our own server that will act as a
-	// monitor for the sdk and forward to the real monitor.
-	engineClient := pulumirpc.NewEngineClient(conn)
+	defer contract.IgnoreClose(closer)
 
 	// First do a `dotnet build`.  This will ensure that all the nuget dependencies of the project
 	// are restored and locally available for us.
@@ -547,8 +559,47 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 	return len(val), nil
 }
 
+func (host *dotnetLanguageHost) buildDll() (string, error) {
+	// If we are running from source, we need to build the project.
+	// Run the `dotnet build` command.  Importantly, report the output of this to the user
+	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
+	// of things.
+	args := []string{"build", "-nologo", "-o", "bin/pulumi-debugging"}
+
+	cmd := exec.Command(host.exec, args...)
+	err := cmd.Run()
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to build project: %v", err)
+	}
+
+	var binaryPath string
+	err = filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if name, ok := strings.CutSuffix(d.Name(), ".csproj"); ok {
+			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
+			return filepath.SkipAll
+		}
+		return nil
+	})
+
+	return binaryPath, err
+}
+
 // Run is the RPC endpoint for LanguageRuntimeServer::Run
 func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunRequest) (*pulumirpc.RunResponse, error) {
+	binaryPath := host.binary
+	if req.GetAttachDebugger() && host.binary == "" {
+		binaryPath, err := host.buildDll()
+		if err != nil {
+			return nil, err
+		}
+		if binaryPath == "" {
+			return nil, errors.New("failed to find .csproj file, and could not start debugging")
+		}
+	}
 	config, err := host.constructConfig(req)
 	if err != nil {
 		err = errors.Wrap(err, "failed to serialize configuration")
@@ -564,12 +615,12 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 	args := []string{}
 
 	switch {
-	case host.binary != "" && strings.HasSuffix(host.binary, ".dll"):
+	case binaryPath != "" && strings.HasSuffix(binaryPath, ".dll"):
 		// Portable pre-compiled dll: run `dotnet <name>.dll`
-		args = append(args, host.binary)
-	case host.binary != "":
+		args = append(args, binaryPath)
+	case binaryPath != "":
 		// Self-contained executable: run it directly.
-		executable = host.binary
+		executable = binaryPath
 	default:
 		// Run from source.
 		args = append(args, "run")
@@ -591,13 +642,36 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		logging.V(5).Infoln("Language host launching process: ", host.exec, commandStr)
 	}
 
+	cmd := exec.Command(executable, args...) // nolint: gas // intentionally running dynamic program name.
+
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	var errResult string
-	cmd := exec.Command(executable, args...) // nolint: gas // intentionally running dynamic program name.
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = host.constructEnv(req, config, configSecretKeys)
-	if err := cmd.Run(); err != nil {
+	if err := cmd.Start(); err != nil {
+		return nil, err
+	}
+
+	if req.GetAttachDebugger() {
+		engineClient, closer, err := host.connectToEngine()
+		if err != nil {
+			return nil, err
+		}
+		defer contract.IgnoreClose(closer)
+
+		ctx, cancel := context.WithCancel(ctx)
+		defer cancel()
+		go func() {
+			err = startDebugging(ctx, engineClient, cmd)
+			if err != nil {
+				// kill the program if we can't start debugging.
+				logging.Errorf("Unable to start debugging: %v", err)
+				contract.IgnoreError(cmd.Process.Kill())
+			}
+		}()
+	}
+	if err := cmd.Wait(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			// If the program ran, but exited with a non-zero error code.  This will happen often, since user
 			// errors will trigger this.  So, the error message should look as nice as possible.
@@ -625,6 +699,31 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 	return &pulumirpc.RunResponse{Error: errResult}, nil
 }
 
+func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cmd *exec.Cmd) error {
+	// wait for the debugger to be ready
+	ctx, _ = context.WithTimeoutCause(ctx, 1*time.Minute, errors.New("debugger startup timed out"))
+	// wait for the debugger to be ready
+
+	debugConfig, err := structpb.NewStruct(map[string]interface{}{
+		"name":      "Pulumi: Program (Dotnet)",
+		"type":      "coreclr",
+		"request":   "attach",
+		"processId": cmd.Process.Pid,
+	})
+	if err != nil {
+		return err
+	}
+	_, err = engineClient.StartDebugging(ctx, &pulumirpc.StartDebuggingRequest{
+		Config:  debugConfig,
+		Message: fmt.Sprintf("on process id %d", cmd.Process.Pid),
+	})
+	if err != nil {
+		return fmt.Errorf("unable to start debugging: %w", err)
+	}
+
+	return nil
+}
+
 func (host *dotnetLanguageHost) constructEnv(req *pulumirpc.RunRequest, config, configSecretKeys string) []string {
 	env := os.Environ()
 
@@ -646,6 +745,7 @@ func (host *dotnetLanguageHost) constructEnv(req *pulumirpc.RunRequest, config, 
 	maybeAppendEnv("tracing", host.tracing)
 	maybeAppendEnv("config", config)
 	maybeAppendEnv("config_secret_keys", configSecretKeys)
+	maybeAppendEnv("attach_debugger", fmt.Sprint(req.GetAttachDebugger()))
 
 	return env
 }

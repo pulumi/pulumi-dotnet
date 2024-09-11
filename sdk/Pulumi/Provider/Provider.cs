@@ -364,9 +364,15 @@ namespace Pulumi.Experimental.Provider
 
         public virtual Task<ConfigureResponse> Configure(ConfigureRequest request, CancellationToken ct)
         {
-            throw new NotImplementedException($"The method '{nameof(Configure)}' is not implemented ");
+            return Task.FromResult(new ConfigureResponse()
+            {
+                AcceptOutputs = true,
+                AcceptResources = true,
+                AcceptSecrets = true,
+                SupportsPreview = true
+            });
         }
-
+        
         public virtual Task<InvokeResponse> Invoke(InvokeRequest request, CancellationToken ct)
         {
             throw new NotImplementedException($"The method '{nameof(Invoke)}' is not implemented ");
@@ -807,7 +813,7 @@ namespace Pulumi.Experimental.Provider
             );
         }
 
-        public override async Task<Pulumirpc.CheckResponse> Check(Pulumirpc.CheckRequest request, ServerCallContext context)
+        public override Task<Pulumirpc.CheckResponse> Check(Pulumirpc.CheckRequest request, ServerCallContext context)
         {
             return WrapProviderCall(async () =>
                 {

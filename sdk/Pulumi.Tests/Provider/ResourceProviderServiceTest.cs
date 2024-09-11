@@ -8,10 +8,10 @@ using Divergic.Logging.Xunit;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
 using Pulumi.Experimental.Provider;
+using Pulumi.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 using CallRequest = Pulumirpc.CallRequest;
-using Constants = Pulumi.Serialization.Constants;
 
 namespace Pulumi.Tests.Provider;
 
@@ -35,9 +35,10 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         // We're not going to call anything on the host so we can just have an empty tcp port to listen on
         var provider = new Pulumirpc.ResourceProvider.ResourceProviderClient(testHost.Channel);
 
+        var stringInput = "Hello World";
         var args = new TestBucketArgs()
         {
-            StringInput = "Hello World"
+            StringInput = stringInput
         };
 
         var serializeArga = await Serialize(args);
@@ -76,8 +77,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         var constructResponse = await provider.ConstructAsync(constructRequest);
 
         Assert.Equal(constructResponse.Urn, $"urn:pulumi:{constructRequest.Stack}::{constructRequest.Project}::{nameof(TestBucket)}::{constructRequest.Name}");
-        constructResponse.State.Fields.Should().ContainSingle(nameof(TestBucket.TestBucketOutput), await args.StringInput.ToOutput().GetValueAsync(string.Empty));
-        constructResponse.StateDependencies.Should().ContainSingle(stringInputName, new Pulumirpc.ConstructResponse.Types.PropertyDependencies { Urns = { urnDependentResource } });
+        constructResponse.State.Fields.Should().Contain(kv => kv.Key == nameof(TestBucket.TestBucketOutput) && kv.Value.StringValue == stringInput);
     }
 
     private static async Task<Value> Serialize(object args)
@@ -162,11 +162,12 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         public Input<string> StringInput { get; set; } = default!;
     }
 
-    public class ResourceProviderServiceTestProvider : ComponentResourceProviderBase
+    public class ResourceProviderServiceTestProvider : Experimental.Provider.Provider
     {
         public static readonly CheckFailure CheckFailure = new CheckFailure("missing", "for testing");
 
         public const string DependentFieldName = "dependent";
+
         public static readonly ImmutableHashSet<Pulumi.Experimental.Provider.Urn> DependentUrns = ImmutableHashSet.Create(
             new Pulumi.Experimental.Provider.Urn("urn::some::resource"),
             new Pulumi.Experimental.Provider.Urn("urn::another::resource"));
@@ -207,15 +208,27 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             return value;
         }
 
-        private Task<ConstructResponse> Construct<TArgs, TResource>(
+        private async Task<ConstructResponse> Construct<TArgs, TResource>(
             ConstructRequest request,
-            Func<string, TArgs, ComponentResourceOptions, TResource> factory
+            Func<string, TArgs, ComponentResourceOptions, Task<TResource>> factory
         )
             where TResource : ComponentResource
         {
-            return Construct<TArgs, TResource>(
-                request: request,
-                factory: (name, args, options) => Task.FromResult(factory(name, args, options)));
+#pragma warning disable CS0618 // Type or member is obsolete
+            var serializer = new PropertyValueSerializer();
+#pragma warning restore CS0618 // Type or member is obsolete
+            var args = await serializer.Deserialize<TArgs>(new PropertyValue(request.Inputs));
+            var resource = await factory(request.Name, args, request.Options);
+
+            var urn = await OutputUtilities.GetValueAsync(resource.Urn);
+            if (string.IsNullOrEmpty(urn))
+            {
+                throw new InvalidOperationException($"URN of resource {request.Name} is not known.");
+            }
+
+            var stateValue = await serializer.StateFromComponentResource(resource);
+
+            return new ConstructResponse(new Experimental.Provider.Urn(urn), stateValue, ImmutableDictionary<string, ISet<Experimental.Provider.Urn>>.Empty);
         }
     }
 }

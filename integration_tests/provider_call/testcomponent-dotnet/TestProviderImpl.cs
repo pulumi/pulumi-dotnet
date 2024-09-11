@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Pulumi;
 using Pulumi.Experimental.Provider;
-using Utils;
+using Pulumi.IntegrationTests.Utils;
 
 namespace TestProvider;
 

@@ -84,6 +84,13 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 				return err
 			}
 
+			// if a package reference already exists
+			// then pulumi is a transitive reference
+			// no need to add it
+			if strings.Contains(string(projectContent), "Include=\"Pulumi") {
+				return nil
+			}
+
 			packageReference := fmt.Sprintf(`<ProjectReference Include="%s" />`, testUtilsPath)
 
 			// If we're running edit tests we might have already have added the ProjectReference (edit tests

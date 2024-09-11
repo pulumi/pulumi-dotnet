@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace Utils;
+namespace Pulumi.IntegrationTests.Utils;
 
 public static class DebuggerUtils
 {

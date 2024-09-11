@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi.Experimental.Provider;
+using Pulumi.IntegrationTests.Utils;
 
 namespace TestProvider;
 

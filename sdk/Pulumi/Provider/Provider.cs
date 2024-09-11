@@ -372,7 +372,7 @@ namespace Pulumi.Experimental.Provider
                 SupportsPreview = true
             });
         }
-        
+
         public virtual Task<InvokeResponse> Invoke(InvokeRequest request, CancellationToken ct)
         {
             throw new NotImplementedException($"The method '{nameof(Invoke)}' is not implemented ");

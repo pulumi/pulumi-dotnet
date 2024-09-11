@@ -20,13 +20,9 @@ namespace Pulumi
             if (type == Stack._rootPulumiStackTypeName)
                 return null;
 
-            if (InternalInstance.Stack != null)
-            {
-                var resUrn = await InternalInstance.Stack.Urn.GetValueAsync(whenUnknown: default!)
-                    .ConfigureAwait(false);
-                return resUrn;
-            }
-            return $"urn:pulumi:{InternalInstance.StackName}::{InternalInstance.ProjectName}::{Stack._rootPulumiStackTypeName}::{InternalInstance.GetCurrentStackName()}";
+            var resUrn = await InternalInstance.Stack.Urn.GetValueAsync(whenUnknown: default!)
+                .ConfigureAwait(false);
+            return resUrn;
         }
     }
 }

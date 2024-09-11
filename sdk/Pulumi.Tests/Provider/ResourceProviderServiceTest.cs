@@ -74,9 +74,11 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             Parallel = parallel,
         };
 
+        constructRequest.Parent = $"urn:pulumi:{constructRequest.Stack}::{constructRequest.Project}::ParentType::parentResource";
+
         var constructResponse = await provider.ConstructAsync(constructRequest);
 
-        Assert.Equal(constructResponse.Urn, $"urn:pulumi:{constructRequest.Stack}::{constructRequest.Project}::{nameof(TestBucket)}::{constructRequest.Name}");
+        Assert.Equal(constructResponse.Urn, $"urn:pulumi:{constructRequest.Stack}::{constructRequest.Project}::ParentType${nameof(TestBucket)}::{constructRequest.Name}");
         constructResponse.State.Fields.Should().Contain(kv => kv.Key == nameof(TestBucket.TestBucketOutput) && kv.Value.StringValue == stringInput);
     }
 

@@ -4,13 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <ImportUtils Condition="Exists('$(MSBuildThisFileDirectory)\..\..\utils\Utils.csproj')">true</ImportUtils>
-    <DefineConstants Condition="'$(ImportUtils)' == 'True'">IMPORT_UTILS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\sdk\Pulumi\Pulumi.csproj"/>
-    <ProjectReference Condition="'$(ImportUtils)' == 'true'" Include="..\..\utils\Utils.csproj" />
   </ItemGroup>
 
   <ItemGroup>

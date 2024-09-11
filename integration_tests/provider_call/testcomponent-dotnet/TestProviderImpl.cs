@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Pulumi;
 using Pulumi.Experimental.Provider;
+using Utils;
 
 namespace TestProvider;
 
@@ -28,17 +29,17 @@ public class TestProviderImpl : ComponentResourceProviderBase
         };
     }
 
-    private CheckResult CheckInput(ResourceReference? resourceReference, TestFunctionArgs args)
+    private Output<CheckResult> CheckInput(ResourceReference? resourceReference, TestFunctionArgs args)
     {
         if (string.IsNullOrWhiteSpace(args.TestValue))
         {
-            return new CheckResult(new List<CheckFailure>
+            return Output.Create(new CheckResult(new List<CheckFailure>
             {
                 new(nameof(args.TestValue), "Args mut not be empty")
-            });
+            }));
         }
 
-        return CheckResult.Empty;
+        return Output.Create(CheckResult.Empty);
     }
 
     private Output<TestFunctionResult> TestFunctionImpl(ResourceReference? resourceReference, TestFunctionArgs args)

@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Pulumi;
+using Pulumi.Experimental.Provider;
 using Pulumi.Utilities;
+using Urn = Pulumi.Experimental.Provider.Urn;
 
-namespace Pulumi.Experimental.Provider;
+namespace Utils;
 
 public class ComponentResourceProviderBase : Provider
 {

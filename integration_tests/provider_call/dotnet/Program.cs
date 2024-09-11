@@ -2,9 +2,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Pulumi;
 using Pulumi.Utilities;
-#if IMPORT_UTILS
-using Utils;
-#endif
+using Pulumi.IntegrationTests.Utils;
 
 class Program
 {
@@ -12,9 +10,7 @@ class Program
     {
         var returnCode = await Deployment.RunAsync(async () =>
         {
-            #if IMPORT_UTILS
             DebuggerUtils.WaitForDebugger();
-            #endif
 
             var component = new Component("testComponent", new ComponentArgs());
 

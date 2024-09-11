@@ -1,17 +1,13 @@
 using System.Threading.Tasks;
 using Pulumi;
-#if IMPORT_UTILS
-using Utils;
-#endif
+using Pulumi.IntegrationTests.Utils;
 
 class Program
 {
     static Task<int> Main(string[] args) =>
         Deployment.RunAsync(() =>
         {
-            #if IMPORT_UTILS
             DebuggerUtils.WaitForDebugger();
-            #endif
 
             var resource = new Random("resource", new RandomArgs
             {

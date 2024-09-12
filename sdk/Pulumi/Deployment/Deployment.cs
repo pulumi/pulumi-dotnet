@@ -228,6 +228,11 @@ namespace Pulumi
             return this._featureSupport[feature];
         }
 
+        internal Task<bool> MonitorSupportsParameterization()
+        {
+            return MonitorSupportsFeature("parameterization");
+        }
+
         internal Task<bool> MonitorSupportsResourceReferences()
         {
             return MonitorSupportsFeature("resourceReferences");

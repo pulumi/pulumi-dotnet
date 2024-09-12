@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Parameterized providers are now considered stable
+time: 2024-09-13T21:11:49.714255+01:00
+custom:
+  PR: "347"

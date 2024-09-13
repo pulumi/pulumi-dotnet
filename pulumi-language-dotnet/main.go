@@ -592,7 +592,8 @@ func (host *dotnetLanguageHost) buildDll() (string, error) {
 func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunRequest) (*pulumirpc.RunResponse, error) {
 	binaryPath := host.binary
 	if req.GetAttachDebugger() && host.binary == "" {
-		binaryPath, err := host.buildDll()
+		var err error
+		binaryPath, err = host.buildDll()
 		if err != nil {
 			return nil, err
 		}

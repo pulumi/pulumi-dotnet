@@ -18,15 +18,6 @@ namespace Pulumi
         public static Task<int> RunAsync(Action action)
             => RunAsync(() =>
             {
-                var value = System.Environment.GetEnvironmentVariable("PULUMI_ATTACH_DEBUGGER");
-                if (value != null && value == "true")
-                {
-                    while (!System.Diagnostics.Debugger.IsAttached)
-                    {
-                        // keep waiting until the debugger is attached
-                        System.Threading.Thread.Sleep(1);
-                    }
-                }
                 action();
                 return ImmutableDictionary<string, object?>.Empty;
             });
@@ -341,6 +332,15 @@ namespace Pulumi
             Func<Deployment> deploymentFactory,
             Func<IRunner, Task<int>> runAsync)
         {
+            if (Environment.GetEnvironmentVariable("PULUMI_ATTACH_DEBUGGER") == "true")
+            {
+                while (!System.Diagnostics.Debugger.IsAttached)
+                {
+                    // keep waiting until the debugger is attached
+                    await Task.Delay(100).ConfigureAwait(false);
+                }
+            }
+
             var deployment = deploymentFactory();
             Instance = new DeploymentInstance(deployment);
             return await runAsync(deployment._runner).ConfigureAwait(false);

@@ -11,6 +11,8 @@ namespace Pulumi
 {
     public sealed partial class Deployment
     {
+        internal const string SelfArg = "__self__";
+
         void IDeployment.Call(
             string token,
             CallArgs args,
@@ -79,7 +81,7 @@ namespace Pulumi
             // If we have a self arg, include it in the args.
             if (self != null)
             {
-                argsDict = argsDict.SetItem("__self__", self);
+                argsDict = argsDict.SetItem(SelfArg, self);
             }
 
             var (serialized, argDependencies) = await SerializeFilteredPropertiesAsync(

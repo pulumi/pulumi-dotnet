@@ -1,7 +1,12 @@
 using System;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Pulumi.Testing;
+using Pulumi.Tests.Logging;
 using Xunit;
 
 namespace Pulumi.Tests.Provider;
@@ -10,9 +15,12 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
 {
     private IHost? host;
     private GrpcChannel? channel;
+    private TcpListener? engineListener;
+    private TcpListener? monitoringListener;
 
     public IHost Host => host ?? throw new InvalidOperationException("Host is not running");
     public GrpcChannel Channel => channel ?? throw new InvalidOperationException("Host is not running");
+    public ILoggerProvider? LoggerProvider { get; set; }
 
     public async Task InitializeAsync()
     {
@@ -27,8 +35,10 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
 
         var cts = new System.Threading.CancellationTokenSource();
 
-        // Custom stdout so we can see what port Serve chooses
-        host = Experimental.Provider.Provider.BuildHost(args, "1.0", BuildProvider);
+        host = Experimental.Provider.Provider.BuildHost(args, "1.0", new MockDeploymentBuilder(), BuildProvider,
+            builder => builder.ConfigureServices(services =>
+                services.AddLogging(loggingBuilder =>
+                    loggingBuilder.AddProvider(new DelegatedLoggerProvider(() => LoggerProvider)))));
         await host.StartAsync(cts.Token);
 
         // Grab the uri from the host
@@ -57,6 +67,18 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
             await host.StopAsync();
             host.Dispose();
             host = null;
+        }
+
+        if (engineListener != null)
+        {
+            engineListener.Stop();
+            engineListener = null;
+        }
+
+        if (monitoringListener != null)
+        {
+            monitoringListener.Stop();
+            monitoringListener = null;
         }
     }
 }

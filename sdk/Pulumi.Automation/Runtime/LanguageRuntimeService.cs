@@ -56,6 +56,7 @@ namespace Pulumi.Automation
                 context.CancellationToken);
 
             var result = await Deployment.RunInlineAsync(
+                GrpcDeploymentBuilder.Instance,
                 settings,
                 // ReSharper disable once AccessToDisposedClosure
                 runner => this._callerContext.Program.InvokeAsync(runner, cts.Token))

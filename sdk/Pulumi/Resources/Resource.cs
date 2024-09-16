@@ -137,6 +137,7 @@ namespace Pulumi
                 _protect = false;
                 _providers = ImmutableDictionary<string, ProviderResource>.Empty;
                 CompletionSources = ImmutableDictionary<string, IOutputCompletionSource>.Empty;
+                _transformations = ImmutableArray<ResourceTransformation>.Empty;
                 return;
             }
 

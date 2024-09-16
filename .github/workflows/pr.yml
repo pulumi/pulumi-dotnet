@@ -148,6 +148,16 @@ jobs:
         run: dotnet run integration test TestDotNetTransforms
       - name: TestFailingTransfomationExitsProgram
         run: dotnet run integration test TestFailingTransfomationExitsProgram
+      - name: TestProviderCall
+        run: dotnet run integration test TestProviderCall
+      - name: TestProviderCallInvalidArgument
+        run: dotnet run integration test TestProviderCallInvalidArgument
+      - name: TestProviderConstruct
+        run: dotnet run integration test TestProviderConstruct
+      - name: TestProviderConstructDependencies
+        run: dotnet run integration test TestProviderConstructDependencies
+      - name: TestProviderConstructUnknown
+        run: dotnet run integration test TestProviderConstructUnknown
 
   info:
     name: gather

@@ -336,6 +336,11 @@ namespace Pulumi
                 return await packagResolver.Value;
             }
 
+            if (!await MonitorSupportsParameterization().ConfigureAwait(false))
+            {
+                throw new Exception("The Pulumi CLI does not support parameterization. Please update the Pulumi CLI.");
+            }
+
             async Task<string?> CreateResolver()
             {
                 try

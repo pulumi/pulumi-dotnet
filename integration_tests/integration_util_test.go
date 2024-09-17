@@ -58,9 +58,11 @@ func prepareDotnetProject(projInfo *engine.Projinfo) error {
 	if err != nil {
 		return err
 	}
+	return prepareDotnetProjectAtCwd(cwd)
+}
 
+func prepareDotnetProjectAtCwd(cwd string) error {
 	testUtilsPath, err := filepath.Abs("./utils/Pulumi.IntegrationTests.Utils.csproj")
-
 	if err != nil {
 		return err
 	}

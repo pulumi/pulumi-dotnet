@@ -86,6 +86,27 @@ jobs:
           go-version: 1.22.x
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
+      - name: Install netcoredbg (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-linux-amd64.tar.gz -o netcoredbg.tar.gz
+          tar xzf netcoredbg.tar.gz
+          sudo cp netcoredbg/* /usr/bin/
+      - uses: MinoruSekine/setup-scoop@v4.0.1
+        if: matrix.os == 'windows-latest'
+        with:
+          buckets: extras
+          apps: doxygen plantuml
+      - name: Install netcoredbg (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          scoop install netcoredbg
+      - name: Install netcoredbg (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
+          tar xzf netcoredbg.tar.gz
+          sudo cp netcoredbg/* /usr/bin/
       - name: TestEmptyDotNet
         run: dotnet run integration test TestEmptyDotNet
       - name: TestStackReferenceDotnet

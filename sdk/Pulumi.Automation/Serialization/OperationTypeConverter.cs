@@ -24,7 +24,7 @@ namespace Pulumi.Automation.Serialization
                 "remove-pending-replace" => OperationType.RemovePendingReplace,
                 "import" => OperationType.Import,
                 "import-replacement" => OperationType.ImportReplacement,
-                _ => throw new InvalidOperationException($"'{input}' is not valid {typeof(OperationType).FullName}"),
+                _ => OperationType.Unknown,
             };
     }
 }

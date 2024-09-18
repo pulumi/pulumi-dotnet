@@ -4,6 +4,7 @@ namespace Pulumi.Automation
 {
     public enum OperationType
     {
+        Unknown = -1,
         Same,
         Create,
         Update,

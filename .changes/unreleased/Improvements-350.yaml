@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Lessen the strictness of `OperationTypeConverter` to allow unknown operations
+time: 2024-09-18T15:46:33.308557-07:00
+custom:
+    PR: "350"

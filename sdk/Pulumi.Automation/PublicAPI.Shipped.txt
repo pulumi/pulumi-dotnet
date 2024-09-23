@@ -151,6 +151,7 @@ Pulumi.Automation.OperationType.Refresh = 9 -> Pulumi.Automation.OperationType
 Pulumi.Automation.OperationType.RemovePendingReplace = 12 -> Pulumi.Automation.OperationType
 Pulumi.Automation.OperationType.Replace = 4 -> Pulumi.Automation.OperationType
 Pulumi.Automation.OperationType.Same = 0 -> Pulumi.Automation.OperationType
+Pulumi.Automation.OperationType.Unknown = -1 -> Pulumi.Automation.OperationType
 Pulumi.Automation.OperationType.Update = 2 -> Pulumi.Automation.OperationType
 Pulumi.Automation.OutputValue
 Pulumi.Automation.OutputValue.IsSecret.get -> bool

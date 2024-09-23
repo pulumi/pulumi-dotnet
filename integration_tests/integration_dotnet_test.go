@@ -15,16 +15,25 @@
 package integration_tests
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestPrintfDotNet tests that we capture stdout and stderr streams properly, even when the last line lacks an \n.
@@ -362,7 +371,8 @@ func TestConstructPlainDotnet(t *testing.T) {
 }
 
 func optsForConstructPlainDotnet(t *testing.T, expectedResourceCount int, localProviders []integration.LocalDependency,
-	env ...string) *integration.ProgramTestOptions {
+	env ...string,
+) *integration.ProgramTestOptions {
 	return &integration.ProgramTestOptions{
 		Env:            env,
 		Dir:            filepath.Join("construct_component_plain", "dotnet"),
@@ -535,42 +545,124 @@ func TestDeletedWith(t *testing.T) {
 func TestProviderCall(t *testing.T) {
 	const testDir = "provider_call"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join(testDir, "dotnet"),
-        Env:            []string{"TEST_VALUE=HelloWorld"},
-		Quick:          true,
+		Dir:   filepath.Join(testDir, "dotnet"),
+		Env:   []string{"TEST_VALUE=HelloWorld"},
+		Quick: true,
 	})
 }
 
 func TestProviderCallInvalidArgument(t *testing.T) {
 	const testDir = "provider_call"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join(testDir, "dotnet"),
-        Env:            []string{"TEST_VALUE="},
-        ExpectFailure:  true,
-		Quick:          true,
+		Dir:           filepath.Join(testDir, "dotnet"),
+		Env:           []string{"TEST_VALUE="},
+		ExpectFailure: true,
+		Quick:         true,
 	})
 }
 
 func TestProviderConstruct(t *testing.T) {
 	const testDir = "provider_construct"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join(testDir, "dotnet"),
-		Quick:          true,
+		Dir:   filepath.Join(testDir, "dotnet"),
+		Quick: true,
 	})
 }
 
 func TestProviderConstructDependencies(t *testing.T) {
 	const testDir = "provider_construct_dependencies"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join(testDir, "dotnet"),
-		Quick:          true,
+		Dir:   filepath.Join(testDir, "dotnet"),
+		Quick: true,
 	})
 }
 
 func TestProviderConstructUnknown(t *testing.T) {
 	const testDir = "provider_construct_unknown"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join(testDir, "dotnet"),
-		Quick:          true,
+		Dir:   filepath.Join(testDir, "dotnet"),
+		Quick: true,
 	})
+}
+
+func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
+	events := make([]apitype.EngineEvent, 0)
+	eventsFile, err := os.Open(logfile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("expected to be able to open event log file %s: %w",
+			logfile, err)
+	}
+
+	defer contract.IgnoreClose(eventsFile)
+
+	decoder := json.NewDecoder(eventsFile)
+	for {
+		var event apitype.EngineEvent
+		if err = decoder.Decode(&event); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, fmt.Errorf("failed decoding engine event from log file %s: %w",
+				logfile, err)
+		}
+		events = append(events, event)
+	}
+	return events, nil
+}
+
+func TestDebuggerAttachDotnet(t *testing.T) {
+	t.Parallel()
+
+	e := ptesting.NewEnvironment(t)
+	defer e.DeleteIfNotFailed()
+	e.ImportDirectory("printf")
+
+	prepareDotnetProjectAtCwd(e.RootPath)
+
+	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true")
+		e.RunCommand("pulumi", "stack", "init", "debugger-test")
+		e.RunCommand("pulumi", "stack", "select", "debugger-test")
+		e.RunCommand("pulumi", "preview", "--attach-debugger",
+			"--event-log", filepath.Join(e.RootPath, "debugger.log"))
+	}()
+
+	// Wait for the debugging event
+	wait := 20 * time.Millisecond
+	var debugEvent *apitype.StartDebuggingEvent
+outer:
+	for i := 0; i < 50; i++ {
+		events, err := readUpdateEventLog(filepath.Join(e.RootPath, "debugger.log"))
+		require.NoError(t, err)
+		for _, event := range events {
+			if event.StartDebuggingEvent != nil {
+				debugEvent = event.StartDebuggingEvent
+				break outer
+			}
+		}
+		time.Sleep(wait)
+		wait *= 2
+	}
+	require.NotNil(t, debugEvent)
+
+	// We just need to send some command to netcoredbg that will make the program continue.
+	// We don't care about the actual command, and the `thread-info` command just works.
+	in := strings.NewReader("1-thread-info")
+
+	cmd := exec.Command("netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
+	cmd.Stdin = in
+	out, err := cmd.CombinedOutput()
+	require.NoError(t, err)
+	// Check that we get valid output from netcoredbg, so we know it was actually attached.
+	require.Contains(t, string(out), "1^done")
+
+	wg.Wait()
 }

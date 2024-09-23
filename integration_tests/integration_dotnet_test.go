@@ -598,9 +598,6 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 
 	defer contract.IgnoreClose(eventsFile)
 
-	//	f, _ := ioutil.ReadAll(eventsFile)
-	//	fmt.Println("eventsfile", string(f))
-
 	decoder := json.NewDecoder(eventsFile)
 	for {
 		var event apitype.EngineEvent

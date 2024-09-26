@@ -15,7 +15,7 @@ namespace Pulumi.Automation.Serialization.Yaml
 
         public bool Accepts(Type type) => type == _type;
 
-        public object ReadYaml(IParser parser, Type type)
+        public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
         {
             // check if plain string
             if (parser.Accept<Scalar>(out var stringValue))
@@ -64,7 +64,7 @@ namespace Pulumi.Automation.Serialization.Yaml
             return new StackSettingsConfigValue(serializedToJson, false);
         }
 
-        public void WriteYaml(IEmitter emitter, object? value, Type type)
+        public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
         {
             if (!(value is StackSettingsConfigValue configValue))
                 return;

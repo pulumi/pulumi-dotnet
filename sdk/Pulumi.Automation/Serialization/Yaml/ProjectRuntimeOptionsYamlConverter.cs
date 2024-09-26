@@ -23,7 +23,7 @@ namespace Pulumi.Automation.Serialization.Yaml
 
         public bool Accepts(Type type) => type == _type;
 
-        public object ReadYaml(IParser parser, Type type)
+        public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
         {
             if (!parser.TryConsume<MappingStart>(out _))
                 throw new YamlException($"Unable to deserialize [{type.FullName}]. Expecting object.");
@@ -54,7 +54,7 @@ namespace Pulumi.Automation.Serialization.Yaml
             };
         }
 
-        public void WriteYaml(IEmitter emitter, object? value, Type type)
+        public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
         {
             if (!(value is ProjectRuntimeOptions options))
                 return;

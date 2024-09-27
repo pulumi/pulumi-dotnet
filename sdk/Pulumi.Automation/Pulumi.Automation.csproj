@@ -42,7 +42,7 @@
     </PackageReference>
     <PackageReference Include="CliWrap" Version="3.3.2" />
     <PackageReference Include="Grpc.AspNetCore.Server" version="2.63.0" />
-    <PackageReference Include="YamlDotNet" Version="11.1.1" />
+    <PackageReference Include="YamlDotNet" Version="16.1.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -559,17 +559,28 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 	return len(val), nil
 }
 
-func (host *dotnetLanguageHost) buildDll() (string, error) {
+func (host *dotnetLanguageHost) buildDll(entryPoint string) (string, error) {
 	// If we are running from source, we need to build the project.
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
 	args := []string{"build", "-nologo", "-o", "bin/pulumi-debugging"}
+	if entryPoint != "" {
+		args = append(args, entryPoint)
+	}
 
 	cmd := exec.Command(host.exec, args...)
-	err := cmd.Run()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to build project: %v", err)
+		return "", errors.Wrapf(err, "failed to build project: %v, output: %v", err, string(out))
+	}
+
+	if entryPoint != "" {
+		lastDot := strings.LastIndex(entryPoint, ".")
+		if lastDot == -1 {
+			return "", errors.New("entry point must have a file extension")
+		}
+		return filepath.Join("bin", "pulumi-debugging", entryPoint[:lastDot]+".dll"), nil
 	}
 
 	var binaryPath string
@@ -582,6 +593,14 @@ func (host *dotnetLanguageHost) buildDll() (string, error) {
 			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
 			return filepath.SkipAll
 		}
+		if name, ok := strings.CutSuffix(d.Name(), ".fsproj"); ok {
+			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
+			return filepath.SkipAll
+		}
+		if name, ok := strings.CutSuffix(d.Name(), ".vsproj"); ok {
+			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
+			return filepath.SkipAll
+		}
 		return nil
 	})
 
@@ -591,14 +610,15 @@ func (host *dotnetLanguageHost) buildDll() (string, error) {
 // Run is the RPC endpoint for LanguageRuntimeServer::Run
 func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunRequest) (*pulumirpc.RunResponse, error) {
 	binaryPath := host.binary
+
 	if req.GetAttachDebugger() && host.binary == "" {
 		var err error
-		binaryPath, err = host.buildDll()
+		binaryPath, err = host.buildDll(req.GetInfo().GetEntryPoint())
 		if err != nil {
 			return nil, err
 		}
 		if binaryPath == "" {
-			return nil, errors.New("failed to find .csproj file, and could not start debugging")
+			return nil, errors.New("failed to find project file, and could not start debugging")
 		}
 	}
 	config, err := host.constructConfig(req)
@@ -944,6 +964,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 			args = append(args, "--project", req.Program)
 		}
 	}
+
 	// Add on all the request args to start this plugin
 	args = append(args, req.Args...)
 

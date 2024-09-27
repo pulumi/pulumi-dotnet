@@ -1,0 +1,6 @@
+component: runtime
+kind: Bug Fixes
+body: Improve the detections of project files when attaching a debugger
+time: 2024-09-27T14:28:28.811538233+02:00
+custom:
+  PR: "255"

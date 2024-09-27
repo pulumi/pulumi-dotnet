@@ -559,7 +559,9 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 	return len(val), nil
 }
 
-func (host *dotnetLanguageHost) buildDll(entryPoint string) (string, error) {
+// When debugging, we need to build the project, as the debugger does not support running using `dotnet run`.
+// This function will build the project and return the path to the built DLL.
+func (host *dotnetLanguageHost) buildDebuggingDLL(entryPoint string) (string, error) {
 	// If we are running from source, we need to build the project.
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
@@ -597,7 +599,7 @@ func (host *dotnetLanguageHost) buildDll(entryPoint string) (string, error) {
 			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
 			return filepath.SkipAll
 		}
-		if name, ok := strings.CutSuffix(d.Name(), ".vsproj"); ok {
+		if name, ok := strings.CutSuffix(d.Name(), ".vbproj"); ok {
 			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
 			return filepath.SkipAll
 		}
@@ -613,7 +615,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 
 	if req.GetAttachDebugger() && host.binary == "" {
 		var err error
-		binaryPath, err = host.buildDll(req.GetInfo().GetEntryPoint())
+		binaryPath, err = host.buildDebuggingDLL(req.GetInfo().GetEntryPoint())
 		if err != nil {
 			return nil, err
 		}

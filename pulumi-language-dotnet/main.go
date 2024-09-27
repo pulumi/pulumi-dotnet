@@ -567,7 +567,7 @@ func (host *dotnetLanguageHost) buildDebuggingDLL(entryPoint string) (string, er
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
 	args := []string{"build", "-nologo", "-o", "bin/pulumi-debugging"}
-	if entryPoint != "" {
+	if entryPoint != "." {
 		args = append(args, entryPoint)
 	}
 
@@ -577,7 +577,7 @@ func (host *dotnetLanguageHost) buildDebuggingDLL(entryPoint string) (string, er
 		return "", errors.Wrapf(err, "failed to build project: %v, output: %v", err, string(out))
 	}
 
-	if entryPoint != "" {
+	if entryPoint != "." {
 		lastDot := strings.LastIndex(entryPoint, ".")
 		if lastDot == -1 {
 			return "", errors.New("entry point must have a file extension")

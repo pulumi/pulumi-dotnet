@@ -21,9 +21,11 @@ import (
 	"testing"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
+	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDeterminePluginDependency(t *testing.T) {
@@ -141,13 +143,13 @@ func TestDeterminePluginDependency(t *testing.T) {
 
 			cwd := t.TempDir()
 			artifactPath := filepath.Join(cwd, strings.ToLower(c.PackageName), c.PackageVersion, "content")
-			err := os.MkdirAll(artifactPath, 0700)
+			err := os.MkdirAll(artifactPath, 0o700)
 			assert.NoError(t, err)
 
 			// Setup testing environment
 			if c.VersionTxt != "" {
 				path := filepath.Join(artifactPath, "version.txt")
-				err := os.WriteFile(path, []byte(c.VersionTxt), 0600)
+				err := os.WriteFile(path, []byte(c.VersionTxt), 0o600)
 				assert.NoError(t, err)
 				t.Logf("Wrote version.txt file to %q", path)
 			}
@@ -155,7 +157,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 				path := filepath.Join(artifactPath, "pulumi-plugin.json")
 				bytes, err := c.PulumiPlugin.JSON()
 				assert.NoError(t, err)
-				err = os.WriteFile(path, bytes, 0600)
+				err = os.WriteFile(path, bytes, 0o600)
 				assert.NoError(t, err)
 				t.Logf("Wrote pulumi-plugin.json file to %q", path)
 			}
@@ -174,6 +176,97 @@ func TestDeterminePluginDependency(t *testing.T) {
 				t.Logf("No error expected")
 				assert.NoError(t, err)
 				assert.Equal(t, c.Expected, actual)
+			}
+		})
+	}
+}
+
+func TestBuildDll(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		Name       string
+		EntryPoint string
+		ExtraSetup func(t *testing.T, e *ptesting.Environment)
+
+		ExpectedErrorContains string
+		ExpectedBinaryPath    string
+	}{
+		{
+			Name:               "regular case works",
+			EntryPoint:         "",
+			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
+		},
+		{
+			Name:               "entrypoint specified",
+			EntryPoint:         "Empty.csproj",
+			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
+		},
+		{
+			Name:                  "entrypoint not found",
+			EntryPoint:            "Wrong.csproj",
+			ExpectedErrorContains: "Project file does not exist",
+		},
+		{
+			Name:       "fsproj works",
+			EntryPoint: "",
+			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
+				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.fsproj"))
+			},
+			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
+		},
+		{
+			Name:       "vbproj works",
+			EntryPoint: "",
+			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
+				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.vbproj"))
+			},
+			ExpectedErrorContains: "'Sub Main' was not found in 'Empty'.",
+		},
+		{
+			Name:       "multiple projects with entrypoint",
+			EntryPoint: "Empty.csproj",
+			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
+				data, err := os.ReadFile("Empty.csproj")
+				assert.NoError(t, err)
+				err = os.WriteFile("Another.fsproj", data, 0o644)
+				assert.NoError(t, err)
+			},
+			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
+		},
+		{
+			Name:                  "incorrect entry point name",
+			EntryPoint:            "Another",
+			ExpectedErrorContains: "Project file does not exist",
+		},
+	}
+
+	for _, c := range cases {
+		c := c
+		t.Run(c.Name, func(t *testing.T) {
+			e := ptesting.NewEnvironment(t)
+			e.ImportDirectory("testdata/build-dll")
+
+			pwd, err := os.Getwd()
+			require.NoError(t, err)
+			os.Chdir(e.RootPath)
+			defer os.Chdir(pwd)
+
+			if c.ExtraSetup != nil {
+				c.ExtraSetup(t, e)
+			}
+
+			host := &dotnetLanguageHost{
+				exec: "dotnet",
+			}
+
+			binaryPath, err := host.buildDebuggingDLL(c.EntryPoint)
+
+			if c.ExpectedErrorContains != "" {
+				assert.ErrorContains(t, err, c.ExpectedErrorContains)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, c.ExpectedBinaryPath, binaryPath)
 			}
 		})
 	}

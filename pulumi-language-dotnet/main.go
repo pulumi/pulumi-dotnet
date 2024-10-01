@@ -559,26 +559,45 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 	return len(val), nil
 }
 
-func (host *dotnetLanguageHost) buildDll() (string, error) {
+// When debugging, we need to build the project, as the debugger does not support running using `dotnet run`.
+// This function will build the project and return the path to the built DLL.
+func (host *dotnetLanguageHost) buildDebuggingDLL(programDirectory, entryPoint string) (string, error) {
 	// If we are running from source, we need to build the project.
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
 	args := []string{"build", "-nologo", "-o", "bin/pulumi-debugging"}
+	args = append(args, filepath.Join(programDirectory, entryPoint))
 
 	cmd := exec.Command(host.exec, args...)
-	err := cmd.Run()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to build project: %v", err)
+		return "", errors.Wrapf(err, "failed to build project: %v, output: %v", err, string(out))
+	}
+
+	if entryPoint != "." {
+		lastDot := strings.LastIndex(entryPoint, ".")
+		if lastDot == -1 {
+			return "", errors.New("entry point must have a file extension")
+		}
+		return filepath.Join("bin", "pulumi-debugging", entryPoint[:lastDot]+".dll"), nil
 	}
 
 	var binaryPath string
-	err = filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
+	err = filepath.WalkDir(programDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		if name, ok := strings.CutSuffix(d.Name(), ".csproj"); ok {
+			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
+			return filepath.SkipAll
+		}
+		if name, ok := strings.CutSuffix(d.Name(), ".fsproj"); ok {
+			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
+			return filepath.SkipAll
+		}
+		if name, ok := strings.CutSuffix(d.Name(), ".vbproj"); ok {
 			binaryPath = filepath.Join("bin", "pulumi-debugging", name+".dll")
 			return filepath.SkipAll
 		}
@@ -591,14 +610,15 @@ func (host *dotnetLanguageHost) buildDll() (string, error) {
 // Run is the RPC endpoint for LanguageRuntimeServer::Run
 func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunRequest) (*pulumirpc.RunResponse, error) {
 	binaryPath := host.binary
+
 	if req.GetAttachDebugger() && host.binary == "" {
 		var err error
-		binaryPath, err = host.buildDll()
+		binaryPath, err = host.buildDebuggingDLL(req.GetInfo().GetProgramDirectory(), req.GetInfo().GetEntryPoint())
 		if err != nil {
 			return nil, err
 		}
 		if binaryPath == "" {
-			return nil, errors.New("failed to find .csproj file, and could not start debugging")
+			return nil, errors.New("failed to find project file, and could not start debugging")
 		}
 	}
 	config, err := host.constructConfig(req)
@@ -944,6 +964,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 			args = append(args, "--project", req.Program)
 		}
 	}
+
 	// Add on all the request args to start this plugin
 	args = append(args, req.Args...)
 

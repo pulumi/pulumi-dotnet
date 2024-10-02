@@ -110,7 +110,7 @@ jobs:
         run: |
           scoop install netcoredbg
       - name: Install netcoredbg (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-latest'
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz

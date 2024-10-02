@@ -109,15 +109,18 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           scoop install netcoredbg
-      - name: Install netcoredbg (Linux)
-        if: matrix.os == 'macos-latest'
+      - name: Install netcoredbg (MacOS)
+        if: matrix.os == 'macos-12'
+        id: netcoredbg
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
-          sudo cp netcoredbg/* /usr/bin/
-          echo $PATH
-          find /usr/bin
+          echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
       - name: Integration tests
+        if: matrix.os == 'macos-12'
+        run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_integration
+      - name: Integration tests
+        if: matrix.os != 'macos-12'
         run: make test_integration
 
   info:

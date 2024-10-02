@@ -922,7 +922,7 @@ namespace Pulumi.Experimental.Provider
                     DependsOn = dependsOn,
                     Protect = request.Protect,
                     Providers = providers,
-                    Parent = !string.IsNullOrEmpty(request.Parent) ? new DependencyResource(request.Parent) : throw new RpcException(new Status(StatusCode.InvalidArgument, "Parent must be set for MLCs.")),
+                    Parent = !string.IsNullOrEmpty(request.Parent) ? new DependencyResource(request.Parent) : throw new RpcException(new Status(StatusCode.InvalidArgument, "Parent must be set for Component Providers.")),
                     CustomTimeouts = request.CustomTimeouts != null ? CustomTimeouts.Deserialize(request.CustomTimeouts) : null,
                     DeletedWith = string.IsNullOrEmpty(request.DeletedWith) ? null : new DependencyResource(request.DeletedWith),
                     IgnoreChanges = request.IgnoreChanges.ToList(),

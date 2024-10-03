@@ -86,6 +86,14 @@ jobs:
           go-version: 1.22.x
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
+      - name: Install gotestsum
+        uses: jaxxstorm/action-install-gh-release@v1.11.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo: gotestyourself/gotestsum
+          tag: v1.8.1
+          cache: enable
       - name: Install netcoredbg (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -101,84 +109,19 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           scoop install netcoredbg
-      - name: Install netcoredbg (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install netcoredbg (MacOS)
+        if: matrix.os == 'macos-12'
+        id: netcoredbg
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
-          sudo cp netcoredbg/* /usr/bin/
-      - name: TestEmptyDotNet
-        run: dotnet run integration test TestEmptyDotNet
-      - name: TestStackReferenceDotnet
-        run: dotnet run integration test TestStackReferenceDotnet
-      - name: TestConstructDotnet
-        run: dotnet run integration test TestConstructDotnet
-      - name: TestPrintfDotNet
-        run: dotnet run integration test TestPrintfDotNet
-      - name: TestStackOutputsDotNet
-        run: dotnet run integration test TestStackOutputsDotNet
-      - name: TestStackComponentDotNet
-        run: dotnet run integration test TestStackComponentDotNet
-      - name: TestStackComponentServiceProviderDotNet
-        run: dotnet run integration test TestStackComponentServiceProviderDotNet
-      - name: TestConfigBasicDotNet
-        run: dotnet run integration test TestConfigBasicDotNet
-      - name: TestConfigSecretsWarnDotNet
-        run: dotnet run integration test TestConfigSecretsWarnDotNet
-      - name: TestStackReferenceSecretsDotnet
-        run: dotnet run integration test TestStackReferenceSecretsDotnet
-      - name: TestLargeResourceDotNet
-        run: dotnet run integration test TestLargeResourceDotNet
-      - name: TestConstructPlainDotnet
-        run: dotnet run integration test TestConstructPlainDotnet
-      - name: TestConstructUnknownDotnet
-        run: dotnet run integration test TestConstructUnknownDotnet
-      - name: TestConstructMethodsDotnet
-        run: dotnet run integration test TestConstructMethodsDotnet
-      - name: TestConstructMethodsUnknownDotnet
-        run: dotnet run integration test TestConstructMethodsUnknownDotnet
-      - name: TestConstructMethodsErrorsDotnet
-        run: dotnet run integration test TestConstructMethodsErrorsDotnet
-      - name: TestConstructProviderDotnet
-        run: dotnet run integration test TestConstructProviderDotnet
-      - name: TestGetResourceDotnet
-        run: dotnet run integration test TestGetResourceDotnet
-      - name: TestAboutDotnet
-        run: dotnet run integration test TestAboutDotnet
-      - name: TestDotNetTransformations
-        run: dotnet run integration test TestDotNetTransformations
-      - name: TestResourceRefsGetResourceDotnet
-        run: dotnet run integration test TestResourceRefsGetResourceDotnet
-      - name: TestDotNetAliasesRemame
-        run: dotnet run integration test TestDotNetAliasesRemame
-      - name: TestDotNetAliasesAdoptIntoComponent
-        run: dotnet run integration test TestDotNetAliasesAdoptIntoComponent
-      - name: TestDotNetAliasesRenameComponentAndChild
-        run: dotnet run integration test TestDotNetAliasesRenameComponentAndChild
-      - name: TestDotNetAliasesRetypeComponent
-        run: dotnet run integration test TestDotNetAliasesRetypeComponent
-      - name: TestDotNetAliasesRenameComponent
-        run: dotnet run integration test TestDotNetAliasesRenameComponent
-      - name: TestDotNetAliasesRetypeParents
-        run: dotnet run integration test TestDotNetAliasesRetypeParents
-      - name: TestProvider
-        run: dotnet run integration test TestProvider
-      - name: TestDeletedWith
-        run: dotnet run integration test TestDeletedWith
-      - name: TestDotNetTransforms
-        run: dotnet run integration test TestDotNetTransforms
-      - name: TestFailingTransfomationExitsProgram
-        run: dotnet run integration test TestFailingTransfomationExitsProgram
-      - name: TestProviderCall
-        run: dotnet run integration test TestProviderCall
-      - name: TestProviderCallInvalidArgument
-        run: dotnet run integration test TestProviderCallInvalidArgument
-      - name: TestProviderConstruct
-        run: dotnet run integration test TestProviderConstruct
-      - name: TestProviderConstructDependencies
-        run: dotnet run integration test TestProviderConstructDependencies
-      - name: TestProviderConstructUnknown
-        run: dotnet run integration test TestProviderConstructUnknown
+          echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
+      - name: Integration tests
+        if: matrix.os == 'macos-12'
+        run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_integration
+      - name: Integration tests
+        if: matrix.os != 'macos-12'
+        run: make test_integration
 
   info:
     name: gather

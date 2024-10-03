@@ -4901,6 +4901,44 @@
         <member name="F:Pulumirpc.ErrorCause.StackTraceFieldNumber">
             <summary>Field number for the "stackTrace" field.</summary>
         </member>
+        <member name="T:Pulumirpc.InputPropertiesError">
+            <summary>
+            An error that can be returned from a component provider and includes details of the
+            error, which can be multiple properties.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.InputPropertiesError.ErrorsFieldNumber">
+            <summary>Field number for the "errors" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InputPropertiesError.Errors">
+            <summary>
+            The list of invalid input properties.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.InputPropertiesError.Types">
+            <summary>Container for nested types declared in the InputPropertiesError message type.</summary>
+        </member>
+        <member name="T:Pulumirpc.InputPropertiesError.Types.PropertyError">
+            <summary>
+            A single invalid input property.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.InputPropertiesError.Types.PropertyError.PropertyPathFieldNumber">
+            <summary>Field number for the "property_path" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InputPropertiesError.Types.PropertyError.PropertyPath">
+            <summary>
+            The path to the property that is invalid.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.InputPropertiesError.Types.PropertyError.ReasonFieldNumber">
+            <summary>Field number for the "reason" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InputPropertiesError.Types.PropertyError.Reason">
+            <summary>
+            The reason the property is invalid.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.LanguageReflection">
             <summary>Holder for reflection information generated from pulumi/language.proto</summary>
         </member>
@@ -4999,7 +5037,7 @@
         </member>
         <member name="P:Pulumirpc.GetProgramDependenciesRequest.Pwd">
             <summary>
-            the program's working directory.
+            the program's working directory. Deprecated, use info.program_directory instead.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetProgramDependenciesRequest.ProgramFieldNumber">
@@ -5007,7 +5045,7 @@
         </member>
         <member name="P:Pulumirpc.GetProgramDependenciesRequest.Program">
             <summary>
-            the path to the program.
+            the path to the program. Deprecated, use info.entry_point instead.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetProgramDependenciesRequest.TransitiveDependenciesFieldNumber">
@@ -5063,7 +5101,7 @@
         </member>
         <member name="P:Pulumirpc.GetRequiredPluginsRequest.Pwd">
             <summary>
-            the program's working directory.
+            the program's working directory. Deprecated, use info.program_directory instead.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetRequiredPluginsRequest.ProgramFieldNumber">
@@ -5071,7 +5109,7 @@
         </member>
         <member name="P:Pulumirpc.GetRequiredPluginsRequest.Program">
             <summary>
-            the path to the program.
+            the path to the program. Deprecated, use info.entry_point instead.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetRequiredPluginsRequest.InfoFieldNumber">
@@ -5124,7 +5162,7 @@
         </member>
         <member name="P:Pulumirpc.RunRequest.Program">
             <summary>
-            the path to the program to execute.
+            the path to the program to execute. Deprecated, use info.entry_point instead.
             </summary>
         </member>
         <member name="F:Pulumirpc.RunRequest.ArgsFieldNumber">
@@ -5251,7 +5289,7 @@
         </member>
         <member name="P:Pulumirpc.InstallDependenciesRequest.Directory">
             <summary>
-            the program's working directory.
+            the program's working directory. Deprecated, use info.program_directory instead.
             </summary>
         </member>
         <member name="F:Pulumirpc.InstallDependenciesRequest.IsTerminalFieldNumber">
@@ -5353,7 +5391,7 @@
         </member>
         <member name="P:Pulumirpc.RunPluginRequest.Program">
             <summary>
-            the path to the program to execute.
+            the path to the program to execute. Deprecated, use info.entry_point instead.
             </summary>
         </member>
         <member name="F:Pulumirpc.RunPluginRequest.ArgsFieldNumber">
@@ -6663,6 +6701,22 @@
             a deterministically random hash, primarily intended for global unique naming.
             </summary>
         </member>
+        <member name="F:Pulumirpc.CheckRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckRequest.Name">
+            <summary>
+            the Pulumi name for this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckRequest.Type">
+            <summary>
+            the Pulumi type for this resource.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.CheckResponse.InputsFieldNumber">
             <summary>Field number for the "inputs" field.</summary>
         </member>
@@ -6741,6 +6795,22 @@
         <member name="P:Pulumirpc.DiffRequest.OldInputs">
             <summary>
             the old input values of the resource to diff.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DiffRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DiffRequest.Name">
+            <summary>
+            the Pulumi name for this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DiffRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DiffRequest.Type">
+            <summary>
+            the Pulumi type for this resource.
             </summary>
         </member>
         <member name="F:Pulumirpc.PropertyDiff.KindFieldNumber">
@@ -6928,6 +6998,22 @@
             true if this is a preview and the provider should not actually create the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.CreateRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CreateRequest.Name">
+            <summary>
+            the Pulumi name for this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CreateRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CreateRequest.Type">
+            <summary>
+            the Pulumi type for this resource.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.CreateResponse">
             <summary>
             NOTE: The partial-update-error equivalent of this message is `ErrorResourceInitFailed`.
@@ -6979,6 +7065,22 @@
         <member name="P:Pulumirpc.ReadRequest.Inputs">
             <summary>
             the current inputs, if any (only populated during refresh).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadRequest.Name">
+            <summary>
+            the Pulumi name for this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadRequest.Type">
+            <summary>
+            the Pulumi type for this resource.
             </summary>
         </member>
         <member name="F:Pulumirpc.ReadResponse.IdFieldNumber">
@@ -7074,6 +7176,22 @@
             the old input values of the resource to diff.
             </summary>
         </member>
+        <member name="F:Pulumirpc.UpdateRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.UpdateRequest.Name">
+            <summary>
+            the Pulumi name for this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.UpdateRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.UpdateRequest.Type">
+            <summary>
+            the Pulumi type for this resource.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.UpdateResponse.PropertiesFieldNumber">
             <summary>Field number for the "properties" field.</summary>
         </member>
@@ -7120,6 +7238,22 @@
         <member name="P:Pulumirpc.DeleteRequest.OldInputs">
             <summary>
             the old input values of the resource to delete.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeleteRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeleteRequest.Name">
+            <summary>
+            the Pulumi name for this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeleteRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeleteRequest.Type">
+            <summary>
+            the Pulumi type for this resource.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConstructRequest.ProjectFieldNumber">
@@ -7580,12 +7714,18 @@
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.Configure(Pulumirpc.ConfigureRequest,Grpc.Core.ServerCallContext)">
-            <summary>
-            Configure configures the resource provider with "globals" that control its behavior.
-            </summary>
-            <param name="request">The request received from the client.</param>
-            <param name="context">The context of the server-side call handler being invoked.</param>
-            <returns>The response to send back to the client (wrapped by a task).</returns>
+             <summary>
+             Configure configures the resource provider with "globals" that control its behavior.
+            
+             :::{warning}
+             ConfigureRequest.args may include secrets. Because ConfigureRequest is sent before
+             ConfigureResponse can specify acceptSecrets: false, providers *must* handle secrets from
+             ConfigureRequest.args.
+             :::
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.Invoke(Pulumirpc.InvokeRequest,Grpc.Core.ServerCallContext)">
             <summary>
@@ -7933,40 +8073,64 @@
             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.Configure(Pulumirpc.ConfigureRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            Configure configures the resource provider with "globals" that control its behavior.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The response received from the server.</returns>
+             <summary>
+             Configure configures the resource provider with "globals" that control its behavior.
+            
+             :::{warning}
+             ConfigureRequest.args may include secrets. Because ConfigureRequest is sent before
+             ConfigureResponse can specify acceptSecrets: false, providers *must* handle secrets from
+             ConfigureRequest.args.
+             :::
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.Configure(Pulumirpc.ConfigureRequest,Grpc.Core.CallOptions)">
-            <summary>
-            Configure configures the resource provider with "globals" that control its behavior.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The response received from the server.</returns>
+             <summary>
+             Configure configures the resource provider with "globals" that control its behavior.
+            
+             :::{warning}
+             ConfigureRequest.args may include secrets. Because ConfigureRequest is sent before
+             ConfigureResponse can specify acceptSecrets: false, providers *must* handle secrets from
+             ConfigureRequest.args.
+             :::
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.ConfigureAsync(Pulumirpc.ConfigureRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            Configure configures the resource provider with "globals" that control its behavior.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The call object.</returns>
+             <summary>
+             Configure configures the resource provider with "globals" that control its behavior.
+            
+             :::{warning}
+             ConfigureRequest.args may include secrets. Because ConfigureRequest is sent before
+             ConfigureResponse can specify acceptSecrets: false, providers *must* handle secrets from
+             ConfigureRequest.args.
+             :::
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.ConfigureAsync(Pulumirpc.ConfigureRequest,Grpc.Core.CallOptions)">
-            <summary>
-            Configure configures the resource provider with "globals" that control its behavior.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The call object.</returns>
+             <summary>
+             Configure configures the resource provider with "globals" that control its behavior.
+            
+             :::{warning}
+             ConfigureRequest.args may include secrets. Because ConfigureRequest is sent before
+             ConfigureResponse can specify acceptSecrets: false, providers *must* handle secrets from
+             ConfigureRequest.args.
+             :::
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.Invoke(Pulumirpc.InvokeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
@@ -9763,6 +9927,16 @@
         </member>
         <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.SnapshotEditsFieldNumber">
             <summary>Field number for the "snapshot_edits" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.LanguageInfoFieldNumber">
+            <summary>Field number for the "language_info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.LanguageInfo">
+            <summary>
+            a JSON string that will be inserted into every schema loaded (for both GeneratePackage and GenerateProject) in
+            the "Languages[language_plugin_name]" field. This can be used to test language specific options such as
+            inputTypes in python.
+            </summary>
         </member>
         <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">
             <summary>Container for nested types declared in the PrepareLanguageTestsRequest message type.</summary>

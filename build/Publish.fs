@@ -35,19 +35,22 @@ type PublishResult =
         | otherwise -> false
 
 let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) : PublishResult =
-    let buildNugetCmd = String.concat " " [
-        "build"
+    let cmd (name: string) = String.concat " " [
+        name
         "--configuration Release"
         $"-p:Version={version}"
     ]
-    
-    if Shell.Exec("dotnet", buildNugetCmd, projectDir) <> 0 then
-        PublishResult.Failed(projectDir, "failed to build the nuget package")
+
+    if Shell.Exec("dotnet", cmd "build", projectDir) <> 0 then
+        PublishResult.Failed(projectDir, $"failed to build the project at {projectDir}")
     else
+        if Shell.Exec("dotnet", cmd "pack", projectDir) <> 0 then
+            PublishResult.Failed(projectDir, $"failed to pack the project at {projectDir}")
+        else
         let releaseDir = Path.Combine(projectDir, "bin", "Release")
         let releaseArtifacts = Directory.EnumerateFiles(releaseDir)
         if not (releaseArtifacts.Any()) then
-            PublishResult.Failed(projectDir, "couldn't the nuget package")
+            PublishResult.Failed(projectDir, "couldn't find the nuget package")
         else
             let nugetPackageFile = releaseArtifacts.First()
             let publishNugetCmd = String.concat " " [

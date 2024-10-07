@@ -40,14 +40,14 @@ let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) : Pu
         "--configuration Release"
         $"-p:Version={version}"
     ]
-    
+
     if Shell.Exec("dotnet", buildNugetCmd, projectDir) <> 0 then
-        PublishResult.Failed(projectDir, "failed to build the nuget package")
+        PublishResult.Failed(projectDir, $"failed to build the project at {projectDir}")
     else
         let releaseDir = Path.Combine(projectDir, "bin", "Release")
         let releaseArtifacts = Directory.EnumerateFiles(releaseDir)
         if not (releaseArtifacts.Any()) then
-            PublishResult.Failed(projectDir, "couldn't the nuget package")
+            PublishResult.Failed(projectDir, "couldn't find the nuget package")
         else
             let nugetPackageFile = releaseArtifacts.First()
             let publishNugetCmd = String.concat " " [

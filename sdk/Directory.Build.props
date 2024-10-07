@@ -3,6 +3,5 @@
     <Nullable>enable</Nullable>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 </Project>

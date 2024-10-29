@@ -29,6 +29,27 @@ namespace Pulumi.Tests.Core
         }
     }
 
+    // Struct with nested input lists used for JSON tests
+    public struct TestListStructure
+    {
+        public InputList<Item> Items { get; set; }
+
+        public TestListStructure(InputList<Item> items)
+        {
+            Items = items;
+        }
+
+        public class Item
+        {
+            public InputList<int> Ints { get; set; }
+
+            public Item(InputList<int> ints)
+            {
+                Ints = ints;
+            }
+        }
+    }
+
     public class OutputTests : PulumiTest
     {
         private static Output<T> CreateOutput<T>(T value, bool isKnown, bool isSecret = false)
@@ -664,6 +685,22 @@ namespace Pulumi.Tests.Core
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("[0,1]", data.Value);
+                });
+
+            [Fact]
+            public Task JsonSerializeNestedLists()
+                => RunInNormal(async () =>
+                {
+                    var v = new TestListStructure(
+                        new InputList<TestListStructure.Item> { new TestListStructure.Item(new InputList<int> { 1, 2, 3 }) }
+                    );
+                    var o1 = CreateOutput(v, true);
+                    var o2 = Output.JsonSerialize(o1);
+                    var data = await o2.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.False(data.IsSecret);
+                    var expected = "{\"Items\":[{\"Ints\":[1,2,3]}]}";
+                    Assert.Equal(expected, data.Value);
                 });
 
             [Fact]

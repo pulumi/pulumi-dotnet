@@ -119,14 +119,16 @@ namespace Pulumi
             if (typeToConvert.IsGenericType)
             {
                 var genericType = typeToConvert.GetGenericTypeDefinition();
-                return genericType == typeof(Output<>) || genericType == typeof(Input<>);
+                return genericType == typeof(Output<>) || genericType == typeof(Input<>) || genericType == typeof(InputList<>);
             }
             return false;
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Output<>) || typeToConvert.GetGenericTypeDefinition() == typeof(Input<>));
+            System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Output<>)
+                || typeToConvert.GetGenericTypeDefinition() == typeof(Input<>)
+                || typeToConvert.GetGenericTypeDefinition() == typeof(InputList<>));
             System.Diagnostics.Debug.Assert(typeToConvert.GetGenericArguments().Length == 1);
 
             Type elementType = typeToConvert.GetGenericArguments()[0];
@@ -139,6 +141,11 @@ namespace Pulumi
                         binder: null,
                         args: new object[] { this, options },
                         culture: null)!;
+            }
+
+            if (typeToConvert.GetGenericTypeDefinition() == typeof(InputList<>))
+            {
+                elementType = typeof(ImmutableArray<>).MakeGenericType(elementType);
             }
 
             return (JsonConverter)Activator.CreateInstance(

@@ -43,9 +43,12 @@ namespace Pulumi.Tests.Core
         {
             public InputList<int> Ints { get; set; }
 
-            public Item(InputList<int> ints)
+            public InputMap<int> IntMap { get; set; }
+
+            public Item(InputList<int> ints, InputMap<int> intMap)
             {
                 Ints = ints;
+                IntMap = intMap;
             }
         }
     }
@@ -691,15 +694,17 @@ namespace Pulumi.Tests.Core
             public Task JsonSerializeNestedLists()
                 => RunInNormal(async () =>
                 {
+                    var listv = new InputList<int> { 1, 2, 3 };
+                    var mapv = new InputMap<int> { { "K1", 4 } };
                     var v = new TestListStructure(
-                        new InputList<TestListStructure.Item> { new TestListStructure.Item(new InputList<int> { 1, 2, 3 }) }
+                        new InputList<TestListStructure.Item> { new TestListStructure.Item(listv, mapv) }
                     );
                     var o1 = CreateOutput(v, true);
                     var o2 = Output.JsonSerialize(o1);
                     var data = await o2.DataTask.ConfigureAwait(false);
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
-                    var expected = "{\"Items\":[{\"Ints\":[1,2,3]}]}";
+                    var expected = "{\"Items\":[{\"Ints\":[1,2,3],\"IntMap\":{\"K1\":4}}]}";
                     Assert.Equal(expected, data.Value);
                 });
 

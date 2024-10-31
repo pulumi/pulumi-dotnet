@@ -119,7 +119,8 @@ namespace Pulumi
             if (typeToConvert.IsGenericType)
             {
                 var genericType = typeToConvert.GetGenericTypeDefinition();
-                return genericType == typeof(Output<>) || genericType == typeof(Input<>) || genericType == typeof(InputList<>);
+                return genericType == typeof(Output<>) || genericType == typeof(Input<>)
+                    || IsSubclassOfGeneric(typeToConvert, typeof(Input<>));
             }
             return false;
         }
@@ -128,7 +129,7 @@ namespace Pulumi
         {
             System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Output<>)
                 || typeToConvert.GetGenericTypeDefinition() == typeof(Input<>)
-                || typeToConvert.GetGenericTypeDefinition() == typeof(InputList<>));
+                || IsSubclassOfGeneric(typeToConvert, typeof(Input<>)));
             System.Diagnostics.Debug.Assert(typeToConvert.GetGenericArguments().Length == 1);
 
             Type elementType = typeToConvert.GetGenericArguments()[0];
@@ -143,9 +144,12 @@ namespace Pulumi
                         culture: null)!;
             }
 
-            if (typeToConvert.GetGenericTypeDefinition() == typeof(InputList<>))
+            // InputList<> and InputMap<> are examples of subclasses of Input<>. If we face those,
+            // we want to take the element type of Input<T> (e.g. ImmutableArray<T> for InputList),
+            // not the element type of the subclass.
+            if (IsSubclassOfGeneric(typeToConvert, typeof(Input<>)))
             {
-                elementType = typeof(ImmutableArray<>).MakeGenericType(elementType);
+                elementType = typeToConvert.BaseType!.GenericTypeArguments[0];
             }
 
             return (JsonConverter)Activator.CreateInstance(
@@ -156,6 +160,9 @@ namespace Pulumi
                     args: new object[] { this, options },
                     culture: null)!;
         }
+
+        private bool IsSubclassOfGeneric(Type type, Type baseType) =>
+            type.BaseType?.IsGenericType == true && type.BaseType.GetGenericTypeDefinition() == baseType;
     }
 
     /// <summary>

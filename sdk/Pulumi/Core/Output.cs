@@ -99,6 +99,48 @@ namespace Pulumi
             }
         }
 
+        private sealed class InputListJsonConverterInner<T> : System.Text.Json.Serialization.JsonConverter<InputList<T>>
+        {
+            readonly JsonConverter<Input<ImmutableArray<T>>> Converter;
+
+            public InputListJsonConverterInner(JsonSerializerOptions options)
+            {
+                Converter = (JsonConverter<Input<ImmutableArray<T>>>)options.GetConverter(typeof(Input<ImmutableArray<T>>));
+            }
+
+            public override InputList<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var value = Converter.Read(ref reader, typeof(Input<ImmutableArray<T>>), options);
+                return value.ToOutput();
+            }
+
+            public override void Write(Utf8JsonWriter writer, InputList<T> value, JsonSerializerOptions options)
+            {
+                Converter.Write(writer, value, options);
+            }
+        }
+
+        private sealed class InputMapJsonConverterInner<T> : System.Text.Json.Serialization.JsonConverter<InputMap<T>>
+        {
+            readonly JsonConverter<Input<ImmutableDictionary<string, T>>> Converter;
+
+            public InputMapJsonConverterInner(JsonSerializerOptions options)
+            {
+                Converter = (JsonConverter<Input<ImmutableDictionary<string, T>>>)options.GetConverter(typeof(Input<ImmutableDictionary<string, T>>));
+            }
+
+            public override InputMap<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var value = Converter.Read(ref reader, typeof(Input<ImmutableDictionary<string, T>>), options);
+                return value.ToOutput();
+            }
+
+            public override void Write(Utf8JsonWriter writer, InputMap<T> value, JsonSerializerOptions options)
+            {
+                Converter.Write(writer, value, options);
+            }
+        }
+
         public bool _isSecret { get; private set; }
         private readonly ImmutableHashSet<Resource> _resources;
 
@@ -120,7 +162,7 @@ namespace Pulumi
             {
                 var genericType = typeToConvert.GetGenericTypeDefinition();
                 return genericType == typeof(Output<>) || genericType == typeof(Input<>)
-                    || IsSubclassOfGeneric(typeToConvert, typeof(Input<>));
+                    || genericType == typeof(InputList<>) || genericType == typeof(InputMap<>);
             }
             return false;
         }
@@ -129,40 +171,37 @@ namespace Pulumi
         {
             System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Output<>)
                 || typeToConvert.GetGenericTypeDefinition() == typeof(Input<>)
-                || IsSubclassOfGeneric(typeToConvert, typeof(Input<>)));
+                || typeToConvert.GetGenericTypeDefinition() == typeof(InputList<>)
+                || typeToConvert.GetGenericTypeDefinition() == typeof(InputMap<>));
             System.Diagnostics.Debug.Assert(typeToConvert.GetGenericArguments().Length == 1);
 
             Type elementType = typeToConvert.GetGenericArguments()[0];
-            if (typeToConvert.GetGenericTypeDefinition() == typeof(Output<>))
+            Type genericType = typeToConvert.GetGenericTypeDefinition();
+
+            var converterMap = new Dictionary<Type, Type>
             {
+                { typeof(Output<>), typeof(OutputJsonConverterInner<>) },
+                { typeof(Input<>), typeof(InputJsonConverterInner<>) },
+                { typeof(InputList<>), typeof(InputListJsonConverterInner<>) },
+                { typeof(InputMap<>), typeof(InputMapJsonConverterInner<>) },
+            };
+
+            if (converterMap.TryGetValue(genericType, out Type? converterType))
+            {
+                bool requiresOuterInstance = genericType == typeof(Output<>) || genericType == typeof(Input<>);
+                var args = requiresOuterInstance ? new object[] { this, options } : new object[] { options };
+
                 return (JsonConverter)Activator.CreateInstance(
-                    typeof(OutputJsonConverterInner<>).MakeGenericType(
-                        new Type[] { elementType }),
-                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
-                        binder: null,
-                        args: new object[] { this, options },
-                        culture: null)!;
-            }
-
-            // InputList<> and InputMap<> are examples of subclasses of Input<>. If we face those,
-            // we want to take the element type of Input<T> (e.g. ImmutableArray<T> for InputList),
-            // not the element type of the subclass.
-            if (IsSubclassOfGeneric(typeToConvert, typeof(Input<>)))
-            {
-                elementType = typeToConvert.BaseType!.GenericTypeArguments[0];
-            }
-
-            return (JsonConverter)Activator.CreateInstance(
-                typeof(InputJsonConverterInner<>).MakeGenericType(
-                    new Type[] { elementType }),
+                    converterType.MakeGenericType(elementType),
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
                     binder: null,
-                    args: new object[] { this, options },
-                    culture: null)!;
-        }
+                    args: args,
+                    culture: null
+                )!;
+            }
 
-        private bool IsSubclassOfGeneric(Type type, Type baseType) =>
-            type.BaseType?.IsGenericType == true && type.BaseType.GetGenericTypeDefinition() == baseType;
+            throw new InvalidOperationException($"No converter found for type {typeToConvert}");
+        }
     }
 
     /// <summary>

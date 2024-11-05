@@ -691,7 +691,7 @@ namespace Pulumi.Tests.Core
                 });
 
             [Fact]
-            public Task JsonSerializeNestedLists()
+            public Task JsonSerializeNestedCollections()
                 => RunInNormal(async () =>
                 {
                     var listv = new InputList<int> { 1, 2, 3 };
@@ -826,6 +826,28 @@ namespace Pulumi.Tests.Core
                     Assert.True(i1.IsKnown);
                     Assert.True(i1.IsSecret);
                     Assert.Equal(1, i1.Value);
+                });
+
+            [Fact]
+            public Task JsonDeserializeNestedCollections()
+                => RunInNormal(async () =>
+                {
+                    var o1 = CreateOutput("{\"Items\":[{\"Ints\":[1,2,3],\"IntMap\":{\"K1\":4}}]}", true);
+                    var o2 = Output.JsonDeserialize<Output<TestListStructure>>(o1);
+                    var data = await o2.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    var i0 = await data.Value.DataTask.ConfigureAwait(false);
+                    var items = await i0.Value.Items.ToOutput().DataTask.ConfigureAwait(false);
+                    Assert.Single(items.Value);
+                    var listv = await items.Value[0].Ints.ToOutput().DataTask.ConfigureAwait(false);
+                    Assert.Equal(3, listv.Value.Length);
+                    for (var i = 1; i <= 3; i++)
+                    {
+                        Assert.Equal(i, listv.Value[i - 1]);
+                    }
+                    var mapv = await items.Value[0].IntMap.ToOutput().DataTask.ConfigureAwait(false);
+                    Assert.Single(mapv.Value);
+                    Assert.Equal(4, mapv.Value["K1"]);
                 });
 
             [Fact]

@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Always send a computed property value for unknown values
+time: 2024-11-11T11:59:17.1828021+01:00
+custom:
+    PR: "375"

@@ -23,6 +23,7 @@ namespace Pulumi.Experimental.Provider
         Archive,
         Secret,
         Resource,
+        Output,
         Computed,
     }
 
@@ -169,6 +170,10 @@ namespace Pulumi.Experimental.Provider
                 else if (ResourceValue != null)
                 {
                     return PropertyValueType.Resource;
+                }
+                else if (OutputValue != null)
+                {
+                    return PropertyValueType.Output;
                 }
                 else if (IsComputed)
                 {

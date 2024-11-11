@@ -523,7 +523,7 @@ public class PropertyValueTests
         var unknownWithDeps = OutputUtilities.WithDependency(OutputUtilities.CreateUnknown(""), resource);
         serialized = await serializer.Serialize(unknownWithDeps);
         expected = new PropertyValue(new OutputReference(
-            null,
+            PropertyValue.Computed,
             ImmutableHashSet.Create(new Urn("urn:pulumi::stack::proj::type::name"))));
         Assert.Equal(expected, serialized);
     }

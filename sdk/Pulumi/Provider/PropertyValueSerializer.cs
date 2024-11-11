@@ -290,10 +290,14 @@ namespace Pulumi.Experimental.Provider
             {
                 var data = await output.GetDataAsync().ConfigureAwait(false);
 
-                PropertyValue? element = null;
+                PropertyValue element;
                 if (data.IsKnown)
                 {
                     element = await Serialize(data.Value);
+                }
+                else
+                {
+                    element = PropertyValue.Computed;
                 }
 
                 var dependantResources = ImmutableHashSet.CreateBuilder<Urn>();
@@ -303,22 +307,10 @@ namespace Pulumi.Experimental.Provider
                     dependantResources.Add(new Urn(urn));
                 }
 
-                PropertyValue outputValue;
-                if (dependantResources.Count == 0)
+                var outputValue = element;
+                if (dependantResources.Count != 0)
                 {
-                    if (element != null)
-                    {
-                        outputValue = element;
-                    }
-                    else
-                    {
-                        outputValue = PropertyValue.Computed;
-                    }
-                }
-                else
-                {
-                    outputValue = new PropertyValue(new OutputReference(
-                        value: element,
+                    outputValue = new PropertyValue(new OutputReference(value: outputValue,
                         dependencies: dependantResources.ToImmutable()));
                 }
 

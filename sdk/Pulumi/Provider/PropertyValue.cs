@@ -72,11 +72,20 @@ namespace Pulumi.Experimental.Provider
 
     public readonly struct OutputReference : IEquatable<OutputReference>
     {
+        /// <summary>
+        /// The value of the output, if it is known. This will never be a `Computed` value as that's
+        /// equivilent to unknown and thus null.
+        /// </summary>
         public readonly PropertyValue? Value;
         public readonly ImmutableHashSet<Urn> Dependencies;
 
         public OutputReference(PropertyValue? value, ImmutableHashSet<Urn> dependencies)
         {
+            // Normalise `Computed` to null
+            if (value != null && value.IsComputed)
+            {
+                value = null;
+            }
             Value = value;
             Dependencies = dependencies;
         }

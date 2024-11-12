@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Improvements
+body: OutputReference.Value will normalize to null for Computed values
+time: 2024-11-12T16:17:32.507153545Z
+custom:
+  PR: "381"

@@ -470,6 +470,7 @@ namespace Pulumi.Experimental.Provider
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Input<>))
             {
                 var elementType = targetType.GetGenericArguments()[0];
+                var outputType = typeof(Output<>).MakeGenericType(elementType);
                 var outputDataType = typeof(OutputData<>).MakeGenericType(elementType);
                 var createOutputData = outputDataType.GetConstructor(new[]
                 {
@@ -486,20 +487,19 @@ namespace Pulumi.Experimental.Provider
                         $"{nameof(ImmutableHashSet<Resource>)}, {elementType.Name}, bool, bool");
                 }
 
-                var createOutputMethod =
-                    typeof(Output<>)
-                        .MakeGenericType(elementType)
-                        .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-                        .First(ctor =>
-                        {
-                            // expected parameter type == Task<OutputData<T>>
-                            var parameters = ctor.GetParameters();
-                            return parameters.Length == 1 &&
-                                   parameters[0].ParameterType == typeof(Task<>).MakeGenericType(outputDataType);
-                        })!;
-
                 object CreateOutput(object? outputData)
                 {
+                    var createOutputMethod =
+                        outputType
+                            .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                            .First(ctor =>
+                            {
+                                // expected parameter type == Task<OutputData<T>>
+                                var parameters = ctor.GetParameters();
+                                return parameters.Length == 1 &&
+                                    parameters[0].ParameterType == typeof(Task<>).MakeGenericType(outputDataType);
+                            })!;
+
                     var fromResultMethod =
                         typeof(Task)
                             .GetMethod("FromResult")!
@@ -511,7 +511,7 @@ namespace Pulumi.Experimental.Provider
                     });
                 }
 
-                object CreateInput(object? outputData)
+                object CreateInput(object? outputValue)
                 {
                     var newInputCtor =
                         typeof(Input<>)
@@ -521,106 +521,88 @@ namespace Pulumi.Experimental.Provider
                             {
                                 var parameters = ctor.GetParameters();
                                 return parameters.Length == 1
-                                       && parameters[0].ParameterType == typeof(Output<>).MakeGenericType(elementType);
+                                       && parameters[0].ParameterType == outputType;
                             });
 
-                    return newInputCtor.Invoke(new[] { CreateOutput(outputData) });
+                    return newInputCtor.Invoke(new[] { outputValue });
                 }
 
                 if (value.IsComputed)
                 {
-                    return CreateInput(createOutputData.Invoke(new object?[]
+                    return CreateInput(CreateOutput(createOutputData.Invoke(new object?[]
                     {
                         ImmutableHashSet<Resource>.Empty, // resources
                         null, // value
                         false, // isKnown
                         false // isSecret
-                    }));
+                    })));
                 }
 
-                object GetOutputData(ImmutableHashSet<Resource>.Builder resources, PropertyValue propertyValue, bool isSecret)
-                {
-                    object? deserializeValue = null;
-                    var isKnown = false;
-                    if (!propertyValue.IsComputed)
-                    {
-                        deserializeValue = DeserializeValue(propertyValue, elementType, path);
-                        isKnown = true;
-                    }
+                var inputToOutputCast =
+                    targetType
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .First(meth =>
+                        {
+                            return meth.Name == "op_Implicit" &&
+                                meth.ReturnType == outputType;
 
-                    var outputData = createOutputData.Invoke(new object?[]
-                    {
-                        resources.ToImmutable(),
-                        deserializeValue,
-                        isKnown,
-                        isSecret
-                    });
-                    return outputData;
-                }
+                        });
 
                 if (value.TryGetSecret(out var secretValue))
                 {
-                    if (secretValue.IsComputed)
-                    {
-                        return CreateInput(createOutputData.Invoke(new object?[]
-                        {
-                            ImmutableHashSet<Resource>.Empty, // resources
-                            null, // value
-                            false, // isKnown
-                            true // isSecret
-                        }));
-                    }
+                    var inner = DeserializeValue(secretValue, targetType, path);
+                    // Combine the inner result (which we _know_ will be an Input<T>) with the secret flag.
 
-                    if (secretValue.TryGetOutput(out var secretOutput) && secretOutput.Value != null)
-                    {
-                        // here we have Secret(Output(...)) being deserialized into Input<T>
-                        // deserialize the inner Output(...) into Input<T> then mark the output as secret
-                        var resources = ImmutableHashSet.CreateBuilder<Resource>();
-                        foreach (var dependencyUrn in secretOutput.Dependencies)
-                        {
-                            resources.Add(new DependencyResource(dependencyUrn));
-                        }
+                    var createSecret =
+                        typeof(Output)
+                            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                            .First(meth =>
+                            {
+                                var parameters = meth.GetParameters();
+                                return meth.Name == "CreateSecret" &&
+                                    parameters.Length == 1 &&
+                                     parameters[0].ParameterType.IsGenericType &&
+                                    parameters[0].ParameterType.GetGenericTypeDefinition() == typeof(Output<>);
+                            })
+                            .MakeGenericMethod(elementType);
 
-                        var outputData = GetOutputData(resources, secretOutput.Value, true);
+                    var secretOutput = createSecret.Invoke(null, new[] { inputToOutputCast.Invoke(null, new[] { inner }) });
 
-                        return CreateInput(outputData);
-                    }
-
-                    var deserializedValue = DeserializeValue(secretValue, elementType, path);
-                    // Create OutputData<T>
-                    var secretOutputData = createOutputData.Invoke(new object?[]
-                    {
-                        ImmutableHashSet<Resource>.Empty, // resources
-                        deserializedValue, // value
-                        true, // isKnown
-                        true // isSecret
-                    });
-
-                    // return Output<T>
-                    return CreateInput(secretOutputData);
+                    return CreateInput(secretOutput);
                 }
 
-                if (value.TryGetOutput(out var outputValue) && outputValue.Value != null)
+                if (value.TryGetOutput(out var outputValue))
                 {
-                    var secret = false;
-                    var innerOutputValue = outputValue.Value;
-
-                    if (outputValue.Value.TryGetSecret(out var secretOutputValue))
+                    var dependencies = ImmutableHashSet.CreateBuilder<Resource>();
+                    foreach (var urn in outputValue.Dependencies)
                     {
-                        // here we have Output(Secret(...)) being deserialized into Input<T>
-                        innerOutputValue = secretOutputValue;
-                        secret = true;
+                        dependencies.Add(new DependencyResource(urn));
+                    }
+                    var immutableDependencies = dependencies.ToImmutable();
+
+                    if (outputValue.Value == null)
+                    {
+                        // If the inner value is null this is simply an unknown output, we just need to track in the dependencies from this level.
+                        return CreateInput(CreateOutput(createOutputData.Invoke(new object?[]
+                        {
+                            immutableDependencies, // resources
+                            null, // value
+                            false, // isKnown
+                            false // isSecret
+                        })));
                     }
 
-                    var resources = ImmutableHashSet.CreateBuilder<Resource>();
-                    foreach (var dependencyUrn in outputValue.Dependencies)
-                    {
-                        resources.Add(new DependencyResource(dependencyUrn));
-                    }
+                    // The inner value could be a Secret or a nested OutputReference, deserialise _that_ into
+                    // an Input<T> recursively then bind it with the data at this level, adding the extra dependencies.
+                    var inner = DeserializeValue(outputValue.Value, targetType, path);
+                    var withDependencies = outputType.GetMethod(
+                        "WithDependencies", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-                    var outputData = GetOutputData(resources, innerOutputValue, secret);
+                    var outputWithDependencies = withDependencies.Invoke(
+                        inputToOutputCast.Invoke(null, new[] { inner }),
+                        new object[] { immutableDependencies });
 
-                    return CreateInput(outputData);
+                    return CreateInput(outputWithDependencies);
                 }
 
                 var deserialized = DeserializeValue(value, elementType, path);
@@ -632,7 +614,7 @@ namespace Pulumi.Experimental.Provider
                     false
                 });
 
-                return CreateInput(outputDataValue);
+                return CreateInput(CreateOutput(outputDataValue));
             }
 
             if (targetType == typeof(int))

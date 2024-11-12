@@ -398,6 +398,15 @@ namespace Pulumi.Automation
         /// <param name="cancellationToken">A cancellation token.</param>
         public abstract Task<ImmutableDictionary<string, OutputValue>> GetStackOutputsAsync(string stackName, CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Change the secrets provider for a stack.
+        /// </summary>
+        /// <param name="stackName">The name of the stack.</param>
+        /// <param name="newSecretsProvider">The new secrets provider.</param>
+        /// <param name="secretsProviderOptions">The options to change the secrets provider.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public abstract Task ChangeSecretsProviderAsync(string stackName, string newSecretsProvider, SecretsProviderOptions? secretsProviderOptions = null, CancellationToken cancellationToken = default);
+
         internal async Task<CommandResult> RunStackCommandAsync(
             string stackName,
             IList<string> args,
@@ -409,7 +418,7 @@ namespace Pulumi.Automation
             var additionalArgs = await this.SerializeArgsForOpAsync(stackName, cancellationToken).ConfigureAwait(false);
             var completeArgs = args.Concat(additionalArgs).ToList();
 
-            var result = await this.RunCommandAsync(completeArgs, onStandardOutput, onStandardError, onEngineEvent, cancellationToken).ConfigureAwait(false);
+            var result = await this.RunCommandAsync(completeArgs, onStandardOutput, onStandardError, onEngineEvent, stdIn: null, cancellationToken).ConfigureAwait(false);
             await this.PostCommandCallbackAsync(stackName, cancellationToken).ConfigureAwait(false);
             return result;
         }
@@ -417,13 +426,20 @@ namespace Pulumi.Automation
         internal Task<CommandResult> RunCommandAsync(
             IList<string> args,
             CancellationToken cancellationToken)
-            => this.RunCommandAsync(args, onStandardOutput: null, onStandardError: null, onEngineEvent: null, cancellationToken);
+            => this.RunCommandAsync(args, onStandardOutput: null, onStandardError: null, onEngineEvent: null, stdIn: null, cancellationToken);
+
+        internal Task<CommandResult> RunInputCommandAsync(
+            IList<string> args,
+            string stdIn,
+            CancellationToken cancellationToken)
+            => this.RunCommandAsync(args, onStandardOutput: null, onStandardError: null, onEngineEvent: null, stdIn: stdIn, cancellationToken);
 
         internal Task<CommandResult> RunCommandAsync(
             IList<string> args,
             Action<string>? onStandardOutput,
             Action<string>? onStandardError,
             Action<EngineEvent>? onEngineEvent,
+            string? stdIn,
             CancellationToken cancellationToken)
         {
             var env = new Dictionary<string, string?>();
@@ -439,7 +455,7 @@ namespace Pulumi.Automation
                     env[pair.Key] = pair.Value;
             }
 
-            return this._cmd.RunAsync(args, this.WorkDir, env, onStandardOutput, onStandardError, onEngineEvent, cancellationToken);
+            return this._cmd.RunInputAsync(args, this.WorkDir, env, onStandardOutput, onStandardError, stdIn, onEngineEvent, cancellationToken);
         }
 
         protected virtual void Dispose(bool disposing)

@@ -2331,5 +2331,34 @@ namespace Pulumi.Automation.Tests
                 Assert.NotEqual("", whoAmI.Url);
             }
         }
+
+        [Fact]
+        public async Task ChangeSecretsProvider()
+        {
+            var projectName = "change_secrets_provider_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+            var stackName = RandomStackName();
+
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+                SecretsProvider = "passphrase",
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test"
+                },
+            });
+
+            try
+            {
+                var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+                await Assert.ThrowsAsync<ArgumentNullException>(() => stack.ChangeSecretsProviderAsync("passphrase"));
+                await stack.ChangeSecretsProviderAsync("passphrase", new SecretsProviderOptions { NewPassphrase = "test2" });
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+            }
+        }
     }
 }

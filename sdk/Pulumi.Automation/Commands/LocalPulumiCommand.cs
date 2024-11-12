@@ -270,6 +270,19 @@ namespace Pulumi.Automation.Commands
             Action<EngineEvent>? onEngineEvent = null,
             CancellationToken cancellationToken = default)
         {
+            return await this.RunInputAsync(args, workingDir, additionalEnv, onStandardOutput, onStandardError, stdIn: null, onEngineEvent, cancellationToken);
+        }
+
+        public override async Task<CommandResult> RunInputAsync(
+            IList<string> args,
+            string workingDir,
+            IDictionary<string, string?> additionalEnv,
+            Action<string>? onStandardOutput = null,
+            Action<string>? onStandardError = null,
+            string? stdIn = null,
+            Action<EngineEvent>? onEngineEvent = null,
+            CancellationToken cancellationToken = default)
+        {
             if (onEngineEvent != null)
             {
                 var commandName = SanitizeCommandName(args.FirstOrDefault());
@@ -277,14 +290,15 @@ namespace Pulumi.Automation.Commands
                 using var eventLogWatcher = new EventLogWatcher(eventLogFile.FilePath, onEngineEvent, cancellationToken);
                 try
                 {
-                    return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, eventLogFile, cancellationToken).ConfigureAwait(false);
+                    return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, stdIn, eventLogFile, cancellationToken).ConfigureAwait(false);
                 }
                 finally
                 {
                     await eventLogWatcher.Stop().ConfigureAwait(false);
                 }
             }
-            return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, eventLogFile: null, cancellationToken).ConfigureAwait(false);
+
+            return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, stdIn, eventLogFile: null, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<CommandResult> RunAsyncInner(
@@ -293,6 +307,7 @@ namespace Pulumi.Automation.Commands
             IDictionary<string, string?> additionalEnv,
             Action<string>? onStandardOutput = null,
             Action<string>? onStandardError = null,
+            string? stdIn = null,
             EventLogFile? eventLogFile = null,
             CancellationToken cancellationToken = default)
         {
@@ -310,12 +325,19 @@ namespace Pulumi.Automation.Commands
                 stdErrPipe = PipeTarget.Merge(stdErrPipe, PipeTarget.ToDelegate(onStandardError));
             }
 
+            var stdInPipe = PipeSource.Null;
+            if (stdIn != null)
+            {
+                stdInPipe = PipeSource.FromString(stdIn);
+            }
+
             var pulumiCommand = Cli.Wrap("pulumi")
                 .WithArguments(PulumiArgs(args, eventLogFile), escape: true)
                 .WithWorkingDirectory(workingDir)
                 .WithEnvironmentVariables(PulumiEnvironment(additionalEnv, _command, debugCommands: eventLogFile != null))
                 .WithStandardOutputPipe(stdOutPipe)
                 .WithStandardErrorPipe(stdErrPipe)
+                .WithStandardInputPipe(stdInPipe)
                 .WithValidation(CommandResultValidation.None); // we check non-0 exit code ourselves
 
             var pulumiCommandResult = await pulumiCommand.ExecuteAsync(cancellationToken);

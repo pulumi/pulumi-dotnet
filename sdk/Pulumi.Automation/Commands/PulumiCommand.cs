@@ -24,5 +24,15 @@ namespace Pulumi.Automation.Commands
             Action<string>? onStandardError = null,
             Action<EngineEvent>? onEngineEvent = null,
             CancellationToken cancellationToken = default);
+
+        public abstract Task<CommandResult> RunInputAsync(
+            IList<string> args,
+            string workingDir,
+            IDictionary<string, string?> additionalEnv,
+            Action<string>? onStandardOutput = null,
+            Action<string>? onStandardError = null,
+            string? stdIn = null,
+            Action<EngineEvent>? onEngineEvent = null,
+            CancellationToken cancellationToken = default);
     }
 }

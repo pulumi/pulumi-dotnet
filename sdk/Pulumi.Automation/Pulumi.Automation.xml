@@ -1348,6 +1348,16 @@
             supported for local backends.
             </summary>
         </member>
+        <member name="T:Pulumi.Automation.SecretsProviderOptions">
+            <summary>
+            Options to pass into <see cref="M:Pulumi.Automation.WorkspaceStack.ChangeSecretsProviderAsync(System.String,Pulumi.Automation.SecretsProviderOptions,System.Threading.CancellationToken)"/>.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.SecretsProviderOptions.NewPassphrase">
+            <summary>
+            The new Passphrase to use in the passphrase provider
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.StackDeployment">
             <summary>
             Represents the state of a stack deployment as used by
@@ -1834,6 +1844,15 @@
             Gets the current set of Stack outputs from the last <see cref="M:Pulumi.Automation.WorkspaceStack.UpAsync(Pulumi.Automation.UpOptions,System.Threading.CancellationToken)"/>.
             </summary>
             <param name="stackName">The name of the stack.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.ChangeSecretsProviderAsync(System.String,System.String,Pulumi.Automation.SecretsProviderOptions,System.Threading.CancellationToken)">
+            <summary>
+            Change the secrets provider for a stack.
+            </summary>
+            <param name="stackName">The name of the stack.</param>
+            <param name="newSecretsProvider">The new secrets provider.</param>
+            <param name="secretsProviderOptions">The options to change the secrets provider.</param>
             <param name="cancellationToken">A cancellation token.</param>
         </member>
         <member name="T:Pulumi.Automation.WorkspaceStack">

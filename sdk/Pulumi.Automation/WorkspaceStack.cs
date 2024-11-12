@@ -295,6 +295,9 @@ namespace Pulumi.Automation
         public Task RemoveEnvironmentAsync(string environment, CancellationToken cancellationToken = default)
             => this.Workspace.RemoveEnvironmentAsync(this.Name, environment, cancellationToken);
 
+        public Task ChangeSecretsProviderAsync(string newSecretsProvider, SecretsProviderOptions? secretsProviderOptions = null, CancellationToken cancellationToken = default)
+            => this.Workspace.ChangeSecretsProviderAsync(this.Name, newSecretsProvider, secretsProviderOptions, cancellationToken);
+
         /// <summary>
         /// Creates or updates the resources in a stack by executing the program in the Workspace.
         /// <para/>

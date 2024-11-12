@@ -527,19 +527,15 @@ namespace Pulumi.Experimental.Provider
                     return newInputCtor.Invoke(new[] { CreateOutput(outputData) });
                 }
 
-                var unknownOutputData = createOutputData.Invoke(new object?[]
-                {
-                    ImmutableHashSet<Resource>.Empty, // resources
-                    null, // value
-                    false, // isKnown
-                    false // isSecret
-                });
-
-                var unknownOutput = CreateInput(unknownOutputData);
-
                 if (value.IsComputed)
                 {
-                    return unknownOutput;
+                    return CreateInput(createOutputData.Invoke(new object?[]
+                    {
+                        ImmutableHashSet<Resource>.Empty, // resources
+                        null, // value
+                        false, // isKnown
+                        false // isSecret
+                    }));
                 }
 
                 object GetOutputData(ImmutableHashSet<Resource>.Builder resources, PropertyValue propertyValue, bool isSecret)
@@ -566,7 +562,13 @@ namespace Pulumi.Experimental.Provider
                 {
                     if (secretValue.IsComputed)
                     {
-                        return unknownOutput;
+                        return CreateInput(createOutputData.Invoke(new object?[]
+                        {
+                            ImmutableHashSet<Resource>.Empty, // resources
+                            null, // value
+                            false, // isKnown
+                            true // isSecret
+                        }));
                     }
 
                     if (secretValue.TryGetOutput(out var secretOutput) && secretOutput.Value != null)

@@ -247,6 +247,12 @@
             Property values will be one of these types.
             </summary>
         </member>
+        <member name="F:Pulumi.Experimental.Provider.OutputReference.Value">
+            <summary>
+            The value of the output, if it is known. This will never be a `Computed` value as that's
+            equivilent to unknown and thus null.
+            </summary>
+        </member>
         <member name="T:Pulumi.Alias">
             <summary>
             Alias is a description of prior named used for a resource. It can be processed in the
@@ -714,6 +720,12 @@
             Additionally, they carry along dependency information.
             <para/>
             The output properties of all resource objects in Pulumi have type <see cref="T:Pulumi.Output`1"/>.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Output`1.WithDependencies(System.Collections.Immutable.ImmutableHashSet{Pulumi.Resource})">
+            <summary>
+            This returns a new <see cref="T:Pulumi.Output`1"/> that represents the same value as this output, but with
+            the extra dependencies specified.
             </summary>
         </member>
         <member name="M:Pulumi.Output`1.Apply(System.Func{`0,System.Threading.Tasks.Task})">
@@ -1670,7 +1682,8 @@
             <summary>
             RunException can be used for terminating a program abruptly, but resulting in a clean exit
             rather than the usual verbose unhandled error logic which emits the source program text and
-            complete stack trace.  This type should be rarely used.  Ideally <see
+            complete stack trace.  This type should be rarely used and not be used by developers.
+            The reason to make it public is for it to be assertable by testing frameworks. Ideally <see
             cref="T:Pulumi.ResourceException"/> should always be used so that as many errors as possible can be
             associated with a Resource.
             </summary>

@@ -437,6 +437,22 @@ namespace Pulumi
             }
         }
 
+        /// <summary>
+        /// This returns a new <see cref="Output{T}"/> that represents the same value as this output, but with
+        /// the extra dependencies specified.
+        /// </summary>
+        internal Output<T> WithDependencies(ImmutableHashSet<Resource> resources)
+        {
+            async Task<OutputData<T>> GetData()
+            {
+                var data = await DataTask.ConfigureAwait(false);
+                var combinedResources = data.Resources.Union(resources);
+                return new OutputData<T>(combinedResources, data.Value, data.IsKnown, data.IsSecret);
+            }
+
+            return new Output<T>(GetData());
+        }
+
         internal async Task<T> GetValueAsync(T whenUnknown)
         {
             var data = await DataTask.ConfigureAwait(false);

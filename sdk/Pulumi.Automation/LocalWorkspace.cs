@@ -849,6 +849,23 @@ namespace Pulumi.Automation
             return output.ToImmutableDictionary();
         }
 
+        public override Task ChangeSecretsProviderAsync(string stackName, string newSecretsProvider, SecretsProviderOptions? secretsProviderOptions, CancellationToken cancellationToken = default)
+        {
+            var args = new[] { "stack", "change-secrets-provider", "--stack", stackName, newSecretsProvider };
+
+            if (newSecretsProvider == "passphrase")
+            {
+                if (string.IsNullOrEmpty(secretsProviderOptions?.NewPassphrase))
+                {
+                    throw new ArgumentNullException(nameof(secretsProviderOptions), "New passphrase must be set when using passphrase provider.");
+                }
+
+                return this.RunInputCommandAsync(args, secretsProviderOptions.NewPassphrase, cancellationToken);
+            }
+
+            return this.RunCommandAsync(args, cancellationToken);
+        }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

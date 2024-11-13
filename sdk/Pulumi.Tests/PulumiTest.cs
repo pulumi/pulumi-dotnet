@@ -25,7 +25,7 @@ namespace Pulumi.Tests
             mock.Setup(d => d.Runner).Returns(runner.Object);
 
             Deployment.Instance = new DeploymentInstance(mock.Object);
-            await func().ConfigureAwait(false);
+            await func();
         }
 
         protected static Task RunInPreview(Action action)

@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
-        dotnet-version: [6.0.x, 8.0.x]
+        dotnet-version: [6.0.x, 8.0.x, 9.0.x]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -76,8 +76,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-13]
-        dotnet-version: [6.0.x, 8.0.x]
+        dotnet-version: [6.0.x, 8.0.x, 9.0.x]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     steps:
       - name: Set TARGET_FRAMEWORK
         shell: bash

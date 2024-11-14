@@ -206,7 +206,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
 
         private async Task<T> AsTask<T>(T value)
         {
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100);
             return value;
         }
 

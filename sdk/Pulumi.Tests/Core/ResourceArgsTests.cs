@@ -43,7 +43,7 @@ namespace Pulumi.Tests.Core
                 S = "val",
             };
 
-            var dictionary = await args.ToDictionaryAsync().ConfigureAwait(false);
+            var dictionary = await args.ToDictionaryAsync();
 
             Assert.True(dictionary.TryGetValue("s", out var sValue));
             Assert.True(dictionary.TryGetValue("array", out var arrayValue));
@@ -66,7 +66,7 @@ namespace Pulumi.Tests.Core
                     Array = { true },
                 };
 
-                var dictionary = await args.ToDictionaryAsync().ConfigureAwait(false);
+                var dictionary = await args.ToDictionaryAsync();
 
                 Assert.True(dictionary.TryGetValue("s", out var sValue));
                 Assert.True(dictionary.TryGetValue("array", out var arrayValue));

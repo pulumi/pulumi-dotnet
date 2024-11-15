@@ -467,7 +467,10 @@ func TestAboutDotnet(t *testing.T) {
 	e.ImportDirectory("about")
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
-	_, stderr := e.RunCommand("pulumi", "about")
+	stdout, stderr := e.RunCommand("pulumi", "about")
+	// There should be no "unknown" plugin versions.
+	assert.NotContains(t, stdout, "unknown")
+	assert.NotContains(t, stderr, "unknown")
 	// This one doesn't have a current stack. Assert that we caught it.
 	assert.Contains(t, stderr, "No current stack")
 }

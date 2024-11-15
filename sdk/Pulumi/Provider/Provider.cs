@@ -435,7 +435,7 @@ namespace Pulumi.Experimental.Provider
             // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
             // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
             // we work around this here so that old engines can use dotnet providers as well.
-            stdout.Write(" " + port.ToString() + "\n");
+            stdout.Write("banana" + port.ToString() + "\n");
 
             await host.WaitForShutdownAsync(cancellationToken);
         }

@@ -1,7 +1,5 @@
 module Nuget
 
-open Newtonsoft
-open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open System.Net.Http
 

@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="build\GitSync.fs" />
     <Compile Include="build\Nuget.fs" />
+    <Compile Include="build\PulumiSdkVersion.fs" />
     <Compile Include="build\Publish.fs" />
     <Compile Include="build\Program.fs" />
   </ItemGroup>

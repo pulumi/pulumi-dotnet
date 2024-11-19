@@ -707,4 +707,54 @@ namespace Pulumi
             return message;
         }
     }
+
+    /// <summary>
+    /// Represents the producer side of an <see cref="Output{T}"/> value, providing access to the consumer side through
+    /// the Output property.
+    /// </summary>
+    public sealed class DeferredOutput<T>
+    {
+        private int _set = 0;
+        private readonly TaskCompletionSource<OutputData<T>> _tcs = new TaskCompletionSource<OutputData<T>>();
+
+        /// <summary>
+        /// The <see cref="Output{T}"/> that represents the consumer side of this <see cref="DeferredOutput{T}"/>.
+        /// </summary>
+        public Output<T> Output { get; }
+
+        public DeferredOutput()
+        {
+            Output = new Output<T>(_tcs.Task);
+        }
+
+        /// <summary>
+        /// Resolves the value of the <see cref="Output{T}"/> represented by this <see
+        /// cref="DeferredOutput{T}"/> to the same eventually resolved result as the provided <see
+        /// cref="Output{T}"/>.
+        /// </summary>
+        public void Resolve(Output<T> output)
+        {
+            // Multithread safe check to ensure the DeferredOutput can only be set once.
+            if (System.Threading.Interlocked.Exchange(ref _set, 1) == 1)
+            {
+                throw new InvalidOperationException("DeferredOutput can only be resolved once.");
+            }
+
+            output.DataTask.ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _tcs.SetException(t.Exception!);
+                }
+                else if (t.IsCanceled)
+                {
+                    _tcs.SetCanceled();
+                }
+                else
+                {
+                    _tcs.SetResult(t.Result);
+                }
+            });
+        }
+    }
 }

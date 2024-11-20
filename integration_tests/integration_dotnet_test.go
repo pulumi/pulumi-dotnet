@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -38,6 +39,10 @@ import (
 
 // TestPrintfDotNet tests that we capture stdout and stderr streams properly, even when the last line lacks an \n.
 func TestPrintfDotNet(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("https://github.com/pulumi/pulumi-dotnet/issues/399")
+	}
+
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    "printf",
 		Quick:                  true,
@@ -482,6 +487,10 @@ func TestResourceRefsGetResourceDotnet(t *testing.T) {
 
 // TestSln tests that we run a program with a .sln file next to it.
 func TestSln(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("https://github.com/pulumi/pulumi-dotnet/issues/399")
+	}
+
 	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 		var foundStdout int
 		for _, ev := range stack.Events {
@@ -502,6 +511,10 @@ func TestSln(t *testing.T) {
 
 // TestSlnMultiple tests that we run a .sln file with multiple nested projects by setting the "main" option.
 func TestSlnMultipleNested(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("https://github.com/pulumi/pulumi-dotnet/issues/399")
+	}
+
 	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 		var foundStdout int
 		for _, ev := range stack.Events {

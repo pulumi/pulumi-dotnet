@@ -960,9 +960,12 @@ func (host *dotnetLanguageHost) RunPlugin(
 	default:
 		// Run from source.
 		args = append(args, "run")
-		if req.Program != "" {
-			args = append(args, "--project", req.Program)
+
+		project := req.Info.ProgramDirectory
+		if req.Info.EntryPoint != "" {
+			project = filepath.Join(project, req.Info.EntryPoint)
 		}
+		args = append(args, "--project", project)
 	}
 
 	// Add on all the request args to start this plugin
@@ -978,7 +981,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 	cmd.Dir = req.Pwd
 	cmd.Env = req.Env
 	cmd.Stdout, cmd.Stderr = stdout, stderr
-	if err := cmd.Run(); err != nil {
+	if err = cmd.Run(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			// If the program ran, but exited with a non-zero error code.  This will happen often, since user
 			// errors will trigger this.  So, the error message should look as nice as possible.

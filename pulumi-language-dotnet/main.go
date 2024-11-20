@@ -966,12 +966,13 @@ func (host *dotnetLanguageHost) RunPlugin(
 			project = filepath.Join(project, req.Info.EntryPoint)
 		}
 		args = append(args, "--project", project)
-		fmt.Printf("req=%+v\n", req)
-		fmt.Printf("args=%+v\n", args)
 	}
 
 	// Add on all the request args to start this plugin
 	args = append(args, req.Args...)
+
+	fmt.Printf("req=%+v\n", req)
+	fmt.Printf("args=%+v\n", args)
 
 	if logging.V(5) {
 		commandStr := strings.Join(args, " ")

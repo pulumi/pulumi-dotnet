@@ -971,9 +971,6 @@ func (host *dotnetLanguageHost) RunPlugin(
 	// Add on all the request args to start this plugin
 	args = append(args, req.Args...)
 
-	fmt.Printf("req=%+v\n", req)
-	fmt.Printf("args=%+v\n", args)
-
 	if logging.V(5) {
 		commandStr := strings.Join(args, " ")
 		logging.V(5).Infoln("Language host launching process: ", executable, commandStr)

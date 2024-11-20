@@ -115,7 +115,6 @@ namespace Pulumi
             var queryMode = Environment.GetEnvironmentVariable("PULUMI_QUERY_MODE");
             var parallel = Environment.GetEnvironmentVariable("PULUMI_PARALLEL");
             var tracing = Environment.GetEnvironmentVariable("PULUMI_TRACING");
-            var home = Environment.GetEnvironmentVariable("HOME");
 
             if (string.IsNullOrEmpty(monitor) ||
                 string.IsNullOrEmpty(engine) ||
@@ -125,14 +124,6 @@ namespace Pulumi
                 !bool.TryParse(queryMode, out var queryModeValue) ||
                 !int.TryParse(parallel, out var parallelValue))
             {
-                Console.Error.WriteLine("home:" + home);
-                Console.Error.WriteLine("monitor:" + monitor);
-                Console.Error.WriteLine("engine:" + engine);
-                Console.Error.WriteLine("project:" + project);
-                Console.Error.WriteLine("stack:" + stack);
-                Console.Error.WriteLine("dryRun:" + dryRun);
-                Console.Error.WriteLine("queryMode:" + queryMode);
-                Console.Error.WriteLine("parallel:" + parallel);
                 throw new InvalidOperationException("Program run without the Pulumi engine available; re-run using the `pulumi` CLI");
             }
             // ReSharper restore UnusedVariable

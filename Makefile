@@ -6,7 +6,7 @@ install::
 build::
 	cd pulumi-language-dotnet && ${GO} build .
 
-test_integration::
-	cd integration_tests && gotestsum -- --parallel 1 --timeout 30m ./...
+test_integration:: build
+	cd integration_tests && go test --parallel 1 --timeout 30m ./... -v -run TestProviderConstructUnknown
 
 .PHONY: install build

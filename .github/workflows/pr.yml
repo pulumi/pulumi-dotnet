@@ -51,6 +51,8 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
+        with:
+          pulumi-version: latest
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Workspace clean (are xml doc file updates committed?)
@@ -69,6 +71,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
   integration-tests:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-12]
         dotnet-version: [6.0.x, 8.0.x]
@@ -86,6 +89,8 @@ jobs:
           go-version: 1.22.x
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
+        with:
+          pulumi-version: latest
       - name: Install gotestsum
         uses: jaxxstorm/action-install-gh-release@v1.13.0
         env:

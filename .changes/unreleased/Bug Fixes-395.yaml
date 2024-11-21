@@ -1,0 +1,6 @@
+component: runtime
+kind: Bug Fixes
+body: Fix RunPlugin with new versions of the pulumi cli
+time: 2024-11-20T08:26:38.629389Z
+custom:
+  PR: "395"

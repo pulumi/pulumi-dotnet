@@ -3,7 +3,6 @@ module GitSync
 open Fake.IO
 open Fake.Core
 open System.IO
-open System
 
 type SyncContent = {
     sourcePath: string list 

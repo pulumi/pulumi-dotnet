@@ -1,10 +1,9 @@
-open System
 open System.IO
 open System.Linq
-open System.Text.RegularExpressions
 open Fake.IO
 open Fake.Core
 open Publish
+open PulumiSdkVersion
 open CliWrap
 open CliWrap.Buffered
 
@@ -28,24 +27,6 @@ let pulumiFSharp = Path.Combine(sdk, "Pulumi.FSharp")
 let integrationTests = Path.Combine(repositoryRoot, "integration_tests")
 let pulumiLanguageDotnet = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
 
-// Find the version of the Pulumi Go SDK that we are using for the language plugin.
-let findGoSDKVersion =
-    let goMod = Path.Combine(pulumiLanguageDotnet, "go.mod")
-    try
-        let lines = File.ReadAllLines(goMod)
-        let patternRegex = new Regex("^\\s*github.com/pulumi/pulumi/sdk", RegexOptions.IgnoreCase)
-        match Array.tryFind (patternRegex.IsMatch) lines with
-        | Some(matchingLine) ->
-            let version = matchingLine.Split(' ')[1]
-            let version = version.TrimStart('v')
-            Some(version)
-        | None ->
-            None    
-    with
-    | ex ->
-        printfn "Error while trying to find the Go SDK version: %s" ex.Message
-
-        None
 
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
@@ -99,7 +80,7 @@ let listIntegrationTests() =
 let buildSdk() =
     cleanSdk()
     restoreSdk()
-    match findGoSDKVersion with
+    match findGoSDKVersion(pulumiLanguageDotnet) with
     | None -> failwith "Could not find the Pulumi SDK version in go.mod"
     | Some(version) ->
         printfn "Building Pulumi SDK"
@@ -115,12 +96,13 @@ let publishSdks() =
     // prepare
     cleanSdk()
     restoreSdk()
-    // perform the publishing (idempotent)
-    let publishResults = publishSdks [
-        pulumiSdk
-        pulumiAutomationSdk
-        pulumiFSharp
+    let projectDirs = [
+        pulumiSdk;
+        pulumiAutomationSdk;
+        pulumiFSharp;
     ]
+    // perform the publishing (idempotent)
+    let publishResults = publishSdks projectDirs pulumiLanguageDotnet
 
     match publishResults with
     | Error errorMsg -> printfn $"{errorMsg}"
@@ -172,7 +154,7 @@ let testPulumiSdk coverage =
 let testPulumiAutomationSdk coverage =
     cleanSdk()
     restoreSdk()
-    match findGoSDKVersion with
+    match findGoSDKVersion(pulumiLanguageDotnet) with
     | None -> failwith "Could not find the Pulumi SDK version in go.mod"
     | Some(version) ->
         printfn "Testing Pulumi Automation SDK"

@@ -3,8 +3,8 @@ module Publish
 open System
 open System.IO
 open System.Linq
-open Fake.IO
 open Fake.Core
+open PulumiSdkVersion
 
 let [<Literal>] NUGET_PUBLISH_KEY = "NUGET_PUBLISH_KEY"
 let [<Literal>] PULUMI_VERSION = "PULUMI_VERSION"
@@ -34,11 +34,12 @@ type PublishResult =
         | Failed _ -> true
         | otherwise -> false
 
-let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) : PublishResult =
+let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) (goSdkVersion: string) : PublishResult =
     let buildNugetCmd = String.concat " " [
         "build"
         "--configuration Release"
         $"-p:Version={version}"
+        $"-p:PulumiSdkVersion={goSdkVersion}"
     ]
 
     if Shell.Exec("dotnet", buildNugetCmd, projectDir) <> 0 then
@@ -63,14 +64,17 @@ let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) : Pu
             else
                 PublishResult.Ok(projectDir)
 
-let publishSdks (projectDirs: string list) =
+let publishSdks (projectDirs: string list) (pulumiSdkPath: string) =
     match env NUGET_PUBLISH_KEY with
     | None -> Error $"Missing environment variable {NUGET_PUBLISH_KEY} required to publish SDKs"
     | Some nugetApiKey ->
         match env PULUMI_VERSION with
         | None -> Error $"Missing environment variable {PULUMI_VERSION} required to publish SDKs"
         | Some pulumiVersion ->
-            // found both a Pulumi version and a Nuget API key
+            match findGoSDKVersion(pulumiSdkPath) with
+            | None -> Error $"Could not find the Pulumi SDK version in {pulumiSdkPath} go.mod"
+            | Some goSdkVersion ->
+            // found a Pulumi version, sdk version and a Nuget API key
             // use them to publish the SDKs if they are not already on Nuget
             Ok [
                 for projectDir in projectDirs do
@@ -78,5 +82,5 @@ let publishSdks (projectDirs: string list) =
                     if Nuget.exists projectName pulumiVersion then
                         PublishResult.AlreadyPublished(projectDir)
                     else
-                        publishSdk projectDir pulumiVersion nugetApiKey
+                        publishSdk projectDir pulumiVersion nugetApiKey goSdkVersion
             ]

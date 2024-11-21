@@ -108,9 +108,12 @@ namespace Pulumi.Automation.Commands
         {
             var sdkVersion = Assembly.GetExecutingAssembly()
                 .GetCustomAttributes(typeof(PulumiSdkVersionAttribute), false)
-                .Cast<PulumiSdkVersionAttribute>().First().Version;
+                .Cast<PulumiSdkVersionAttribute>().FirstOrDefault();
 
-            var version = options?.Version ?? sdkVersion;
+            var version = options?.Version
+                ?? sdkVersion?.Version
+                ?? throw new InvalidOperationException("No suitable Pulumi Cli version found to install.");
+
             var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             var optionsWithDefaults = new LocalPulumiCommandOptions
             {

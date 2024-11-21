@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Add `DeferredOutput` for resolving some output/input cycles
-time: 2024-11-19T08:28:36.110409Z
-custom:
-  PR: "385"

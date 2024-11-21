@@ -918,6 +918,38 @@ namespace Pulumi.Tests.Core
                 Assert.False(data.IsSecret);
                 Assert.Equal("{ pip pip", data.Value);
             });
+
+
+            [Fact]
+            public Task DeferredOutput()
+                => RunInNormal(async () =>
+                {
+                    var defO = new DeferredOutput<int>();
+                    var o1 = CreateOutput(0, isKnown: true);
+
+                    Assert.False(defO.Output.DataTask.IsCompleted);
+                    defO.Resolve(o1);
+
+                    var data = await defO.Output.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.Equal(0, data.Value);
+                });
+
+            [Fact]
+            public Task DeferredOutputOnlySetOnce()
+                => RunInNormal(async () =>
+                {
+                    var defO = new DeferredOutput<int>();
+                    var o1 = CreateOutput(0, isKnown: true);
+                    defO.Resolve(o1);
+
+                    var o2 = CreateOutput(1, isKnown: true);
+                    Assert.Throws<System.InvalidOperationException>(() => defO.Resolve(o2));
+
+                    var data = await defO.Output.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.Equal(0, data.Value);
+                });
         }
     }
 }

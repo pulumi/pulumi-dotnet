@@ -779,6 +779,24 @@
              then).
              </summary>
         </member>
+        <member name="T:Pulumi.DeferredOutput`1">
+            <summary>
+            Represents the producer side of an <see cref="T:Pulumi.Output`1"/> value, providing access to the consumer side through
+            the Output property.
+            </summary>
+        </member>
+        <member name="P:Pulumi.DeferredOutput`1.Output">
+            <summary>
+            The <see cref="T:Pulumi.Output`1"/> that represents the consumer side of this <see cref="T:Pulumi.DeferredOutput`1"/>.
+            </summary>
+        </member>
+        <member name="M:Pulumi.DeferredOutput`1.Resolve(Pulumi.Output{`0})">
+            <summary>
+            Resolves the value of the <see cref="T:Pulumi.Output`1"/> represented by this <see
+            cref="T:Pulumi.DeferredOutput`1"/> to the same eventually resolved result as the provided <see
+            cref="T:Pulumi.Output`1"/>.
+            </summary>
+        </member>
         <member name="T:Pulumi.OutputExtensions">
             <summary>
             Extension methods for <see cref="T:Pulumi.Output`1"/>.

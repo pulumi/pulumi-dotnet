@@ -19,9 +19,81 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using System.Reflection.Metadata;
 
 namespace Pulumi.Experimental.Provider
 {
+    public abstract class Parameters { }
+
+    /// <summary>
+    /// A parameter value, represented as an array of strings, as might be provided by a command-line invocation, such as
+    /// that used to generate an SDK.
+    /// </summary>
+    public sealed class ParametersArgs : Parameters
+    {
+        public readonly ImmutableArray<string> Args;
+
+        public ParametersArgs(ImmutableArray<string> args)
+        {
+            Args = args;
+        }
+    }
+
+    /// <summary>
+    /// A parameter value, represented by an arbitrary array of bytes accompanied by a name and version. This is expected
+    /// to be the format used by parameterized provider SDKs.
+    /// </summary>
+    public sealed class ParametersValue : Parameters
+    {
+        /// <summary>
+        /// The sub-package name for this sub-schema parameterization.
+        /// </summary>
+        public readonly string Name;
+        /// <summary>
+        /// The sub-package version for this sub-schema parameterization.
+        /// </summary>
+        public readonly string Version;
+        /// <summary>
+        /// The embedded value from the sub-package.
+        /// </summary>
+        public readonly ImmutableArray<byte> Value;
+
+        public ParametersValue(string name, string version, ImmutableArray<byte> value)
+        {
+            Name = name;
+            Version = version;
+            Value = value;
+        }
+    }
+
+    public sealed class ParameterizeRequest
+    {
+        public readonly Parameters Parameters;
+
+        public ParameterizeRequest(Parameters parameters)
+        {
+            Parameters = parameters;
+        }
+    }
+
+    public sealed class ParameterizeResponse
+    {
+        /// <summary>
+        /// The name of the sub-package parameterized.
+        /// </summary>
+        public readonly string Name;
+        /// <summary>
+        /// The version of the sub-package parameterized.
+        /// </summary>
+        public readonly string Version;
+
+        public ParameterizeResponse(string name, string version)
+        {
+            Name = name;
+            Version = version;
+        }
+    }
+
     public sealed class CheckRequest
     {
         public readonly Urn Urn;
@@ -347,6 +419,11 @@ namespace Pulumi.Experimental.Provider
 
     public abstract class Provider
     {
+        public virtual Task<ParameterizeResponse> Parameterize(ParameterizeRequest request, CancellationToken ct)
+        {
+            throw new NotImplementedException($"The method '{nameof(Parameterize)}' is not implemented ");
+        }
+
         public virtual Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
             throw new NotImplementedException($"The method '{nameof(GetSchema)}' is not implemented ");
@@ -659,6 +736,36 @@ namespace Pulumi.Experimental.Provider
                     yield return grpcFailure;
                 }
             }
+        }
+
+        public override Task<Pulumirpc.ParameterizeResponse> Parameterize(Pulumirpc.ParameterizeRequest request, ServerCallContext context)
+        {
+            return WrapProviderCall(async () =>
+            {
+                ParameterizeRequest domRequest;
+                switch (request.ParametersCase)
+                {
+                    case Pulumirpc.ParameterizeRequest.ParametersOneofCase.Args:
+                        domRequest = new ParameterizeRequest(new ParametersArgs(request.Args.Args.ToImmutableArray()));
+                        break;
+                    case Pulumirpc.ParameterizeRequest.ParametersOneofCase.Value:
+                        var value = new ParametersValue(
+                            request.Value.Name, request.Value.Version,
+                            request.Value.Value.ToImmutableArray()
+                            );
+                        domRequest = new ParameterizeRequest(value);
+                        break;
+                    default:
+                        throw new Exception("Parameterize called without any parameter");
+                }
+
+                using var cts = GetToken(context);
+                var domResponse = await Implementation.Parameterize(domRequest, cts.Token);
+                var grpcResponse = new Pulumirpc.ParameterizeResponse();
+                grpcResponse.Name = domResponse.Name;
+                grpcResponse.Version = domResponse.Version;
+                return grpcResponse;
+            });
         }
 
         public override Task<Pulumirpc.CheckResponse> CheckConfig(Pulumirpc.CheckRequest request, ServerCallContext context)

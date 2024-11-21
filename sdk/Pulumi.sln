@@ -1,7 +1,7 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29411.138
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35514.174 d17.12
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pulumi", "Pulumi\Pulumi.csproj", "{0A2BFED8-13F3-43A4-A38B-B5D1651203EB}"
 EndProject
@@ -13,13 +13,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		..\.editorconfig = ..\.editorconfig
 		..\.gitignore = ..\.gitignore
-		..\README.md = ..\README.md
 		Directory.Build.props = Directory.Build.props
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pulumi.Automation", "Pulumi.Automation\Pulumi.Automation.csproj", "{74A15689-FB60-4760-99C8-FC0D89883F3D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pulumi.Automation.Tests", "Pulumi.Automation.Tests\Pulumi.Automation.Tests.csproj", "{A1E69FAC-B6C2-4EA2-8A2D-397536CE35B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProvider", "..\integration_tests\testprovider\TestProvider.csproj", "{143A1075-4D78-4D35-B6FE-8112EBEA634B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +93,18 @@ Global
 		{A1E69FAC-B6C2-4EA2-8A2D-397536CE35B2}.Release|x64.Build.0 = Release|Any CPU
 		{A1E69FAC-B6C2-4EA2-8A2D-397536CE35B2}.Release|x86.ActiveCfg = Release|Any CPU
 		{A1E69FAC-B6C2-4EA2-8A2D-397536CE35B2}.Release|x86.Build.0 = Release|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Debug|x64.Build.0 = Debug|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Debug|x86.Build.0 = Debug|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Release|x64.ActiveCfg = Release|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Release|x64.Build.0 = Release|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Release|x86.ActiveCfg = Release|Any CPU
+		{143A1075-4D78-4D35-B6FE-8112EBEA634B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

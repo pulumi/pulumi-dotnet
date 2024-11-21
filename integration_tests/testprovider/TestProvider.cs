@@ -1,30 +1,57 @@
 // Copyright 2022-2023, Pulumi Corporation.  All rights reserved.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi;
 using Pulumi.Experimental.Provider;
 
-public class TestProvider : Provider {
+public class TestProvider : Provider
+{
     readonly IHost host;
     int id = 0;
+    string parameter;
 
-    public TestProvider(IHost host) {
+    public TestProvider(IHost host)
+    {
         this.host = host;
+        this.parameter = "testprovider";
+    }
+
+    public override Task<ParameterizeResponse> Parameterize(ParameterizeRequest request, CancellationToken ct)
+    {
+        string parameter;
+        if (request.Parameters is ParametersArgs args)
+        {
+            if (args.Args.Length != 1)
+            {
+                throw new Exception("expected exactly one argument");
+            }
+            parameter = args.Args[0];
+        }
+        else if (request.Parameters is ParametersValue value)
+        {
+            parameter = System.Text.Encoding.UTF8.GetString(value.Value.ToArray());
+        }
+        else
+        {
+            throw new Exception("unexpected parameter type");
+        }
+
+        this.parameter = parameter;
+
+        return Task.FromResult(new ParameterizeResponse(parameter, "1.0.0"));
     }
 
     public override Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
     {
         var schema = """
 {
-    "name": "testprovider",
+    "name": "NAME",
     "version": "1.0.0",
-    "meta": {
-        "supportPack": true
-    },
     "resources": {
-        "testprovider:index:Echo": {
+        "NAME:index:Echo": {
             "description": "A test resource that echoes its input.",
             "properties": {
                 "value": {
@@ -40,9 +67,26 @@ public class TestProvider : Provider {
             },
             "type": "object"
         }
-    }
+    }PARAM
 }
 """;
+        var parameterization = """
+,
+    "parameterization": {
+        "baseProvider": {
+            "name": "testprovider",
+            "version": "0.0.1"
+        },
+        "parameter": "UTFBYTES"
+    }
+""";
+
+
+
+        // Very hacky schema build just to test out that parameterization calls are made
+        parameterization = parameterization.Replace("UTFBYTES", Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(parameter)));
+        schema = schema.Replace("NAME", parameter);
+        schema = schema.Replace("PARAM", parameterization);
 
         return Task.FromResult(new GetSchemaResponse()
         {
@@ -67,9 +111,9 @@ public class TestProvider : Provider {
 
     public override Task<CheckResponse> Check(CheckRequest request, CancellationToken ct)
     {
-        if (request.Type == "testprovider:index:Echo" ||
-            request.Type == "testprovider:index:Random" ||
-            request.Type == "testprovider:index:FailsOnDelete")
+        if (request.Type == parameter + ":index:Echo" ||
+            request.Type == parameter + ":index:Random" ||
+            request.Type == parameter + ":index:FailsOnDelete")
         {
             return Task.FromResult(new CheckResponse() { Inputs = request.NewInputs });
         }
@@ -79,24 +123,26 @@ public class TestProvider : Provider {
 
     public override Task<DiffResponse> Diff(DiffRequest request, CancellationToken ct)
     {
-        if (request.Type == "testprovider:index:Echo") {
+        if (request.Type == parameter + ":index:Echo") {
             var changes = !request.OldState["value"].Equals(request.NewInputs["value"]);
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
                 Replaces = new string[] { "value" },
             });
         }
-        else if (request.Type == "testprovider:index:Random")
+        else if (request.Type == parameter + ":index:Random")
         {
             var changes = !request.OldState["length"].Equals(request.NewInputs["length"]);
-            return Task.FromResult(new DiffResponse() {
+            return Task.FromResult(new DiffResponse()
+            {
                 Changes = changes,
                 Replaces = new string[] { "length" },
             });
         }
-        else if (request.Type == "testprovider:index:FailsOnDelete")
+        else if (request.Type == parameter + ":index:FailsOnDelete")
         {
-            return Task.FromResult(new DiffResponse() {
+            return Task.FromResult(new DiffResponse()
+            {
                 Changes = false,
             });
         }
@@ -118,17 +164,19 @@ public class TestProvider : Provider {
 
     public override Task<CreateResponse> Create(CreateRequest request, CancellationToken ct)
     {
-        if (request.Type == "testprovider:index:Echo") {
+        if (request.Type == parameter + ":index:Echo")
+        {
             var outputs = new Dictionary<string, PropertyValue>();
             outputs.Add("value", request.Properties["value"]);
 
             ++this.id;
-            return Task.FromResult(new CreateResponse() {
+            return Task.FromResult(new CreateResponse()
+            {
                 Id = this.id.ToString(),
                 Properties = outputs,
             });
         }
-        else if (request.Type == "testprovider:index:Random")
+        else if (request.Type == parameter + ":index:Random")
         {
             var length = request.Properties["length"];
             if (!length.TryGetNumber(out var number))
@@ -143,15 +191,17 @@ public class TestProvider : Provider {
             outputs.Add("length", length);
             outputs.Add("result", new PropertyValue(result));
 
-            return Task.FromResult(new CreateResponse() {
+            return Task.FromResult(new CreateResponse()
+            {
                 Id = result,
                 Properties = outputs,
             });
         }
-        else if (request.Type == "testprovider:index:FailsOnDelete")
+        else if (request.Type == parameter + ":index:FailsOnDelete")
         {
             ++this.id;
-            return Task.FromResult(new CreateResponse() {
+            return Task.FromResult(new CreateResponse()
+            {
                 Id = this.id.ToString(),
             });
         }
@@ -161,7 +211,7 @@ public class TestProvider : Provider {
 
     public override Task Delete(DeleteRequest request, CancellationToken ct)
     {
-        if (request.Type == "testprovider:index:FailsOnDelete")
+        if (request.Type == parameter + ":index:FailsOnDelete")
         {
             throw new Exception("Delete always fails for the FailsOnDelete resource");
         }
@@ -171,7 +221,8 @@ public class TestProvider : Provider {
 
     public override Task<ReadResponse> Read(ReadRequest request, CancellationToken ct)
     {
-        var response = new ReadResponse() {
+        var response = new ReadResponse()
+        {
             Id = request.Id,
             Properties = request.Properties,
         };

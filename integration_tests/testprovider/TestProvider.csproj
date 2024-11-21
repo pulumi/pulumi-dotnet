@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' != '' ">$(TARGET_FRAMEWORK)</TargetFramework>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net6.0</TargetFramework>
+    <LangVersion>11</LangVersion>
     <Nullable>enable</Nullable>
     <LangVersion>11</LangVersion>
   </PropertyGroup>

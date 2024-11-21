@@ -1,0 +1,3 @@
+name: parameterized_dotnet
+description: A program that uses a parameterized provider
+runtime: dotnet

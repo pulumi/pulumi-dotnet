@@ -1,6 +1,0 @@
-component: sdk/provider
-kind: Bug Fixes
-body: Fix a bug deserialising unknown secrets
-time: 2024-11-11T16:45:34.030668345Z
-custom:
-  PR: "378"

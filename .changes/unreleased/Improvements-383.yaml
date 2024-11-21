@@ -1,6 +1,0 @@
-component: sdk/auto
-kind: Improvements
-body: Add pulumi stack change-secrets-provider to automation api
-time: 2024-11-13T00:01:07.4649013Z
-custom:
-    PR: "383"

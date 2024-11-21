@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Make Pulumi.RunException public
-time: 2024-10-16T12:40:31.206421+02:00
-custom:
-    PR: "364"

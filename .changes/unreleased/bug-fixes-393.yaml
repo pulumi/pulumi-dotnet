@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Fix publishing to set a required property used by the Automation Api to Install Pulumi cli
-time: 2024-11-18T17:27:24.3200139Z
-custom:
-    PR: "393"

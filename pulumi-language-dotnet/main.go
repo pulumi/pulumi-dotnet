@@ -28,6 +28,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -665,9 +666,53 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 
 	cmd := exec.Command(executable, args...) // nolint: gas // intentionally running dynamic program name.
 
+	// Workaround for https://github.com/dotnet/sdk/issues/44610
+	// In .NET 9.0 `dotnet run` will print progress indicators to the terminal,
+	// even though it should not do this when the output is redirected.
+	// We strip the control characters here to ensure that program output is not affected.
+	//nolint:lll
+	// https://github.com/dotnet/sdk/pull/42240/files#diff-6860155f1838e13335d417fc2fed7b13ac5ddf3b95d3548c6646618bc59e89e7R11
+	//portString = strings.ReplaceAll(portString, "\x1b]9;4;3;\x1b\\", "")
+	//portString = strings.ReplaceAll(portString, "\x1b]9;4;0;\x1b\\", "")
+	stdoutR, stdoutW, err := os.Pipe()
+	if err != nil {
+		return nil, err
+	}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		match := []byte("\x1b]9;4;0;\x1b\\\x1b]9;4;0;\x1b\\")
+		buf := make([]byte, len(match))
+
+		count := 0
+		for count < len(match) {
+			n, err := stdoutR.Read(buf[count:])
+			if err != nil {
+				logging.Warningf("Couldn't read stdout: %v", err)
+				return
+			}
+			count += n
+		}
+
+		// If the program sent something _other_ than the escape sequence first send that to stdout
+		if bytes.Equal(buf, match) {
+			n, err := os.Stdout.Write(buf)
+			if err != nil || n != len(buf) {
+				logging.Warningf("Couldn't write stdout: %v", err)
+				return
+			}
+		}
+
+		_, err := io.Copy(os.Stdout, stdoutR)
+		logging.Warningf("Couldn't copy stdout: %v", err)
+		err = os.Stdout.Close()
+		logging.Warningf("Couldn't close stdout: %v", err)
+		wg.Done()
+	}()
+
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	var errResult string
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = stdoutW
 	cmd.Stderr = os.Stderr
 	cmd.Env = host.constructEnv(req, config, configSecretKeys)
 	if err := cmd.Start(); err != nil {
@@ -693,6 +738,8 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		}()
 	}
 	if err := cmd.Wait(); err != nil {
+		wg.Wait()
+
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			// If the program ran, but exited with a non-zero error code.  This will happen often, since user
 			// errors will trigger this.  So, the error message should look as nice as possible.

@@ -80,7 +80,7 @@ namespace Pulumi
                 {
                     try
                     {
-                        var result = await runnerFunc(runner).ConfigureAwait(false);
+                        var result = await runner.RunAsync(()=> runnerFunc(runner)).ConfigureAwait(false);
 
                         // if there was swallowed exceptions from the in-flight tasks we want to either capture
                         // if it is single or re-throw as an aggregate exception if there is more than 1

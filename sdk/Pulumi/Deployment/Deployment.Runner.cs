@@ -69,6 +69,13 @@ namespace Pulumi
                     ?? throw new ApplicationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
             }
 
+            public async Task<T> RunAsync<T>(Func<Task<T>> func)
+            {
+                var result = await func();
+                await WhileRunningAsync();
+                return result;
+            }
+
             Task<int> IRunner.RunAsync<TStack>() => RunAsync(() => (TStack)Activator.CreateInstance(typeof(TStack), BindingFlags.DoNotWrapExceptions, binder: null, args: null, culture: null)!);
 
             public Task<int> RunAsync<TStack>(Func<TStack> stackFactory) where TStack : Stack
@@ -176,8 +183,8 @@ namespace Pulumi
                 {
                     // We set the exit code explicitly here in case users
                     // do not bubble up the exit code themselves to
-                    // top-level entry point of the program (for non-inline deployments). 
-                    // For example when users `await Deployment.RunAsync()` 
+                    // top-level entry point of the program (for non-inline deployments).
+                    // For example when users `await Deployment.RunAsync()`
                     // instead of `return await Deployment.RunAsync()`
                     Environment.ExitCode = exitCode;
                 }

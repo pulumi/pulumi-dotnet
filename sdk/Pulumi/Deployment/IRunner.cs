@@ -15,5 +15,6 @@ namespace Pulumi
         Task<int> RunAsync<TStack>() where TStack : Stack, new();
         Task<int> RunAsync<TStack>(Func<TStack> stackFactory) where TStack : Stack;
         Task<int> RunAsync<TStack>(IServiceProvider serviceProvider) where TStack : Stack;
+        Task<T> RunAsync<T>(Func<Task<T>> func);
     }
 }

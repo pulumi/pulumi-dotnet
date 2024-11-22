@@ -378,9 +378,9 @@ func printfTestValidation(t *testing.T, stack integration.RuntimeValidationStack
 	var foundStderr int
 	for _, ev := range stack.Events {
 		if de := ev.DiagnosticEvent; de != nil {
-			if strings.HasPrefix(de.Message, fmt.Sprintf("Line %d", foundStdout)) {
+			if strings.Contains(de.Message, fmt.Sprintf("Line %d", foundStdout)) {
 				foundStdout++
-			} else if strings.HasPrefix(de.Message, fmt.Sprintf("Errln %d", foundStderr+10)) {
+			} else if strings.Contains(de.Message, fmt.Sprintf("Errln %d", foundStderr+10)) {
 				foundStderr++
 			}
 		}

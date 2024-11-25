@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-12]
+        os: [ubuntu-latest, windows-latest, macos-13]
         dotnet-version: [6.0.x, 8.0.x]
     runs-on: ${{ matrix.os }}
     steps:
@@ -115,17 +115,17 @@ jobs:
         run: |
           scoop install netcoredbg
       - name: Install netcoredbg (MacOS)
-        if: matrix.os == 'macos-12'
+        if: matrix.os == 'macos-13'
         id: netcoredbg
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
           echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
       - name: Integration tests
-        if: matrix.os == 'macos-12'
+        if: matrix.os == 'macos-13'
         run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_integration
       - name: Integration tests
-        if: matrix.os != 'macos-12'
+        if: matrix.os != 'macos-13'
         run: make test_integration
 
   info:

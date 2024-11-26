@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Reduce binary size by stripping debug information
+time: 2024-11-26T17:25:44.252633+01:00
+custom:
+    PR: "411"

@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+      - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
       - name: Format Pulumi SDK
         run: dotnet run format-sdk verify
@@ -39,13 +39,13 @@ jobs:
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
-        dotnet-version: [6.0.x, 8.0.x]
+        dotnet-version: [6.0.x, 8.0.x, 9.0.x]
 
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+      - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
@@ -74,12 +74,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-12]
-        dotnet-version: [6.0.x, 8.0.x]
+        dotnet-version: [6.0.x, 8.0.x, 9.0.x]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+      - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}

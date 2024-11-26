@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Divergic.Logging.Xunit;
+using Neovolve.Logging.Xunit;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
 using Pulumi.Experimental.Provider;
@@ -206,7 +206,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
 
         private async Task<T> AsTask<T>(T value)
         {
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100);
             return value;
         }
 

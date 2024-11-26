@@ -28,7 +28,7 @@ namespace Pulumi.Tests.Serialization
         {
             var serializer = new Serializer(excessiveDebugOutput: false);
             return Serializer.CreateValue(
-                await serializer.SerializeAsync(ctx: "", value, keepResources).ConfigureAwait(false));
+                await serializer.SerializeAsync(ctx: "", value, keepResources));
         }
 
         protected static T DeserializeValue<T>(Value value)

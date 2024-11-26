@@ -11,19 +11,19 @@ namespace Pulumi.Tests.Serialization
         {
             if (ResourcePackages.TryGetResourceType("test:index/UnknownResource", null, out _))
             {
-                Assert.True(false, "Unknown resource found");
+                Assert.Fail("Unknown resource found");
             }
             if (ResourcePackages.TryGetResourceType("test:index/UnknownResource", "", out _))
             {
-                Assert.True(false, "Unknown resource found");
+                Assert.Fail("Unknown resource found");
             }
             if (ResourcePackages.TryGetResourceType("unknown:index/TestResource", "0.0.1", out _))
             {
-                Assert.True(false, "Unknown resource found");
+                Assert.Fail("Unknown resource found");
             }
             if (ResourcePackages.TryGetResourceType("unknown:index/AnotherResource", "1.0.0", out _))
             {
-                Assert.True(false, "Resource with non-matching assembly version found");
+                Assert.Fail("Resource with non-matching assembly version found");
             }
         }
 
@@ -36,7 +36,7 @@ namespace Pulumi.Tests.Serialization
             }
             else
             {
-                Assert.True(false, "Test resource not found");
+                Assert.Fail("Test resource not found");
             }
         }
 
@@ -49,7 +49,7 @@ namespace Pulumi.Tests.Serialization
             }
             else
             {
-                Assert.True(false, "Test resource not found");
+                Assert.Fail("Test resource not found");
             }
         }
 
@@ -62,7 +62,7 @@ namespace Pulumi.Tests.Serialization
             }
             else
             {
-                Assert.True(false, "Test resource not found");
+                Assert.Fail("Test resource not found");
             }
         }
 
@@ -75,7 +75,7 @@ namespace Pulumi.Tests.Serialization
             }
             else
             {
-                Assert.True(false, "Test resource not found");
+                Assert.Fail("Test resource not found");
             }
         }
 

@@ -938,7 +938,7 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 func (host *dotnetLanguageHost) RunPlugin(
 	req *pulumirpc.RunPluginRequest, server pulumirpc.LanguageRuntime_RunPluginServer,
 ) error {
-	logging.V(5).Infof("Attempting to run dotnet plugin in %s", req.Program)
+	logging.V(5).Infof("Attempting to run dotnet plugin in %s", req.Pwd)
 
 	closer, stdout, stderr, err := rpcutil.MakeRunPluginStreams(server, false)
 	if err != nil {

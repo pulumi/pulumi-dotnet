@@ -71,7 +71,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.Equal(1, data.Value);
                 });
@@ -82,7 +82,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.Equal("inner", data.Value);
                 });
@@ -93,7 +93,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.Equal("inner", data.Value);
                 });
@@ -104,7 +104,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.Equal("inner", data.Value);
                 });
@@ -115,7 +115,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.Equal(0, data.Value);
                 });
@@ -126,7 +126,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.Null(data.Value);
                 });
@@ -137,7 +137,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => CreateOutput("", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.Null(data.Value);
                 });
@@ -148,7 +148,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => CreateOutput("", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.Null(data.Value);
                 });
@@ -159,7 +159,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal(1, data.Value);
@@ -171,7 +171,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -183,7 +183,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -195,7 +195,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -207,7 +207,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal(0, data.Value);
@@ -219,7 +219,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Null(data.Value);
@@ -231,7 +231,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Null(data.Value);
@@ -243,7 +243,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Null(data.Value);
@@ -255,7 +255,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -267,7 +267,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -279,7 +279,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.False(data.IsSecret);
                     Assert.Null(data.Value);
@@ -291,7 +291,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.False(data.IsSecret);
                     Assert.Null(data.Value);
@@ -304,7 +304,7 @@ namespace Pulumi.Tests.Core
                     var o1 = CreateOutput(1, isKnown: true);
                     var o2 = CreateOutput(2, isKnown: true);
                     var o3 = Output.All(o1, o2);
-                    var data = await o3.DataTask.ConfigureAwait(false);
+                    var data = await o3.DataTask;
                     Assert.Equal(new[] { 1, 2 }, data.Value);
                 });
 
@@ -316,7 +316,7 @@ namespace Pulumi.Tests.Core
                     var o2 = CreateOutput(2, isKnown: true);
                     var outputs = new[] { o1, o2 }.AsEnumerable();
                     var o3 = Output.All(outputs);
-                    var data = await o3.DataTask.ConfigureAwait(false);
+                    var data = await o3.DataTask;
                     Assert.Equal(new[] { 1, 2 }, data.Value);
                 });
 
@@ -327,7 +327,7 @@ namespace Pulumi.Tests.Core
                     var i1 = (Input<int>)CreateOutput(1, isKnown: true);
                     var i2 = (Input<int>)CreateOutput(2, isKnown: true);
                     var o = Output.All(i1, i2);
-                    var data = await o.DataTask.ConfigureAwait(false);
+                    var data = await o.DataTask;
                     Assert.Equal(new[] { 1, 2 }, data.Value);
                 });
 
@@ -339,7 +339,7 @@ namespace Pulumi.Tests.Core
                     var i2 = (Input<int>)CreateOutput(2, isKnown: true);
                     var inputs = new[] { i1, i2 }.AsEnumerable();
                     var o = Output.All(inputs);
-                    var data = await o.DataTask.ConfigureAwait(false);
+                    var data = await o.DataTask;
                     Assert.Equal(new[] { 1, 2 }, data.Value);
                 });
 
@@ -349,8 +349,8 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = CreateOutput(1, isKnown: true, isSecret: false);
-                    var isSecret1 = await Output.IsSecretAsync(o1).ConfigureAwait(false);
-                    var isSecret2 = await Output.IsSecretAsync(o2).ConfigureAwait(false);
+                    var isSecret1 = await Output.IsSecretAsync(o1);
+                    var isSecret2 = await Output.IsSecretAsync(o2);
                     Assert.True(isSecret1);
                     Assert.False(isSecret2);
                 });
@@ -361,8 +361,8 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true).Apply(a => Task.FromResult("inner1"));
                     var o2 = CreateOutput(1, isKnown: true, isSecret: false).Apply(a => Task.FromResult("inner2"));
-                    var isSecret1 = await Output.IsSecretAsync(o1).ConfigureAwait(false);
-                    var isSecret2 = await Output.IsSecretAsync(o2).ConfigureAwait(false);
+                    var isSecret1 = await Output.IsSecretAsync(o1);
+                    var isSecret2 = await Output.IsSecretAsync(o2);
                     Assert.True(isSecret1);
                     Assert.False(isSecret2);
                 });
@@ -373,7 +373,7 @@ namespace Pulumi.Tests.Core
                 {
                     var secret = CreateOutput(1, isKnown: true, isSecret: true);
                     var notSecret = Output.Unsecret(secret);
-                    var notSecretData = await notSecret.DataTask.ConfigureAwait(false);
+                    var notSecretData = await notSecret.DataTask;
                     Assert.False(notSecretData.IsSecret);
                     Assert.Equal(1, notSecretData.Value);
                 });
@@ -384,7 +384,7 @@ namespace Pulumi.Tests.Core
                 {
                     var secret = CreateOutput(0, isKnown: true, isSecret: true).Apply(a => Task.FromResult("inner"));
                     var notSecret = Output.Unsecret(secret);
-                    var notSecretData = await notSecret.DataTask.ConfigureAwait(false);
+                    var notSecretData = await notSecret.DataTask;
                     Assert.False(notSecretData.IsSecret);
                     Assert.Equal("inner", notSecretData.Value);
                 });
@@ -395,7 +395,7 @@ namespace Pulumi.Tests.Core
                 {
                     var secret = CreateOutput(2, isKnown: true, isSecret: false);
                     var notSecret = Output.Unsecret(secret);
-                    var notSecretData = await notSecret.DataTask.ConfigureAwait(false);
+                    var notSecretData = await notSecret.DataTask;
                     Assert.False(notSecretData.IsSecret);
                     Assert.Equal(2, notSecretData.Value);
                 });
@@ -405,7 +405,7 @@ namespace Pulumi.Tests.Core
                 => RunInPreview(async () =>
                 {
                     var output = OutputUtilities.CreateUnknown(() => Task.FromResult("value"));
-                    var data = await output.DataTask.ConfigureAwait(false);
+                    var data = await output.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.Null(data.Value);
                 });
@@ -419,7 +419,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.Equal(1, data.Value);
                 });
@@ -430,7 +430,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.Equal("inner", data.Value);
                 });
@@ -441,7 +441,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.Equal("inner", data.Value);
                 });
@@ -452,7 +452,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.Equal("inner", data.Value);
                 });
@@ -463,7 +463,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                 });
 
@@ -473,7 +473,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                 });
 
@@ -483,7 +483,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                 });
 
@@ -493,7 +493,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                 });
 
@@ -503,7 +503,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal(1, data.Value);
@@ -515,7 +515,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -527,7 +527,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -539,7 +539,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -551,7 +551,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => a + 1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                 });
@@ -562,7 +562,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => Task.FromResult("inner"));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                 });
@@ -573,7 +573,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                 });
@@ -584,7 +584,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: false, isSecret: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                 });
@@ -595,7 +595,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: true, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -607,7 +607,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, isKnown: true);
                     var o2 = o1.Apply(a => CreateOutput("inner", isKnown: false, isSecret: true));
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("inner", data.Value);
@@ -618,7 +618,7 @@ namespace Pulumi.Tests.Core
                 => RunInNormal(async () =>
                 {
                     var output = OutputUtilities.CreateUnknown(() => Task.FromResult("value"));
-                    var data = await output.DataTask.ConfigureAwait(false);
+                    var data = await output.DataTask;
                     Assert.False(data.IsKnown);
                 });
 
@@ -628,7 +628,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(0, true);
                     var o2 = Output.CreateSecret(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal(0, data.Value);
@@ -640,7 +640,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput(new int[] { 0, 1 }, true);
                     var o2 = Output.JsonSerialize(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
                     Assert.Equal("[0,1]", data.Value);
@@ -655,7 +655,7 @@ namespace Pulumi.Tests.Core
                         CreateOutput(1, true),
                     }, true);
                     var o2 = Output.JsonSerialize(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
                     Assert.Equal("[0,1]", data.Value);
@@ -670,7 +670,7 @@ namespace Pulumi.Tests.Core
                         CreateOutput(1, true),
                     }, true);
                     var o2 = Output.JsonSerialize(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.False(data.IsKnown);
                     Assert.False(data.IsSecret);
                 });
@@ -684,7 +684,7 @@ namespace Pulumi.Tests.Core
                         CreateOutput(1, true),
                     }, true);
                     var o2 = Output.JsonSerialize(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     Assert.Equal("[0,1]", data.Value);
@@ -701,7 +701,7 @@ namespace Pulumi.Tests.Core
                     );
                     var o1 = CreateOutput(v, true);
                     var o2 = Output.JsonSerialize(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
                     var expected = "{\"Items\":[{\"Ints\":[1,2,3],\"IntMap\":{\"K1\":4}}]}";
@@ -719,7 +719,7 @@ namespace Pulumi.Tests.Core
                     var options = new System.Text.Json.JsonSerializerOptions();
                     options.WriteIndented = true;
                     var o2 = Output.JsonSerialize(o1, options);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
                     var expected = @"{
@@ -771,7 +771,7 @@ namespace Pulumi.Tests.Core
                     CreateOutput(1, true),
                 }, true);
                 var o2 = Output.JsonSerialize(o1);
-                var data = await o2.DataTask.ConfigureAwait(false);
+                var data = await o2.DataTask;
                 Assert.True(data.IsKnown);
                 Assert.True(data.IsSecret);
                 Assert.Contains(resource, data.Resources);
@@ -784,7 +784,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput("[0,1]", true);
                     var o2 = Output.JsonDeserialize<int[]>(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
                     Assert.Equal(new int[] { 0, 1 }, data.Value);
@@ -796,7 +796,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput("[0,1]", true);
                     var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.False(data.IsSecret);
                     var i0 = await data.Value[0].DataTask;
@@ -815,7 +815,7 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput("[0,1]", true, true);
                     var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
                     Assert.True(data.IsSecret);
                     var i0 = await data.Value[0].DataTask;
@@ -834,18 +834,18 @@ namespace Pulumi.Tests.Core
                 {
                     var o1 = CreateOutput("{\"Items\":[{\"Ints\":[1,2,3],\"IntMap\":{\"K1\":4}}]}", true);
                     var o2 = Output.JsonDeserialize<Output<TestListStructure>>(o1);
-                    var data = await o2.DataTask.ConfigureAwait(false);
+                    var data = await o2.DataTask;
                     Assert.True(data.IsKnown);
-                    var i0 = await data.Value.DataTask.ConfigureAwait(false);
-                    var items = await i0.Value.Items.ToOutput().DataTask.ConfigureAwait(false);
+                    var i0 = await data.Value.DataTask;
+                    var items = await i0.Value.Items.ToOutput().DataTask;
                     Assert.Single(items.Value);
-                    var listv = await items.Value[0].Ints.ToOutput().DataTask.ConfigureAwait(false);
+                    var listv = await items.Value[0].Ints.ToOutput().DataTask;
                     Assert.Equal(3, listv.Value.Length);
                     for (var i = 1; i <= 3; i++)
                     {
                         Assert.Equal(i, listv.Value[i - 1]);
                     }
-                    var mapv = await items.Value[0].IntMap.ToOutput().DataTask.ConfigureAwait(false);
+                    var mapv = await items.Value[0].IntMap.ToOutput().DataTask;
                     Assert.Single(mapv.Value);
                     Assert.Equal(4, mapv.Value["K1"]);
                 });
@@ -880,7 +880,7 @@ namespace Pulumi.Tests.Core
 
                 var o1 = CreateOutput(new Resource[] { resource }, "[0,1]", true, true);
                 var o2 = Output.JsonDeserialize<Output<int>[]>(o1);
-                var data = await o2.DataTask.ConfigureAwait(false);
+                var data = await o2.DataTask;
                 Assert.True(data.IsKnown);
                 Assert.True(data.IsSecret);
                 Assert.Contains(resource, data.Resources);
@@ -903,7 +903,7 @@ namespace Pulumi.Tests.Core
             {
                 var o1 = CreateOutput(0, true);
                 var o2 = Output.Format($"{o1}");
-                var data = await o2.DataTask.ConfigureAwait(false);
+                var data = await o2.DataTask;
                 Assert.True(data.IsKnown);
                 Assert.False(data.IsSecret);
                 Assert.Equal("0", data.Value);
@@ -913,7 +913,7 @@ namespace Pulumi.Tests.Core
             public Task FormatBraceSyntax() => RunInNormal(async () =>
             {
                 var o2 = Output.Format($"{{ pip pip");
-                var data = await o2.DataTask.ConfigureAwait(false);
+                var data = await o2.DataTask;
                 Assert.True(data.IsKnown);
                 Assert.False(data.IsSecret);
                 Assert.Equal("{ pip pip", data.Value);

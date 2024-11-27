@@ -31,4 +31,18 @@ namespace Pulumi
         /// </summary>
         public string? PluginDownloadURL { get; set; }
     }
+
+    public class InvokeOutputOptions : InvokeOptions
+    {
+        private InputList<Resource>? _dependsOn;
+
+        /// <summary>
+        /// Optional additional explicit dependencies on resources.
+        /// </summary>
+        public InputList<Resource> DependsOn
+        {
+            get => _dependsOn ??= new InputList<Resource>();
+            set => _dependsOn = value;
+        }
+    }
 }

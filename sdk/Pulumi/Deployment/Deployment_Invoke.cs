@@ -54,9 +54,18 @@ namespace Pulumi
             RegisterPackageRequest? registerPackageRequest)
             => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest));
 
+        Output<T> IDeployment.Invoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOutputOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
+            => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest));
+
         Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOptions? options)
             => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest: null));
 
+        Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOutputOptions? options)
+        => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest: null));
 
 
         Output<T> IDeployment.InvokeSingle<T>(
@@ -69,7 +78,24 @@ namespace Pulumi
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 
+        Output<T> IDeployment.InvokeSingle<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOutputOptions? options,
+            RegisterPackageRequest? registerPackageRequest)
+        {
+            var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest));
+            return outputResult.Apply(outputs => outputs.Values.First());
+        }
+
         Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options)
+        {
+            var outputResult = new Output<Dictionary<string, T>>(
+                RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));
+            return outputResult.Apply(outputs => outputs.Values.First());
+        }
+
+        Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOutputOptions? options)
         {
             var outputResult = new Output<Dictionary<string, T>>(
                 RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));
@@ -128,13 +154,27 @@ namespace Pulumi
                                          isSecret: false);
             }
 
+            // Resource dependencies that will be added to the Output
+            var resourceDependencies = new HashSet<Resource>();
+            if (options is InvokeOutputOptions outputOptions)
+            {
+                var deps = outputOptions.DependsOn;
+                if (deps != null)
+                {
+                    // Wait for all the resource dependencies from dependsOn to be available before we call the invoke
+                    var resourceList = await GatherExplicitDependenciesAsync(deps).ConfigureAwait(false);
+                    await GetAllTransitivelyReferencedResourceUrnsAsync(resourceList.ToHashSet()).ConfigureAwait(false);
+                    resourceDependencies.UnionWith(resourceList);
+                }
+            }
+
             var protoArgs = serializedArgs.ToSerializationResult();
             var result = await InvokeRawAsync(token, protoArgs, options, registerPackageRequest).ConfigureAwait(false);
             var data = Pulumi.Serialization.Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result",
                                                  new Value { StructValue = result.Serialized });
             var resources = ImmutableHashSet.CreateRange(
                 result.PropertyToDependentResources.Values.SelectMany(r => r)
-                .Union(data.Resources));
+                .Union(data.Resources).Union(resourceDependencies));
             return new OutputData<T>(resources: resources,
                                      value: data.Value,
                                      isKnown: data.IsKnown,

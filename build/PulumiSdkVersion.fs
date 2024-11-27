@@ -9,7 +9,7 @@ let findGoSDKVersion (pulumiSdkPath: string) =
     try
         let lines = File.ReadAllLines(goMod)
         let patternRegex = new Regex("^\\s*github.com/pulumi/pulumi/sdk", RegexOptions.IgnoreCase)
-        match Array.tryFind (patternRegex.IsMatch) lines with
+        match Array.tryFind (fun (line: string) -> patternRegex.IsMatch(line)) lines with
         | Some(matchingLine) ->
             let version = matchingLine.Split(' ')[1]
             let version = version.TrimStart('v')

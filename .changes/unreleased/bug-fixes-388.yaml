@@ -1,6 +1,0 @@
-component: sdk/auto
-kind: bug-fixes
-body: Fix warning for inline programs
-time: 2024-11-14T23:34:52.002286-08:00
-custom:
-    PR: "388"

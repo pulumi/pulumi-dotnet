@@ -77,6 +77,19 @@ jobs:
         dotnet-version: [6.0.x, 8.0.x]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Set TARGET_FRAMEWORK
+        shell: bash
+        run: |
+          if [[ "${{ matrix.dotnet-version }}" == "6.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net6.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
+          else
+            echo "Unexpected dotnet-version: ${{ matrix.dotnet-version }}"
+            exit 1
+          fi
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup dotnet SDK v6.0

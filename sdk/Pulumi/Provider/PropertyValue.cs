@@ -532,8 +532,8 @@ namespace Pulumi.Experimental.Provider
             IsComputed,
         }
 
-        public static PropertyValue Null = new PropertyValue(SpecialType.IsNull);
-        public static PropertyValue Computed = new PropertyValue(SpecialType.IsComputed);
+        public static readonly PropertyValue Null = new PropertyValue(SpecialType.IsNull);
+        public static readonly PropertyValue Computed = new PropertyValue(SpecialType.IsComputed);
 
         public PropertyValue(bool value)
         {

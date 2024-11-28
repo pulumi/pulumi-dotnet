@@ -15,6 +15,7 @@
 package integration_tests
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -665,4 +666,40 @@ outer:
 	require.Contains(t, string(out), "1^done")
 
 	wg.Wait()
+}
+
+// Test failures returned from construct.
+func TestConstructFailuresDotnet(t *testing.T) {
+	const testDir = "construct_component_failures"
+
+	tests := []struct {
+		componentDir string
+	}{
+		{
+			componentDir: "testcomponent-dotnet",
+		},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.componentDir, func(t *testing.T) {
+			stderr := &bytes.Buffer{}
+			expectedError := `error: testcomponent:index:Component resource 'component' has a problem: failing for a reason:
+    		- property foo with value '{bar}' has a problem: the failure reason`
+
+			localProvider := integration.LocalDependency{
+				Package: "testcomponent", Path: filepath.Join(testDir, test.componentDir),
+			}
+			testDotnetProgram(t, &integration.ProgramTestOptions{
+				Dir:            filepath.Join(testDir, "dotnet"),
+				LocalProviders: []integration.LocalDependency{localProvider},
+				Quick:          true,
+				Stderr:         stderr,
+				ExpectFailure:  true,
+				ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
+					output := stderr.String()
+					assert.Contains(t, output, expectedError)
+				},
+			})
+		})
+	}
 }

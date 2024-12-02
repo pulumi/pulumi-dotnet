@@ -82,7 +82,7 @@ namespace Pulumi.Tests.Provider
         {
             var provider = new TestConfigureProvider();
             var exc = await Assert.ThrowsAsync<NotImplementedException>(() =>
-                provider.GetSchema(new GetSchemaRequest(0), CancellationToken.None));
+                provider.GetSchema(new GetSchemaRequest(0, null, null), CancellationToken.None));
             Assert.Contains("GetSchema", exc.Message);
         }
     }

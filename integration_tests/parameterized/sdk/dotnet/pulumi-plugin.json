@@ -1,5 +1,10 @@
 {
   "resource": true,
-  "name": "pkg",
-  "version": "1.0.0"
+  "name": "testprovider",
+  "version": "0.0.1",
+  "parameterization": {
+    "name": "pkg",
+    "version": "1.0.0",
+    "value": "cGtn"
+  }
 }

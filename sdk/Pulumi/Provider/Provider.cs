@@ -216,10 +216,14 @@ namespace Pulumi.Experimental.Provider
     public sealed class GetSchemaRequest
     {
         public readonly int Version;
+        public readonly string? SubpackageName;
+        public readonly string? SubpackageVersion;
 
-        public GetSchemaRequest(int version)
+        public GetSchemaRequest(int version, string? subpackageName, string? subpackageVersion)
         {
             Version = version;
+            SubpackageName = subpackageName;
+            SubpackageVersion = subpackageVersion;
         }
     }
 
@@ -848,7 +852,17 @@ namespace Pulumi.Experimental.Provider
         {
             return WrapProviderCall(async () =>
                 {
-                    var domRequest = new GetSchemaRequest(request.Version);
+                    // protobuf sends an empty string for SubpackageName/Version, but really that means null in the domain model.
+                    var nullIfEmpty = (string s) =>
+                    {
+                        if (s == "")
+                        {
+                            return null;
+                        }
+                        return s;
+                    };
+
+                    var domRequest = new GetSchemaRequest(request.Version, nullIfEmpty(request.SubpackageName), nullIfEmpty(request.SubpackageVersion));
                     using var cts = GetToken(context);
                     var domResponse = await Implementation.GetSchema(domRequest, cts.Token);
                     var grpcResponse = new Pulumirpc.GetSchemaResponse();

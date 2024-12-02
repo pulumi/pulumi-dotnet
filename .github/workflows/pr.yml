@@ -105,7 +105,7 @@ jobs:
         with:
           pulumi-version: latest
       - name: Install gotestsum
-        uses: jaxxstorm/action-install-gh-release@v1.13.0
+        uses: jaxxstorm/action-install-gh-release@v1.14.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

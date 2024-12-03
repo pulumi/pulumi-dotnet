@@ -938,7 +938,7 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 func (host *dotnetLanguageHost) RunPlugin(
 	req *pulumirpc.RunPluginRequest, server pulumirpc.LanguageRuntime_RunPluginServer,
 ) error {
-	logging.V(5).Infof("Attempting to run dotnet plugin in %s", req.Program)
+	logging.V(5).Infof("Attempting to run dotnet plugin in %s", req.Pwd)
 
 	closer, stdout, stderr, err := rpcutil.MakeRunPluginStreams(server, false)
 	if err != nil {
@@ -965,7 +965,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 		if req.Info.EntryPoint != "" {
 			project = filepath.Join(project, req.Info.EntryPoint)
 		}
-		args = append(args, "--project", project)
+		args = append(args, "--project", project, "--")
 	}
 
 	// Add on all the request args to start this plugin
@@ -973,7 +973,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 
 	if logging.V(5) {
 		commandStr := strings.Join(args, " ")
-		logging.V(5).Infoln("Language host launching process: ", executable, commandStr)
+		logging.V(5).Infoln("Language host launching process: ", executable, " ", commandStr)
 	}
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.

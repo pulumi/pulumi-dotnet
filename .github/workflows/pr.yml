@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+      - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
       - name: Format Pulumi SDK
         run: dotnet run format-sdk verify
@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+      - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
@@ -92,7 +92,7 @@ jobs:
           fi
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+      - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
@@ -113,32 +113,32 @@ jobs:
           tag: v1.8.1
           cache: enable
       - name: Install netcoredbg (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-linux-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
           sudo cp netcoredbg/* /usr/bin/
       - uses: MinoruSekine/setup-scoop@v4.0.1
-        if: matrix.os == 'windows-latest'
+        if: startsWith(matrix.os, 'windows')
         with:
           buckets: extras
           apps: doxygen plantuml
       - name: Install netcoredbg (Windows)
-        if: matrix.os == 'windows-latest'
+        if: startsWith(matrix.os, 'windows')
         run: |
           scoop install netcoredbg
       - name: Install netcoredbg (MacOS)
-        if: matrix.os == 'macos-13'
+        if: startsWith(matrix.os, 'macos')
         id: netcoredbg
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
           echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
       - name: Integration tests
-        if: matrix.os == 'macos-13'
+        if: startsWith(matrix.os, 'macos')
         run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_integration
       - name: Integration tests
-        if: matrix.os != 'macos-13'
+        if: startsWith(matrix.os, 'macos') != true
         run: make test_integration
 
   info:

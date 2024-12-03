@@ -14,6 +14,39 @@ public class TestProvider : Provider {
         this.host = host;
     }
 
+    public override Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
+    {
+        var schema = """
+{
+    "name": "testprovider",
+    "version": "1.0.0",
+    "resources": {
+        "testprovider:index:Echo": {
+            "description": "A test resource that echoes its input.",
+            "properties": {
+                "value": {
+                    "$ref": "pulumi.json#/Any",
+                    "description": "Input to echo."
+                }
+            },
+            "inputProperties": {
+                "value": {
+                    "$ref": "pulumi.json#/Any",
+                    "description": "Input to echo."
+                }
+            },
+            "type": "object"
+        }
+    }
+}
+""";
+
+        return Task.FromResult(new GetSchemaResponse()
+        {
+            Schema = schema,
+        });
+    }
+
     public override Task<CheckResponse> CheckConfig(CheckRequest request, CancellationToken ct)
     {
         return Task.FromResult(new CheckResponse() { Inputs = request.NewInputs });

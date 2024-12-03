@@ -20,6 +20,9 @@ public class TestProvider : Provider {
 {
     "name": "testprovider",
     "version": "1.0.0",
+    "meta": {
+        "supportPack": true
+    },
     "resources": {
         "testprovider:index:Echo": {
             "description": "A test resource that echoes its input.",

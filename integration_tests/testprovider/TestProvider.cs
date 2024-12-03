@@ -133,16 +133,14 @@ public class TestProvider : Provider
         else if (request.Type == parameter + ":index:Random")
         {
             var changes = !request.OldState["length"].Equals(request.NewInputs["length"]);
-            return Task.FromResult(new DiffResponse()
-            {
+            return Task.FromResult(new DiffResponse() {
                 Changes = changes,
                 Replaces = new string[] { "length" },
             });
         }
         else if (request.Type == parameter + ":index:FailsOnDelete")
         {
-            return Task.FromResult(new DiffResponse()
-            {
+            return Task.FromResult(new DiffResponse() {
                 Changes = false,
             });
         }
@@ -170,8 +168,7 @@ public class TestProvider : Provider
             outputs.Add("value", request.Properties["value"]);
 
             ++this.id;
-            return Task.FromResult(new CreateResponse()
-            {
+            return Task.FromResult(new CreateResponse() {
                 Id = this.id.ToString(),
                 Properties = outputs,
             });
@@ -191,8 +188,7 @@ public class TestProvider : Provider
             outputs.Add("length", length);
             outputs.Add("result", new PropertyValue(result));
 
-            return Task.FromResult(new CreateResponse()
-            {
+            return Task.FromResult(new CreateResponse() {
                 Id = result,
                 Properties = outputs,
             });
@@ -200,8 +196,7 @@ public class TestProvider : Provider
         else if (request.Type == parameter + ":index:FailsOnDelete")
         {
             ++this.id;
-            return Task.FromResult(new CreateResponse()
-            {
+            return Task.FromResult(new CreateResponse() {
                 Id = this.id.ToString(),
             });
         }
@@ -221,8 +216,7 @@ public class TestProvider : Provider
 
     public override Task<ReadResponse> Read(ReadRequest request, CancellationToken ct)
     {
-        var response = new ReadResponse()
-        {
+        var response = new ReadResponse() {
             Id = request.Id,
             Properties = request.Properties,
         };

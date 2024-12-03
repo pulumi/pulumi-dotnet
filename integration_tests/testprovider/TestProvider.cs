@@ -80,10 +80,10 @@ public class TestProvider : Provider {
     public override Task<DiffResponse> Diff(DiffRequest request, CancellationToken ct)
     {
         if (request.Type == "testprovider:index:Echo") {
-            var changes = !request.OldState["echo"].Equals(request.NewInputs["echo"]);
+            var changes = !request.OldState["value"].Equals(request.NewInputs["value"]);
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
-                Replaces = new string[] { "echo" },
+                Replaces = new string[] { "value" },
             });
         }
         else if (request.Type == "testprovider:index:Random")
@@ -120,7 +120,7 @@ public class TestProvider : Provider {
     {
         if (request.Type == "testprovider:index:Echo") {
             var outputs = new Dictionary<string, PropertyValue>();
-            outputs.Add("echo", request.Properties["echo"]);
+            outputs.Add("value", request.Properties["value"]);
 
             ++this.id;
             return Task.FromResult(new CreateResponse() {

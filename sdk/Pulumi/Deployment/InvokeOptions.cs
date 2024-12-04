@@ -32,6 +32,9 @@ namespace Pulumi
         public string? PluginDownloadURL { get; set; }
     }
 
+    /// <summary>
+    /// Options to help control the behavior of <see cref="IDeployment.InvokeAsync{T}(string, InvokeArgs, InvokeOutputOptions, RegisterPackageRequest)"/>.
+    /// </summary>
     public class InvokeOutputOptions : InvokeOptions
     {
         private InputList<Resource>? _dependsOn;

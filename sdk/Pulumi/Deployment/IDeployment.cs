@@ -116,7 +116,7 @@ namespace Pulumi
         Output<T> Invoke<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options = null);
+            InvokeOutputOptions options);
 
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Pulumi
         Output<T> Invoke<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options,
+            InvokeOutputOptions options,
             RegisterPackageRequest? registerPackageRequest);
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Pulumi
         Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options = null);
+            InvokeOutputOptions options);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -210,7 +210,7 @@ namespace Pulumi
         Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options,
+            InvokeOutputOptions options,
             RegisterPackageRequest? registerPackageRequest);
 
         /// <summary>

@@ -1,10 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);sdk/**/*.cs</DefaultItemExcludes>
     <OutputType>Exe</OutputType>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' != '' ">$(TARGET_FRAMEWORK)</TargetFramework>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net6.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="sdk\dotnet\Pulumi.Testprovider.csproj" />
+  </ItemGroup>
 
 </Project>

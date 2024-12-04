@@ -27,6 +27,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pulumi/pulumi/pkg/v3/engine"
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
@@ -529,6 +530,13 @@ func TestProvider(t *testing.T) {
 			assert.Equal(t, float64(42), stack.Outputs["echoA"])
 			assert.Equal(t, "hello", stack.Outputs["echoB"])
 			assert.Equal(t, []interface{}{float64(1), "goodbye", true}, stack.Outputs["echoC"])
+		},
+		PrePrepareProject: func(info *engine.Projinfo) error {
+			e := ptesting.NewEnvironment(t)
+			e.CWD = info.Root
+			path := info.Proj.Plugins.Providers[0].Path
+			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "--language", "dotnet")
+			return nil
 		},
 	})
 }

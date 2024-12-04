@@ -1719,6 +1719,11 @@
             used when performing this invoke.
             </summary>
         </member>
+        <member name="T:Pulumi.InvokeOutputOptions">
+            <summary>
+            Options to help control the behavior of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)"/>.
+            </summary>
+        </member>
         <member name="P:Pulumi.InvokeOutputOptions.DependsOn">
             <summary>
             Optional additional explicit dependencies on resources.

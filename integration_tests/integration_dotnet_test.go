@@ -679,21 +679,16 @@ outer:
 //
 //nolint:paralleltest // ProgramTest calls t.Parallel()
 func TestParameterized(t *testing.T) {
-	e := ptesting.NewEnvironment(t)
-
-	// We can't use ImportDirectory here because we need to run this in the right directory such that the relative paths
-	// work.
-	var err error
-	e.CWD, err = filepath.Abs("parameterized")
-	require.NoError(t, err)
-
-	err = os.RemoveAll(filepath.Join("parameterized", "sdk"))
-	require.NoError(t, err)
-
-	_, _ = e.RunCommand("pulumi", "package", "gen-sdk", "../testprovider", "pkg", "--language", "dotnet")
-
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join("parameterized"),
 		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
+		PrePrepareProject: func(info *engine.Projinfo) error {
+			e := ptesting.NewEnvironment(t)
+			e.CWD = info.Root
+			path := info.Proj.Plugins.Providers[0].Path
+			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "pkg", "--language", "dotnet")
+			return nil
+		},
 	})
+
 }

@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -721,6 +722,43 @@ namespace Pulumi.Automation.Tests
                 var destroyResult = await stack.DestroyAsync();
                 Assert.Equal(UpdateKind.Destroy, destroyResult.Summary.Kind);
                 Assert.Equal(UpdateState.Succeeded, destroyResult.Summary.Result);
+            }
+            finally
+            {
+                await stack.Workspace.RemoveStackAsync(stackName);
+            }
+        }
+
+        [Fact]
+        public async Task InlineProgramDoesNotEmitWarning()
+        {
+            var program = PulumiFn.Create(() =>
+            {
+                return new Dictionary<string, object?>();
+            });
+            Assert.IsType<PulumiFnInline>(program);
+
+            var stackName = RandomStackName();
+            var projectName = "inline_node";
+            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program)
+            {
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+
+            try
+            {
+                var stdout = new StringBuilder();
+                var stderr = new StringBuilder();
+                var previewResult = await stack.PreviewAsync(new PreviewOptions
+                {
+                    OnStandardOutput = line => stdout.AppendLine(line),
+                    OnStandardError = line => stderr.AppendLine(line),
+                });
+                Assert.DoesNotContain("warning", stdout.ToString(), StringComparison.OrdinalIgnoreCase);
+                Assert.DoesNotContain("warning", stderr.ToString(), StringComparison.OrdinalIgnoreCase);
             }
             finally
             {

@@ -46,7 +46,7 @@ namespace Pulumi
         public Output<T> Invoke<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options,
+            InvokeOutputOptions options,
             RegisterPackageRequest? registerPackageRequest)
             => _deployment.Invoke<T>(token, args, options, registerPackageRequest);
 
@@ -61,7 +61,7 @@ namespace Pulumi
         public Output<T> Invoke<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options = null)
+            InvokeOutputOptions options)
             => _deployment.Invoke<T>(token, args, options, null);
 
         /// <inheritdoc />
@@ -76,7 +76,7 @@ namespace Pulumi
         public Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options,
+            InvokeOutputOptions options,
             RegisterPackageRequest? registerPackageRequest)
             => _deployment.InvokeSingle<T>(token, args, options, registerPackageRequest);
 
@@ -91,7 +91,7 @@ namespace Pulumi
         public Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options = null)
+            InvokeOutputOptions options)
             => _deployment.InvokeSingle<T>(token, args, options, null);
 
         /// <inheritdoc />

@@ -253,6 +253,43 @@
             equivilent to unknown and thus null.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.Provider.ParametersArgs">
+            <summary>
+            A parameter value, represented as an array of strings, as might be provided by a command-line invocation, such as
+            that used to generate an SDK.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.ParametersValue">
+            <summary>
+            A parameter value, represented by an arbitrary array of bytes accompanied by a name and version. This is expected
+            to be the format used by parameterized provider SDKs.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Name">
+            <summary>
+            The sub-package name for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Version">
+            <summary>
+            The sub-package version for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Value">
+            <summary>
+            The embedded value from the sub-package.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParameterizeResponse.Name">
+            <summary>
+            The name of the sub-package parameterized.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParameterizeResponse.Version">
+            <summary>
+            The version of the sub-package parameterized.
+            </summary>
+        </member>
         <member name="T:Pulumi.Alias">
             <summary>
             Alias is a description of prior named used for a resource. It can be processed in the

@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Improvements
+body: Add Parameterize to the provider interface
+time: 2024-11-26T22:15:51.948816287Z
+custom:
+  PR: "404"

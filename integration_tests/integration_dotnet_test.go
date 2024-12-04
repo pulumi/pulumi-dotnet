@@ -674,3 +674,21 @@ outer:
 
 	wg.Wait()
 }
+
+// Test a parameterized provider with dotnet.
+//
+//nolint:paralleltest // ProgramTest calls t.Parallel()
+func TestParameterized(t *testing.T) {
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join("parameterized"),
+		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
+		PrePrepareProject: func(info *engine.Projinfo) error {
+			e := ptesting.NewEnvironment(t)
+			e.CWD = info.Root
+			path := info.Proj.Plugins.Providers[0].Path
+			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "pkg", "--language", "dotnet")
+			return nil
+		},
+	})
+
+}

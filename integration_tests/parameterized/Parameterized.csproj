@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="sdk\dotnet\Pulumi.Pkg.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);sdk/**/*.cs</DefaultItemExcludes>
     <OutputType>Exe</OutputType>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' != '' ">$(TARGET_FRAMEWORK)</TargetFramework>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net6.0</TargetFramework>
-    <LangVersion>11</LangVersion>
     <Nullable>enable</Nullable>
-    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="../../sdk/Pulumi/Pulumi.csproj" />
-  </ItemGroup>
 </Project>

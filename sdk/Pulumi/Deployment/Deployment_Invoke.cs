@@ -57,14 +57,14 @@ namespace Pulumi
         Output<T> IDeployment.Invoke<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options,
+            InvokeOutputOptions options,
             RegisterPackageRequest? registerPackageRequest)
             => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest));
 
         Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOptions? options)
             => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest: null));
 
-        Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOutputOptions? options)
+        Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOutputOptions options)
         => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest: null));
 
 
@@ -81,7 +81,7 @@ namespace Pulumi
         Output<T> IDeployment.InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions? options,
+            InvokeOutputOptions options,
             RegisterPackageRequest? registerPackageRequest)
         {
             var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest));
@@ -95,7 +95,7 @@ namespace Pulumi
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 
-        Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOutputOptions? options)
+        Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOutputOptions options)
         {
             var outputResult = new Output<Dictionary<string, T>>(
                 RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));

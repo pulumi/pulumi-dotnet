@@ -943,7 +943,7 @@ namespace Pulumi.Experimental.Provider
                 var inlineDeploymentSettings = new InlineDeploymentSettings(logger, EngineAddress, request.MonitorEndpoint, request.Config,
                     request.ConfigSecretKeys, request.Organization, request.Project, request.Stack, request.Parallel, request.DryRun);
                 var domResponse = await Deployment
-                    .RunInlineAsyncWithResult(deploymentBuilder, inlineDeploymentSettings, runner => Implementation.Construct(domRequest, cts.Token))
+                    .RunInlineAsyncWithResult(deploymentBuilder, inlineDeploymentSettings, () => Implementation.Construct(domRequest, cts.Token))
                     .ConfigureAwait(false);
 
                 var state = PropertyValue.Marshal(domResponse.State);
@@ -983,7 +983,7 @@ namespace Pulumi.Experimental.Provider
                 var inlineDeploymentSettings = new InlineDeploymentSettings(logger, EngineAddress, request.MonitorEndpoint, request.Config,
                     request.ConfigSecretKeys, request.Organization, request.Project, request.Stack, request.Parallel, request.DryRun);
                 var domResponse = await Deployment
-                    .RunInlineAsyncWithResult(deploymentBuilder, inlineDeploymentSettings, runner => Implementation.Call(domRequest, cts.Token))
+                    .RunInlineAsyncWithResult(deploymentBuilder, inlineDeploymentSettings, () => Implementation.Call(domRequest, cts.Token))
                     .ConfigureAwait(false);
 
                 IDictionary<string, ISet<Urn>> returnDependencies = ImmutableDictionary<string, ISet<Urn>>.Empty;

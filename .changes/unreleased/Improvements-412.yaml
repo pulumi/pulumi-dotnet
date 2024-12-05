@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Allow specifying dependencies for output invokes
+time: 2024-11-27T14:37:33.985033+01:00
+custom:
+    PR: "412"

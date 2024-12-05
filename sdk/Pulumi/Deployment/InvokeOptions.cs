@@ -31,4 +31,21 @@ namespace Pulumi
         /// </summary>
         public string? PluginDownloadURL { get; set; }
     }
+
+    /// <summary>
+    /// Options to help control the behavior of <see cref="IDeployment.Invoke{T}(string, InvokeArgs, InvokeOutputOptions, RegisterPackageRequest)"/>.
+    /// </summary>
+    public class InvokeOutputOptions : InvokeOptions
+    {
+        private InputList<Resource>? _dependsOn;
+
+        /// <summary>
+        /// Optional additional explicit dependencies on resources.
+        /// </summary>
+        public InputList<Resource> DependsOn
+        {
+            get => _dependsOn ??= new InputList<Resource>();
+            set => _dependsOn = value;
+        }
+    }
 }

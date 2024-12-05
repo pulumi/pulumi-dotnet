@@ -1458,13 +1458,25 @@
         <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <inheritdoc />
         </member>
+        <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <inheritdoc />
+        </member>
         <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
             <inheritdoc />
         </member>
         <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <inheritdoc />
         </member>
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <inheritdoc />
+        </member>
         <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
             <inheritdoc />
         </member>
         <member name="M:Pulumi.DeploymentInstance.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
@@ -1583,12 +1595,36 @@
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
+        <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
         <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
             The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -1607,12 +1643,36 @@
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
+        <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin that returns a bag of properties with a single value that is returned.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
         <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
             The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin that returns a bag of properties with a single value that is returned.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin that returns a bag of properties with a single value that is returned.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -1694,6 +1754,16 @@
             <summary>
             An optional URL, corresponding to the download URL of the provider plugin that should be
             used when performing this invoke.
+            </summary>
+        </member>
+        <member name="T:Pulumi.InvokeOutputOptions">
+            <summary>
+            Options to help control the behavior of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)"/>.
+            </summary>
+        </member>
+        <member name="P:Pulumi.InvokeOutputOptions.DependsOn">
+            <summary>
+            Optional additional explicit dependencies on resources.
             </summary>
         </member>
         <member name="T:Pulumi.TaskMonitoringHelper">

@@ -14,7 +14,7 @@ public class InlineDeploymentTests
     {
         var mocks = new AwaitingMocks();
         var monitor = new MockMonitor(mocks);
-        var res = TryInline<Component>(monitor, async (r) =>
+        var res = TryInline<Component>(monitor, async () =>
         {
             var stack = new Stack();
             await Task.Delay(1);
@@ -31,7 +31,7 @@ public class InlineDeploymentTests
         Assert.Equal(4, monitor.Resources.Count);
     }
 
-    internal static async Task<T> TryInline<T>(IMonitor monitor, Func<IRunner, Task<T>> runAsync)
+    internal static async Task<T> TryInline<T>(IMonitor monitor, Func<Task<T>> runAsync)
     {
         var engine = new MockEngine();
 

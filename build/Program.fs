@@ -28,6 +28,20 @@ let integrationTests = Path.Combine(repositoryRoot, "integration_tests")
 let pulumiLanguageDotnet = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
 
 
+let getDevVersion() =
+    try
+        Cli.Wrap("changie")
+            .WithArguments("next patch -p dev.0")
+            .WithValidation(CommandResultValidation.ZeroExitCode)
+            .ExecuteBufferedAsync()
+            .GetAwaiter()
+            .GetResult()
+            .StandardOutput
+            .Trim()
+    with
+    | _ ->
+        "3.0.0-dev.0"
+
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
 let cleanSdk() =
@@ -131,8 +145,10 @@ let cleanLanguagePlugin() =
 
 let buildLanguagePlugin() =
     cleanLanguagePlugin()
-    printfn "Building pulumi-language-dotnet Plugin"
-    if Shell.Exec("go", "build", pulumiLanguageDotnet) <> 0
+    let devVersion = getDevVersion()
+    printfn $"Building pulumi-language-dotnet Plugin {devVersion}"
+    let ldflags = $"-ldflags \"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version.Version={devVersion}\""
+    if Shell.Exec("go", $"build {ldflags}", pulumiLanguageDotnet) <> 0
     then failwith "Building pulumi-language-dotnet failed"
     let output = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")
     printfn $"Built binary {output}"

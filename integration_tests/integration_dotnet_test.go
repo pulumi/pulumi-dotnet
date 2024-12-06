@@ -458,16 +458,19 @@ func TestGetResourceDotnet(t *testing.T) {
 func TestAboutDotnet(t *testing.T) {
 	t.Parallel()
 
+	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
+	require.NoError(t, err)
+
 	e := ptesting.NewEnvironment(t)
-	defer func() {
-		if !t.Failed() {
-			e.DeleteEnvironmentFallible()
-		}
-	}()
+	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("about")
 
+	e.Env = append(e.Env, getProviderPath(languagePluginPath))
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
-	_, stderr := e.RunCommand("pulumi", "about")
+	stdout, stderr := e.RunCommand("pulumi", "about")
+	// There should be no "unknown" plugin versions.
+	assert.NotContains(t, stdout, "unknown")
+	assert.NotContains(t, stderr, "unknown")
 	// This one doesn't have a current stack. Assert that we caught it.
 	assert.Contains(t, stderr, "No current stack")
 }
@@ -624,6 +627,9 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
+	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
+	require.NoError(t, err)
+
 	e := ptesting.NewEnvironment(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("printf")
@@ -636,7 +642,7 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true")
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		e.RunCommand("pulumi", "preview", "--attach-debugger",
@@ -690,5 +696,4 @@ func TestParameterized(t *testing.T) {
 			return nil
 		},
 	})
-
 }

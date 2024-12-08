@@ -60,7 +60,11 @@ namespace Pulumi.Automation.Tests
             {
                 temporaryDirectory = Path.Combine(Path.GetTempPath(), "pulumi", "automation-tests");
                 Directory.CreateDirectory(temporaryDirectory);
-                Environment.SetEnvironmentVariable("PULUMI_BACKEND_URL", $"file:///{temporaryDirectory}");
+                Environment.SetEnvironmentVariable("PULUMI_BACKEND_URL",
+                    OperatingSystem.IsWindows()
+                        ? $"file://{temporaryDirectory.Replace("\\", "/")}"
+                        : $"file:///{temporaryDirectory}");
+
                 // Because we're using filestate we need to set a passphrase as well.
                 Environment.SetEnvironmentVariable("PULUMI_CONFIG_PASSPHRASE", "backup_password");
             }

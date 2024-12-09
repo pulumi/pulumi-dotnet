@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -626,6 +627,11 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
+
+	// TODO[pulumi/pulumi-dotnet#403]: Fix flaky test.
+	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
+		t.Skip("Temporarily skipping flaky test on macOS and Windows - pulumi/pulumi-dotnet#403")
+	}
 
 	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
 	require.NoError(t, err)

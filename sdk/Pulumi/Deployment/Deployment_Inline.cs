@@ -71,8 +71,13 @@ namespace Pulumi
         }
 
         internal static async Task<T> RunInlineAsyncWithResult<T>(IDeploymentBuilder builder,
-            InlineDeploymentSettings settings,
-            Func<IRunner, Task<T>> runnerFunc)
+            InlineDeploymentSettings settings, Func<Task<T>> runnerFunc)
+        {
+            return await RunInlineAsyncWithResult(builder, settings, runner => runner.RunAsync(runnerFunc));
+        }
+
+        private static async Task<T> RunInlineAsyncWithResult<T>(IDeploymentBuilder builder,
+            InlineDeploymentSettings settings, Func<IRunner, Task<T>> runnerFunc)
         {
             return await CreateRunnerAndRunAsync(
                 () => new Deployment(builder, settings),

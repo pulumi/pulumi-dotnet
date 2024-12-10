@@ -22,6 +22,9 @@ using Xunit.Abstractions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 using static Pulumi.Automation.Tests.Utility;
+using Pulumi.Automation.Tests.Mocks;
+using Pulumi.Automation.Commands;
+using Semver;
 
 namespace Pulumi.Automation.Tests
 {
@@ -2401,6 +2404,44 @@ namespace Pulumi.Automation.Tests
             {
                 await workspace.RemoveStackAsync(stackName);
             }
+        }
+
+        [Fact]
+        public async Task InstallRunsSuccessfully()
+        {
+            var mockCommand = new PulumiCommandMock(new SemVersion(3, 130, 0), new CommandResult(0, "", ""));
+            var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions { PulumiCommand = mockCommand });
+
+            await workspace.InstallAsync(new InstallOptions
+            {
+                NoDependencies = true,
+                NoPlugins = true,
+                Reinstall = true,
+                UseLanguageVersionTools = true
+            });
+
+            Assert.Equal(5, mockCommand.RecordedArgs.Count);
+            Assert.Equal("install", mockCommand.RecordedArgs[0]);
+        }
+
+        [Fact]
+        public async Task InstallRequiresSupportedVersion()
+        {
+            var mockCommand = new PulumiCommandMock(new SemVersion(3, 0, 0), new CommandResult(0, "", ""));
+            var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions { PulumiCommand = mockCommand });
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await workspace.InstallAsync());
+        }
+
+        [Fact]
+        public async Task InstallLanguageVersionToolsRequiresSupportedVersion()
+        {
+            var mockCommand = new PulumiCommandMock(new SemVersion(3, 91, 0), new CommandResult(0, "", ""));
+            var installOptions = new InstallOptions { UseLanguageVersionTools = true };
+
+            var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions { PulumiCommand = mockCommand });
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await workspace.InstallAsync(installOptions));
         }
     }
 }

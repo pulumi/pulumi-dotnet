@@ -669,15 +669,8 @@ namespace Pulumi.Automation
         /// <inheritdoc/>
         public override async Task<WhoAmIResult> WhoAmIAsync(CancellationToken cancellationToken = default)
         {
-            var version = _cmd.Version;
-            if (version == null)
-            {
-                // Assume an old version. Doesn't really matter what this is as long as it's pre-3.58.
-                version = new SemVersion(3, 0);
-            }
-
             // 3.58 added the --json flag (https://github.com/pulumi/pulumi/releases/tag/v3.58.0)
-            if (version >= new SemVersion(3, 58))
+            if (SupportsCommand(new SemVersion(3, 58)))
             {
                 // Use the new --json style
                 var result = await this.RunCommandAsync(new[] { "whoami", "--json" }, cancellationToken).ConfigureAwait(false);
@@ -866,6 +859,42 @@ namespace Pulumi.Automation
             return this.RunCommandAsync(args, cancellationToken);
         }
 
+        public override Task InstallAsync(InstallOptions? options = default, CancellationToken cancellationToken = default)
+        {
+            if (!SupportsCommand(new SemVersion(3, 91, 0)))
+            {
+                throw new InvalidOperationException("The Pulumi CLI version does not support the install command. Please update the Pulumi CLI.");
+            };
+
+            var args = new List<string> { "install" };
+
+            if (options is null)
+            {
+                return this.RunCommandAsync(args, cancellationToken);
+            }
+
+            if (options.UseLanguageVersionTools)
+            {
+                if (!SupportsCommand(new SemVersion(3, 130, 0)))
+                {
+                    throw new InvalidOperationException($"The Pulumi CLI version does not support {nameof(options.UseLanguageVersionTools)}. Please update the Pulumi CLI.");
+                }
+
+                args.Add("--use-language-version-tools");
+            }
+
+            if (options.NoDependencies)
+                args.Add("--no-dependencies");
+
+            if (options.Reinstall)
+                args.Add("--reinstall");
+
+            if (options.NoPlugins)
+                args.Add("--no-plugins");
+
+            return this.RunCommandAsync(args, cancellationToken);
+        }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -978,15 +1007,21 @@ namespace Pulumi.Automation
             return args;
         }
 
-        private void CheckSupportsEnvironmentsCommands()
+        private bool SupportsCommand(SemVersion minSupportedVersion)
         {
             var version = _cmd.Version ?? new SemVersion(3, 0);
 
+            return version >= minSupportedVersion;
+        }
+
+        private void CheckSupportsEnvironmentsCommands()
+        {
             // 3.95 added this command (https://github.com/pulumi/pulumi/releases/tag/v3.95.0)
-            if (version < new SemVersion(3, 95))
+            if (!SupportsCommand(new SemVersion(3, 95)))
             {
                 throw new InvalidOperationException("The Pulumi CLI version does not support env operations on a stack. Please update the Pulumi CLI.");
             }
         }
+
     }
 }

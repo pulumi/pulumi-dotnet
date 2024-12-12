@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.SimpleInvoke;$(RestoreSources)</RestoreSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Pulumi" Version="1.0.0" />
+		<PackageReference Include="Pulumi.SimpleInvoke" Version="10.0.0" />
+	</ItemGroup>
+
+</Project>

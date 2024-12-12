@@ -170,6 +170,7 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 }
 
 func TestLanguage(t *testing.T) {
+	t.Parallel()
 	engineAddress, engine := runTestingHost(t)
 
 	tests, err := engine.GetLanguageTests(context.Background(), &testingrpc.GetLanguageTestsRequest{})
@@ -233,6 +234,7 @@ func TestLanguage(t *testing.T) {
 	for _, tt := range tests.Tests {
 		tt := tt
 		t.Run(tt, func(t *testing.T) {
+			t.Parallel()
 			if expected, ok := expectedToFail[tt]; ok {
 				t.Skipf("test %s is expected to fail: %s", tt, expected)
 			}

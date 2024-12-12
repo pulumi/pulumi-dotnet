@@ -45,6 +45,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -92,6 +94,8 @@ jobs:
           fi
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -140,6 +144,79 @@ jobs:
       - name: Integration tests
         if: startsWith(matrix.os, 'macos') != true
         run: make test_integration
+  conformance-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13]
+        dotnet-version: [6.0.x, 8.0.x]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set TARGET_FRAMEWORK
+        shell: bash
+        run: |
+          if [[ "${{ matrix.dotnet-version }}" == "6.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net6.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
+          else
+            echo "Unexpected dotnet-version: ${{ matrix.dotnet-version }}"
+            exit 1
+          fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup dotnet SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Set up Go 1.22.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.x
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v5
+        with:
+          pulumi-version: latest
+      - name: Install gotestsum
+        uses: jaxxstorm/action-install-gh-release@v1.14.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo: gotestyourself/gotestsum
+          tag: v1.8.1
+          cache: enable
+      - name: Install netcoredbg (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-linux-amd64.tar.gz -o netcoredbg.tar.gz
+          tar xzf netcoredbg.tar.gz
+          sudo cp netcoredbg/* /usr/bin/
+      - uses: MinoruSekine/setup-scoop@v4.0.1
+        if: startsWith(matrix.os, 'windows')
+        with:
+          buckets: extras
+          apps: doxygen plantuml
+      - name: Install netcoredbg (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          scoop install netcoredbg
+      - name: Install netcoredbg (MacOS)
+        if: startsWith(matrix.os, 'macos')
+        id: netcoredbg
+        run: |
+          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
+          tar xzf netcoredbg.tar.gz
+          echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
+      - name: Integration tests
+        if: startsWith(matrix.os, 'macos')
+        run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_conformance
+      - name: Integration tests
+        if: startsWith(matrix.os, 'macos') != true
+        run: make test_conformance
 
   info:
     name: gather

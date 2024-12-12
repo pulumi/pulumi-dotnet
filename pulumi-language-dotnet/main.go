@@ -35,12 +35,16 @@ import (
 	pbempty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version"
+	dotnetcodegen "github.com/pulumi/pulumi/pkg/v3/codegen/dotnet"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/pcl"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/cmdutil"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/executable"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/logging"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/workspace"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -195,14 +199,14 @@ func (host *dotnetLanguageHost) GetRequiredPlugins(
 	}
 
 	// now, introspect the user project to see which pulumi resource packages it references.
-	possiblePulumiPackages, err := host.DeterminePossiblePulumiPackages(ctx, engineClient)
+	possiblePulumiPackages, err := host.DeterminePossiblePulumiPackages(ctx, engineClient, req.Info.ProgramDirectory)
 	if err != nil {
 		return nil, err
 	}
 
 	// Ensure we know where the local nuget package cache directory is.  User can specify where that
 	// is located, so this makes sure we respect any custom location they may have.
-	packageDir, err := host.DetermineDotnetPackageDirectory(ctx, engineClient)
+	packageDir, err := host.DetermineDotnetPackageDirectory(ctx, engineClient, req.Info.ProgramDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +241,9 @@ func (host *dotnetLanguageHost) GetRequiredPlugins(
 }
 
 func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
-	ctx context.Context, engineClient pulumirpc.EngineClient,
+	ctx context.Context,
+	engineClient pulumirpc.EngineClient,
+	programDirectory string,
 ) ([][]string, error) {
 	logging.V(5).Infof("GetRequiredPlugins: Determining pulumi packages")
 
@@ -247,7 +253,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	// installed locally and not need to do anything.
 	args := []string{"list", "package", "--include-transitive"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := host.RunDotnetCommand(ctx, engineClient, args, false /*logToUser*/)
+	commandOutput, err := host.RunDotnetCommand(ctx, engineClient, args, false /*logToUser*/, programDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -302,7 +308,9 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 }
 
 func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
-	ctx context.Context, engineClient pulumirpc.EngineClient,
+	ctx context.Context,
+	engineClient pulumirpc.EngineClient,
+	programDirectory string,
 ) (string, error) {
 	logging.V(5).Infof("GetRequiredPlugins: Determining package directory")
 
@@ -312,7 +320,7 @@ func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
 	// plugin is installed locally and not need to do anything.
 	args := []string{"nuget", "locals", "global-packages", "--list"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := host.RunDotnetCommand(ctx, engineClient, args, false /*logToUser*/)
+	commandOutput, err := host.RunDotnetCommand(ctx, engineClient, args, false /*logToUser*/, programDirectory)
 	if err != nil {
 		return "", err
 	}
@@ -437,14 +445,10 @@ func (host *dotnetLanguageHost) DotnetBuild(
 ) error {
 	args := []string{"build", "-nologo"}
 
-	if req.GetProgram() != "" {
-		args = append(args, req.GetProgram())
-	}
-
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
-	_, err := host.RunDotnetCommand(ctx, engineClient, args, true /*logToUser*/)
+	_, err := host.RunDotnetCommand(ctx, engineClient, args, true /*logToUser*/, req.Info.ProgramDirectory)
 	if err != nil {
 		return err
 	}
@@ -454,7 +458,10 @@ func (host *dotnetLanguageHost) DotnetBuild(
 }
 
 func (host *dotnetLanguageHost) RunDotnetCommand(
-	ctx context.Context, engineClient pulumirpc.EngineClient, args []string, logToUser bool,
+	ctx context.Context,
+	engineClient pulumirpc.EngineClient,
+	args []string, logToUser bool,
+	programDirectory string,
 ) (string, error) {
 	commandStr := strings.Join(args, " ")
 	if logging.V(5) {
@@ -489,10 +496,9 @@ func (host *dotnetLanguageHost) RunDotnetCommand(
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	cmd := exec.Command(host.exec, args...) // nolint: gas // intentionally running dynamic program name.
-
 	cmd.Stdout = infoWriter
 	cmd.Stderr = errorWriter
-
+	cmd.Dir = programDirectory
 	_, err := infoWriter.LogToUser(fmt.Sprintf("running 'dotnet %v'", commandStr))
 	if err != nil {
 		return "", err
@@ -653,9 +659,6 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 			args = append(args, "--no-build")
 		}
 
-		if req.GetProgram() != "" {
-			args = append(args, req.GetProgram())
-		}
 	}
 
 	if logging.V(5) {
@@ -669,6 +672,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 	var errResult string
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Dir = req.Info.ProgramDirectory
 	cmd.Env = host.constructEnv(req, config, configSecretKeys)
 	if err := cmd.Start(); err != nil {
 		return nil, err
@@ -826,8 +830,7 @@ func (host *dotnetLanguageHost) InstallDependencies(
 	}
 
 	cmd := exec.Command(dotnetbin, "build")
-	cmd.Dir = req.Directory
-	cmd.Env = os.Environ()
+	cmd.Dir = req.Info.ProgramDirectory
 	cmd.Stdout, cmd.Stderr = stdout, stderr
 
 	if err := cmd.Run(); err != nil {
@@ -897,6 +900,7 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 		cmdArgs = append(cmdArgs, "--include-transitive")
 	}
 	cmd := exec.Command(ex, cmdArgs...)
+	cmd.Dir = req.Info.ProgramDirectory
 	if out, err = cmd.Output(); err != nil {
 		return nil, fmt.Errorf("failed to call \"%s\": %w", ex, err)
 	}
@@ -1006,4 +1010,160 @@ func (host *dotnetLanguageHost) RunPlugin(
 	}
 
 	return nil
+}
+
+func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackRequest) (*pulumirpc.PackResponse, error) {
+	// copy the source to the target.
+	projectFile := ""
+	err := filepath.Walk(req.PackageDirectory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Ext(path) == ".csproj" {
+			projectFile = strings.TrimSuffix(path, ".csproj")
+		}
+		return nil
+	})
+
+	if err != nil || projectFile == "" {
+		return nil, fmt.Errorf("find project file: %w", err)
+	}
+
+	build := func() error {
+		err := os.RemoveAll(filepath.Join(req.PackageDirectory, "bin"))
+		if err != nil {
+			return err
+		}
+		err = os.RemoveAll(filepath.Join(req.PackageDirectory, "obj"))
+		if err != nil {
+			return err
+		}
+
+		cmd := exec.Command(host.exec, "build", "-c", "Release")
+		cmd.Dir = req.PackageDirectory
+		return cmd.Run()
+	}
+
+	if err := build(); err != nil {
+		return nil, fmt.Errorf("build error before pack: %w", err)
+	}
+
+	destination := filepath.Join(req.DestinationDirectory, filepath.Base(projectFile))
+
+	cmd := exec.Command(host.exec, "pack", "-c", "Release", "-o", destination)
+	cmd.Dir = req.PackageDirectory
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("failed to pack: %w", err)
+	}
+
+	var nugetFilePath string
+	err = filepath.Walk(destination, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Ext(path) == ".nupkg" {
+			nugetFilePath = path
+		}
+		return nil
+	})
+
+	if err != nil || nugetFilePath == "" {
+		return nil, fmt.Errorf("couldn't find packed nuget: %w", err)
+	}
+
+	return &pulumirpc.PackResponse{
+		ArtifactPath: nugetFilePath,
+	}, nil
+}
+
+func (host *dotnetLanguageHost) GeneratePackage(
+	ctx context.Context, req *pulumirpc.GeneratePackageRequest,
+) (*pulumirpc.GeneratePackageResponse, error) {
+
+	loader, err := schema.NewLoaderClient(req.LoaderTarget)
+	if err != nil {
+		return nil, err
+	}
+
+	var spec schema.PackageSpec
+	err = json.Unmarshal([]byte(req.Schema), &spec)
+	if err != nil {
+		return nil, err
+	}
+
+	pkg, diags, err := schema.BindSpec(spec, loader)
+	if err != nil {
+		return nil, err
+	}
+	rpcDiagnostics := plugin.HclDiagnosticsToRPCDiagnostics(diags)
+	if diags.HasErrors() {
+		return &pulumirpc.GeneratePackageResponse{
+			Diagnostics: rpcDiagnostics,
+		}, nil
+	}
+	files, err := dotnetcodegen.GeneratePackage("pulumi-language-dotnet", pkg, req.ExtraFiles, req.LocalDependencies)
+	if err != nil {
+		return nil, err
+	}
+
+	for filename, data := range files {
+		outPath := filepath.Join(req.Directory, filename)
+		err := os.MkdirAll(filepath.Dir(outPath), 0o700)
+		if err != nil {
+			return nil, fmt.Errorf("could not create output directory %s: %w", filepath.Dir(filename), err)
+		}
+
+		err = os.WriteFile(outPath, data, 0o600)
+		if err != nil {
+			return nil, fmt.Errorf("could not write output file %s: %w", filename, err)
+		}
+	}
+
+	return &pulumirpc.GeneratePackageResponse{
+		Diagnostics: rpcDiagnostics,
+	}, nil
+}
+
+func (host *dotnetLanguageHost) GenerateProject(
+	ctx context.Context, req *pulumirpc.GenerateProjectRequest,
+) (*pulumirpc.GenerateProjectResponse, error) {
+	loader, err := schema.NewLoaderClient(req.LoaderTarget)
+	if err != nil {
+		return nil, err
+	}
+
+	var extraOptions []pcl.BindOption
+	if !req.Strict {
+		extraOptions = append(extraOptions, pcl.NonStrictBindOptions()...)
+	}
+
+	program, diags, err := pcl.BindDirectory(req.SourceDirectory, loader, extraOptions...)
+	if err != nil {
+		return nil, err
+	}
+
+	rpcDiagnostics := plugin.HclDiagnosticsToRPCDiagnostics(diags)
+	if diags.HasErrors() {
+		return &pulumirpc.GenerateProjectResponse{
+			Diagnostics: rpcDiagnostics,
+		}, nil
+	}
+	if program == nil {
+		return nil, errors.New("internal error: program was nil")
+	}
+
+	var project workspace.Project
+	if err := json.Unmarshal([]byte(req.Project), &project); err != nil {
+		return nil, err
+	}
+
+	err = dotnetcodegen.GenerateProject(req.TargetDirectory, project, program, req.LocalDependencies)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pulumirpc.GenerateProjectResponse{
+		Diagnostics: rpcDiagnostics,
+	}, nil
 }

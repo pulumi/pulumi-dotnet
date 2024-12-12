@@ -16,6 +16,9 @@ namespace Pulumi.SimpleInvoke
 
         public static Output<MyInvokeResult> Invoke(MyInvokeInvokeArgs args, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.Invoke<MyInvokeResult>("simple-invoke:index:myInvoke", args ?? new MyInvokeInvokeArgs(), options.WithDefaults());
+
+        public static Output<MyInvokeResult> Invoke(MyInvokeInvokeArgs args, InvokeOutputOptions options)
+            => global::Pulumi.Deployment.Instance.Invoke<MyInvokeResult>("simple-invoke:index:myInvoke", args ?? new MyInvokeInvokeArgs(), options.WithDefaults());
     }
 
 

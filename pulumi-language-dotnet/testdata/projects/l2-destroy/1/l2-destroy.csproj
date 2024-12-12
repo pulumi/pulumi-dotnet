@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<PropertyGroup>
-		<RestoreSources>ROOT/artifacts/Pulumi.Simple;ROOT/artifacts/Pulumi;$(RestoreSources)</RestoreSources>
+		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Simple;$(RestoreSources)</RestoreSources>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Pulumi" Version="1.0.0" />

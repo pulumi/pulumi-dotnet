@@ -12,8 +12,8 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/golang/protobuf v1.5.4
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.143.1-0.20241212123316-9fd37d48612b
-	github.com/pulumi/pulumi/sdk/v3 v3.143.1-0.20241212123316-9fd37d48612b
+	github.com/pulumi/pulumi/pkg/v3 v3.143.1-0.20241213151151-109d75b57c54
+	github.com/pulumi/pulumi/sdk/v3 v3.143.1-0.20241213151151-109d75b57c54
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1

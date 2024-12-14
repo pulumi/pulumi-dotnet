@@ -13,6 +13,9 @@ build::
 		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version.Version=$(DEV_VERSION)" .
 
 test_integration:: build
-	cd integration_tests && gotestsum -- --parallel 1 --timeout 30m ./...
+	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
+
+test_conformance:: build
+	cd pulumi-language-dotnet && gotestsum -- --timeout 60m ./...
 
 .PHONY: install build

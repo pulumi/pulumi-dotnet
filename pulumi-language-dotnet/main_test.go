@@ -194,7 +194,7 @@ func TestBuildDll(t *testing.T) {
 	}{
 		{
 			Name:               "regular case works",
-			EntryPoint:         "",
+			EntryPoint:         ".",
 			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
 		},
 		{
@@ -209,7 +209,7 @@ func TestBuildDll(t *testing.T) {
 		},
 		{
 			Name:       "fsproj works",
-			EntryPoint: "",
+			EntryPoint: ".",
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
 				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.fsproj"))
 			},
@@ -217,7 +217,7 @@ func TestBuildDll(t *testing.T) {
 		},
 		{
 			Name:       "vbproj works",
-			EntryPoint: "",
+			EntryPoint: ".",
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
 				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.vbproj"))
 			},
@@ -236,7 +236,7 @@ func TestBuildDll(t *testing.T) {
 		},
 		{
 			Name:                  "incorrect entry point name",
-			EntryPoint:            "Another",
+			EntryPoint:            "Another.csproj",
 			ExpectedErrorContains: "Project file does not exist",
 		},
 	}
@@ -260,7 +260,7 @@ func TestBuildDll(t *testing.T) {
 				exec: "dotnet",
 			}
 
-			binaryPath, err := host.buildDebuggingDLL(c.EntryPoint)
+			binaryPath, err := host.buildDebuggingDLL(e.RootPath, c.EntryPoint)
 
 			if c.ExpectedErrorContains != "" {
 				assert.ErrorContains(t, err, c.ExpectedErrorContains)

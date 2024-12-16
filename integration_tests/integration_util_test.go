@@ -143,6 +143,9 @@ func testDotnetProgram(t *testing.T, options *integration.ProgramTestOptions) {
 	assert.NoError(t, err)
 	options.PrepareProject = prepareDotnetProject
 	options.Env = append(options.Env, getProviderPath(languagePluginPath))
+	options.Verbose = true
+	options.Stdout = os.Stdout
+	options.Stderr = os.Stderr
 	integration.ProgramTest(t, options)
 }
 

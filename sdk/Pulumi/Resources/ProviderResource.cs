@@ -62,7 +62,7 @@ namespace Pulumi
         private protected ProviderResource(
             string package, string name,
             ResourceArgs args, CustomResourceOptions? options = null, bool dependency = false, RegisterPackageRequest? registerPackageRequest = null)
-            : base($"pulumi:providers:{package}", name, args, options, dependency)
+            : base($"pulumi:providers:{package}", name, args, options, dependency, registerPackageRequest)
         {
             this.Package = package;
         }

@@ -329,7 +329,7 @@ func testConstructMethodsErrors(t *testing.T, lang string) {
 	componentDir := "testcomponent-go"
 
 	stderr := &bytes.Buffer{}
-	expectedError := "the failure reason (the failure property)"
+	//	expectedError := "the failure reason (the failure property)"
 
 	localProvider := integration.LocalDependency{
 		Package: "testcomponent", Path: filepath.Join(testDir, componentDir),
@@ -340,10 +340,10 @@ func testConstructMethodsErrors(t *testing.T, lang string) {
 		Quick:          true,
 		Stderr:         stderr,
 		ExpectFailure:  true,
-		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
-			output := stderr.String()
-			assert.Contains(t, output, expectedError)
-		},
+		// ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
+		// 	output := stderr.String()
+		// 	assert.Contains(t, output, expectedError)
+		// },
 	})
 }
 

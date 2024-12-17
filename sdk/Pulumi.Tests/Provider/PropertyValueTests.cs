@@ -736,4 +736,96 @@ public class PropertyValueTests
         Assert.Equal(5, typeWithOptionalParameterCtor.First);
         Assert.Equal(1, typeWithOptionalParameterCtor.Second);
     }
+
+    class UnionArgs : ResourceArgs
+    {
+        [Input("union")]
+        public Union<string, int> Union { get; set; }
+
+        [Input("inputUnion")]
+        public InputUnion<string, int> InputUnion { get; set; } = null!;
+    }
+
+    [Fact]
+    public async Task SerializingUnionTypesWorksForT0()
+    {
+        using var inputTask = Task.Delay(1000).ContinueWith(r => "InputValue");
+
+        var serializer = CreateSerializer();
+        var args = new UnionArgs
+        {
+            Union = Union<string, int>.FromT0("value"),
+            InputUnion = Output.Create(inputTask)
+        };
+
+        var expected = Object(Pair("union", new PropertyValue("value")),
+            Pair("inputUnion", new PropertyValue("InputValue")));
+
+        Assert.Equal(expected, await serializer.Serialize(args));
+    }
+
+    [Fact]
+    public async Task SerializingUnionTypesWorksForT1()
+    {
+        using var inputTask = Task.Delay(1000).ContinueWith(r => 2);
+        var serializer = CreateSerializer();
+        var args = new UnionArgs
+        {
+            Union = Union<string, int>.FromT1(1),
+            InputUnion = Output.Create(inputTask)
+        };
+
+        var expected = Object(Pair("union", new PropertyValue(1)), Pair("inputUnion", new PropertyValue(2)));
+
+        Assert.Equal(expected, await serializer.Serialize(args));
+    }
+
+    [Fact]
+    public async Task DeserializingUnionTypesWorksForT0()
+    {
+        var input = Object(Pair("union", new PropertyValue("value")), Pair("inputUnion", new PropertyValue("inputValue")));
+        var serializer = CreateSerializer();
+        var expected = new UnionArgs
+        {
+            Union = Union<string, int>.FromT0("value"),
+            InputUnion = Output.Create(Union<string, int>.FromT0("inputValue"))
+        };
+
+        var result = await serializer.Deserialize<UnionArgs>(input);
+        Assert.Equal(expected.Union, result.Union);
+        var inputResult = await result.InputUnion.ToOutput().GetValueAsync(default);
+        Assert.Equal("inputValue", inputResult);
+    }
+
+    [Fact]
+    public async Task DeserializingUnionTypesWorksForT1()
+    {
+        var input = Object(Pair("union", new PropertyValue(1)), Pair("inputUnion", new PropertyValue(2)));
+        var serializer = CreateSerializer();
+        var expected = new UnionArgs
+        {
+            Union = Union<string, int>.FromT1(1),
+            InputUnion = Output.Create(Union<string, int>.FromT1(2))
+        };
+
+        var result = await serializer.Deserialize<UnionArgs>(input);
+        Assert.Equal(expected.Union, result.Union);
+        var inputResult = await result.InputUnion.ToOutput().GetValueAsync(default);
+        Assert.Equal(2, inputResult);
+    }
+
+    [Fact]
+    public async Task DeserializingUnionTypesWorksForUnknown()
+    {
+        var input = Object(Pair("union", new PropertyValue(1)), Pair("inputUnion", PropertyValue.Computed));
+        var serializer = CreateSerializer();
+
+        var deserialized = await serializer.Deserialize<UnionArgs>(input);
+
+        var output = deserialized.InputUnion.ToOutput();
+        var data = await output.DataTask;
+        Assert.False(data.IsSecret);
+        Assert.False(data.IsKnown);
+
+    }
 }

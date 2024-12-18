@@ -174,7 +174,7 @@ namespace Pulumi
         /// it to <see cref="JsonSerializer.Deserialize{TValue}(string, JsonSerializerOptions)"/>.
         /// </summary>
         [return: MaybeNull]
-        public T GetObject<T>(string key, JsonSerializerOptions? options)
+        public T GetObject<T>(string key, JsonSerializerOptions options)
             => GetObjectImpl<T>(key, nameof(GetSecretObject), options: options);
 
         /// <summary>
@@ -193,11 +193,11 @@ namespace Pulumi
         /// </summary>
         public Output<T>? GetSecretObject<T>(string key, JsonSerializerOptions options)
         {
-            var v = GetImpl(key);
+            var v = GetObjectImpl<T>(key, options: options);
             if (v == null)
                 return null;
 
-            return Output.CreateSecret(GetObjectImpl<T>(key, options: options)!);
+            return Output.CreateSecret(v);
         }
 
         /// <summary>

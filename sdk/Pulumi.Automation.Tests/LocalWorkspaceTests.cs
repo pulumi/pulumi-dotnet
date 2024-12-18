@@ -2402,5 +2402,43 @@ namespace Pulumi.Automation.Tests
                 await workspace.RemoveStackAsync(stackName);
             }
         }
+
+        [Fact]
+        public async Task TestLifecycleRefresh()
+        {
+            var program = PulumiFn.Create(() => new Dictionary<string, object?>());
+            var stackName = RandomStackName();
+            var projectName = "inline_stack";
+
+            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program)
+            {
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+
+            try
+            {
+                var upResultNoRefresh = await stack.UpAsync();
+                Assert.DoesNotContain("refreshing", upResultNoRefresh.StandardOutput);
+
+                // pulumi preview
+                var previewResult = await stack.PreviewAsync(new PreviewOptions { Refresh = true });
+                Assert.Contains("refreshing", previewResult.StandardOutput);
+
+                // pulumi up
+                var upResult = await stack.UpAsync(new UpOptions { Refresh = true });
+                Assert.Contains("refreshing", upResult.StandardOutput);
+
+                // pulumi destroy
+                var destroyResult = await stack.DestroyAsync(new DestroyOptions { Refresh = true });
+                Assert.Contains("refreshing", destroyResult.StandardOutput);
+            }
+            finally
+            {
+                await stack.Workspace.RemoveStackAsync(stackName);
+            }
+        }
     }
 }

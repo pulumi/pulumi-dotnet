@@ -30,5 +30,10 @@ namespace Pulumi.Automation
         /// if <see cref="Program"/> is also provided.
         /// </summary>
         public ILogger? Logger { get; set; }
+
+        /// <summary>
+        /// Refresh the state of the stack's resources before this preview.
+        /// </summary>
+        public bool? Refresh { get; set; }
     }
 }

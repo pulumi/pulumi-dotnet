@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Await background tasks during inline deployment
-time: 2024-12-04T15:32:00.3901679+01:00
-custom:
-    PR: "420"

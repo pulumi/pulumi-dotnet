@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Fix the language plugin to return a version
-time: 2024-11-15T00:09:55.349041-08:00
-custom:
-    PR: "390"

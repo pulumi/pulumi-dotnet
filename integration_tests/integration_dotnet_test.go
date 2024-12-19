@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -27,6 +28,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mitchellh/go-ps"
 	"github.com/pulumi/pulumi/pkg/v3/engine"
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
@@ -678,7 +680,30 @@ outer:
 	// Check that we get valid output from netcoredbg, so we know it was actually attached.
 	require.Contains(t, string(out), "1^done")
 
-	wg.Wait()
+	c := make(chan struct{})
+	go func() {
+		defer close(c)
+		wg.Wait()
+	}()
+	select {
+	case <-c:
+	case <-time.After(10 * time.Minute):
+		processList, err := ps.Processes()
+		if err != nil {
+			log.Println("ps.Processes() Failed, are you using windows?")
+			return
+		}
+
+		// map ages
+		for x := range processList {
+			var process ps.Process
+			process = processList[x]
+			fmt.Printf("%d\t%s\n", process.Pid(), process.Executable())
+
+			// do os.* stuff on the pid
+		}
+		t.Fatal("timed out waiting for debugger to attach")
+	}
 }
 
 // Test a parameterized provider with dotnet.

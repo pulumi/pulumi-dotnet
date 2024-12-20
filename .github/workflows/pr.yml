@@ -100,6 +100,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Setup dotnet-dump
+        run: |
+          dotnet tool install --global dotnet-dump
       - name: Set up Go 1.22.x
         uses: actions/setup-go@v5
         with:
@@ -144,6 +147,12 @@ jobs:
       - name: Integration tests
         if: startsWith(matrix.os, 'macos') != true
         run: make test_integration
+      - name: Output
+        if: always()
+        run: |
+          if [ -e /tmp/process-dump ]; then
+            cat /tmp/process-dump
+          fi
   conformance-tests:
     strategy:
       fail-fast: false

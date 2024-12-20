@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Add support for unions to PropertyValueSerializer
+time: 2024-12-17T15:38:18.5114634+01:00
+custom:
+    PR: "434"

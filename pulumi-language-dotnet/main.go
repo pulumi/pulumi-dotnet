@@ -977,14 +977,46 @@ func (host *dotnetLanguageHost) RunPlugin(
 		// Self-contained executable: run it directly.
 		executable = host.binary
 	default:
-		// Run from source.
-		args = append(args, "run")
-
+		// Build from source and then run. We build separately so that we can elide the build output from the
+		// user unless there's an error. You would think you could pass something like `-v=q` to `dotnet run`
+		// to get the same effect, but it doesn't work.
 		project := req.Info.ProgramDirectory
 		if req.Info.EntryPoint != "" {
 			project = filepath.Join(project, req.Info.EntryPoint)
 		}
-		args = append(args, "--project", project, "--")
+
+		buildArgs := []string{"build", project}
+
+		if logging.V(5) {
+			commandStr := strings.Join(buildArgs, " ")
+			logging.V(5).Infoln("Language host launching process: ", executable, " ", commandStr)
+		}
+
+		cmd := exec.Command(executable, buildArgs...) // nolint: gas // intentionally running dynamic program name.
+		cmd.Dir = req.Pwd
+		cmd.Env = req.Env
+		var buildOutput bytes.Buffer
+		cmd.Stdout, cmd.Stderr = &buildOutput, &buildOutput
+		if err = cmd.Run(); err != nil {
+			// Build failed for some reason.  Dump the output to the user so they can see what went wrong.
+			stderr.Write(buildOutput.Bytes())
+
+			if exiterr, ok := err.(*exec.ExitError); ok {
+				if status, stok := exiterr.Sys().(syscall.WaitStatus); stok {
+					err = errors.Errorf("Build exited with non-zero exit code: %d", status.ExitStatus())
+				} else {
+					err = errors.Wrapf(exiterr, "Build exited unexpectedly")
+				}
+			} else {
+				// Otherwise, we didn't even get to run the build. This ought to never happen unless there's
+				// a bug or system condition that prevented us from running the language exec. Issue a scarier error.
+				err = errors.Wrapf(err, "Problem building plugin program (could not run language executor)")
+			}
+			return err
+		}
+
+		// Now run from source without re-building.
+		args = append(args, "run", "--no-build", "--project", project, "--")
 	}
 
 	// Add on all the request args to start this plugin

@@ -504,26 +504,42 @@ func (host *dotnetLanguageHost) RunDotnetCommand(
 		return "", err
 	}
 
-	if err := cmd.Run(); err != nil {
-		// The command failed.  Dump any data we collected to the actual stdout/stderr streams so
-		// they get displayed to the user.
-		os.Stdout.Write(infoBuffer.Bytes())
-		os.Stderr.Write(errorBuffer.Bytes())
+	c := make(chan struct{})
+	go func() {
+		defer close(c)
+		if err := cmd.Run(); err != nil {
+			// The command failed.  Dump any data we collected to the actual stdout/stderr streams so
+			// they get displayed to the user.
+			os.Stdout.Write(infoBuffer.Bytes())
+			os.Stderr.Write(errorBuffer.Bytes())
 
-		if exiterr, ok := err.(*exec.ExitError); ok {
-			// If the program ran, but exited with a non-zero error code.  This will happen often, since user
-			// errors will trigger this.  So, the error message should look as nice as possible.
-			if status, stok := exiterr.Sys().(syscall.WaitStatus); stok {
-				return "", errors.Errorf(
-					"'dotnet %v' exited with non-zero exit code: %d", commandStr, status.ExitStatus())
+			if exiterr, ok := err.(*exec.ExitError); ok {
+				// If the program ran, but exited with a non-zero error code.  This will happen often, since user
+				// errors will trigger this.  So, the error message should look as nice as possible.
+				if status, stok := exiterr.Sys().(syscall.WaitStatus); stok {
+					panic(errors.Errorf(
+						"'dotnet %v' exited with non-zero exit code: %d", commandStr, status.ExitStatus()))
+				}
+
+				panic(errors.Wrapf(exiterr, "'dotnet %v' exited unexpectedly", commandStr))
 			}
 
-			return "", errors.Wrapf(exiterr, "'dotnet %v' exited unexpectedly", commandStr)
+			// Otherwise, we didn't even get to run the program.  This ought to never happen unless there's
+			// a bug or system condition that prevented us from running the language exec.  Issue a scarier error.
+			panic(errors.Wrapf(err, "Problem executing 'dotnet %v'", commandStr))
 		}
-
-		// Otherwise, we didn't even get to run the program.  This ought to never happen unless there's
-		// a bug or system condition that prevented us from running the language exec.  Issue a scarier error.
-		return "", errors.Wrapf(err, "Problem executing 'dotnet %v'", commandStr)
+	}()
+	select {
+	case <-c:
+	case <-time.After(9 * time.Minute):
+		// If the process takes too long, kill it and return an error.
+		otherCmd := exec.Command("dotnet-dump", "collect", "--process-id", fmt.Sprintf("%d", cmd.Process.Pid), "-o", "/tmp/process-dump")
+		out, err := otherCmd.CombinedOutput()
+		if err != nil {
+			return "", errors.Wrapf(err, "timed out running 'dotnet %v'. Failed to collect dump: %v", commandStr,
+				string(out))
+		}
+		return "", errors.Errorf("timed out running 'dotnet %v', output: %v", commandStr, out)
 	}
 
 	_, err = infoWriter.LogToUser(fmt.Sprintf("'dotnet %v' completed successfully", commandStr))
@@ -1080,7 +1096,6 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 func (host *dotnetLanguageHost) GeneratePackage(
 	ctx context.Context, req *pulumirpc.GeneratePackageRequest,
 ) (*pulumirpc.GeneratePackageResponse, error) {
-
 	loader, err := schema.NewLoaderClient(req.LoaderTarget)
 	if err != nil {
 		return nil, err

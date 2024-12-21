@@ -70,6 +70,11 @@
             Continue to perform the destroy operation despite the occurrence of errors.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.DestroyOptions.Refresh">
+            <summary>
+            Refresh the state of the stack's resources before this destroy.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Events.CancelEvent">
             <summary>
             <see cref="T:Pulumi.Automation.Events.CancelEvent"/> is emitted when the user initiates a cancellation of the update in progress, or
@@ -909,6 +914,11 @@
             if <see cref="P:Pulumi.Automation.PreviewOptions.Program"/> is also provided.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.PreviewOptions.Refresh">
+            <summary>
+            Refresh the state of the stack's resources before this preview.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.ProjectBackend">
             <summary>
             Configuration for the project's Pulumi state storage backend.
@@ -1481,6 +1491,11 @@
         <member name="P:Pulumi.Automation.UpOptions.ContinueOnError">
             <summary>
             Continue to perform the update operation despite the occurrence of errors.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.UpOptions.Refresh">
+            <summary>
+            Refresh the state of the stack's resources before this update.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.Workspace">

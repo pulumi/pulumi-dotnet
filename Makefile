@@ -6,11 +6,11 @@ DEV_VERSION := $(shell if command -v changie > /dev/null; then changie next patc
 
 install::
 	cd pulumi-language-dotnet && ${GO} install \
-		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version.Version=$(DEV_VERSION)" ./...
+		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" ./...
 
 build::
 	cd pulumi-language-dotnet && ${GO} build \
-		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version.Version=$(DEV_VERSION)" .
+		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" .
 
 changelog::
 	changie new

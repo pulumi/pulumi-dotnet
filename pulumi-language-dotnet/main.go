@@ -34,7 +34,7 @@ import (
 	"github.com/blang/semver"
 	pbempty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
-	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version"
+	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version"
 	dotnetcodegen "github.com/pulumi/pulumi/pkg/v3/codegen/dotnet"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/pcl"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"

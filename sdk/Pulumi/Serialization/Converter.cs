@@ -511,7 +511,7 @@ $@"{targetType.FullName} had [{nameof(OutputTypeAttribute)}], but did not contai
                 }
             }
 
-            return null;
+            return outputConstructor;
         }
     }
 }

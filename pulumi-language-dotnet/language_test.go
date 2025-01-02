@@ -225,8 +225,6 @@ func TestLanguage(t *testing.T) {
 		"l2-provider-grpc-config-schema-secret": "dotnet build failed",
 		"l2-invoke-options-depends-on":          "dotnet build failed",
 		"l2-invoke-secrets":                     "Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-		"l2-parameterized-resource":             "missing expected package parameterized-1.2.3",
-		"l2-explicit-parameterized-provider":    "missing expected package parameterized-1.2.3",
 		"l2-map-keys":                           "dotnet build failed",
 		"l2-resource-secret":                    "test hanging",
 	}

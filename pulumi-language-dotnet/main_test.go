@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDeterminePluginDependency(t *testing.T) {
+func TestDeterminePackageDependency(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
@@ -43,7 +43,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 
 		// Expected outputs
 		ExpectError bool
-		Expected    *pulumirpc.PluginDependency
+		Expected    *pulumirpc.PackageDependency
 	}{
 		{
 			Name:           "non-package",
@@ -58,7 +58,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 			PulumiPlugin: &plugin.PulumiPluginJSON{
 				Resource: true,
 			},
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "helloworld",
 				Version: "v1.2.3",
 			},
@@ -68,7 +68,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 			PackageName:    "Pulumi.AzureNative",
 			PackageVersion: "v1.2.3",
 			VersionTxt:     "v2.3.4",
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "azurenative",
 				Version: "v2.3.4",
 			},
@@ -78,7 +78,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 			PackageName:    "NotImportant",
 			PackageVersion: "0.0.0",
 			VersionTxt:     "AzureNative\nv2.3.4\n",
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "AzureNative",
 				Version: "v2.3.4",
 			},
@@ -100,7 +100,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 				Version:  "v3.2.1",
 				Server:   "website.com/page",
 			},
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "corporate-native",
 				Version: "v3.2.1",
 				Server:  "website.com/page",
@@ -128,7 +128,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 				Server:   "a.org/server",
 				Resource: true,
 			},
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "name2",
 				Version: "v2.2.2",
 				Server:  "a.org/server",
@@ -167,7 +167,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 				c.Expected.Kind = "resource"
 			}
 
-			actual, err := DeterminePluginDependency(cwd, c.PackageName, c.PackageVersion)
+			actual, err := DeterminePackageDependency(cwd, c.PackageName, c.PackageVersion)
 
 			if c.ExpectError {
 				t.Logf("Error expected")

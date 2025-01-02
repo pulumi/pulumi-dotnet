@@ -47,7 +47,9 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/workspace"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -179,11 +181,17 @@ func (host *dotnetLanguageHost) GetRequiredPlugins(
 	ctx context.Context,
 	req *pulumirpc.GetRequiredPluginsRequest,
 ) (*pulumirpc.GetRequiredPluginsResponse, error) {
-	logging.V(5).Infof("GetRequiredPlugins: %v", req.GetProgram())
+	return nil, status.Errorf(codes.Unimplemented, "method GetRequiredPlugins not implemented")
+}
+
+func (host *dotnetLanguageHost) GetRequiredPackages(ctx context.Context,
+	req *pulumirpc.GetRequiredPackagesRequest,
+) (*pulumirpc.GetRequiredPackagesResponse, error) {
+	logging.V(5).Infof("GetRequiredPackages: %v", req.Info.GetProgramDirectory())
 
 	if host.binary != "" {
-		logging.V(5).Infof("GetRequiredPlugins: no plugins can be listed when a binary is specified")
-		return &pulumirpc.GetRequiredPluginsResponse{}, nil
+		logging.V(5).Infof("GetRequiredPackages: no packages can be listed when a binary is specified")
+		return &pulumirpc.GetRequiredPackagesResponse{}, nil
 	}
 
 	engineClient, closer, err := host.connectToEngine()
@@ -214,7 +222,7 @@ func (host *dotnetLanguageHost) GetRequiredPlugins(
 	// Now that we know the set of pulumi packages referenced and we know where packages have been restored to,
 	// we can examine each package to determine the corresponding resource-plugin for it.
 
-	plugins := []*pulumirpc.PluginDependency{}
+	packages := []*pulumirpc.PackageDependency{}
 	packageToVersion := make(map[string]string)
 	for _, parts := range possiblePulumiPackages {
 		packageName := parts[0]
@@ -227,17 +235,17 @@ func (host *dotnetLanguageHost) GetRequiredPlugins(
 
 		packageToVersion[packageName] = packageVersion
 
-		plugin, err := DeterminePluginDependency(packageDir, packageName, packageVersion)
+		plugin, err := DeterminePackageDependency(packageDir, packageName, packageVersion)
 		if err != nil {
 			return nil, err
 		}
 
 		if plugin != nil {
-			plugins = append(plugins, plugin)
+			packages = append(packages, plugin)
 		}
 	}
 
-	return &pulumirpc.GetRequiredPluginsResponse{Plugins: plugins}, nil
+	return &pulumirpc.GetRequiredPackagesResponse{Packages: packages}, nil
 }
 
 func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
@@ -312,7 +320,7 @@ func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
 	engineClient pulumirpc.EngineClient,
 	programDirectory string,
 ) (string, error) {
-	logging.V(5).Infof("GetRequiredPlugins: Determining package directory")
+	logging.V(5).Infof("GetRequiredPackages: Determining package directory")
 
 	// Run the `dotnet nuget locals global-packages --list` command.  Importantly, do not clutter
 	// the stream with the extra steps we're performing. This is just so we can determine the
@@ -364,7 +372,7 @@ func newVersionFile(b []byte, packageName string) *versionFile {
 	}
 }
 
-func DeterminePluginDependency(packageDir, packageName, packageVersion string) (*pulumirpc.PluginDependency, error) {
+func DeterminePackageDependency(packageDir, packageName, packageVersion string) (*pulumirpc.PackageDependency, error) {
 	logging.V(5).Infof("GetRequiredPlugins: Determining plugin dependency: %v, %v, %v",
 		packageDir, packageName, packageVersion)
 
@@ -423,25 +431,32 @@ func DeterminePluginDependency(packageDir, packageName, packageVersion string) (
 
 	name := or(pulumiPlugin.Name, vf.name, defaultName)
 	version := or(pulumiPlugin.Version, vf.version, packageVersion)
-
 	_, err = semver.ParseTolerant(version)
 	if err != nil {
 		return nil, fmt.Errorf("invalid package version: %w", err)
 	}
 
-	result := &pulumirpc.PluginDependency{
+	result := &pulumirpc.PackageDependency{
 		Name:    name,
 		Version: version,
 		Server:  pulumiPlugin.Server,
 		Kind:    "resource",
 	}
 
-	logging.V(5).Infof("GetRequiredPlugins: Determining plugin dependency: %#v", result)
+	if pulumiPlugin.Parameterization != nil {
+		result.Parameterization = &pulumirpc.PackageParameterization{
+			Name:    pulumiPlugin.Parameterization.Name,
+			Version: pulumiPlugin.Parameterization.Version,
+			Value:   pulumiPlugin.Parameterization.Value,
+		}
+	}
+
+	logging.V(5).Infof("GetRequiredPackages: Determining plugin dependency: %#v", result)
 	return result, nil
 }
 
 func (host *dotnetLanguageHost) DotnetBuild(
-	ctx context.Context, req *pulumirpc.GetRequiredPluginsRequest, engineClient pulumirpc.EngineClient,
+	ctx context.Context, req *pulumirpc.GetRequiredPackagesRequest, engineClient pulumirpc.EngineClient,
 ) error {
 	args := []string{"build", "-nologo"}
 

@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Implement GetRequiredPackages to replace GetRequiredPlugins
+time: 2025-01-02T14:18:09.08473+01:00
+custom:
+    PR: "440"

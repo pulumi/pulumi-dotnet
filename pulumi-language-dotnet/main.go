@@ -18,14 +18,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
@@ -61,23 +59,29 @@ var dotnetProcessExitedAfterShowingUserActionableMessage = 32
 // Launches the language host RPC endpoint, which in turn fires up an RPC server implementing the
 // LanguageRuntimeServer RPC endpoint.
 func main() {
-	var tracing string
+
+	logging.InitLogging(false, 0, false)
+
+	rc, err := rpcCmd.NewRpcCmd(&rpcCmd.RpcCmdConfig{
+		TracingName:  "pulumi-language-dotnet",
+		RootSpanName: "pulumi-language-dotnet",
+	})
+	if err != nil {
+		cmdutil.Exit(err)
+	}
+
 	var binary string
 	var root string
-	flag.StringVar(&tracing, "tracing", "", "Emit tracing to a Zipkin-compatible tracing endpoint")
-	flag.StringVar(&binary, "binary", "", "A relative or an absolute path to a precompiled .NET assembly to execute")
-	flag.StringVar(&root, "root", "", "Project root path to use")
-
+	rc.Flag.StringVar(&binary, "binary", "", "A relative or an absolute path to a precompiled .NET assembly to execute")
+	rc.Flag.StringVar(&root, "root", "", "Project root path to use")
 	// You can use the below flag to request that the language host load a specific executor instead of probing the
 	// PATH.  This can be used during testing to override the default location.
 	var givenExecutor string
-	flag.StringVar(&givenExecutor, "use-executor", "",
+	rc.Flag.StringVar(&givenExecutor, "use-executor", "",
 		"Use the given program as the executor instead of looking for one on PATH")
 
-	flag.Parse()
-	args := flag.Args()
-	logging.InitLogging(false, 0, false)
-	cmdutil.InitTracing("pulumi-language-dotnet", "pulumi-language-dotnet", tracing)
+	rc.Flag.Parse(os.Args[1:])
+
 	var dotnetExec string
 	switch {
 	case givenExecutor != "":
@@ -96,47 +100,11 @@ func main() {
 		dotnetExec = pathExec
 	}
 
-	// Optionally pluck out the engine so we can do logging, etc.
-	var engineAddress string
-	if len(args) > 0 {
-		engineAddress = args[0]
-	}
-
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	// Map the context Done channel to the rpcutil boolean cancel channel.
-	// The context will close on SIGINT or Healthcheck failure.
-	cancelChannel := make(chan bool)
-	go func() {
-		<-ctx.Done()
-		cancel() // remove the interrupt handler
-		close(cancelChannel)
-	}()
-	err := rpcutil.Healthcheck(ctx, engineAddress, 5*time.Minute, cancel)
-	if err != nil {
-		cmdutil.Exit(errors.Wrapf(err, "could not start health check host RPC server"))
-	}
-
-	// Fire up a gRPC server, letting the kernel choose a free port.
-	handle, err := rpcutil.ServeWithOptions(rpcutil.ServeOptions{
-		Cancel: cancelChannel,
-		Init: func(srv *grpc.Server) error {
-			host := newLanguageHost(dotnetExec, engineAddress, tracing, binary)
-			pulumirpc.RegisterLanguageRuntimeServer(srv, host)
-			return nil
-		},
-		Options: rpcutil.OpenTracingServerInterceptorOptions(nil),
-	})
-	if err != nil {
-		cmdutil.Exit(errors.Wrapf(err, "could not start language host RPC server"))
-	}
-
-	// Otherwise, print out the port so that the spawner knows how to reach us.
-	fmt.Printf("%d\n", handle.Port)
-
-	// And finally wait for the server to stop serving.
-	if err := <-handle.Done; err != nil {
-		cmdutil.Exit(errors.Wrapf(err, "language host RPC stopped serving"))
-	}
+	rc.Run(func(srv *grpc.Server) error {
+		host := newLanguageHost(dotnetExec, rc.EngineAddress, rc.Tracing, binary)
+		pulumirpc.RegisterLanguageRuntimeServer(srv, host)
+		return nil
+	}, func() {})
 }
 
 // dotnetLanguageHost implements the LanguageRuntimeServer interface

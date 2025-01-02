@@ -407,6 +407,14 @@ namespace Pulumi.Automation
         /// <param name="cancellationToken">A cancellation token.</param>
         public abstract Task ChangeSecretsProviderAsync(string stackName, string newSecretsProvider, SecretsProviderOptions? secretsProviderOptions = null, CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Install packages and plugins for the current program or policy pack.
+        /// </summary>
+        /// <param name="options">The options to customize the install.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns></returns>
+        public abstract Task InstallAsync(InstallOptions? options = null, CancellationToken cancellationToken = default);
+
         internal async Task<CommandResult> RunStackCommandAsync(
             string stackName,
             IList<string> args,

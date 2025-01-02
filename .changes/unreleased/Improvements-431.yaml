@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Add `--refresh` to preview, up and destroy commands
+time: 2024-12-12T22:57:21.215812898Z
+custom:
+    PR: "431"

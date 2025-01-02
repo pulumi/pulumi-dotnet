@@ -356,6 +356,9 @@ namespace Pulumi.Automation
                 if (options.ContinueOnError is true)
                     args.Add("--continue-on-error");
 
+                if (options.Refresh is true)
+                    args.Add("--refresh");
+
                 ApplyUpdateOptions(options, args);
             }
 
@@ -465,6 +468,8 @@ namespace Pulumi.Automation
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
 
+                if (options.Refresh is true)
+                    args.Add("--refresh");
 
                 ApplyUpdateOptions(options, args);
             }
@@ -622,6 +627,9 @@ namespace Pulumi.Automation
 
                 if (options.ContinueOnError is true)
                     args.Add("--continue-on-error");
+
+                if (options.Refresh is true)
+                    args.Add("--refresh");
 
                 ApplyUpdateOptions(options, args);
             }

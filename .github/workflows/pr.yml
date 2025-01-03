@@ -153,7 +153,7 @@ jobs:
         with:
           token: ${{ secrets.TMP_GIST_TOKEN }}
           gist_id: e60b913ec9dd1a747f3302c138530a29
-          file_path: /tmp/process-dump
+          file_path: process-dump
           file_type: binary
   conformance-tests:
     strategy:

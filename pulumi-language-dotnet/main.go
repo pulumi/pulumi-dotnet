@@ -533,7 +533,7 @@ func (host *dotnetLanguageHost) RunDotnetCommand(
 	case <-c:
 	case <-time.After(9 * time.Minute):
 		// If the process takes too long, kill it and return an error.
-		otherCmd := exec.Command("dotnet-dump", "collect", "--process-id", fmt.Sprintf("%d", cmd.Process.Pid), "-o", "/tmp/process-dump")
+		otherCmd := exec.Command("dotnet-dump", "collect", "--process-id", fmt.Sprintf("%d", cmd.Process.Pid), "-o", "process-dump")
 		out, err := otherCmd.CombinedOutput()
 		if err != nil {
 			return "", errors.Wrapf(err, "timed out running 'dotnet %v'. Failed to collect dump: %v", commandStr,

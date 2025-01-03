@@ -100,6 +100,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Setup dotnet-dump
+        run: |
+          dotnet tool install --global dotnet-dump
       - name: Set up Go 1.22.x
         uses: actions/setup-go@v5
         with:
@@ -144,6 +147,14 @@ jobs:
       - name: Integration tests
         if: startsWith(matrix.os, 'macos') != true
         run: make test_integration
+
+      - name: Deploy
+        uses: exuanbo/actions-deploy-gist@v1
+        with:
+          token: ${{ secrets.TMP_GIST_TOKEN }}
+          gist_id: e60b913ec9dd1a747f3302c138530a29
+          file_path: process-dump
+          file_type: binary
   conformance-tests:
     strategy:
       fail-fast: false

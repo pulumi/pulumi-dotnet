@@ -149,6 +149,7 @@ jobs:
         run: make test_integration
       - name: Output
         if: always()
+        shell: bash
         run: |
           if [ -e /tmp/process-dump ]; then
             cat /tmp/process-dump

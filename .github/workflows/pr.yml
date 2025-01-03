@@ -147,13 +147,14 @@ jobs:
       - name: Integration tests
         if: startsWith(matrix.os, 'macos') != true
         run: make test_integration
-      - name: Output
-        if: always()
-        shell: bash
-        run: |
-          if [ -e /tmp/process-dump ]; then
-            cat /tmp/process-dump
-          fi
+
+      - name: Deploy
+        uses: exuanbo/actions-deploy-gist@v1
+        with:
+          token: ${{ secrets.TMP_GIST_TOKEN }}
+          gist_id: e60b913ec9dd1a747f3302c138530a29
+          file_path: /tmp/process-dump
+          file_type: binary
   conformance-tests:
     strategy:
       fail-fast: false

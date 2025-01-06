@@ -502,16 +502,18 @@ $@"{targetType.FullName} had [{nameof(OutputTypeAttribute)}], but did not contai
         {
             var constructors = outputTypeArg.GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             var outputConstructor = constructors.FirstOrDefault(c => c.GetCustomAttribute<OutputConstructorAttribute>() != null);
-            if (outputConstructor == null)
+            if (outputConstructor != null)
             {
-                var publicConstructors = constructors.Where(x => x.IsPublic).ToArray();
-                if (publicConstructors.Length == 1)
-                {
-                    return publicConstructors[0];
-                }
+                return outputConstructor;
             }
 
-            return outputConstructor;
+            var publicConstructors = constructors.Where(x => x.IsPublic).ToArray();
+            if (publicConstructors.Length == 1)
+            {
+                return publicConstructors[0];
+            }
+
+            return null;
         }
     }
 }

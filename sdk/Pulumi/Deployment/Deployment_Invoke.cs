@@ -161,9 +161,29 @@ namespace Pulumi
                 var deps = outputOptions.DependsOn;
                 if (deps != null)
                 {
-                    // Wait for all the resource dependencies from dependsOn to be available before we call the invoke
+                    // The direct dependencies of the invoke.
                     var resourceList = await GatherExplicitDependenciesAsync(deps).ConfigureAwait(false);
-                    await GetAllTransitivelyReferencedResourceUrnsAsync(resourceList.ToHashSet()).ConfigureAwait(false);
+                    // The expanded set of dependencies, including children of components.
+                    var expandedResourceList = GetAllTransitivelyReferencedResources(resourceList.ToHashSet());
+                    // If we depend on any CustomResources, we need to ensure that their
+                    // ID is known before proceeding. If it is not known, we will return
+                    // an unknown result.
+                    foreach (var resource in expandedResourceList)
+                    {
+                        // check if it's an instance of CustomResource
+                        if (resource is CustomResource customResource)
+                        {
+                            var idData = await customResource.Id.DataTask.ConfigureAwait(false);
+                            if (!idData.IsKnown)
+                            {
+                                return new OutputData<T>(resources: ImmutableHashSet<Resource>.Empty,
+                                                         value: default!,
+                                                         isKnown: false,
+                                                         isSecret: false);
+                            }
+
+                        }
+                    }
                     resourceDependencies.UnionWith(resourceList);
                 }
             }

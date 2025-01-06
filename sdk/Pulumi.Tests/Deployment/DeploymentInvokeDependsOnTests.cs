@@ -19,7 +19,7 @@ namespace Pulumi.Tests
         public async Task DeploymentInvokeDependsOn()
         {
 
-            var mocks = new InvokeMocks();
+            var mocks = new InvokeMocks(dryRun: false);
             var testOptions = new TestOptions();
             var (resources, outputs) = await Deployment.TestAsync(mocks, testOptions, () =>
             {
@@ -53,6 +53,40 @@ namespace Pulumi.Tests
                 throw new Exception($"Expected result to be of type Output<FunctionResult>");
             }
         }
+
+        [Fact]
+        public async Task DeploymentInvokeDependsOnUnknown()
+        {
+
+            var mocks = new InvokeMocks(dryRun: true);
+            var testOptions = new TestOptions();
+            var (resources, outputs) = await Deployment.TestAsync(mocks, testOptions, () =>
+            {
+                var resource = new MyCustomResource("some-resource", null, new CustomResourceOptions());
+                var deps = new InputList<Resource>();
+                deps.Add(resource);
+
+                var resultOutput = TestFunction.Invoke(new FunctionArgs(), new InvokeOutputOptions { DependsOn = deps });
+
+                return new Dictionary<string, object?>
+                {
+                    ["functionResult"] = resultOutput,
+                };
+            });
+
+
+            if (outputs["functionResult"] is Output<FunctionResult> functionResult)
+            {
+
+                var dataTask = await functionResult.DataTask.ConfigureAwait(false);
+                Assert.False(dataTask.IsKnown);
+            }
+            else
+            {
+                throw new Exception($"Expected result to be of type Output<FunctionResult>");
+            }
+        }
+
 
         public sealed class MyArgs : ResourceArgs { }
 
@@ -89,7 +123,12 @@ namespace Pulumi.Tests
         class InvokeMocks : IMocks
         {
             public bool Resolved = false;
+            public bool DryRun { get; }
 
+            public InvokeMocks(bool dryRun)
+            {
+                DryRun = dryRun;
+            }
 
             public Task<object> CallAsync(MockCallArgs args)
             {
@@ -103,7 +142,15 @@ namespace Pulumi.Tests
             {
                 await Task.Delay(3000);
                 Resolved = true;
-                return ("id", new Dictionary<string, object>());
+                if (DryRun)
+                {
+
+                    return (null, new Dictionary<string, object>());
+                }
+                else
+                {
+                    return ("id", new Dictionary<string, object>());
+                }
             }
         }
     }

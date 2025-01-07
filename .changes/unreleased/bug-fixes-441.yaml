@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Avoid calling invokes with dependencies on unknown resources
+time: 2025-01-06T14:03:11.053995+01:00
+custom:
+    PR: "441"

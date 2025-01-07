@@ -530,7 +530,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
         private static Task<ImmutableArray<Resource>> GatherExplicitDependenciesAsync(InputList<Resource> resources)
             => resources.ToOutput().GetValueAsync(whenUnknown: ImmutableArray<Resource>.Empty);
 
-        internal static async Task<HashSet<string>> GetAllTransitivelyReferencedResourceUrnsAsync(
+        internal static IEnumerable<Resource> GetAllTransitivelyReferencedResources(
             HashSet<Resource> resources)
         {
             // Go through 'resources', but transitively walk through **Component** resources, collecting any
@@ -559,7 +559,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
             // * Comp3 and Cust5 because Comp3 is a child of a remote component resource
             var transitivelyReachableResources = GetTransitivelyReferencedChildResourcesOfComponentResources(resources);
 
-            var transitivelyReachableCustomResources = transitivelyReachableResources.Where(res =>
+            return transitivelyReachableResources.Where(res =>
             {
                 switch (res)
                 {
@@ -568,6 +568,12 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                     default: return false; // Unreachable
                 }
             });
+        }
+
+        internal static async Task<HashSet<string>> GetAllTransitivelyReferencedResourceUrnsAsync(
+            HashSet<Resource> resources)
+        {
+            var transitivelyReachableCustomResources = GetAllTransitivelyReferencedResources(resources);
             var tasks = transitivelyReachableCustomResources.Select(r => r.Urn.GetValueAsync(whenUnknown: ""));
             var urns = await Task.WhenAll(tasks).ConfigureAwait(false);
             return new HashSet<string>(urns.Where(urn => !string.IsNullOrEmpty(urn)));

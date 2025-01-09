@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Wait for resources in the input property dependencies
+time: 2025-01-09T16:16:01.580923+01:00
+custom:
+    PR: "444"

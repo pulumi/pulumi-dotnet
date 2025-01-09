@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -88,6 +89,41 @@ namespace Pulumi.Tests
         }
 
 
+        [Fact]
+        public async Task DeploymentInvokeInputDependencies()
+        {
+            var mocks = new InvokeMocks(dryRun: true);
+            var testOptions = new TestOptions();
+            var (resources, outputs) = await Deployment.TestAsync(mocks, testOptions, () =>
+            {
+                var resource = new MyCustomResource("some-resource", null, new CustomResourceOptions());
+                var deps = new HashSet<Resource> { resource };
+                var value = Output.Create("my value").WithDependencies(deps.ToImmutableHashSet());
+
+                var resultOutput = TestFunction.Invoke(new()
+                {
+                    Value = value
+                });
+                return new Dictionary<string, object?>
+                {
+                    ["functionResult"] = resultOutput,
+                };
+            });
+
+
+            if (outputs["functionResult"] is Output<FunctionResult> functionResult)
+            {
+
+                var dataTask = await functionResult.DataTask.ConfigureAwait(false);
+                Assert.False(dataTask.IsKnown);
+            }
+            else
+            {
+                throw new Exception($"Expected result to be of type Output<FunctionResult>");
+            }
+        }
+
+
         public sealed class MyArgs : ResourceArgs { }
 
         [ResourceType("test:DeploymentInvokeDependsOnTests:resource", null)]
@@ -99,7 +135,16 @@ namespace Pulumi.Tests
             }
         }
 
-        public sealed class FunctionArgs : global::Pulumi.InvokeArgs { }
+        public sealed class FunctionArgs : global::Pulumi.InvokeArgs
+        {
+            [Input("value", required: false)]
+            public Input<string> Value { get; set; } = null!;
+            public FunctionArgs()
+            {
+            }
+            public static new FunctionArgs Empty => new FunctionArgs();
+
+        }
 
         [OutputType]
         public sealed class FunctionResult
@@ -144,7 +189,6 @@ namespace Pulumi.Tests
                 Resolved = true;
                 if (DryRun)
                 {
-
                     return (null, new Dictionary<string, object>());
                 }
                 else

@@ -156,6 +156,11 @@ namespace Pulumi
 
             // Resource dependencies that will be added to the Output
             var resourceDependencies = new HashSet<Resource>();
+            // If we depend on any CustomResources, we need to ensure that their
+            // ID is known before proceeding. If it is not known, we will return
+            // an unknown result.
+            // Add the dependencies from the inputs to the set of resources to wait for.
+            var resourcesToWaitFor = serializedArgs.PropertyToDependentResources.Values.SelectMany(r => r).ToHashSet<Resource>();
             if (options is InvokeOutputOptions outputOptions)
             {
                 var deps = outputOptions.DependsOn;
@@ -163,28 +168,29 @@ namespace Pulumi
                 {
                     // The direct dependencies of the invoke.
                     var resourceList = await GatherExplicitDependenciesAsync(deps).ConfigureAwait(false);
-                    // The expanded set of dependencies, including children of components.
-                    var expandedResourceList = GetAllTransitivelyReferencedResources(resourceList.ToHashSet());
-                    // If we depend on any CustomResources, we need to ensure that their
-                    // ID is known before proceeding. If it is not known, we will return
-                    // an unknown result.
-                    foreach (var resource in expandedResourceList)
-                    {
-                        // check if it's an instance of CustomResource
-                        if (resource is CustomResource customResource)
-                        {
-                            var idData = await customResource.Id.DataTask.ConfigureAwait(false);
-                            if (!idData.IsKnown)
-                            {
-                                return new OutputData<T>(resources: ImmutableHashSet<Resource>.Empty,
-                                                         value: default!,
-                                                         isKnown: false,
-                                                         isSecret: false);
-                            }
-
-                        }
-                    }
+                    resourcesToWaitFor.UnionWith(resourceList);
+                    // Add the resources to the list of dependencies that we'll add to the Output
                     resourceDependencies.UnionWith(resourceList);
+                }
+            }
+            // The expanded set of dependencies, including children of components.
+            var expandedResourceList = GetAllTransitivelyReferencedResources(resourcesToWaitFor.ToHashSet());
+            resourcesToWaitFor.UnionWith(expandedResourceList);
+            // Ensure that all resource IDs are known before proceeding.
+            foreach (var resource in resourcesToWaitFor)
+            {
+                // check if it's an instance of CustomResource
+                if (resource is CustomResource customResource)
+                {
+                    var idData = await customResource.Id.DataTask.ConfigureAwait(false);
+                    if (!idData.IsKnown)
+                    {
+                        return new OutputData<T>(resources: ImmutableHashSet<Resource>.Empty,
+                                                 value: default!,
+                                                 isKnown: false,
+                                                 isSecret: false);
+                    }
+
                 }
             }
 

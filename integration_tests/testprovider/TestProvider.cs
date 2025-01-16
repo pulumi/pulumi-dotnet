@@ -46,40 +46,40 @@ public class TestProvider : Provider
 
     public override Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
     {
-        var schema = """
+        var schema = @"
 {
-    "name": "NAME",
-    "version": "1.0.0",
-    "resources": {
-        "NAME:index:Echo": {
-            "description": "A test resource that echoes its input.",
-            "properties": {
-                "value": {
-                    "$ref": "pulumi.json#/Any",
-                    "description": "Input to echo."
+    ""name"": ""NAME"",
+    ""version"": ""1.0.0"",
+    ""resources"": {
+        ""NAME:index:Echo"": {
+            ""description"": ""A test resource that echoes its input."",
+            ""properties"": {
+                ""value"": {
+                    ""$ref"": ""pulumi.json#/Any"",
+                    ""description"": ""Input to echo.""
                 }
             },
-            "inputProperties": {
-                "value": {
-                    "$ref": "pulumi.json#/Any",
-                    "description": "Input to echo."
+            ""inputProperties"": {
+                ""value"": {
+                    ""$ref"": ""pulumi.json#/Any"",
+                    ""description"": ""Input to echo.""
                 }
             },
-            "type": "object"
+            ""type"": ""object""
         }
     }PARAM
 }
-""";
-        var parameterization = """
+";
+        var parameterization = @"
 ,
-    "parameterization": {
-        "baseProvider": {
-            "name": "testprovider",
-            "version": "0.0.1"
+    ""parameterization"": {
+        ""baseProvider"": {
+            ""name"": ""testprovider"",
+            ""version"": ""0.0.1""
         },
-        "parameter": "UTFBYTES"
+        ""parameter"": ""UTFBYTES""
     }
-""";
+";
 
 
 

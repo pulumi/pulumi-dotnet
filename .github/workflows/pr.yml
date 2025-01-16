@@ -49,8 +49,14 @@ jobs:
           submodules: recursive
       - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
+        id: setup-dotnet
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
         with:

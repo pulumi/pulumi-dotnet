@@ -31,6 +31,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
+      - name: Setup dotnet SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          # Install 6.0 for Build.fsproj
+          dotnet-version: 6.0.x
       - name: Format Pulumi SDK
         run: dotnet run format-sdk verify
 
@@ -48,9 +53,24 @@ jobs:
         with:
           submodules: recursive
       - name: Setup dotnet SDK
+        id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          # Install 6.0 for Build.fsproj and the matrix version.
+          # `outputs.dotnet-version` is the latest version among the installed
+          # versions. Since Build.fsproj targets the lowest version we support,
+          # this works out ok for the matrix.
+          # https://github.com/actions/setup-dotnet?tab=readme-ov-file#dotnet-version
+          dotnet-version: |
+            6.0.x
+            ${{ matrix.dotnet-version }}
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Dotnet version
+        run: dotnet --version
       - name: Install Pulumi CLI
         uses: pulumi/actions@v5
         with:
@@ -59,6 +79,8 @@ jobs:
         run: dotnet run build-sdk
       - name: Workspace clean (are xml doc file updates committed?)
         uses: pulumi/git-status-check-action@v1
+        with:
+          allowed-changes: ./global.json
       - name: Test Pulumi SDK
         run: dotnet run test-sdk coverage
       - name: Test Pulumi Automation SDK
@@ -97,9 +119,17 @@ jobs:
         with:
           submodules: recursive
       - name: Setup dotnet SDK
+        id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Dotnet version
+        run: dotnet --version
       - name: Set up Go 1.22.x
         uses: actions/setup-go@v5
         with:
@@ -170,9 +200,17 @@ jobs:
         with:
           submodules: recursive
       - name: Setup dotnet SDK
+        id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Dotnet version
+        run: dotnet --version
       - name: Set up Go 1.22.x
         uses: actions/setup-go@v5
         with:

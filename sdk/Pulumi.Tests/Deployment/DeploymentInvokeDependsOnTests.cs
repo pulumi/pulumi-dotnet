@@ -63,8 +63,10 @@ namespace Pulumi.Tests
             var testOptions = new TestOptions();
             var (resources, outputs) = await Deployment.TestAsync(mocks, testOptions, () =>
             {
-                var resource = new MyCustomResource("some-resource", null, new CustomResourceOptions());
                 var deps = new InputList<Resource>();
+                var dep_remote = new DependencyResource("some:urn");
+                deps.Add(dep_remote);
+                var resource = new MyCustomResource("some-resource", null, new CustomResourceOptions());
                 deps.Add(resource);
 
                 var resultOutput = TestFunction.Invoke(new FunctionArgs(), new InvokeOutputOptions { DependsOn = deps });

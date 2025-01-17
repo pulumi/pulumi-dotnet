@@ -179,8 +179,10 @@ namespace Pulumi
             // Ensure that all resource IDs are known before proceeding.
             foreach (var resource in resourcesToWaitFor)
             {
-                // check if it's an instance of CustomResource
-                if (resource is CustomResource customResource)
+                // Check if it's an instance of CustomResource.
+                // DependencyResources inherit from CustomResource, but they
+                // don't set the id. Skip them.
+                if (resource is CustomResource customResource && customResource.Id != null)
                 {
                     var idData = await customResource.Id.DataTask.ConfigureAwait(false);
                     if (!idData.IsKnown)

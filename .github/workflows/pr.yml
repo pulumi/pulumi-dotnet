@@ -86,7 +86,7 @@ jobs:
       - name: Test Pulumi Automation SDK
         run: dotnet run test-automation-sdk coverage
       - name: Upload coverage data
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: coverage
           files: "*"

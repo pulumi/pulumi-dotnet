@@ -32,7 +32,6 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
-	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -462,7 +461,7 @@ func TestAboutDotnet(t *testing.T) {
 	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
 	require.NoError(t, err)
 
-	e := ptesting.NewEnvironment(t)
+	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("about")
 
@@ -536,7 +535,7 @@ func TestProvider(t *testing.T) {
 			assert.Equal(t, []interface{}{float64(1), "goodbye", true}, stack.Outputs["echoC"])
 		},
 		PrePrepareProject: func(info *engine.Projinfo) error {
-			e := ptesting.NewEnvironment(t)
+			e := newEnvironmentDotnet(t)
 			e.CWD = info.Root
 			path := info.Proj.Plugins.Providers[0].Path
 			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "--language", "dotnet")
@@ -636,7 +635,7 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
 	require.NoError(t, err)
 
-	e := ptesting.NewEnvironment(t)
+	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("printf")
 
@@ -695,7 +694,7 @@ func TestParameterized(t *testing.T) {
 		Dir:            filepath.Join("parameterized"),
 		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
 		PrePrepareProject: func(info *engine.Projinfo) error {
-			e := ptesting.NewEnvironment(t)
+			e := newEnvironmentDotnet(t)
 			e.CWD = info.Root
 			path := info.Proj.Plugins.Providers[0].Path
 			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "pkg", "--language", "dotnet")

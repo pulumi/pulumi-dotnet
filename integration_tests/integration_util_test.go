@@ -36,6 +36,7 @@ import (
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
+	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
@@ -136,6 +137,14 @@ func getProviderPath(providerDir string) string {
 		}
 	}
 	return fmt.Sprintf("PATH=%s", providerDir)
+}
+
+func newEnvironmentDotnet(t *testing.T) *ptesting.Environment {
+	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
+	assert.NoError(t, err)
+	e := ptesting.NewEnvironment(t)
+	e.Env = append(e.Env, getProviderPath(languagePluginPath))
+	return e
 }
 
 func testDotnetProgram(t *testing.T, options *integration.ProgramTestOptions) {

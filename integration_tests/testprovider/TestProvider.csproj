@@ -11,4 +11,8 @@
   <ItemGroup>
     <ProjectReference Include="../../sdk/Pulumi/Pulumi.csproj" />
   </ItemGroup>
+
+  <Target Name="Warning" AfterTargets="Build">
+      <Warning Text="Warning to test plugin run still reads the port number with warnings." Condition="'true'" />
+  </Target>
 </Project>

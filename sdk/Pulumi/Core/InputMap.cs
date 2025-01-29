@@ -44,9 +44,11 @@ namespace Pulumi
     {
         private static Input<ImmutableDictionary<string, V>> Flatten(Input<ImmutableDictionary<string, Input<V>>> inputs)
         {
-            return inputs.Apply(inputs => {
+            return inputs.Apply(inputs =>
+            {
                 var list = inputs.Select(kv => kv.Value.Apply(value => KeyValuePair.Create(kv.Key, value)));
-                return Output.All(list).Apply(kvs => {
+                return Output.All(list).Apply(kvs =>
+                {
                     var result = ImmutableDictionary.CreateBuilder<string, V>();
                     foreach (var (k, v) in kvs)
                     {
@@ -58,9 +60,11 @@ namespace Pulumi
         }
 
         Input<ImmutableDictionary<string, Input<V>>> _inputValue;
-        Input<ImmutableDictionary<string, Input<V>>> Value {
+        Input<ImmutableDictionary<string, Input<V>>> Value
+        {
             get => _inputValue;
-            set {
+            set
+            {
                 _inputValue = value;
                 _outputValue = Flatten(_inputValue);
             }
@@ -116,13 +120,13 @@ namespace Pulumi
             var output = Output.Tuple(first.Value, second.Value)
                                .Apply(dicts =>
                                {
-                                    var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
-                                    foreach (var (k, v) in dicts.Item1)
-                                        builder[k] = v;
-                                    // Overwrite keys if duplicates are found
-                                    foreach (var (k, v) in dicts.Item2)
-                                        builder[k] = v;
-                                    return builder.ToImmutable();
+                                   var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
+                                   foreach (var (k, v) in dicts.Item1)
+                                       builder[k] = v;
+                                   // Overwrite keys if duplicates are found
+                                   foreach (var (k, v) in dicts.Item2)
+                                       builder[k] = v;
+                                   return builder.ToImmutable();
                                });
             return new InputMap<V>(output);
         }
@@ -142,7 +146,8 @@ namespace Pulumi
             => values.Apply(ImmutableDictionary.CreateRange);
 
         public static implicit operator InputMap<V>(Output<ImmutableDictionary<string, V>> values)
-            => new InputMap<V>(values.Apply(values => {
+            => new InputMap<V>(values.Apply(values =>
+            {
                 var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
                 foreach (var value in values)
                 {

@@ -102,7 +102,7 @@ namespace Pulumi.Tests.Serialization
             new object[]
             {
                 new InputList<string> { Output.CreateSecret("hello") },
-                ImmutableArray<object>.Empty.Add(CreateOutputValue("hello", isSecret: true))
+                ImmutableArray<object>.Empty.Add(CreateSecretValue("hello"))
             },
             new object[]
             {
@@ -169,6 +169,14 @@ namespace Pulumi.Tests.Serialization
             if (isKnown) b.Add(Constants.ValueName, value);
             if (isSecret) b.Add(Constants.SecretName, isSecret);
             if (deps.Length > 0) b.Add(Constants.DependenciesName, deps.ToImmutableArray());
+            return b.ToImmutableDictionary();
+        }
+
+        private static ImmutableDictionary<string, object?> CreateSecretValue(object? value)
+        {
+            var b = ImmutableDictionary.CreateBuilder<string, object?>();
+            b.Add(Constants.SpecialSigKey, Constants.SpecialSecretSig);
+            b.Add(Constants.ValueName, value);
             return b.ToImmutableDictionary();
         }
     }

@@ -46,18 +46,28 @@ namespace Pulumi
     /// </summary>
     public sealed class InputList<T> : Input<ImmutableArray<T>>, IEnumerable, IAsyncEnumerable<Input<T>>
     {
-        public InputList() : this(Output.Create(ImmutableArray<T>.Empty))
+        Input<ImmutableArray<Input<T>>> _inputValue;
+        Input<ImmutableArray<Input<T>>> Value {
+            get => _inputValue;
+            set {
+                _inputValue = value;
+                _outputValue = _inputValue.Apply(inputs => Output.All(inputs));
+            }
+        }
+
+        public InputList() : this(ImmutableArray<Input<T>>.Empty)
         {
         }
 
-        private InputList(Output<ImmutableArray<T>> values)
-            : base(values)
+        private InputList(Input<ImmutableArray<Input<T>>> values)
+            : base(values.Apply(values => Output.All(values)))
         {
+            _inputValue = values;
         }
 
         public void Add(params Input<T>[] inputs)
         {
-            _outputValue = Concat(inputs);
+            Value = Concat(inputs).Value;
         }
 
         /// <summary>
@@ -70,18 +80,24 @@ namespace Pulumi
 
         public void AddRange(InputList<T> inputs)
         {
-            _outputValue = Concat(inputs);
+            Value = Concat(inputs).Value;
         }
 
         /// <summary>
         /// Concatenates the values in this list with the values in <paramref name="other"/>,
         /// returning the concatenated sequence in a new <see cref="InputList{T}"/>.
         /// </summary>
-        public InputList<T> Concat(InputList<T> other)
-            => Output.Concat(_outputValue, other._outputValue);
+        public InputList<T> Concat(InputList<T> other) {
+            var list = new InputList<T>();
+            list.Value = Output.Tuple(Value, other.Value).Apply(t => {
+                var (first, second) = t;
+                return first.AddRange(second);
+            });
+            return list;
+        }
 
         internal InputList<T> Clone()
-            => new InputList<T>(_outputValue);
+            => new InputList<T>(Value);
 
         #region construct from unary
 
@@ -131,7 +147,7 @@ namespace Pulumi
             => values.SelectAsArray(v => (Input<T>)v);
 
         public static implicit operator InputList<T>(ImmutableArray<Input<T>> values)
-            => Output.All(values);
+            => new InputList<T>(values);
 
         #endregion
 
@@ -147,7 +163,14 @@ namespace Pulumi
             => values.Apply(ImmutableArray.CreateRange);
 
         public static implicit operator InputList<T>(Output<ImmutableArray<T>> values)
-            => new InputList<T>(values);
+            => new InputList<T>(values.Apply(values => {
+                var builder = ImmutableArray.CreateBuilder<Input<T>>(values.Length);
+                foreach (var value in values)
+                {
+                    builder.Add(value);
+                }
+                return builder.MoveToImmutable();
+            }));
 
         #endregion
 

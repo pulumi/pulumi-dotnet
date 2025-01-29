@@ -103,6 +103,15 @@ namespace Pulumi.Serialization
 $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:\n\t{ctx}");
             }
 
+            // if prop is an InputList<T>
+            var propType = prop.GetType();
+            if (propType.IsGenericType && propType.GetGenericTypeDefinition() == typeof(InputList<>))
+            {
+                // pull off the Value property from the InputList<T>
+                var inputList = propType.GetProperty("Value", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(prop);
+                return await SerializeAsync(ctx, inputList, keepResources, keepOutputValues).ConfigureAwait(false);
+            }
+
             if (prop is IInput input)
             {
                 if (_excessiveDebugOutput)
@@ -289,7 +298,6 @@ $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:
                 return null;
             }
 
-            var propType = prop.GetType();
             if (propType.IsValueType && propType.GetCustomAttribute<EnumTypeAttribute>() != null)
             {
                 var mi = propType.GetMethod("op_Explicit", BindingFlags.Public | BindingFlags.Static, null, new[] { propType }, null);

@@ -42,20 +42,43 @@ namespace Pulumi
     /// </summary>
     public sealed class InputMap<V> : Input<ImmutableDictionary<string, V>>, IEnumerable, IAsyncEnumerable<Input<KeyValuePair<string, V>>>
     {
-        public InputMap() : this(Output.Create(ImmutableDictionary<string, V>.Empty))
+        private static Input<ImmutableDictionary<string, V>> Flatten(Input<ImmutableDictionary<string, Input<V>>> inputs)
+        {
+            return inputs.Apply(inputs => {
+                var list = inputs.Select(kv => kv.Value.Apply(value => KeyValuePair.Create(kv.Key, value)));
+                return Output.All(list).Apply(kvs => {
+                    var result = ImmutableDictionary.CreateBuilder<string, V>();
+                    foreach (var (k, v) in kvs)
+                    {
+                        result[k] = v;
+                    }
+                    return result.ToImmutable();
+                });
+            });
+        }
+
+        Input<ImmutableDictionary<string, Input<V>>> _inputValue;
+        Input<ImmutableDictionary<string, Input<V>>> Value {
+            get => _inputValue;
+            set {
+                _inputValue = value;
+                _outputValue = Flatten(_inputValue);
+            }
+        }
+
+        public InputMap() : this(ImmutableDictionary<string, Input<V>>.Empty)
         {
         }
 
-        private InputMap(Output<ImmutableDictionary<string, V>> values)
-            : base(values)
+        private InputMap(Input<ImmutableDictionary<string, Input<V>>> values)
+            : base(Flatten(values))
         {
+            _inputValue = values;
         }
 
         public void Add(string key, Input<V> value)
         {
-            var inputDictionary = (Input<ImmutableDictionary<string, V>>)_outputValue;
-            _outputValue = Output.Tuple(inputDictionary, value)
-                .Apply(x => x.Item1.Add(key, x.Item2));
+            Value = Value.Apply(self => self.Add(key, value));
         }
 
         /// <summary>
@@ -68,8 +91,7 @@ namespace Pulumi
 
         public void AddRange(InputMap<V> values)
         {
-            var inputDictionary = (Input<ImmutableDictionary<string, V>>)_outputValue;
-            _outputValue = Output.Tuple(inputDictionary, values)
+            Value = Output.Tuple(Value, values.Value)
                 .Apply(x => x.Item1.AddRange(x.Item2));
         }
 
@@ -91,16 +113,18 @@ namespace Pulumi
         /// both input maps.</returns>
         public static InputMap<V> Merge(InputMap<V> first, InputMap<V> second)
         {
-            var output = Output.Tuple(first._outputValue, second._outputValue)
+            var output = Output.Tuple(first.Value, second.Value)
                                .Apply(dicts =>
                                {
-                                   var result = new Dictionary<string, V>(dicts.Item1);
-                                   // Overwrite keys if duplicates are found
-                                   foreach (var (k, v) in dicts.Item2)
-                                       result[k] = v;
-                                   return result;
+                                    var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
+                                    foreach (var (k, v) in dicts.Item1)
+                                        builder[k] = v;
+                                    // Overwrite keys if duplicates are found
+                                    foreach (var (k, v) in dicts.Item2)
+                                        builder[k] = v;
+                                    return builder.ToImmutable();
                                });
-            return output;
+            return new InputMap<V>(output);
         }
 
         #region construct from dictionary types
@@ -118,7 +142,14 @@ namespace Pulumi
             => values.Apply(ImmutableDictionary.CreateRange);
 
         public static implicit operator InputMap<V>(Output<ImmutableDictionary<string, V>> values)
-            => new InputMap<V>(values);
+            => new InputMap<V>(values.Apply(values => {
+                var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
+                foreach (var value in values)
+                {
+                    builder.Add(value.Key, value.Value);
+                }
+                return builder.ToImmutable();
+            }));
 
         #endregion
 

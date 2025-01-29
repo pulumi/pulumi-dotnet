@@ -103,11 +103,18 @@ namespace Pulumi.Serialization
 $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:\n\t{ctx}");
             }
 
-            // if prop is an InputList<T>
             var propType = prop.GetType();
+            // if prop is an InputList<T>
             if (propType.IsGenericType && propType.GetGenericTypeDefinition() == typeof(InputList<>))
             {
                 // pull off the Value property from the InputList<T>
+                var inputList = propType.GetProperty("Value", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(prop);
+                return await SerializeAsync(ctx, inputList, keepResources, keepOutputValues).ConfigureAwait(false);
+            }
+            // if prop is an InputMap<T>
+            if (propType.IsGenericType && propType.GetGenericTypeDefinition() == typeof(InputMap<>))
+            {
+                // pull off the Value property from the InputMap<T>
                 var inputList = propType.GetProperty("Value", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(prop);
                 return await SerializeAsync(ctx, inputList, keepResources, keepOutputValues).ConfigureAwait(false);
             }

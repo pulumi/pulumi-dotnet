@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
+using Pulumi.Utilities;
 using Xunit;
 
 namespace Pulumi.Tests.Serialization
@@ -106,6 +107,11 @@ namespace Pulumi.Tests.Serialization
             },
             new object[]
             {
+                new InputList<string> { OutputUtilities.CreateUnknown("") },
+                ImmutableArray<object>.Empty.Add(Constants.UnknownValue)
+            },
+            new object[]
+            {
                 new Dictionary<string, Input<string>> { { "foo", "hello" } },
                 ImmutableDictionary<string, object>.Empty.Add("foo", "hello")
             },
@@ -132,7 +138,12 @@ namespace Pulumi.Tests.Serialization
             new object[]
             {
                 new InputMap<string> { { "foo", Output.CreateSecret("hello") } },
-                ImmutableDictionary<string, object>.Empty.Add("foo", CreateOutputValue("hello", isSecret: true))
+                ImmutableDictionary<string, object>.Empty.Add("foo", CreateSecretValue("hello"))
+            },
+            new object[]
+            {
+                new InputMap<string> { { "foo", OutputUtilities.CreateUnknown("") } },
+                ImmutableDictionary<string, object>.Empty.Add("foo", Constants.UnknownValue)
             },
             new object[]
             {

@@ -121,6 +121,21 @@ namespace Pulumi.Tests.Serialization
             },
             new object[]
             {
+                new InputMap<string> { { "foo", "hello" } },
+                ImmutableDictionary<string, object>.Empty.Add("foo", "hello")
+            },
+            new object[]
+            {
+                new InputMap<string> { { "foo", Output.Create("hello") } },
+                ImmutableDictionary<string, object>.Empty.Add("foo", "hello")
+            },
+            new object[]
+            {
+                new InputMap<string> { { "foo", Output.CreateSecret("hello") } },
+                ImmutableDictionary<string, object>.Empty.Add("foo", CreateOutputValue("hello", isSecret: true))
+            },
+            new object[]
+            {
                 new BarArgs { Foo = new FooArgs { Foo = "hello" } },
                 ImmutableDictionary<string, object>.Empty.Add("foo",
                     ImmutableDictionary<string, object>.Empty.Add("foo", "hello"))

@@ -340,6 +340,11 @@ namespace Pulumi.Experimental.Provider
                 return await SerializeOutput(output);
             }
 
+            if (value is IUnion union)
+            {
+                return await Serialize(union.Value);
+            }
+
             if (value is InputArgs inputArgs)
             {
                 var inputsMap = await inputArgs.ToDictionaryAsync().ConfigureAwait(false);
@@ -426,6 +431,34 @@ namespace Pulumi.Experimental.Provider
                 }
             }
 
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Union<,>))
+            {
+                var firstElementType = targetType.GetGenericArguments()[0];
+                var secondElementType = targetType.GetGenericArguments()[1];
+                var resultType=typeof(Union<,>).MakeGenericType(firstElementType, secondElementType);
+                try
+                {
+                    var val1 = DeserializeValue(value, firstElementType, path);
+                    var fromT0Method = resultType.GetMethod(nameof(Union<int, int>.FromT0),
+                        BindingFlags.Public | BindingFlags.Static);
+                    return fromT0Method?.Invoke(null, new[] { val1 });
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        var val2 = DeserializeValue(value, secondElementType, path);
+                        var fromT1Method = resultType.GetMethod(nameof(Union<int, int>.FromT1),
+                            BindingFlags.Public | BindingFlags.Static);
+                        return fromT1Method?.Invoke(null, new[] { val2 });
+                    }
+                    catch (Exception)
+                    {
+                        throw new InvalidOperationException($"Expected {firstElementType.FullName} or {secondElementType.FullName} but got {value.GetType().FullName} deserializing {path}");
+                    }
+                }
+            }
+
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(InputList<>))
             {
                 // change InputList<T> to Output<ImmutableArray<T>> and deserialize
@@ -465,6 +498,20 @@ namespace Pulumi.Experimental.Provider
                         .GetMethod("ToOutput", BindingFlags.Public | BindingFlags.Static)!
                         .MakeGenericMethod(elementType);
                 return toOutputMethod.Invoke(null, new[] { input });
+            }
+
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(InputUnion<,>))
+            {
+                var unionType = typeof(Union<,>).MakeGenericType(targetType.GenericTypeArguments[0],
+                    targetType.GenericTypeArguments[1]);
+                var outputUnionType = typeof(Output<>).MakeGenericType(unionType);
+                var outputUnion = DeserializeValue(value, outputUnionType, path);
+
+                var fromOutputUnion = targetType.GetMethod(
+                    "op_Implicit",
+                    types: new[] { outputUnionType })!;
+
+                return fromOutputUnion.Invoke(null, new[] { outputUnion });
             }
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Input<>))

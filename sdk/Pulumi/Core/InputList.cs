@@ -47,6 +47,14 @@ namespace Pulumi
     public sealed class InputList<T> : Input<ImmutableArray<T>>, IEnumerable, IAsyncEnumerable<Input<T>>
     {
         Input<ImmutableArray<Input<T>>> _inputValue;
+        /// <summary>
+        /// InputList externally has to behave as an <c>Input{ImmutableArray{T}}</c>, but we actually want to
+        /// keep nested Input/Output values separate, so that we can serialise the overall list shape even if one of the
+        /// inner elements is an unknown value.
+        ///
+        /// To do that we keep a separate value of the form <c>Input{ImmutableArray{Input{T}}}</c>/> which each
+        /// time we set syncs the flattened value to the base <c>Input{ImmutableArray{T}}</c>. 
+        /// </summary>
         Input<ImmutableArray<Input<T>>> Value
         {
             get => _inputValue;

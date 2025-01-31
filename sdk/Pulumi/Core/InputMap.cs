@@ -60,6 +60,15 @@ namespace Pulumi
         }
 
         Input<ImmutableDictionary<string, Input<V>>> _inputValue;
+        /// <summary>
+        /// InputMap externally has to behave as an <c>Input{ImmutableDictionary{string, T}}</c>, but we actually
+        /// want to keep nested Input/Output values separate, so that we can serialise the overall map shape even if
+        /// one of the inner elements is an unknown value.
+        ///
+        /// To do that we keep a separate value of the form <c>Input{ImmutableDictionary{string, Input{T}}}</c>
+        /// which each time we set syncs the flattened value to the base <c>Input{ImmutableDictionary{string,
+        /// T}}</c>. 
+        /// </summary>
         Input<ImmutableDictionary<string, Input<V>>> Value
         {
             get => _inputValue;

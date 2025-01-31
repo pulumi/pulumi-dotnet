@@ -65,36 +65,19 @@ func main() {
 	var binary string
 	var root string
 	flag.StringVar(&tracing, "tracing", "", "Emit tracing to a Zipkin-compatible tracing endpoint")
-	flag.StringVar(&binary, "binary", "", "A relative or an absolute path to a precompiled .NET assembly to execute")
-	flag.StringVar(&root, "root", "", "Project root path to use")
+	flag.StringVar(&binary, "binary", "", "[obsolete] A relative or an absolute path to a precompiled .NET assembly to execute")
+	flag.StringVar(&root, "root", "", "[obsolete] Project root path to use")
 
 	// You can use the below flag to request that the language host load a specific executor instead of probing the
 	// PATH.  This can be used during testing to override the default location.
 	var givenExecutor string
 	flag.StringVar(&givenExecutor, "use-executor", "",
-		"Use the given program as the executor instead of looking for one on PATH")
+		"[obsolete] Use the given program as the executor instead of looking for one on PATH")
 
 	flag.Parse()
 	args := flag.Args()
 	logging.InitLogging(false, 0, false)
 	cmdutil.InitTracing("pulumi-language-dotnet", "pulumi-language-dotnet", tracing)
-	var dotnetExec string
-	switch {
-	case givenExecutor != "":
-		logging.V(3).Infof("language host asked to use specific executor: `%s`", givenExecutor)
-		dotnetExec = givenExecutor
-	case binary != "" && !strings.HasSuffix(binary, ".dll"):
-		logging.V(3).Info("language host requires no .NET SDK for a self-contained binary")
-	default:
-		pathExec, err := exec.LookPath("dotnet")
-		if err != nil {
-			err = errors.Wrap(err, "could not find `dotnet` on the $PATH")
-			cmdutil.Exit(err)
-		}
-
-		logging.V(3).Infof("language host identified executor from path: `%s`", pathExec)
-		dotnetExec = pathExec
-	}
 
 	// Optionally pluck out the engine so we can do logging, etc.
 	var engineAddress string
@@ -120,7 +103,7 @@ func main() {
 	handle, err := rpcutil.ServeWithOptions(rpcutil.ServeOptions{
 		Cancel: cancelChannel,
 		Init: func(srv *grpc.Server) error {
-			host := newLanguageHost(dotnetExec, engineAddress, tracing, binary)
+			host := newLanguageHost(engineAddress, tracing)
 			pulumirpc.RegisterLanguageRuntimeServer(srv, host)
 			return nil
 		},
@@ -144,19 +127,59 @@ func main() {
 type dotnetLanguageHost struct {
 	pulumirpc.UnimplementedLanguageRuntimeServer
 
-	exec                 string
 	engineAddress        string
 	tracing              string
-	binary               string
 	dotnetBuildSucceeded bool
 }
 
-func newLanguageHost(exec, engineAddress, tracing string, binary string) pulumirpc.LanguageRuntimeServer {
+type dotnetOptions struct {
+	// Look on path for a binary executable with this name.
+	binary string
+	// Use this executable as the dotnet executor.
+	dotnetExec string
+}
+
+func parseOptions(root string, options map[string]interface{}) (dotnetOptions, error) {
+	var dotnetOptions dotnetOptions
+	if binary, ok := options["binary"]; ok {
+		if binary, ok := binary.(string); ok {
+			dotnetOptions.binary = binary
+		} else {
+			return dotnetOptions, errors.New("binary option must be a string")
+		}
+	}
+
+	if givenExecutor, ok := options["use-executor"]; ok {
+		if givenExecutor, ok := givenExecutor.(string); ok {
+			dotnetOptions.dotnetExec = givenExecutor
+		} else {
+			return dotnetOptions, errors.New("use-executor option must be a string")
+		}
+	}
+
+	switch {
+	case dotnetOptions.dotnetExec != "":
+		logging.V(3).Infof("language host asked to use specific executor: `%s`", dotnetOptions.dotnetExec)
+	case dotnetOptions.binary != "" && !strings.HasSuffix(dotnetOptions.binary, ".dll"):
+		logging.V(3).Info("language host requires no .NET SDK for a self-contained binary")
+	default:
+		pathExec, err := exec.LookPath("dotnet")
+		if err != nil {
+			err = errors.Wrap(err, "could not find `dotnet` on the $PATH")
+			return dotnetOptions, err
+		}
+
+		logging.V(3).Infof("language host identified executor from path: `%s`", pathExec)
+		dotnetOptions.dotnetExec = pathExec
+	}
+
+	return dotnetOptions, nil
+}
+
+func newLanguageHost(engineAddress, tracing string) pulumirpc.LanguageRuntimeServer {
 	return &dotnetLanguageHost{
-		exec:          exec,
 		engineAddress: engineAddress,
 		tracing:       tracing,
-		binary:        binary,
 	}
 }
 
@@ -189,7 +212,11 @@ func (host *dotnetLanguageHost) GetRequiredPackages(ctx context.Context,
 ) (*pulumirpc.GetRequiredPackagesResponse, error) {
 	logging.V(5).Infof("GetRequiredPackages: %v", req.Info.GetProgramDirectory())
 
-	if host.binary != "" {
+	opts, err := parseOptions(req.Info.RootDirectory, req.Info.Options.AsMap())
+	if err != nil {
+		return nil, err
+	}
+	if opts.binary != "" {
 		logging.V(5).Infof("GetRequiredPackages: no packages can be listed when a binary is specified")
 		return &pulumirpc.GetRequiredPackagesResponse{}, nil
 	}
@@ -202,19 +229,19 @@ func (host *dotnetLanguageHost) GetRequiredPackages(ctx context.Context,
 
 	// First do a `dotnet build`.  This will ensure that all the nuget dependencies of the project
 	// are restored and locally available for us.
-	if err := host.DotnetBuild(ctx, req, engineClient); err != nil {
+	if err := host.DotnetBuild(ctx, opts.dotnetExec, req, engineClient); err != nil {
 		return nil, err
 	}
 
 	// now, introspect the user project to see which pulumi resource packages it references.
-	possiblePulumiPackages, err := host.DeterminePossiblePulumiPackages(ctx, engineClient, req.Info.ProgramDirectory)
+	possiblePulumiPackages, err := host.DeterminePossiblePulumiPackages(ctx, opts.dotnetExec, engineClient, req.Info.ProgramDirectory)
 	if err != nil {
 		return nil, err
 	}
 
 	// Ensure we know where the local nuget package cache directory is.  User can specify where that
 	// is located, so this makes sure we respect any custom location they may have.
-	packageDir, err := host.DetermineDotnetPackageDirectory(ctx, engineClient, req.Info.ProgramDirectory)
+	packageDir, err := host.DetermineDotnetPackageDirectory(ctx, opts.dotnetExec, engineClient, req.Info.ProgramDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -250,6 +277,7 @@ func (host *dotnetLanguageHost) GetRequiredPackages(ctx context.Context,
 
 func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	ctx context.Context,
+	dotnetExec string,
 	engineClient pulumirpc.EngineClient,
 	programDirectory string,
 ) ([][]string, error) {
@@ -261,7 +289,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	// installed locally and not need to do anything.
 	args := []string{"list", "package", "--include-transitive"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := host.RunDotnetCommand(ctx, engineClient, args, false /*logToUser*/, programDirectory)
+	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -317,6 +345,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 
 func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
 	ctx context.Context,
+	dotnetExec string,
 	engineClient pulumirpc.EngineClient,
 	programDirectory string,
 ) (string, error) {
@@ -328,7 +357,7 @@ func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
 	// plugin is installed locally and not need to do anything.
 	args := []string{"nuget", "locals", "global-packages", "--list"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := host.RunDotnetCommand(ctx, engineClient, args, false /*logToUser*/, programDirectory)
+	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory)
 	if err != nil {
 		return "", err
 	}
@@ -456,14 +485,14 @@ func DeterminePackageDependency(packageDir, packageName, packageVersion string) 
 }
 
 func (host *dotnetLanguageHost) DotnetBuild(
-	ctx context.Context, req *pulumirpc.GetRequiredPackagesRequest, engineClient pulumirpc.EngineClient,
+	ctx context.Context, dotnetExec string, req *pulumirpc.GetRequiredPackagesRequest, engineClient pulumirpc.EngineClient,
 ) error {
 	args := []string{"build", "-nologo"}
 
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
-	_, err := host.RunDotnetCommand(ctx, engineClient, args, true /*logToUser*/, req.Info.ProgramDirectory)
+	_, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, true /*logToUser*/, req.Info.ProgramDirectory)
 	if err != nil {
 		return err
 	}
@@ -472,15 +501,16 @@ func (host *dotnetLanguageHost) DotnetBuild(
 	return nil
 }
 
-func (host *dotnetLanguageHost) RunDotnetCommand(
+func RunDotnetCommand(
 	ctx context.Context,
+	dotnetExec string,
 	engineClient pulumirpc.EngineClient,
 	args []string, logToUser bool,
 	programDirectory string,
 ) (string, error) {
 	commandStr := strings.Join(args, " ")
 	if logging.V(5) {
-		logging.V(5).Infoln("Language host launching process: ", host.exec, commandStr)
+		logging.V(5).Infoln("Language host launching process: ", dotnetExec, commandStr)
 	}
 
 	// Buffer the writes we see from dotnet from its stdout and stderr streams. We will display
@@ -510,7 +540,7 @@ func (host *dotnetLanguageHost) RunDotnetCommand(
 	}
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
-	cmd := exec.Command(host.exec, args...) // nolint: gas // intentionally running dynamic program name.
+	cmd := exec.Command(dotnetExec, args...) // nolint: gas // intentionally running dynamic program name.
 	cmd.Stdout = infoWriter
 	cmd.Stderr = errorWriter
 	cmd.Dir = programDirectory
@@ -582,7 +612,7 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 
 // When debugging, we need to build the project, as the debugger does not support running using `dotnet run`.
 // This function will build the project and return the path to the built DLL.
-func (host *dotnetLanguageHost) buildDebuggingDLL(programDirectory, entryPoint string) (string, error) {
+func buildDebuggingDLL(dotnetExec, programDirectory, entryPoint string) (string, error) {
 	// If we are running from source, we need to build the project.
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
@@ -590,7 +620,7 @@ func (host *dotnetLanguageHost) buildDebuggingDLL(programDirectory, entryPoint s
 	args := []string{"build", "-nologo", "-o", "bin/pulumi-debugging"}
 	args = append(args, filepath.Join(programDirectory, entryPoint))
 
-	cmd := exec.Command(host.exec, args...)
+	cmd := exec.Command(dotnetExec, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to build project: %v, output: %v", err, string(out))
@@ -630,11 +660,16 @@ func (host *dotnetLanguageHost) buildDebuggingDLL(programDirectory, entryPoint s
 
 // Run is the RPC endpoint for LanguageRuntimeServer::Run
 func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunRequest) (*pulumirpc.RunResponse, error) {
-	binaryPath := host.binary
+	opts, err := parseOptions(req.Info.RootDirectory, req.Info.Options.AsMap())
+	if err != nil {
+		return nil, err
+	}
 
-	if req.GetAttachDebugger() && host.binary == "" {
+	binaryPath := opts.binary
+
+	if req.GetAttachDebugger() && opts.binary == "" {
 		var err error
-		binaryPath, err = host.buildDebuggingDLL(req.GetInfo().GetProgramDirectory(), req.GetInfo().GetEntryPoint())
+		binaryPath, err = buildDebuggingDLL(opts.dotnetExec, req.GetInfo().GetProgramDirectory(), req.GetInfo().GetEntryPoint())
 		if err != nil {
 			return nil, err
 		}
@@ -653,7 +688,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		return nil, err
 	}
 
-	executable := host.exec
+	executable := opts.dotnetExec
 	args := []string{}
 
 	switch {
@@ -678,7 +713,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 
 	if logging.V(5) {
 		commandStr := strings.Join(args, " ")
-		logging.V(5).Infoln("Language host launching process: ", host.exec, commandStr)
+		logging.V(5).Infoln("Language host launching process: ", opts.dotnetExec, commandStr)
 	}
 
 	cmd := exec.Command(executable, args...) // nolint: gas // intentionally running dynamic program name.
@@ -900,8 +935,12 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 ) (*pulumirpc.GetProgramDependenciesResponse, error) {
 	// dotnet list package
 
-	var err error
-	if host.binary != "" {
+	opts, err := parseOptions(req.Info.RootDirectory, req.Info.Options.AsMap())
+	if err != nil {
+		return nil, err
+	}
+
+	if opts.binary != "" {
 		return nil, errors.New("Could not get dependencies because pulumi specifies a binary")
 	}
 	var ex string
@@ -966,16 +1005,21 @@ func (host *dotnetLanguageHost) RunPlugin(
 	// best effort close, but we try an explicit close and error check at the end as well
 	defer closer.Close()
 
-	executable := host.exec
+	opts, err := parseOptions(req.Info.RootDirectory, req.Info.Options.AsMap())
+	if err != nil {
+		return err
+	}
+
+	executable := opts.dotnetExec
 	args := []string{}
 
 	switch {
-	case host.binary != "" && strings.HasSuffix(host.binary, ".dll"):
+	case opts.binary != "" && strings.HasSuffix(opts.binary, ".dll"):
 		// Portable pre-compiled dll: run `dotnet <name>.dll`
-		args = append(args, host.binary)
-	case host.binary != "":
+		args = append(args, opts.binary)
+	case opts.binary != "":
 		// Self-contained executable: run it directly.
-		executable = host.binary
+		executable = opts.binary
 	default:
 		// Build from source and then run. We build separately so that we can elide the build output from the
 		// user unless there's an error. You would think you could pass something like `-v=q` to `dotnet run`
@@ -1076,6 +1120,12 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 		return nil, fmt.Errorf("find project file: %w", err)
 	}
 
+	// Get the default options so we can get the dotnet executable to use
+	opts, err := parseOptions(req.PackageDirectory, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	build := func() error {
 		err := os.RemoveAll(filepath.Join(req.PackageDirectory, "bin"))
 		if err != nil {
@@ -1086,7 +1136,7 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 			return err
 		}
 
-		cmd := exec.Command(host.exec, "build", "-c", "Release")
+		cmd := exec.Command(opts.dotnetExec, "build", "-c", "Release")
 		cmd.Dir = req.PackageDirectory
 		return cmd.Run()
 	}
@@ -1097,7 +1147,7 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	destination := filepath.Join(req.DestinationDirectory, filepath.Base(projectFile))
 
-	cmd := exec.Command(host.exec, "pack", "-c", "Release", "-o", destination)
+	cmd := exec.Command(opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
 	cmd.Dir = req.PackageDirectory
 
 	if err := cmd.Run(); err != nil {

@@ -50,10 +50,13 @@ class Component : ComponentResource
     public Output<ComplexType> ComplexResult { get; set; }
 
     public Component(string name, ComponentArgs args, ComponentResourceOptions? opts = null)
-        : base("test:index:Test", name, args, opts)
+        : base("test:index:Component", name, args, opts)
     {
         PasswordResult = args.PasswordLength.Apply(GenerateRandomString);
-        ComplexResult = args.Complex.Apply(complex => Output.Create(AsTask(new ComplexType(complex.Name, complex.IntValue))));
+        if (args.Complex != null)
+        {
+            ComplexResult = args.Complex.Apply(complex => Output.Create(AsTask(new ComplexType(complex.Name, complex.IntValue))));
+        }
     }
 
     private static Output<string> GenerateRandomString(int length)

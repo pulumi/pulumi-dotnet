@@ -1,0 +1,11 @@
+name: test-yaml
+runtime: yaml
+plugins:
+  providers:
+    - name: test
+      path: ../
+resources:
+  r1:
+    type: test:index:Component
+    properties:
+      passwordLength: 10

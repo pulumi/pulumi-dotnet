@@ -12,7 +12,7 @@ public class TestProviderImpl : ComponentResourceProviderBase
     {
         return request.Type switch
         {
-            "test:index:Test" => Construct<ComponentArgs, Component>(request,
+            "test:index:Component" => Construct<ComponentArgs, Component>(request,
                 (name, args, options) => Task.FromResult(new Component(name, args, options))),
             _ => throw new NotImplementedException()
         };

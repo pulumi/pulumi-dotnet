@@ -1,7 +1,0 @@
-component: sdk
-kind: Improvements
-body: InputMap and InputList no longer flatten nested unknowns/secrets to apply to
-  the whole object.
-time: 2025-01-29T14:14:44.986465684Z
-custom:
-  PR: "449"

@@ -46,6 +46,12 @@ namespace Pulumi
         {
             return inputs.Apply(inputs =>
             {
+                // Backcompat: See the comment in the implicit conversion from Output<ImmutableDictionary<string, V>>.
+                if (inputs == null)
+                {
+                    return null!;
+                }
+
                 var list = inputs.Select(kv => kv.Value.Apply(value => KeyValuePair.Create(kv.Key, value)));
                 return Output.All(list).Apply(kvs =>
                 {
@@ -157,6 +163,14 @@ namespace Pulumi
         public static implicit operator InputMap<V>(Output<ImmutableDictionary<string, V>> values)
             => new InputMap<V>(values.Apply(values =>
             {
+                // Backwards compatibility: if the immutable dictionary is null just flow through the nullness. This is
+                // against the nullability annotations but it used to "work" before
+                // https://github.com/pulumi/pulumi-dotnet/pull/449.
+                if (values == null)
+                {
+                    return null!;
+                }
+
                 var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
                 foreach (var value in values)
                 {

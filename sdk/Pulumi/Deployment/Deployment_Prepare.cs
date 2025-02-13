@@ -297,7 +297,7 @@ namespace Pulumi
                     response.Options.IgnoreChanges.AddRange(result.Value.Options.IgnoreChanges);
                     response.Options.PluginDownloadUrl = result.Value.Options.PluginDownloadURL ?? "";
                     response.Options.Protect = result.Value.Options.Protect ?? false;
-                    response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Urn.GetValueAsync("").ConfigureAwait(false);
+                    response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Ref.ConfigureAwait(false);
                     response.Options.ReplaceOnChanges.AddRange(result.Value.Options.ReplaceOnChanges);
                     response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete ?? false;
                     response.Options.Version = result.Value.Options.Version;
@@ -311,8 +311,7 @@ namespace Pulumi
                     {
                         foreach (var provider in componentOptions.Providers)
                         {
-                            var urn = await provider.Urn.GetValueAsync("").ConfigureAwait(false);
-                            response.Options.Providers.Add(provider.Package, urn);
+                            response.Options.Providers.Add(provider.Package, await provider.Ref.ConfigureAwait(false));
                         }
                     }
                 }

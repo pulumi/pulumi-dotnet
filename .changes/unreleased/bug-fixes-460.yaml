@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Fix the Provider and Providers option when used in resource transforms
+time: 2025-02-12T18:17:49.30145Z
+custom:
+    PR: "460"

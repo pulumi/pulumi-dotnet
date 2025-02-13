@@ -12,6 +12,27 @@ namespace Pulumi
     /// </summary>
     public class ProviderResource : CustomResource
     {
+        internal Task<string> Ref
+        {
+            get
+            {
+                return Task.WhenAll(
+                    this.Urn.GetValueAsync(whenUnknown: default!),
+                    this.Id.GetValueAsync(whenUnknown: default!)
+                ).ContinueWith(t =>
+                {
+                    var providerUrn = t.Result[0];
+                    var providerId = t.Result[1];
+                    if (string.IsNullOrEmpty(providerId))
+                    {
+                        providerId = Constants.UnknownValue;
+                    }
+
+                    return $"{providerUrn}::{providerId}";
+                });
+            }
+        }
+
         internal string Package { get; }
 
         private string? _registrationId;
@@ -76,14 +97,8 @@ namespace Pulumi
 
             if (provider._registrationId == null)
             {
-                var providerUrn = await provider.Urn.GetValueAsync(whenUnknown: default!).ConfigureAwait(false);
-                var providerId = await provider.Id.GetValueAsync(whenUnknown: default!).ConfigureAwait(false);
-                if (string.IsNullOrEmpty(providerId))
-                {
-                    providerId = Constants.UnknownValue;
-                }
-
-                provider._registrationId = $"{providerUrn}::{providerId}";
+                var providerRef = await provider.Ref.ConfigureAwait(false);
+                provider._registrationId = providerRef;
             }
 
             return provider._registrationId;

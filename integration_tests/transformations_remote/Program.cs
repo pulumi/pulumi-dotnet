@@ -145,6 +145,18 @@ class TransformsStack : Stack
                 }
             }
         });
+
+        // Scenario #8 - Set provider
+        var provider = new RandomProvider("provider");
+
+        var res8 = new Random("res8", new RandomArgs { Length = Output.CreateSecret(21) }, new CustomResourceOptions
+        {
+            ResourceTransforms =
+            {
+                async (args, _) => new ResourceTransformResult(args.Args, args.Options)
+            },
+            Provider = provider
+        });
     }
 
     // Scenario #3 - apply a transformation to the Stack to transform all (future) resources in the stack

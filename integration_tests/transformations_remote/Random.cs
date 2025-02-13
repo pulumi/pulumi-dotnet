@@ -27,3 +27,19 @@ public sealed class RandomArgs : Pulumi.ResourceArgs
 	{
 	}
 }
+
+public partial class RandomProvider : global::Pulumi.ProviderResource
+{
+	public RandomProvider(string name, RandomProviderArgs? args = null, CustomResourceOptions? options = null)
+		: base("testprovider", name, args ?? new RandomProviderArgs(), options)
+	{
+	}
+}
+
+public sealed class RandomProviderArgs : global::Pulumi.ResourceArgs
+{
+	public RandomProviderArgs()
+	{
+	}
+	public static new RandomProviderArgs Empty => new RandomProviderArgs();
+}

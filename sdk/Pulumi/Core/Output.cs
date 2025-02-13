@@ -693,7 +693,8 @@ namespace Pulumi
 
         public override string ToString()
         {
-            var message = string.Join(Environment.NewLine, new string[] {
+            var messageLines = new List<string>
+            {
                 "Calling [ToString] on an [Output<T>] is not supported.",
                 "",
                 "To get the value of an Output<T> as an Output<string> consider:",
@@ -701,10 +702,17 @@ namespace Pulumi
                 "2. Output.Format($\"prefix{hostname}suffix\");",
                 "",
                 "See https://www.pulumi.com/docs/concepts/inputs-outputs for more details.",
-                "This function may throw in a future version of Pulumi.",
-            });
+            };
 
-            return message;
+            var errorOutputString = Environment.GetEnvironmentVariable("PULUMI_ERROR_OUTPUT_STRING");
+
+            if (errorOutputString == "1" || string.Equals(errorOutputString, "true", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(string.Join(Environment.NewLine, messageLines));
+            }
+
+            messageLines.Add("This function may throw in a future version of Pulumi.");
+            return string.Join(Environment.NewLine, messageLines);
         }
     }
 

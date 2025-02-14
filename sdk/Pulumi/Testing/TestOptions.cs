@@ -11,6 +11,11 @@ namespace Pulumi.Testing
         public string? ProjectName { get; set; }
 
         /// <summary>
+        /// Project root. Defaults to <b>"projectRoot"</b> if not specified.
+        /// </summary>
+        public string? ProjectRoot { get; set; }
+
+        /// <summary>
         /// Stack name. Defaults to <b>"stack"</b> if not specified.
         /// </summary>
         public string? StackName { get; set; }

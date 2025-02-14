@@ -17,6 +17,7 @@ namespace Pulumi
 
             _organizationName = settings.Organization ?? "organization";
             _projectName = settings.Project;
+            _projectRoot = "projectRoot";
             _stackName = settings.Stack;
             _isDryRun = settings.IsDryRun;
             SetAllConfig(settings.Config, settings.ConfigSecretKeys);

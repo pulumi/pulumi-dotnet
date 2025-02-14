@@ -17,6 +17,11 @@ namespace Pulumi
         string ProjectName { get; }
 
         /// <summary>
+        /// Returns the project root. The location of Pulumi.yaml.
+        /// </summary>
+        string ProjectRoot { get; }
+
+        /// <summary>
         /// Returns the current organization name.
         /// </summary>
         string OrganizationName { get; }
@@ -36,10 +41,7 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Task<T> InvokeAsync<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOptions? options = null);
+        Task<T> InvokeAsync<T>(string token, InvokeArgs args, InvokeOptions? options = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -55,7 +57,8 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOptions? option,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -71,7 +74,8 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -83,10 +87,7 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Task<T> InvokeSingleAsync<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOptions? options = null);
+        Task<T> InvokeSingleAsync<T>(string token, InvokeArgs args, InvokeOptions? options = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -98,10 +99,7 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Output<T> Invoke<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOptions? options = null);
+        Output<T> Invoke<T>(string token, InvokeArgs args, InvokeOptions? options = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -113,11 +111,7 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Output<T> Invoke<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOutputOptions options);
-
+        Output<T> Invoke<T>(string token, InvokeArgs args, InvokeOutputOptions options);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -133,7 +127,8 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -149,7 +144,8 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOutputOptions options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -161,10 +157,7 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Output<T> InvokeSingle<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOptions? options = null);
+        Output<T> InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options = null);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -176,10 +169,7 @@ namespace Pulumi
         /// The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
         /// <see cref="Task{TResult}"/>s, <see cref="Output{T}"/>s etc.).
         /// </summary>
-        Output<T> InvokeSingle<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOutputOptions options);
+        Output<T> InvokeSingle<T>(string token, InvokeArgs args, InvokeOutputOptions options);
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -195,7 +185,8 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Dynamically invokes the function '<paramref name="token"/>', which is offered by a
@@ -211,16 +202,14 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOutputOptions options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions)"/>, however the
         /// return value is ignored.
         /// </summary>
-        Task InvokeAsync(
-            string token,
-            InvokeArgs args,
-            InvokeOptions? options = null);
+        Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null);
 
         /// <summary>
         /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
@@ -230,7 +219,8 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Dynamically calls the function '<paramref name="token"/>', which is offered by a
@@ -247,7 +237,8 @@ namespace Pulumi
             string token,
             CallArgs args,
             Resource? self = null,
-            CallOptions? options = null);
+            CallOptions? options = null
+        );
 
         /// <summary>
         /// Dynamically calls the function '<paramref name="token"/>', which is offered by a
@@ -265,16 +256,13 @@ namespace Pulumi
             CallArgs args,
             Resource? self,
             CallOptions? options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
 
         /// <summary>
         /// Same as <see cref="Call{T}(string, CallArgs, Resource, CallOptions)"/>, however the return value is ignored.
         /// </summary>
-        void Call(
-            string token,
-            CallArgs args,
-            Resource? self = null,
-            CallOptions? options = null);
+        void Call(string token, CallArgs args, Resource? self = null, CallOptions? options = null);
 
         /// <summary>
         /// Same as <see cref="Call{T}(string, CallArgs, Resource, CallOptions, RegisterPackageRequest)"/>, however the return value is ignored.
@@ -284,6 +272,7 @@ namespace Pulumi
             CallArgs args,
             Resource? self,
             CallOptions? options,
-            RegisterPackageRequest? registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        );
     }
 }

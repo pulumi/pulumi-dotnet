@@ -25,6 +25,11 @@ namespace Pulumi
         public string ProjectName => _deployment.ProjectName;
 
         /// <summary>
+        /// Project root. Defaults to <b>"projectRoot"</b> if not specified.
+        /// </summary>
+        public string ProjectRoot => _deployment.ProjectRoot;
+
+        /// <summary>
         /// Returns the current organization name.
         /// </summary>
         public string OrganizationName => _deployment.OrganizationName;

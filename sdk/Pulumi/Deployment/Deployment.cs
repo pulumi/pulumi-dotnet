@@ -85,6 +85,7 @@ namespace Pulumi
 
         private readonly string _organizationName;
         private readonly string _projectName;
+        private readonly string _rootDirectory;
         private readonly string _stackName;
         private readonly bool _isDryRun;
         private readonly ConcurrentDictionary<string, bool> _featureSupport = new ConcurrentDictionary<string, bool>();
@@ -108,6 +109,7 @@ namespace Pulumi
             var monitor = Environment.GetEnvironmentVariable("PULUMI_MONITOR");
             var engine = Environment.GetEnvironmentVariable("PULUMI_ENGINE");
             var project = Environment.GetEnvironmentVariable("PULUMI_PROJECT");
+            var rootDirectory = Environment.GetEnvironmentVariable("PULUMI_ROOT_DIRECTORY");
             var organization = Environment.GetEnvironmentVariable("PULUMI_ORGANIZATION");
             var stack = Environment.GetEnvironmentVariable("PULUMI_STACK");
             var pwd = Environment.GetEnvironmentVariable("PULUMI_PWD");
@@ -119,6 +121,7 @@ namespace Pulumi
             if (string.IsNullOrEmpty(monitor) ||
                 string.IsNullOrEmpty(engine) ||
                 string.IsNullOrEmpty(project) ||
+                string.IsNullOrEmpty(rootDirectory) ||
                 string.IsNullOrEmpty(stack) ||
                 !bool.TryParse(dryRun, out var dryRunValue) ||
                 !bool.TryParse(queryMode, out var queryModeValue) ||
@@ -131,6 +134,7 @@ namespace Pulumi
             _isDryRun = dryRunValue;
             _stackName = stack;
             _projectName = project;
+            _rootDirectory = rootDirectory;
             _organizationName = organization ?? "organization";
 
             var deploymentLogger = CreateDefaultLogger();
@@ -160,6 +164,7 @@ namespace Pulumi
             _isDryRun = options?.IsPreview ?? true;
             _stackName = options?.StackName ?? "stack";
             _projectName = options?.ProjectName ?? "project";
+            _rootDirectory = options?.RootDirectory ?? "rootDirectory";
             _organizationName = options?.OrganizationName ?? "organization";
             this.Engine = engine;
             this.Monitor = monitor;
@@ -169,6 +174,7 @@ namespace Pulumi
 
         string IDeployment.OrganizationName => _organizationName;
         string IDeployment.ProjectName => _projectName;
+        string IDeployment.RootDirectory => _rootDirectory;
         string IDeployment.StackName => _stackName;
         bool IDeployment.IsDryRun => _isDryRun;
 

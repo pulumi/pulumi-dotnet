@@ -41,7 +41,8 @@ namespace Pulumi
     public sealed partial class Deployment : IDeploymentInternal
     {
         private static readonly object _instanceLock = new object();
-        private static readonly AsyncLocal<DeploymentInstance?> _instance = new AsyncLocal<DeploymentInstance?>();
+        private static readonly AsyncLocal<DeploymentInstance?> _instance =
+            new AsyncLocal<DeploymentInstance?>();
 
         /// <summary>
         /// The current running deployment instance. This is only available from inside the function
@@ -49,14 +50,20 @@ namespace Pulumi
         /// </summary>
         public static DeploymentInstance Instance
         {
-            get => _instance.Value ?? throw new InvalidOperationException("Trying to acquire Deployment.Instance before 'Run' was called.");
+            get =>
+                _instance.Value
+                ?? throw new InvalidOperationException(
+                    "Trying to acquire Deployment.Instance before 'Run' was called."
+                );
             internal set
             {
                 lock (_instanceLock)
                 {
                     if (_instance.Value != null)
                     {
-                        throw new InvalidOperationException("Deployment.Instance should only be set once at the beginning of a 'Run' call.");
+                        throw new InvalidOperationException(
+                            "Deployment.Instance should only be set once at the beginning of a 'Run' call."
+                        );
                     }
 
                     _instance.Value = value;
@@ -64,7 +71,9 @@ namespace Pulumi
             }
         }
 
-        internal static bool TryGetInternalInstance([NotNullWhen(true)] out IDeploymentInternal? instance)
+        internal static bool TryGetInternalInstance(
+            [NotNullWhen(true)] out IDeploymentInternal? instance
+        )
         {
             if (_instance.Value != null)
             {
@@ -76,18 +85,23 @@ namespace Pulumi
             return false;
         }
 
-        internal static IDeploymentInternal InternalInstance
-            => Instance.Internal;
+        internal static IDeploymentInternal InternalInstance => Instance.Internal;
 
         private static readonly bool _disableResourceReferences =
-            Environment.GetEnvironmentVariable("PULUMI_DISABLE_RESOURCE_REFERENCES") == "1" ||
-            string.Equals(Environment.GetEnvironmentVariable("PULUMI_DISABLE_RESOURCE_REFERENCES"), "TRUE", StringComparison.OrdinalIgnoreCase);
+            Environment.GetEnvironmentVariable("PULUMI_DISABLE_RESOURCE_REFERENCES") == "1"
+            || string.Equals(
+                Environment.GetEnvironmentVariable("PULUMI_DISABLE_RESOURCE_REFERENCES"),
+                "TRUE",
+                StringComparison.OrdinalIgnoreCase
+            );
 
         private readonly string _organizationName;
         private readonly string _projectName;
+        private readonly string _projectRoot;
         private readonly string _stackName;
         private readonly bool _isDryRun;
-        private readonly ConcurrentDictionary<string, bool> _featureSupport = new ConcurrentDictionary<string, bool>();
+        private readonly ConcurrentDictionary<string, bool> _featureSupport =
+            new ConcurrentDictionary<string, bool>();
 
         private readonly IEngineLogger _logger;
         private readonly IRunner _runner;
@@ -98,7 +112,11 @@ namespace Pulumi
         internal Stack? _stack;
         internal Stack Stack
         {
-            get => _stack ?? throw new InvalidOperationException("Trying to acquire Deployment.Stack before 'Run' was called.");
+            get =>
+                _stack
+                ?? throw new InvalidOperationException(
+                    "Trying to acquire Deployment.Stack before 'Run' was called."
+                );
             set => _stack = (value ?? throw new ArgumentNullException(nameof(value)));
         }
 
@@ -108,6 +126,7 @@ namespace Pulumi
             var monitor = Environment.GetEnvironmentVariable("PULUMI_MONITOR");
             var engine = Environment.GetEnvironmentVariable("PULUMI_ENGINE");
             var project = Environment.GetEnvironmentVariable("PULUMI_PROJECT");
+            var projectRoot = Environment.GetEnvironmentVariable("PULUMI_PROJECT_ROOT");
             var organization = Environment.GetEnvironmentVariable("PULUMI_ORGANIZATION");
             var stack = Environment.GetEnvironmentVariable("PULUMI_STACK");
             var pwd = Environment.GetEnvironmentVariable("PULUMI_PWD");
@@ -116,21 +135,27 @@ namespace Pulumi
             var parallel = Environment.GetEnvironmentVariable("PULUMI_PARALLEL");
             var tracing = Environment.GetEnvironmentVariable("PULUMI_TRACING");
 
-            if (string.IsNullOrEmpty(monitor) ||
-                string.IsNullOrEmpty(engine) ||
-                string.IsNullOrEmpty(project) ||
-                string.IsNullOrEmpty(stack) ||
-                !bool.TryParse(dryRun, out var dryRunValue) ||
-                !bool.TryParse(queryMode, out var queryModeValue) ||
-                !int.TryParse(parallel, out var parallelValue))
+            if (
+                string.IsNullOrEmpty(monitor)
+                || string.IsNullOrEmpty(engine)
+                || string.IsNullOrEmpty(project)
+                || string.IsNullOrEmpty(projectRoot)
+                || string.IsNullOrEmpty(stack)
+                || !bool.TryParse(dryRun, out var dryRunValue)
+                || !bool.TryParse(queryMode, out var queryModeValue)
+                || !int.TryParse(parallel, out var parallelValue)
+            )
             {
-                throw new InvalidOperationException("Program run without the Pulumi engine available; re-run using the `pulumi` CLI");
+                throw new InvalidOperationException(
+                    "Program run without the Pulumi engine available; re-run using the `pulumi` CLI"
+                );
             }
             // ReSharper restore UnusedVariable
 
             _isDryRun = dryRunValue;
             _stackName = stack;
             _projectName = project;
+            _projectRoot = projectRoot;
             _organizationName = organization ?? "organization";
 
             var deploymentLogger = CreateDefaultLogger();
@@ -160,6 +185,7 @@ namespace Pulumi
             _isDryRun = options?.IsPreview ?? true;
             _stackName = options?.StackName ?? "stack";
             _projectName = options?.ProjectName ?? "project";
+            _projectRoot = options?.ProjectRoot ?? "projectRoot";
             _organizationName = options?.OrganizationName ?? "organization";
             this.Engine = engine;
             this.Monitor = monitor;
@@ -169,6 +195,7 @@ namespace Pulumi
 
         string IDeployment.OrganizationName => _organizationName;
         string IDeployment.ProjectName => _projectName;
+        string IDeployment.ProjectRoot => _projectRoot;
         string IDeployment.StackName => _stackName;
         bool IDeployment.IsDryRun => _isDryRun;
 
@@ -176,6 +203,7 @@ namespace Pulumi
         IRunner IDeploymentInternal.Runner => _runner;
 
         CallbacksHost? _callbacks;
+
         internal async Task<CallbacksHost> GetCallbacksAsync(CancellationToken cancellationToken)
         {
             if (_callbacks != null)
@@ -198,7 +226,6 @@ namespace Pulumi
             return current;
         }
 
-
         Stack IDeploymentInternal.Stack
         {
             get => Stack;
@@ -208,7 +235,13 @@ namespace Pulumi
         private ILogger CreateDefaultLogger()
         {
             var logger = new LoggerConfiguration()
-                .MinimumLevel.Is(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PULUMI_DOTNET_LOG_VERBOSE")) ? LogEventLevel.Verbose : LogEventLevel.Fatal)
+                .MinimumLevel.Is(
+                    !string.IsNullOrEmpty(
+                        Environment.GetEnvironmentVariable("PULUMI_DOTNET_LOG_VERBOSE")
+                    )
+                        ? LogEventLevel.Verbose
+                        : LogEventLevel.Fatal
+                )
                 .WriteTo.Console()
                 .CreateLogger();
 
@@ -222,7 +255,9 @@ namespace Pulumi
             if (!this._featureSupport.ContainsKey(feature))
             {
                 var request = new SupportsFeatureRequest { Id = feature };
-                var response = await this.Monitor.SupportsFeatureAsync(request).ConfigureAwait(false);
+                var response = await this
+                    .Monitor.SupportsFeatureAsync(request)
+                    .ConfigureAwait(false);
                 this._featureSupport[feature] = response.HasSupport;
             }
             return this._featureSupport[feature];

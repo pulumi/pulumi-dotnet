@@ -168,7 +168,7 @@ namespace Pulumi.Tests.Core
                 // This should now throw an exception
                 await Assert.ThrowsAsync<ArgumentException>(() => map.ToOutput().DataTask).ConfigureAwait(false);
             });
-            
+
         // Regression test for https://github.com/pulumi/pulumi-dotnet/issues/456
         [Fact]
         public Task InputMapNull()

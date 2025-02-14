@@ -367,6 +367,13 @@ namespace Pulumi.Tests.Mocks
                 }
             }
         }
+
+        [Fact]
+        public async Task TestNullMaps()
+        {
+            await Deployment.TestAsync<Issue456.ReproStack>(
+                new Issue456.ReproMocks());
+        }
     }
 
     public static class Testing

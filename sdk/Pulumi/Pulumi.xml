@@ -520,7 +520,7 @@
              inner elements is an unknown value.
             
              To do that we keep a separate value of the form <c>Input{ImmutableArray{Input{T}}}</c>/> which each
-             time we set syncs the flattened value to the base <c>Input{ImmutableArray{T}}</c>. 
+             time we set syncs the flattened value to the base <c>Input{ImmutableArray{T}}</c>.
              </summary>
         </member>
         <member name="M:Pulumi.InputList`1.Add(Pulumi.InputList{`0})">

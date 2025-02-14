@@ -575,7 +575,7 @@
             
              To do that we keep a separate value of the form <c>Input{ImmutableDictionary{string, Input{T}}}</c>
              which each time we set syncs the flattened value to the base <c>Input{ImmutableDictionary{string,
-             T}}</c>. 
+             T}}</c>.
              </summary>
         </member>
         <member name="M:Pulumi.InputMap`1.Add(Pulumi.InputMap{`0})">

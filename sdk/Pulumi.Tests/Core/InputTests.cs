@@ -1,5 +1,6 @@
 // Copyright 2016-2019, Pulumi Corporation
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
@@ -143,6 +144,31 @@ namespace Pulumi.Tests.Core
                 Assert.Equal(456, data.Value);
             });
 
+        [Fact]
+        public Task InputMapAdd()
+            => RunInPreview(async () =>
+            {
+                var map = new InputMap<string>();
+
+                // Add a key and value
+                map.Add("K1", "V1");
+                // Add the a new key and the same value twice
+                map.Add("K2", "V2");
+                map.Add("K2", "V2");
+
+                // We should be able to get this map still
+                var data = await map.ToOutput().DataTask.ConfigureAwait(false);
+                Assert.Equal(2, data.Value.Count);
+                Assert.Equal(new Dictionary<string, string> { ["K1"] = "V1", ["K2"] = "V2" }, data.Value);
+
+                // Add a new key and two different values
+                map.Add("K3", "V3");
+                map.Add("K3", "V3_wrong");
+
+                // This should now throw an exception
+                await Assert.ThrowsAsync<ArgumentException>(() => map.ToOutput().DataTask).ConfigureAwait(false);
+            });
+            
         // Regression test for https://github.com/pulumi/pulumi-dotnet/issues/456
         [Fact]
         public Task InputMapNull()

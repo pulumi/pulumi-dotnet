@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Microsoft.VisualBasic;
 
 namespace Pulumi
 {
@@ -73,7 +74,7 @@ namespace Pulumi
         ///
         /// To do that we keep a separate value of the form <c>Input{ImmutableDictionary{string, Input{T}}}</c>
         /// which each time we set syncs the flattened value to the base <c>Input{ImmutableDictionary{string,
-        /// T}}</c>. 
+        /// T}}</c>.
         /// </summary>
         Input<ImmutableDictionary<string, Input<V>>> Value
         {
@@ -97,7 +98,34 @@ namespace Pulumi
 
         public void Add(string key, Input<V> value)
         {
-            Value = Value.Apply(self => self.Add(key, value));
+            Value = Value.Apply(self =>
+            {
+                // ImmutableDictionary allows the same key value pair to be added twice. Sameness is decided
+                // via EqualityComparer<V>, which used to work well for InputMap but now that we have Input<T>
+                // as values, we need to compare the value inside the Input<T> and not the Input<T> itself.
+                // See https://github.com/pulumi/pulumi-dotnet/issues/458.
+
+                if (!self.TryGetValue(key, out var existingValue))
+                {
+                    // If the key is not present, add it
+                    return self.Add(key, value);
+                }
+
+                // Else we can only know if the key is ok to add if we compare the values inside the Input<T>.
+                // This is a bit odd for two reasons.
+                // 1) Firstly the exception is only seen if awaiting _this_ value, not the value for the
+                //    dictionary itself. That shouldn't be an issue because the only thing that can resolve
+                //    the dictionaries inner levels separately is the property serializer and it always reads
+                //    all the values.
+                // 2) Secondly this merges the secretness and dependency information of the two values, so if
+                //    you add "K" with a secret "hello", and then call add for "K" again with a non-secret
+                //    "hello" it's going to merge both and keep the secret tag. Doing better then this
+                //    requires a custom Apply function here.
+                return self.SetItem(key,
+                    Output.Tuple(existingValue, value).Apply(x =>
+                        EqualityComparer<V>.Default.Equals(x.Item1, x.Item2) ?
+                            x.Item1 : throw new ArgumentException($"Key '{key}' already exists in the map with a different value.")));
+            });
         }
 
         /// <summary>

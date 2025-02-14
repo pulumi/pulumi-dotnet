@@ -1,5 +1,6 @@
 // Copyright 2016-2019, Pulumi Corporation
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -950,6 +951,19 @@ namespace Pulumi.Tests.Core
                     Assert.True(data.IsKnown);
                     Assert.Equal(0, data.Value);
                 });
+
+            [Theory]
+            [InlineData("true")]
+            [InlineData("1")]
+            public void OutputToStringThrowsWhenSet(string? variableValue)
+            {
+                Environment.SetEnvironmentVariable("PULUMI_ERROR_OUTPUT_STRING", variableValue);
+                var o1 = CreateOutput(0, isKnown: true);
+                Assert.Throws<InvalidOperationException>(() => o1.ToString());
+
+                Environment.SetEnvironmentVariable("PULUMI_ERROR_OUTPUT_STRING", null);
+                Assert.EndsWith("This function may throw in a future version of Pulumi.", o1.ToString());
+            }
         }
     }
 }

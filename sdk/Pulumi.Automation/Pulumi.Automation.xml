@@ -433,6 +433,26 @@
             The ID of the resource to import. The format of the ID is specific to the resource type
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.InstallOptions.NoPlugins">
+            <summary>
+            Skip installing plugins.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.InstallOptions.NoDependencies">
+            <summary>
+            Skip installing dependencies.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.InstallOptions.Reinstall">
+            <summary>
+            Reinstall a plugin even if it already exists.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.InstallOptions.UseLanguageVersionTools">
+            <summary>
+            Use language version tools to setup and install the language runtime.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.LocalProgramArgs">
             <summary>
             Description of a stack backed by pre-existing local Pulumi CLI program.
@@ -1854,6 +1874,14 @@
             <param name="newSecretsProvider">The new secrets provider.</param>
             <param name="secretsProviderOptions">The options to change the secrets provider.</param>
             <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.InstallAsync(Pulumi.Automation.InstallOptions,System.Threading.CancellationToken)">
+            <summary>
+            Install packages and plugins for the current program or policy pack.
+            </summary>
+            <param name="options">The options to customize the install.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+            <returns></returns>
         </member>
         <member name="T:Pulumi.Automation.WorkspaceStack">
             <summary>

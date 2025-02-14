@@ -147,6 +147,12 @@ namespace Pulumi.Tests.Serialization
             },
             new object[]
             {
+                // Added the same key value to an input map twice merged the secretness (and other output information)
+                new InputMap<string> { { "foo", Output.CreateSecret("hello")}, { "foo", "hello"  } },
+                ImmutableDictionary<string, object>.Empty.Add("foo", CreateSecretValue("hello"))
+            },
+            new object[]
+            {
                 new BarArgs { Foo = new FooArgs { Foo = "hello" } },
                 ImmutableDictionary<string, object>.Empty.Add("foo",
                     ImmutableDictionary<string, object>.Empty.Add("foo", "hello"))

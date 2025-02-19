@@ -169,6 +169,46 @@ namespace Pulumi.Tests.Core
                 await Assert.ThrowsAsync<ArgumentException>(() => map.ToOutput().DataTask).ConfigureAwait(false);
             });
 
+        // Regression test for https://github.com/pulumi/pulumi-dotnet/issues/456
+        [Fact]
+        public Task InputMapNull()
+            => RunInPreview(async () =>
+            {
+                ImmutableDictionary<string, string>? nullDict = null;
+                var map = (InputMap<string>)nullDict!;
+
+                var data = await map.ToOutput().DataTask.ConfigureAwait(false);
+                Assert.True(data.IsKnown);
+                Assert.Null(data.Value);
+
+                var nullDictOutput = Output.Create(nullDict);
+                map = (InputMap<string>)nullDictOutput!;
+
+                data = await map.ToOutput().DataTask.ConfigureAwait(false);
+                Assert.True(data.IsKnown);
+                Assert.Null(data.Value);
+            });
+
+        // Regression test for https://github.com/pulumi/pulumi-dotnet/issues/456
+        [Fact]
+        public Task InputListNull()
+            => RunInPreview(async () =>
+            {
+                ImmutableArray<string> nullList = default;
+                var list = (InputList<string>)nullList;
+
+                var data = await list.ToOutput().DataTask.ConfigureAwait(false);
+                Assert.True(data.IsKnown);
+                Assert.True(data.Value.IsDefault);
+
+                var nullListOutput = Output.Create(nullList);
+                list = (InputList<string>)nullListOutput!;
+
+                data = await list.ToOutput().DataTask.ConfigureAwait(false);
+                Assert.True(data.IsKnown);
+                Assert.True(data.Value.IsDefault);
+            });
+
         private class SampleArgs
         {
             public readonly InputList<Union<string, int>> List = new InputList<Union<string, int>>();

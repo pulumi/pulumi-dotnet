@@ -53,7 +53,7 @@ namespace Pulumi
         /// inner elements is an unknown value.
         ///
         /// To do that we keep a separate value of the form <c>Input{ImmutableArray{Input{T}}}</c>/> which each
-        /// time we set syncs the flattened value to the base <c>Input{ImmutableArray{T}}</c>. 
+        /// time we set syncs the flattened value to the base <c>Input{ImmutableArray{T}}</c>.
         /// </summary>
         Input<ImmutableArray<Input<T>>> Value
         {
@@ -61,7 +61,7 @@ namespace Pulumi
             set
             {
                 _inputValue = value;
-                _outputValue = _inputValue.Apply(inputs => Output.All(inputs));
+                _outputValue = _inputValue.Apply(inputs => inputs.IsDefault ? Output.Create((ImmutableArray<T>)default) : Output.All(inputs));
             }
         }
 
@@ -70,7 +70,7 @@ namespace Pulumi
         }
 
         private InputList(Input<ImmutableArray<Input<T>>> values)
-            : base(values.Apply(values => Output.All(values)))
+            : base(values.Apply(values => values.IsDefault ? Output.Create((ImmutableArray<T>)default) : Output.All(values)))
         {
             _inputValue = values;
         }
@@ -153,10 +153,10 @@ namespace Pulumi
         #region construct from immutable array
 
         public static implicit operator InputList<T>(ImmutableArray<T> values)
-            => values.SelectAsArray(v => (Input<T>)v);
+            => values.IsDefault ? default : values.SelectAsArray(v => (Input<T>)v);
 
         public static implicit operator InputList<T>(ImmutableArray<Output<T>> values)
-            => values.SelectAsArray(v => (Input<T>)v);
+            => values.IsDefault ? default : values.SelectAsArray(v => (Input<T>)v);
 
         public static implicit operator InputList<T>(ImmutableArray<Input<T>> values)
             => new InputList<T>(values);
@@ -177,6 +177,11 @@ namespace Pulumi
         public static implicit operator InputList<T>(Output<ImmutableArray<T>> values)
             => new InputList<T>(values.Apply(values =>
             {
+                if (values.IsDefault)
+                {
+                    return default;
+                }
+
                 var builder = ImmutableArray.CreateBuilder<Input<T>>(values.Length);
                 foreach (var value in values)
                 {

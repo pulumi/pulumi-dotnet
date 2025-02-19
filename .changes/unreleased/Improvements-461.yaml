@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Add ability to disable ToString on Output<T>
-time: 2025-02-12T23:00:10.931454944Z
-custom:
-    PR: "461"

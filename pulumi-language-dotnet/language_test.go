@@ -211,6 +211,10 @@ func TestLanguage(t *testing.T) {
 	require.NoError(t, err)
 
 	expectedToFail := map[string]string{
+		"l1-builtin-can":                        "#489 codegen not implemented",
+		"l1-builtin-try":                        "#490 codegen not implemented",
+		"l1-keyword-overlap":                    "#493 update to pulumi 1.50 conformance failure",
+		"l2-component-call-simple":              "#491 update to pulumi 1.50 conformance failure",
 		"l2-resource-asset-archive":             "The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 		"l2-resource-config":                    "sdk packing for config: build error before pack",
 		"l2-resource-alpha":                     "wrong package reference Include=Pulumi.Alpha.3.0 Version=0-alpha.1.internal",

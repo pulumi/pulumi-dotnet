@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Fix adding the same value to InputMap multiple times
-time: 2025-02-13T09:04:11.345766Z
-custom:
-    PR: "462"

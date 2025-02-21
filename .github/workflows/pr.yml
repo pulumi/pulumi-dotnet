@@ -36,8 +36,8 @@ jobs:
       - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
         with:
-          # Install 6.0 for Build.fsproj
-          dotnet-version: 6.0.x
+          # Install 8.0 for Build.fsproj
+          dotnet-version: 8.0.x
       - name: Format Pulumi SDK
         run: dotnet run format-sdk verify
 
@@ -46,7 +46,7 @@ jobs:
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
-        dotnet-version: [6.0.x, 8.0.x]
+        dotnet-version: [8.0.x, 9.0.x]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -58,13 +58,13 @@ jobs:
         id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
-          # Install 6.0 for Build.fsproj and the matrix version.
+          # Install 8.0 for Build.fsproj and the matrix version.
           # `outputs.dotnet-version` is the latest version among the installed
           # versions. Since Build.fsproj targets the lowest version we support,
           # this works out ok for the matrix.
           # https://github.com/actions/setup-dotnet?tab=readme-ov-file#dotnet-version
           dotnet-version: |
-            6.0.x
+            8.0.x
             ${{ matrix.dotnet-version }}
       - name: Create global.json
         # This ensures that we use the matrix version instead of the runner's default version
@@ -100,15 +100,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-13]
-        dotnet-version: [6.0.x, 8.0.x]
+        dotnet-version: [8.0.x, 9.0.x]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Set TARGET_FRAMEWORK
         shell: bash
         run: |
-          if [[ "${{ matrix.dotnet-version }}" == "6.0.x" ]]; then
-            echo "TARGET_FRAMEWORK=net6.0" >> $GITHUB_ENV
-          elif [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
+          if [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
             echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
           elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
             echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
@@ -181,15 +179,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-13]
-        dotnet-version: [6.0.x]
+        dotnet-version: [8.0.x]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Set TARGET_FRAMEWORK
         shell: bash
         run: |
-          if [[ "${{ matrix.dotnet-version }}" == "6.0.x" ]]; then
-            echo "TARGET_FRAMEWORK=net6.0" >> $GITHUB_ENV
-          elif [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
+          if [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
             echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
           elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
             echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV

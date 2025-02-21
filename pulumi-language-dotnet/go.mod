@@ -1,6 +1,6 @@
 module github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet
 
-go 1.22
+go 1.24
 
 toolchain go1.24.0
 

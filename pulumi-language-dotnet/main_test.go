@@ -182,7 +182,6 @@ func TestDeterminePackageDependency(t *testing.T) {
 }
 
 func TestBuildDll(t *testing.T) {
-	t.Parallel()
 
 	cases := []struct {
 		Name       string
@@ -246,11 +245,7 @@ func TestBuildDll(t *testing.T) {
 		t.Run(c.Name, func(t *testing.T) {
 			e := ptesting.NewEnvironment(t)
 			e.ImportDirectory("testdata/build-dll")
-
-			pwd, err := os.Getwd()
-			require.NoError(t, err)
-			os.Chdir(e.RootPath)
-			defer os.Chdir(pwd)
+			t.Chdir(e.RootPath)
 
 			if c.ExtraSetup != nil {
 				c.ExtraSetup(t, e)

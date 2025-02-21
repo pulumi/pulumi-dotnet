@@ -170,6 +170,27 @@
             ConfigMissingException is used when a configuration value is completely missing.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.Provider.ComponentAnalyzer">
+            <summary>
+            Analyzes component resource types and generates a package schema.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentAnalyzer.GenerateSchema(Pulumi.Experimental.Provider.Metadata,System.Reflection.Assembly)">
+            <summary>
+            Analyzes the components in the given assembly and generates a package schema.
+            </summary>
+            <param name="metadata">The package metadata including name (required), version and display name (optional)</param>
+            <param name="assembly">The assembly containing component resource types to analyze</param>
+            <returns>A PackageSpec containing the complete schema for all components and their types</returns>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentAnalyzer.GenerateSchema(Pulumi.Experimental.Provider.Metadata,System.Type[])">
+            <summary>
+            Analyzes the specified component types and generates a package schema.
+            </summary>
+            <param name="metadata">The package metadata including name (required), version and display name (optional)</param>
+            <param name="componentTypes">The component resource types to analyze</param>
+            <returns>A PackageSpec containing the complete schema for all components and their types</returns>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.LogSeverity">
             <summary>
             LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.

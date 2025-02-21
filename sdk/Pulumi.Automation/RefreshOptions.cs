@@ -13,7 +13,7 @@ namespace Pulumi.Automation
         /// Only show a preview of the refresh, but don't perform the refresh
         /// itself.
         /// </summary>
-        public bool? PreviewOnly { get; set }
+        public bool? PreviewOnly { get; set; }
 
         public bool? ExpectNoChanges { get; set; }
 

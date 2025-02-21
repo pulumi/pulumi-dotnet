@@ -1056,6 +1056,12 @@
             Options controlling the behavior of an <see cref="M:Pulumi.Automation.WorkspaceStack.RefreshAsync(Pulumi.Automation.RefreshOptions,System.Threading.CancellationToken)"/> operation.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.RefreshOptions.PreviewOnly">
+            <summary>
+            Only show a preview of the refresh, but don't perform the refresh
+            itself.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.RefreshOptions.ShowSecrets">
             <summary>
             Show config secrets when they appear.

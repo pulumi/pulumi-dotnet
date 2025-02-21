@@ -12,6 +12,9 @@ build::
 	cd pulumi-language-dotnet && ${GO} build \
 		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version.Version=$(DEV_VERSION)" .
 
+changelog::
+	changie new
+
 test_integration:: build
 	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
 

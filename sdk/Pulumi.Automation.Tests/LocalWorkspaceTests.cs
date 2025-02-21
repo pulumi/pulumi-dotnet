@@ -2286,7 +2286,7 @@ namespace Pulumi.Automation.Tests
                 _action = action;
             }
 
-            public IDisposable BeginScope<TState>(TState state)
+            public IDisposable? BeginScope<TState>(TState state) where TState : notnull
             {
                 throw new NotImplementedException();
             }

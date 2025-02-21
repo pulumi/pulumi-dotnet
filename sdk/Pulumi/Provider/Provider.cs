@@ -559,7 +559,7 @@ namespace Pulumi.Experimental.Provider
                             // note that we also won't read environment variables for config
                             config.Sources.Clear();
 
-                            var memConfig = new Dictionary<string, string>();
+                            var memConfig = new Dictionary<string, string?>();
                             if (args.Length > 0)
                             {
                                 memConfig.Add("Host", args[0]);

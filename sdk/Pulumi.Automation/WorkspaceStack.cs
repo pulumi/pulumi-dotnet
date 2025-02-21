@@ -551,14 +551,18 @@ namespace Pulumi.Automation
             var args = new List<string>
             {
                 "refresh",
-                "--yes",
-                "--skip-preview",
+                "--yes"
             };
 
             args.AddRange(GetRemoteArgs());
 
             if (options != null)
             {
+                if (options.PreviewOnly is true)
+                    args.Add("--preview-only");
+                else
+                    args.Add("--skip-preview");
+
                 if (options.ExpectNoChanges is true)
                     args.Add("--expect-no-changes");
 

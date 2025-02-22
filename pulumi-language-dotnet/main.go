@@ -21,18 +21,17 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/blang/semver"
-	pbempty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version"
 	dotnetcodegen "github.com/pulumi/pulumi/pkg/v3/codegen/dotnet"
@@ -50,6 +49,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -65,7 +65,8 @@ func main() {
 	var binary string
 	var root string
 	flag.StringVar(&tracing, "tracing", "", "Emit tracing to a Zipkin-compatible tracing endpoint")
-	flag.StringVar(&binary, "binary", "", "[obsolete] A relative or an absolute path to a precompiled .NET assembly to execute")
+	flag.StringVar(&binary, "binary", "",
+		"[obsolete] A relative or an absolute path to a precompiled .NET assembly to execute")
 	flag.StringVar(&root, "root", "", "[obsolete] Project root path to use")
 
 	// You can use the below flag to request that the language host load a specific executor instead of probing the
@@ -185,7 +186,7 @@ func newLanguageHost(engineAddress, tracing string) pulumirpc.LanguageRuntimeSer
 
 func (host *dotnetLanguageHost) connectToEngine() (pulumirpc.EngineClient, io.Closer, error) {
 	// Make a connection to the real engine that we will log messages to.
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		host.engineAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		rpcutil.GrpcChannelOptions(),
@@ -234,7 +235,8 @@ func (host *dotnetLanguageHost) GetRequiredPackages(ctx context.Context,
 	}
 
 	// now, introspect the user project to see which pulumi resource packages it references.
-	possiblePulumiPackages, err := host.DeterminePossiblePulumiPackages(ctx, opts.dotnetExec, engineClient, req.Info.ProgramDirectory)
+	possiblePulumiPackages, err := host.DeterminePossiblePulumiPackages(
+		ctx, opts.dotnetExec, engineClient, req.Info.ProgramDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -423,15 +425,14 @@ func DeterminePackageDependency(packageDir, packageName, packageVersion string) 
 	}
 
 	var vf *versionFile
-	b, err := ioutil.ReadFile(versionFilePath)
+	b, err := os.ReadFile(versionFilePath)
 
 	switch {
 	case err == nil:
 		vf = newVersionFile(b, packageName)
-		break
 	case os.IsNotExist(err):
 		break
-	case err != nil:
+	default:
 		return nil, fmt.Errorf("failed to read version file: %w", err)
 	}
 
@@ -540,7 +541,7 @@ func RunDotnetCommand(
 	}
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
-	cmd := exec.Command(dotnetExec, args...) // nolint: gas // intentionally running dynamic program name.
+	cmd := exec.Command(dotnetExec, args...) //nolint:gas // intentionally running dynamic program name.
 	cmd.Stdout = infoWriter
 	cmd.Stderr = errorWriter
 	cmd.Dir = programDirectory
@@ -669,7 +670,8 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 
 	if req.GetAttachDebugger() && opts.binary == "" {
 		var err error
-		binaryPath, err = buildDebuggingDLL(opts.dotnetExec, req.GetInfo().GetProgramDirectory(), req.GetInfo().GetEntryPoint())
+		binaryPath, err = buildDebuggingDLL(
+			opts.dotnetExec, req.GetInfo().GetProgramDirectory(), req.GetInfo().GetEntryPoint())
 		if err != nil {
 			return nil, err
 		}
@@ -708,7 +710,6 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		if host.dotnetBuildSucceeded {
 			args = append(args, "--no-build")
 		}
-
 	}
 
 	if logging.V(5) {
@@ -716,7 +717,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		logging.V(5).Infoln("Language host launching process: ", opts.dotnetExec, commandStr)
 	}
 
-	cmd := exec.Command(executable, args...) // nolint: gas // intentionally running dynamic program name.
+	cmd := exec.Command(executable, args...) //nolint:gas // intentionally running dynamic program name.
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	var errResult string
@@ -776,7 +777,8 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 
 func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cmd *exec.Cmd) error {
 	// wait for the debugger to be ready
-	ctx, _ = context.WithTimeoutCause(ctx, 1*time.Minute, errors.New("debugger startup timed out"))
+	ctx, cancel := context.WithTimeoutCause(ctx, 1*time.Minute, errors.New("debugger startup timed out"))
+	defer cancel()
 	// wait for the debugger to be ready
 
 	debugConfig, err := structpb.NewStruct(map[string]interface{}{
@@ -814,13 +816,13 @@ func (host *dotnetLanguageHost) constructEnv(req *pulumirpc.RunRequest, config, 
 	maybeAppendEnv("project", req.GetProject())
 	maybeAppendEnv("stack", req.GetStack())
 	maybeAppendEnv("pwd", req.GetPwd())
-	maybeAppendEnv("dry_run", fmt.Sprintf("%v", req.GetDryRun()))
-	maybeAppendEnv("query_mode", fmt.Sprint(req.GetQueryMode()))
-	maybeAppendEnv("parallel", fmt.Sprint(req.GetParallel()))
+	maybeAppendEnv("dry_run", strconv.FormatBool(req.GetDryRun()))
+	maybeAppendEnv("query_mode", strconv.FormatBool(req.GetQueryMode()))
+	maybeAppendEnv("parallel", strconv.Itoa(int(req.GetParallel())))
 	maybeAppendEnv("tracing", host.tracing)
 	maybeAppendEnv("config", config)
 	maybeAppendEnv("config_secret_keys", configSecretKeys)
-	maybeAppendEnv("attach_debugger", fmt.Sprint(req.GetAttachDebugger()))
+	maybeAppendEnv("attach_debugger", strconv.FormatBool(req.GetAttachDebugger()))
 
 	return env
 }
@@ -856,7 +858,7 @@ func (host *dotnetLanguageHost) constructConfigSecretKeys(req *pulumirpc.RunRequ
 	return string(configSecretKeysJSON), nil
 }
 
-func (host *dotnetLanguageHost) GetPluginInfo(ctx context.Context, req *pbempty.Empty) (*pulumirpc.PluginInfo, error) {
+func (host *dotnetLanguageHost) GetPluginInfo(ctx context.Context, req *emptypb.Empty) (*pulumirpc.PluginInfo, error) {
 	return &pulumirpc.PluginInfo{
 		Version: version.Version,
 	}, nil
@@ -901,7 +903,9 @@ func (host *dotnetLanguageHost) RuntimeOptionsPrompts(ctx context.Context,
 	return &pulumirpc.RuntimeOptionsResponse{}, nil
 }
 
-func (host *dotnetLanguageHost) About(ctx context.Context, req *pulumirpc.AboutRequest) (*pulumirpc.AboutResponse, error) {
+func (host *dotnetLanguageHost) About(
+	ctx context.Context, req *pulumirpc.AboutRequest,
+) (*pulumirpc.AboutResponse, error) {
 	getResponse := func(execString string, args ...string) (string, string, error) {
 		ex, err := executable.FindExecutable(execString)
 		if err != nil {
@@ -1036,7 +1040,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 			logging.V(5).Infoln("Language host launching process: ", executable, " ", commandStr)
 		}
 
-		cmd := exec.Command(executable, buildArgs...) // nolint: gas // intentionally running dynamic program name.
+		cmd := exec.Command(executable, buildArgs...) //nolint:gas // intentionally running dynamic program name.
 		cmd.Dir = req.Pwd
 		cmd.Env = req.Env
 		var buildOutput bytes.Buffer
@@ -1072,7 +1076,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 	}
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
-	cmd := exec.Command(executable, args...) // nolint: gas // intentionally running dynamic program name.
+	cmd := exec.Command(executable, args...) //nolint:gas // intentionally running dynamic program name.
 	cmd.Dir = req.Pwd
 	cmd.Env = req.Env
 	cmd.Stdout, cmd.Stderr = stdout, stderr
@@ -1136,7 +1140,8 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 			return err
 		}
 
-		cmd := exec.Command(opts.dotnetExec, "build", "-c", "Release")
+		cmd := exec.Command( //nolint:gas // intentionally running dynamic program name.
+			opts.dotnetExec, "build", "-c", "Release")
 		cmd.Dir = req.PackageDirectory
 		return cmd.Run()
 	}
@@ -1147,7 +1152,8 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	destination := filepath.Join(req.DestinationDirectory, filepath.Base(projectFile))
 
-	cmd := exec.Command(opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
+	cmd := exec.Command( //nolint:gas // intentionally running dynamic program name.
+		opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
 	cmd.Dir = req.PackageDirectory
 
 	if err := cmd.Run(); err != nil {
@@ -1177,7 +1183,6 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 func (host *dotnetLanguageHost) GeneratePackage(
 	ctx context.Context, req *pulumirpc.GeneratePackageRequest,
 ) (*pulumirpc.GeneratePackageResponse, error) {
-
 	loader, err := schema.NewLoaderClient(req.LoaderTarget)
 	if err != nil {
 		return nil, err

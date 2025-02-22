@@ -14,8 +14,8 @@
 
 // The linter doesn't see the uses since the consumers are conditionally compiled tests.
 //
-// nolint:unused,deadcode,varcheck
-package integration_tests
+//nolint:unused,deadcode,varcheck
+package integrationtests
 
 import (
 	"bufio"
@@ -42,6 +42,7 @@ import (
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const WindowsOS = "windows"
@@ -110,7 +111,7 @@ func prepareDotnetProjectAtCwd(cwd string) error {
 `, packageReference)
 
 			modifiedProjectContent := strings.ReplaceAll(string(projectContent), "</Project>", modifiedContent)
-			err = os.WriteFile(path, []byte(modifiedProjectContent), 0o644)
+			err = os.WriteFile(path, []byte(modifiedProjectContent), 0o600)
 			if err != nil {
 				return err
 			}
@@ -136,7 +137,7 @@ func getProviderPath(providerDir string) string {
 			return path
 		}
 	}
-	return fmt.Sprintf("PATH=%s", providerDir)
+	return "PATH=" + providerDir
 }
 
 func newEnvironmentDotnet(t *testing.T) *ptesting.Environment {
@@ -222,7 +223,7 @@ func testComponentProviderSchema(t *testing.T, path string) {
 			assert.NoError(t, err)
 			defer func() {
 				// Ignore the error as it may fail with access denied on Windows.
-				cmd.Process.Kill() // nolint: errcheck
+				cmd.Process.Kill() //nolint:errcheck
 			}()
 
 			// Read the port from standard output.
@@ -232,7 +233,8 @@ func testComponentProviderSchema(t *testing.T, path string) {
 			port := strings.TrimSpace(string(bytes))
 
 			// Create a connection to the server.
-			conn, err := grpc.Dial("127.0.0.1:"+port, grpc.WithInsecure(), rpcutil.GrpcChannelOptions())
+			conn, err := grpc.NewClient(
+				"127.0.0.1:"+port, grpc.WithTransportCredentials(insecure.NewCredentials()), rpcutil.GrpcChannelOptions())
 			assert.NoError(t, err)
 			client := pulumirpc.NewResourceProviderClient(conn)
 

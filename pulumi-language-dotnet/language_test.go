@@ -147,7 +147,7 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 
 	address := string(stdoutBytes)
 
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(rpcutil.OpenTracingClientInterceptor()),
@@ -211,13 +211,15 @@ func TestLanguage(t *testing.T) {
 	require.NoError(t, err)
 
 	expectedToFail := map[string]string{
-		"l1-builtin-can":                        "#489 codegen not implemented",
-		"l1-builtin-try":                        "#490 codegen not implemented",
-		"l1-keyword-overlap":                    "#493 update to pulumi 1.50 conformance failure",
-		"l2-component-call-simple":              "#491 update to pulumi 1.50 conformance failure",
-		"l2-resource-asset-archive":             "The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
-		"l2-resource-config":                    "sdk packing for config: build error before pack",
-		"l2-resource-alpha":                     "wrong package reference Include=Pulumi.Alpha.3.0 Version=0-alpha.1.internal",
+		"l1-builtin-can":           "#489 codegen not implemented",
+		"l1-builtin-try":           "#490 codegen not implemented",
+		"l1-keyword-overlap":       "#493 update to pulumi 1.50 conformance failure",
+		"l2-component-call-simple": "#491 update to pulumi 1.50 conformance failure",
+		"l2-resource-asset-archive": "" +
+			"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
+		"l2-resource-config": "sdk packing for config: build error before pack",
+		"l2-resource-alpha": "" +
+			"wrong package reference Include=Pulumi.Alpha.3.0 Version=0-alpha.1.internal",
 		"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
 		"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
 		"l1-stack-reference":                    "TODO: call getOutput",
@@ -228,9 +230,10 @@ func TestLanguage(t *testing.T) {
 		"l2-provider-grpc-config-schema":        "dotnet build failed",
 		"l2-provider-grpc-config-schema-secret": "dotnet build failed",
 		"l2-invoke-options-depends-on":          "dotnet build failed",
-		"l2-invoke-secrets":                     "Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-		"l2-map-keys":                           "dotnet build failed",
-		"l2-resource-secret":                    "test hanging",
+		"l2-invoke-secrets": "" +
+			"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
+		"l2-map-keys":        "dotnet build failed",
+		"l2-resource-secret": "test hanging",
 	}
 
 	for _, tt := range tests.Tests {

@@ -4,7 +4,7 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);sdk/**/*.cs</DefaultItemExcludes>
     <OutputType>Exe</OutputType>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' != '' ">$(TARGET_FRAMEWORK)</TargetFramework>
-    <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net6.0</TargetFramework>
+    <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net8.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

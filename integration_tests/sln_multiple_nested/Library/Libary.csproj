@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' != '' ">$(TARGET_FRAMEWORK)</TargetFramework>
-    <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net6.0</TargetFramework>
+    <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net8.0</TargetFramework>
   </PropertyGroup>
 
 </Project>

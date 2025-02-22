@@ -28,7 +28,7 @@ namespace Pulumi
         /// <param name="name">The unique name of the resource.</param>
         /// <param name="options">A bag of options that control this resource's behavior.</param>
         public ComponentResource(string type, string name, ComponentResourceOptions? options = null)
-            : this(type, name, ResourceArgs.Empty, options)
+            : this(type, name, ResourceArgs.Empty, options, remote: false, registerPackageRequest: null)
         {
         }
 
@@ -44,10 +44,35 @@ namespace Pulumi
         /// <param name="args">The arguments to use to populate the new resource.</param>
         /// <param name="options">A bag of options that control this resource's behavior.</param>
         /// <param name="remote">True if this is a remote component resource.</param>
-#pragma warning disable RS0022 // Constructor make noninheritable base class inheritable
         public ComponentResource(
             string type, string name, ResourceArgs? args, ComponentResourceOptions? options = null, bool remote = false)
-            : base(type, name, custom: false, args ?? ResourceArgs.Empty, options ?? new ComponentResourceOptions(), remote)
+            : this(type, name, args ?? ResourceArgs.Empty, options ?? new ComponentResourceOptions(), remote, registerPackageRequest: null)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates and registers a new component resource.  <paramref name="type"/> is the fully
+        /// qualified type token and <paramref name="name"/> is the "name" part to use in creating a
+        /// stable and globally unique URN for the object. <c>options.parent</c> is the optional parent
+        /// for this component, and [options.dependsOn] is an optional list of other resources that
+        /// this resource depends on, controlling the order in which we perform resource operations.
+        /// </summary>
+        /// <param name="type">The type of the resource.</param>
+        /// <param name="name">The unique name of the resource.</param>
+        /// <param name="args">The arguments to use to populate the new resource.</param>
+        /// <param name="options">A bag of options that control this resource's behavior.</param>
+        /// <param name="remote">True if this is a remote component resource.</param>
+        /// <param name="registerPackageRequest">Package parameterization options.</param>
+#pragma warning disable RS0022 // Constructor make noninheritable base class inheritable
+        public ComponentResource(
+            string type,
+            string name,
+            ResourceArgs? args,
+            ComponentResourceOptions? options,
+            bool remote,
+            RegisterPackageRequest? registerPackageRequest = null)
+            : base(type, name, custom: false, args ?? ResourceArgs.Empty, options ?? new ComponentResourceOptions(), remote, dependency: false, registerPackageRequest)
 #pragma warning restore RS0022 // Constructor make noninheritable base class inheritable
         {
             this.remote = remote;

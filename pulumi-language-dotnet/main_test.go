@@ -181,6 +181,7 @@ func TestDeterminePackageDependency(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // mutates cwd
 func TestBuildDll(t *testing.T) {
 
 	cases := []struct {

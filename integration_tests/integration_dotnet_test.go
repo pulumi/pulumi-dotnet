@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package integration_tests
+package integrationtests
 
 import (
 	"encoding/json"
@@ -38,6 +38,8 @@ import (
 )
 
 // TestPrintfDotNet tests that we capture stdout and stderr streams properly, even when the last line lacks an \n.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestPrintfDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    "printf",
@@ -46,6 +48,7 @@ func TestPrintfDotNet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackOutputsDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "stack_outputs",
@@ -68,6 +71,8 @@ func TestStackOutputsDotNet(t *testing.T) {
 }
 
 // TestStackComponentDotNet tests the programming model of defining a stack as an explicit top-level component.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackComponentDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "stack_component",
@@ -90,6 +95,8 @@ func TestStackComponentDotNet(t *testing.T) {
 }
 
 // TestStackComponentServiceProviderDotNet tests the creation of the stack using IServiceProvider.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackComponentServiceProviderDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "dotnet_service_provider",
@@ -112,6 +119,8 @@ func TestStackComponentServiceProviderDotNet(t *testing.T) {
 }
 
 // Tests basic configuration from the perspective of a Pulumi .NET program.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConfigBasicDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "config_basic",
@@ -139,6 +148,8 @@ func TestConfigBasicDotNet(t *testing.T) {
 }
 
 // Tests that accessing config secrets using non-secret APIs results in warnings being logged.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConfigSecretsWarnDotNet(t *testing.T) {
 	// TODO[pulumi/pulumi#7127]: Re-enabled the warning.
 	t.Skip("Temporarily skipping test until we've re-enabled the warning - pulumi/pulumi#7127")
@@ -274,6 +285,7 @@ func TestConfigSecretsWarnDotNet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackReferenceSecretsDotnet(t *testing.T) {
 	owner := os.Getenv("PULUMI_TEST_OWNER")
 	if owner == "" {
@@ -305,6 +317,8 @@ func TestStackReferenceSecretsDotnet(t *testing.T) {
 }
 
 // Tests a resource with a large (>4mb) string prop in .Net
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestLargeResourceDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir: "large_resource",
@@ -313,6 +327,8 @@ func TestLargeResourceDotNet(t *testing.T) {
 
 // tests that when a resource transformation throws an exception, the program exits
 // and doesn't hang indefinitely.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestFailingTransfomationExitsProgram(t *testing.T) {
 	stderr := &strings.Builder{}
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -359,6 +375,8 @@ func TestFailingTransfomationExitsProgram(t *testing.T) {
 //}
 
 // Test remote component construction with prompt inputs.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructPlainDotnet(t *testing.T) {
 	testDir := "construct_component_plain"
 	componentDir := "testcomponent-go"
@@ -387,11 +405,15 @@ func optsForConstructPlainDotnet(t *testing.T, expectedResourceCount int, localP
 }
 
 // Test remote component inputs properly handle unknowns.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructUnknownDotnet(t *testing.T) {
 	testConstructUnknown(t, "dotnet")
 }
 
 // Test methods on remote components.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructMethodsDotnet(t *testing.T) {
 	testDir := "construct_component_methods"
 	componentDir := "testcomponent-go"
@@ -411,14 +433,17 @@ func TestConstructMethodsDotnet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructMethodsUnknownDotnet(t *testing.T) {
 	testConstructMethodsUnknown(t, "dotnet")
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructMethodsErrorsDotnet(t *testing.T) {
 	testConstructMethodsErrors(t, "dotnet")
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructProviderDotnet(t *testing.T) {
 	const testDir = "construct_component_provider"
 	componentDir := "testcomponent-go"
@@ -435,6 +460,7 @@ func TestConstructProviderDotnet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestGetResourceDotnet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                      "get_resource",
@@ -455,6 +481,8 @@ func TestGetResourceDotnet(t *testing.T) {
 // Test that the about command works as expected. Because about parses the
 // results of each runtime independently, we have an integration test in each
 // language.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestAboutDotnet(t *testing.T) {
 	t.Parallel()
 
@@ -477,6 +505,8 @@ func TestAboutDotnet(t *testing.T) {
 
 // TestResourceRefsGetResourceDotnet tests that invoking the built-in 'pulumi:pulumi:getResource' function
 // returns resource references for any resource reference in a resource's state.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestResourceRefsGetResourceDotnet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   filepath.Join("resource_refs_get_resource"),
@@ -485,6 +515,8 @@ func TestResourceRefsGetResourceDotnet(t *testing.T) {
 }
 
 // TestSln tests that we run a program with a .sln file next to it.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestSln(t *testing.T) {
 	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 		var foundStdout int
@@ -505,6 +537,8 @@ func TestSln(t *testing.T) {
 }
 
 // TestSlnMultiple tests that we run a .sln file with multiple nested projects by setting the "main" option.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestSlnMultipleNested(t *testing.T) {
 	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 		var foundStdout int
@@ -524,6 +558,7 @@ func TestSlnMultipleNested(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProvider(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join("provider"),
@@ -545,6 +580,8 @@ func TestProvider(t *testing.T) {
 }
 
 // TestDeletedWith tests the DeletedWith resource option.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestDeletedWith(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            "deleted_with",
@@ -553,6 +590,7 @@ func TestDeletedWith(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderCall(t *testing.T) {
 	const testDir = "provider_call"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -562,6 +600,7 @@ func TestProviderCall(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderCallInvalidArgument(t *testing.T) {
 	const testDir = "provider_call"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -572,6 +611,7 @@ func TestProviderCallInvalidArgument(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderConstruct(t *testing.T) {
 	const testDir = "provider_construct"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -580,6 +620,7 @@ func TestProviderConstruct(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderConstructDependencies(t *testing.T) {
 	const testDir = "provider_construct_dependencies"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -588,6 +629,7 @@ func TestProviderConstructDependencies(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderConstructUnknown(t *testing.T) {
 	const testDir = "provider_construct_unknown"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -624,6 +666,7 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 	return events, nil
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
@@ -639,7 +682,8 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("printf")
 
-	prepareDotnetProjectAtCwd(e.RootPath)
+	err = prepareDotnetProjectAtCwd(e.RootPath)
+	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
 
@@ -676,7 +720,8 @@ outer:
 	// We don't care about the actual command, and the `thread-info` command just works.
 	in := strings.NewReader("1-thread-info")
 
-	cmd := exec.Command("netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
+	cmd := exec.Command( //nolint:gosec // This is a test
+		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
 	cmd.Stdin = in
 	out, err := cmd.CombinedOutput()
 	require.NoError(t, err)

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package integration_tests
+package integrationtests
 
 import (
 	"os"
@@ -25,6 +25,8 @@ import (
 )
 
 // TestEmptyDotNet simply tests that we can run an empty .NET project.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestEmptyDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "empty",
@@ -33,6 +35,8 @@ func TestEmptyDotNet(t *testing.T) {
 }
 
 // Tests that stack references work in .NET.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackReferenceDotnet(t *testing.T) {
 	if owner := os.Getenv("PULUMI_TEST_OWNER"); owner == "" {
 		t.Skipf("Skipping: PULUMI_TEST_OWNER is not set")
@@ -60,6 +64,8 @@ func TestStackReferenceDotnet(t *testing.T) {
 }
 
 // Test remote component construction in .NET.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructDotnet(t *testing.T) {
 	testDir := "construct_component"
 	componentDir := "testcomponent-go"
@@ -70,10 +76,12 @@ func TestConstructDotnet(t *testing.T) {
 		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
 	}
 
-	testDotnetProgram(t, optsForConstructDotnet(t, expectedResourceCount, localProviders))
+	testDotnetProgram(t, optsForConstructDotnet(expectedResourceCount, localProviders))
 }
 
-func optsForConstructDotnet(t *testing.T, expectedResourceCount int, localProviders []integration.LocalDependency, env ...string) *integration.ProgramTestOptions {
+func optsForConstructDotnet(
+	expectedResourceCount int, localProviders []integration.LocalDependency, env ...string,
+) *integration.ProgramTestOptions {
 	return &integration.ProgramTestOptions{
 		Env:            env,
 		Dir:            filepath.Join("construct_component", "dotnet"),
@@ -96,7 +104,7 @@ func optsForConstructDotnet(t *testing.T, expectedResourceCount int, localProvid
 				for _, res := range stackInfo.Deployment.Resources[1:] {
 					assert.NotNil(t, res)
 
-					urns[string(res.URN.Name())] = res.URN
+					urns[res.URN.Name()] = res.URN
 					switch res.URN.Name() {
 					case "child-a":
 						for _, deps := range res.PropertyDependencies {

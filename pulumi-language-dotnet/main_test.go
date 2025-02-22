@@ -183,7 +183,6 @@ func TestDeterminePackageDependency(t *testing.T) {
 
 //nolint:paralleltest // mutates cwd
 func TestBuildDll(t *testing.T) {
-
 	cases := []struct {
 		Name       string
 		EntryPoint string
@@ -211,7 +210,8 @@ func TestBuildDll(t *testing.T) {
 			Name:       "fsproj works",
 			EntryPoint: ".",
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
-				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.fsproj"))
+				err := os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.fsproj"))
+				require.NoError(t, err)
 			},
 			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
 		},
@@ -219,7 +219,8 @@ func TestBuildDll(t *testing.T) {
 			Name:       "vbproj works",
 			EntryPoint: ".",
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
-				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.vbproj"))
+				err := os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.vbproj"))
+				require.NoError(t, err)
 			},
 			ExpectedErrorContains: "'Sub Main' was not found in 'Empty'.",
 		},
@@ -229,7 +230,7 @@ func TestBuildDll(t *testing.T) {
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
 				data, err := os.ReadFile("Empty.csproj")
 				assert.NoError(t, err)
-				err = os.WriteFile("Another.fsproj", data, 0o644)
+				err = os.WriteFile("Another.fsproj", data, 0o600)
 				assert.NoError(t, err)
 			},
 			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),

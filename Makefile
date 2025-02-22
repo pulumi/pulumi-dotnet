@@ -21,4 +21,17 @@ test_integration:: build
 test_conformance:: build
 	cd pulumi-language-dotnet && gotestsum -- --timeout 60m ./...
 
+# Relative paths to directories with go.mod files that should be linted.
+LINT_GOLANG_PKGS := pulumi-language-dotnet integration_tests
+
+lint::
+	$(eval GOLANGCI_LINT_CONFIG = $(shell pwd)/.golangci.yml)
+	@$(foreach pkg,$(LINT_GOLANG_PKGS),(cd $(pkg) && \
+		echo "[golangci-lint] Linting $(pkg)..." && \
+		golangci-lint run $(GOLANGCI_LINT_ARGS) \
+			--config $(GOLANGCI_LINT_CONFIG) \
+			--timeout 5m \
+			--path-prefix $(pkg)) \
+		&&) true
+
 .PHONY: install build

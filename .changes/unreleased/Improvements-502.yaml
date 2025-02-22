@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Support parameterization for remote component resources
+time: 2025-02-22T08:54:11.922966+01:00
+custom:
+    PR: "502"

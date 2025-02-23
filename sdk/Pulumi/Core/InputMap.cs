@@ -187,7 +187,7 @@ namespace Pulumi
         public static implicit operator InputMap<V>(Output<IDictionary<string, V>> values)
             => values.Apply(ImmutableDictionary.CreateRange);
 
-        public static implicit operator InputMap<V>(Output<ImmutableDictionary<string, V>> values)
+        public static implicit operator InputMap<V>(Output<ImmutableDictionary<string, V>>values)
             => new InputMap<V>(values.Apply(values =>
             {
                 // Backwards compatibility: if the immutable dictionary is null just flow through the nullness. This is

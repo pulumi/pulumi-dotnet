@@ -581,6 +581,54 @@ public class ComponentAnalyzerTests
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);
     }
+    
+    class AnyTypesArgs : ResourceArgs
+    {
+        [Input("inputAny", required: true)]
+        public Input<object> InputAny { get; set; } = null!;
+        
+        [Input("optionalInputAny")]
+        public Input<object>? OptionalInputAny { get; set; }
+    }
+
+    class AnyTypesComponent : ComponentResource
+    {
+        [Output("outputAny")]
+        public Output<object> OutputAny { get; private set; } = null!;
+        
+        [Output("optionalOutputAny")]
+        public Output<object?> OptionalOutputAny { get; private set; } = null!;
+
+        public AnyTypesComponent(string name, AnyTypesArgs args, ComponentResourceOptions? options = null)
+            : base("my-component:index:AnyTypesComponent", name, args, options)
+        {
+        }
+    }
+
+    [Fact]
+    public void TestAnalyzeAny()
+    {
+        var schema = ComponentAnalyzer.GenerateSchema(_metadata, typeof(AnyTypesComponent));
+
+        var resources = new Dictionary<string, ResourceSpec>();
+        resources.Add("my-component:index:AnyTypesComponent",
+            new ResourceSpec(
+                new Dictionary<string, PropertySpec>
+                {
+                    ["inputAny"] = PropertySpec.CreateReference("pulumi.json#/Any"),
+                    ["optionalInputAny"] = PropertySpec.CreateReference("pulumi.json#/Any")
+                },
+                new HashSet<string> { "inputAny" },
+                new Dictionary<string, PropertySpec>
+                {
+                    ["outputAny"] = PropertySpec.CreateReference("pulumi.json#/Any"),
+                    ["optionalOutputAny"] = PropertySpec.CreateReference("pulumi.json#/Any")
+                },
+                new HashSet<string> { "outputAny" }));
+
+        var expected = CreateBasePackageSpec(resources);
+        AssertSchemaEqual(expected, schema);
+    }
 
     class MyResource : CustomResource
     {

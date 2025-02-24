@@ -405,6 +405,8 @@ namespace Pulumi.Experimental.Provider
                 return "pulumi.json#/Archive";
             if (type == typeof(Asset))
                 return "pulumi.json#/Asset";
+            if (type == typeof(object))
+                return "pulumi.json#/Any";
             return null;
         }
     }

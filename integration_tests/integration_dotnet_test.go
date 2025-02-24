@@ -612,6 +612,15 @@ func TestProviderCallInvalidArgument(t *testing.T) {
 }
 
 //nolint:paralleltest // ProgramTest calls testing.T.Parallel
+func TestProviderComponentHost(t *testing.T) {
+	const testDir = "provider_component_host"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   filepath.Join(testDir, "example"),
+		Quick: true,
+	})
+}
+
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderConstruct(t *testing.T) {
 	const testDir = "provider_construct"
 	testDotnetProgram(t, &integration.ProgramTestOptions{

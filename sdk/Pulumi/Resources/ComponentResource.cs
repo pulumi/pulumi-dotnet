@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Pulumi
@@ -97,18 +98,16 @@ namespace Pulumi
                     continue;
                 }
 
-                var outputAttribute =
-                    prop.GetCustomAttributes(typeof(OutputAttribute), false)
-                        .FirstOrDefault();
+                var outputAttribute = prop.GetCustomAttribute<OutputAttribute>();
 
-                if (outputAttribute is OutputAttribute attr)
+                if (outputAttribute != null)
                 {
                     var registerdOutputKey = prop.Name;
-                    if (!string.IsNullOrWhiteSpace(attr.Name))
+                    if (!string.IsNullOrWhiteSpace(outputAttribute.Name))
                     {
                         // when using [Output("<name>")] we will export the value of this property
                         // with its key equal to the provided <name>
-                        registerdOutputKey = attr.Name;
+                        registerdOutputKey = outputAttribute.Name;
                     }
 
                     // otherwise if we only have [Output] we will simply use the name of the property itself

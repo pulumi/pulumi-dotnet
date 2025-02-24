@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 namespace Pulumi.Experimental.Provider
 {
     /// <summary>
@@ -42,7 +43,16 @@ namespace Pulumi.Experimental.Provider
         public static PackageSpec GenerateSchema(Metadata metadata, params Type[] componentTypes)
         {
             if (metadata?.Name == null || string.IsNullOrWhiteSpace(metadata.Name))
+            {
                 throw new ArgumentException("Package name cannot be empty or whitespace", nameof(metadata));
+            }
+
+            if (!Regex.IsMatch(metadata.Name, "^[a-zA-Z][-a-zA-Z0-9_]*$"))
+            {
+                throw new ArgumentException(
+                    "Package name must start with a letter and contain only letters, numbers, hyphens, and underscores",
+                    nameof(metadata));
+            }
 
             if (componentTypes.Length == 0)
             {

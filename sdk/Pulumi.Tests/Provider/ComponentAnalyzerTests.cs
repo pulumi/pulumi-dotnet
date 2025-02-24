@@ -851,6 +851,35 @@ public class ComponentAnalyzerTests
         AssertSchemaEqual(expected, schema);
     }
 
+    [Theory]
+    [InlineData("123test", "Package name must start with a letter and contain only letters, numbers, hyphens, and underscores")]
+    [InlineData("test!", "Package name must start with a letter and contain only letters, numbers, hyphens, and underscores")]
+    [InlineData("test space", "Package name must start with a letter and contain only letters, numbers, hyphens, and underscores")]
+    [InlineData("", "Package name cannot be empty or whitespace")]
+    [InlineData(" ", "Package name cannot be empty or whitespace")]
+    [InlineData(null, "Package name cannot be empty or whitespace")]
+    public void TestInvalidPackageNames(string? name, string expectedError)
+    {
+        var metadata = new Metadata(name!);
+        var exception = Assert.Throws<ArgumentException>(() =>
+            ComponentAnalyzer.GenerateSchema(metadata, typeof(SelfSignedCertificate)));
+
+        Assert.Equal($"{expectedError} (Parameter 'metadata')", exception.Message);
+    }
+
+    [Theory]
+    [InlineData("test")]
+    [InlineData("test-package")]
+    [InlineData("test_package")]
+    [InlineData("test123")]
+    [InlineData("myPackage")]
+    public void TestValidPackageNames(string name)
+    {
+        var metadata = new Metadata(name);
+        var schema = ComponentAnalyzer.GenerateSchema(metadata, typeof(SelfSignedCertificate));
+        Assert.Equal(name, schema.Name);
+    }
+
     private readonly Metadata _metadata = new Metadata("my-component", "0.0.1", "Test package");
 
     private static PackageSpec CreateBasePackageSpec(

@@ -581,12 +581,12 @@ public class ComponentAnalyzerTests
         var expected = CreateBasePackageSpec(resources);
         AssertSchemaEqual(expected, schema);
     }
-    
+
     class AnyTypesArgs : ResourceArgs
     {
         [Input("inputAny", required: true)]
         public Input<object> InputAny { get; set; } = null!;
-        
+
         [Input("optionalInputAny")]
         public Input<object>? OptionalInputAny { get; set; }
     }
@@ -595,7 +595,7 @@ public class ComponentAnalyzerTests
     {
         [Output("outputAny")]
         public Output<object> OutputAny { get; private set; } = null!;
-        
+
         [Output("optionalOutputAny")]
         public Output<object?> OptionalOutputAny { get; private set; } = null!;
 

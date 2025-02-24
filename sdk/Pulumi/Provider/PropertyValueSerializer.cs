@@ -176,11 +176,11 @@ namespace Pulumi.Experimental.Provider
                 propertyName = inputAttribute.Name;
             }
 
-            var output = property.GetCustomAttribute<OutputAttribute>();
+            var outputAttribute = property.GetCustomAttribute<OutputAttribute>();
 
-            if (output != null && !string.IsNullOrWhiteSpace(output.Name))
+            if (outputAttribute != null && !string.IsNullOrWhiteSpace(outputAttribute.Name))
             {
-                propertyName = output.Name;
+                propertyName = outputAttribute.Name;
             }
 
             return propertyName;
@@ -935,14 +935,14 @@ namespace Pulumi.Experimental.Provider
             var properties = componentType.GetProperties();
             foreach (var property in properties)
             {
-                var outputAttr = property.GetCustomAttribute<OutputAttribute>();
+                var customAttribute = property.GetCustomAttribute<OutputAttribute>();
 
-                if (outputAttr != null)
+                if (customAttribute != null)
                 {
                     var propertyName = property.Name;
-                    if (!string.IsNullOrWhiteSpace(outputAttr.Name))
+                    if (!string.IsNullOrWhiteSpace(customAttribute.Name))
                     {
-                        propertyName = outputAttr.Name;
+                        propertyName = customAttribute.Name;
                     }
 
                     var value = property.GetValue(component);

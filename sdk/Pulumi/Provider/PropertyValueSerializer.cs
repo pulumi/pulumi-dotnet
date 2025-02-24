@@ -935,14 +935,14 @@ namespace Pulumi.Experimental.Provider
             var properties = componentType.GetProperties();
             foreach (var property in properties)
             {
-                var customAttribute = property.GetCustomAttribute<OutputAttribute>();
+                var outputAttribute = property.GetCustomAttribute<OutputAttribute>();
 
-                if (customAttribute != null)
+                if (outputAttribute != null)
                 {
                     var propertyName = property.Name;
-                    if (!string.IsNullOrWhiteSpace(customAttribute.Name))
+                    if (!string.IsNullOrWhiteSpace(outputAttribute.Name))
                     {
-                        propertyName = customAttribute.Name;
+                        propertyName = outputAttribute.Name;
                     }
 
                     var value = property.GetValue(component);

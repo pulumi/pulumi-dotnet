@@ -191,6 +191,56 @@
             <param name="componentTypes">The component resource types to analyze</param>
             <returns>A PackageSpec containing the complete schema for all components and their types</returns>
         </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentAnalyzer.FindComponentType(System.String,System.Reflection.Assembly,System.Type[])">
+            <summary>
+            Finds a component type by name in the given assembly or type array.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.ComponentProvider">
+            <summary>
+            A provider that can be used to construct components from a given assembly with automatic schema inference.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.#ctor(System.Reflection.Assembly,System.String,System.Type[])">
+            <summary>
+            Creates a new component provider.
+            </summary>
+            <param name="componentAssembly">The assembly containing component types</param>
+            <param name="packageName">Optional package name (defaults to assembly name)</param>
+            <param name="componentTypes">Optional array of known component types</param>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.GetSchema(Pulumi.Experimental.Provider.GetSchemaRequest,System.Threading.CancellationToken)">
+            <summary>
+            Gets the schema for the components in the assembly.
+            </summary>
+            <param name="request">The request containing the package name</param>
+            <param name="ct">The cancellation token</param>
+            <returns>The schema for the components in the assembly</returns>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.Construct(Pulumi.Experimental.Provider.ConstructRequest,System.Threading.CancellationToken)">
+            <summary>
+            Constructs a component resource.
+            </summary>
+            <param name="request">The request containing the component type and inputs</param>
+            <param name="ct">The cancellation token</param>
+            <returns>The constructed component resource</returns>
+            <exception cref="T:System.ArgumentException">If the resource type is invalid</exception>
+            <exception cref="T:System.InvalidOperationException">If the component type is not found or cannot be constructed</exception>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.ComponentProviderHost">
+            <summary>
+            A host to serve the component provider automatically. See <see cref="M:Pulumi.Experimental.Provider.ComponentProviderHost.Serve(System.String[],System.Reflection.Assembly,System.String)"/> for more details.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProviderHost.Serve(System.String[],System.Reflection.Assembly,System.String)">
+            <summary>
+            Serves the component provider. It discovers all component types in the given assembly and serves them
+            automatically as a component provider, including GetSchema and Construct methods.
+            </summary>
+            <param name="args">The command-line arguments</param>
+            <param name="componentAssembly">The assembly containing component types</param>
+            <param name="packageName">Optional package name (defaults to assembly name)</param>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.LogSeverity">
             <summary>
             LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.

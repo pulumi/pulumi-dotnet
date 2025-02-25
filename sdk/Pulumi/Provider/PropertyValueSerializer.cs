@@ -164,29 +164,23 @@ namespace Pulumi.Experimental.Provider
         private string PropertyName(PropertyInfo property, Type declaringType)
         {
             var propertyName = property.Name;
-            var inputAttribute =
-                property
-                    .GetCustomAttributes(typeof(InputAttribute))
-                    .FirstOrDefault();
+            var inputAttribute = property.GetCustomAttribute<InputAttribute>();
 
             if (inputAttribute == null && TryGetBackingField(propertyName, out var inputField))
             {
-                inputAttribute = inputField.GetCustomAttributes(typeof(InputAttribute)).FirstOrDefault();
+                inputAttribute = inputField.GetCustomAttribute<InputAttribute>();
             }
 
-            if (inputAttribute is InputAttribute input && !string.IsNullOrWhiteSpace(input.Name))
+            if (inputAttribute != null && !string.IsNullOrWhiteSpace(inputAttribute.Name))
             {
-                propertyName = input.Name;
+                propertyName = inputAttribute.Name;
             }
 
-            var outputAttribute =
-                property
-                    .GetCustomAttributes(typeof(OutputAttribute))
-                    .FirstOrDefault();
+            var outputAttribute = property.GetCustomAttribute<OutputAttribute>();
 
-            if (outputAttribute is OutputAttribute output && !string.IsNullOrWhiteSpace(output.Name))
+            if (outputAttribute != null && !string.IsNullOrWhiteSpace(outputAttribute.Name))
             {
-                propertyName = output.Name;
+                propertyName = outputAttribute.Name;
             }
 
             return propertyName;
@@ -941,16 +935,14 @@ namespace Pulumi.Experimental.Provider
             var properties = componentType.GetProperties();
             foreach (var property in properties)
             {
-                var outputAttr = property
-                    .GetCustomAttributes(typeof(OutputAttribute), false)
-                    .FirstOrDefault();
+                var outputAttribute = property.GetCustomAttribute<OutputAttribute>();
 
-                if (outputAttr is OutputAttribute attr)
+                if (outputAttribute != null)
                 {
                     var propertyName = property.Name;
-                    if (!string.IsNullOrWhiteSpace(attr.Name))
+                    if (!string.IsNullOrWhiteSpace(outputAttribute.Name))
                     {
-                        propertyName = attr.Name;
+                        propertyName = outputAttribute.Name;
                     }
 
                     var value = property.GetValue(component);

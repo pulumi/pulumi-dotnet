@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: updated pulumi submodule and go.mod sdk/pkg and excluded failing conformance tests
-time: 2025-02-20T13:37:32.609837+09:00
-custom:
-    PR: "482"

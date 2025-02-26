@@ -1,6 +1,0 @@
-component: sdk/provider
-kind: Improvements
-body: Implement component provider host for auto-inferred components
-time: 2025-02-24T16:07:06.547901+01:00
-custom:
-    PR: "507"

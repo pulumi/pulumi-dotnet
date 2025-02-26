@@ -353,11 +353,24 @@ public class PropertyValueTests
     public async Task DeserializingUnknownInputsWorks()
     {
         var serializer = CreateSerializer();
-        var x = Output.Create("");
         var deserialized = await serializer.Deserialize<Input<string>>(PropertyValue.Computed);
         var output = deserialized.ToOutput();
-        var known = await OutputUtilities.GetIsKnownAsync(output);
-        Assert.False(known);
+        var data = await output.DataTask;
+        Assert.Null(data.Value);
+        Assert.False(data.IsSecret);
+        Assert.False(data.IsKnown);
+    }
+
+    [Fact]
+    public async Task DeserializingSecretUnknownInputsWorks()
+    {
+        var serializer = CreateSerializer();
+        var deserialized = await serializer.Deserialize<Input<string>>(new PropertyValue(PropertyValue.Computed));
+        var output = deserialized.ToOutput();
+        var data = await output.DataTask;
+        Assert.Null(data.Value);
+        Assert.True(data.IsSecret);
+        Assert.False(data.IsKnown);
     }
 
     [Fact]

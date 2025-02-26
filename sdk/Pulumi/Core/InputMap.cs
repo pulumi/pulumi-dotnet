@@ -42,20 +42,89 @@ namespace Pulumi
     /// </summary>
     public sealed class InputMap<V> : Input<ImmutableDictionary<string, V>>, IEnumerable, IAsyncEnumerable<Input<KeyValuePair<string, V>>>
     {
-        public InputMap() : this(Output.Create(ImmutableDictionary<string, V>.Empty))
+        private static Input<ImmutableDictionary<string, V>> Flatten(Input<ImmutableDictionary<string, Input<V>>> inputs)
+        {
+            return inputs.Apply(inputs =>
+            {
+                // Backcompat: See the comment in the implicit conversion from Output<ImmutableDictionary<string, V>>.
+                if (inputs == null)
+                {
+                    return null!;
+                }
+
+                var list = inputs.Select(kv => kv.Value.Apply(value => KeyValuePair.Create(kv.Key, value)));
+                return Output.All(list).Apply(kvs =>
+                {
+                    var result = ImmutableDictionary.CreateBuilder<string, V>();
+                    foreach (var (k, v) in kvs)
+                    {
+                        result[k] = v;
+                    }
+                    return result.ToImmutable();
+                });
+            });
+        }
+
+        Input<ImmutableDictionary<string, Input<V>>> _inputValue;
+        /// <summary>
+        /// InputMap externally has to behave as an <c>Input{ImmutableDictionary{string, T}}</c>, but we actually
+        /// want to keep nested Input/Output values separate, so that we can serialise the overall map shape even if
+        /// one of the inner elements is an unknown value.
+        ///
+        /// To do that we keep a separate value of the form <c>Input{ImmutableDictionary{string, Input{T}}}</c>
+        /// which each time we set syncs the flattened value to the base <c>Input{ImmutableDictionary{string,
+        /// T}}</c>.
+        /// </summary>
+        Input<ImmutableDictionary<string, Input<V>>> Value
+        {
+            get => _inputValue;
+            set
+            {
+                _inputValue = value;
+                _outputValue = Flatten(_inputValue);
+            }
+        }
+
+        public InputMap() : this(ImmutableDictionary<string, Input<V>>.Empty)
         {
         }
 
-        private InputMap(Output<ImmutableDictionary<string, V>> values)
-            : base(values)
+        private InputMap(Input<ImmutableDictionary<string, Input<V>>> values)
+            : base(Flatten(values))
         {
+            _inputValue = values;
         }
 
         public void Add(string key, Input<V> value)
         {
-            var inputDictionary = (Input<ImmutableDictionary<string, V>>)_outputValue;
-            _outputValue = Output.Tuple(inputDictionary, value)
-                .Apply(x => x.Item1.Add(key, x.Item2));
+            Value = Value.Apply(self =>
+            {
+                // ImmutableDictionary allows the same key value pair to be added twice. Sameness is decided
+                // via EqualityComparer<V>, which used to work well for InputMap but now that we have Input<T>
+                // as values, we need to compare the value inside the Input<T> and not the Input<T> itself.
+                // See https://github.com/pulumi/pulumi-dotnet/issues/458.
+
+                if (!self.TryGetValue(key, out var existingValue))
+                {
+                    // If the key is not present, add it
+                    return self.Add(key, value);
+                }
+
+                // Else we can only know if the key is ok to add if we compare the values inside the Input<T>.
+                // This is a bit odd for two reasons.
+                // 1) Firstly the exception is only seen if awaiting _this_ value, not the value for the
+                //    dictionary itself. That shouldn't be an issue because the only thing that can resolve
+                //    the dictionaries inner levels separately is the property serializer and it always reads
+                //    all the values.
+                // 2) Secondly this merges the secretness and dependency information of the two values, so if
+                //    you add "K" with a secret "hello", and then call add for "K" again with a non-secret
+                //    "hello" it's going to merge both and keep the secret tag. Doing better then this
+                //    requires a custom Apply function here.
+                return self.SetItem(key,
+                    Output.Tuple(existingValue, value).Apply(x =>
+                        EqualityComparer<V>.Default.Equals(x.Item1, x.Item2) ?
+                            x.Item1 : throw new ArgumentException($"Key '{key}' already exists in the map with a different value.")));
+            });
         }
 
         /// <summary>
@@ -68,8 +137,7 @@ namespace Pulumi
 
         public void AddRange(InputMap<V> values)
         {
-            var inputDictionary = (Input<ImmutableDictionary<string, V>>)_outputValue;
-            _outputValue = Output.Tuple(inputDictionary, values)
+            Value = Output.Tuple(Value, values.Value)
                 .Apply(x => x.Item1.AddRange(x.Item2));
         }
 
@@ -91,16 +159,18 @@ namespace Pulumi
         /// both input maps.</returns>
         public static InputMap<V> Merge(InputMap<V> first, InputMap<V> second)
         {
-            var output = Output.Tuple(first._outputValue, second._outputValue)
+            var output = Output.Tuple(first.Value, second.Value)
                                .Apply(dicts =>
                                {
-                                   var result = new Dictionary<string, V>(dicts.Item1);
+                                   var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
+                                   foreach (var (k, v) in dicts.Item1)
+                                       builder[k] = v;
                                    // Overwrite keys if duplicates are found
                                    foreach (var (k, v) in dicts.Item2)
-                                       result[k] = v;
-                                   return result;
+                                       builder[k] = v;
+                                   return builder.ToImmutable();
                                });
-            return output;
+            return new InputMap<V>(output);
         }
 
         #region construct from dictionary types
@@ -118,7 +188,23 @@ namespace Pulumi
             => values.Apply(ImmutableDictionary.CreateRange);
 
         public static implicit operator InputMap<V>(Output<ImmutableDictionary<string, V>> values)
-            => new InputMap<V>(values);
+            => new InputMap<V>(values.Apply(values =>
+            {
+                // Backwards compatibility: if the immutable dictionary is null just flow through the nullness. This is
+                // against the nullability annotations but it used to "work" before
+                // https://github.com/pulumi/pulumi-dotnet/pull/449.
+                if (values == null)
+                {
+                    return null!;
+                }
+
+                var builder = ImmutableDictionary.CreateBuilder<string, Input<V>>();
+                foreach (var value in values)
+                {
+                    builder.Add(value.Key, value.Value);
+                }
+                return builder.ToImmutable();
+            }));
 
         #endregion
 

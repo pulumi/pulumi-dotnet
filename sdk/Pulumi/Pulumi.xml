@@ -170,6 +170,77 @@
             ConfigMissingException is used when a configuration value is completely missing.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.Provider.ComponentAnalyzer">
+            <summary>
+            Analyzes component resource types and generates a package schema.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentAnalyzer.GenerateSchema(Pulumi.Experimental.Provider.Metadata,System.Reflection.Assembly)">
+            <summary>
+            Analyzes the components in the given assembly and generates a package schema.
+            </summary>
+            <param name="metadata">The package metadata including name (required), version and display name (optional)</param>
+            <param name="assembly">The assembly containing component resource types to analyze</param>
+            <returns>A PackageSpec containing the complete schema for all components and their types</returns>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentAnalyzer.GenerateSchema(Pulumi.Experimental.Provider.Metadata,System.Type[])">
+            <summary>
+            Analyzes the specified component types and generates a package schema.
+            </summary>
+            <param name="metadata">The package metadata including name (required), version and display name (optional)</param>
+            <param name="componentTypes">The component resource types to analyze</param>
+            <returns>A PackageSpec containing the complete schema for all components and their types</returns>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentAnalyzer.FindComponentType(System.String,System.Reflection.Assembly,System.Type[])">
+            <summary>
+            Finds a component type by name in the given assembly or type array.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.ComponentProvider">
+            <summary>
+            A provider that can be used to construct components from a given assembly with automatic schema inference.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.#ctor(System.Reflection.Assembly,System.String,System.Type[])">
+            <summary>
+            Creates a new component provider.
+            </summary>
+            <param name="componentAssembly">The assembly containing component types</param>
+            <param name="packageName">Optional package name (defaults to assembly name)</param>
+            <param name="componentTypes">Optional array of known component types</param>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.GetSchema(Pulumi.Experimental.Provider.GetSchemaRequest,System.Threading.CancellationToken)">
+            <summary>
+            Gets the schema for the components in the assembly.
+            </summary>
+            <param name="request">The request containing the package name</param>
+            <param name="ct">The cancellation token</param>
+            <returns>The schema for the components in the assembly</returns>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.Construct(Pulumi.Experimental.Provider.ConstructRequest,System.Threading.CancellationToken)">
+            <summary>
+            Constructs a component resource.
+            </summary>
+            <param name="request">The request containing the component type and inputs</param>
+            <param name="ct">The cancellation token</param>
+            <returns>The constructed component resource</returns>
+            <exception cref="T:System.ArgumentException">If the resource type is invalid</exception>
+            <exception cref="T:System.InvalidOperationException">If the component type is not found or cannot be constructed</exception>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.ComponentProviderHost">
+            <summary>
+            A host to serve the component provider automatically. See <see cref="M:Pulumi.Experimental.Provider.ComponentProviderHost.Serve(System.String[],System.Reflection.Assembly,System.String)"/> for more details.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.ComponentProviderHost.Serve(System.String[],System.Reflection.Assembly,System.String)">
+            <summary>
+            Serves the component provider. It discovers all component types in the given assembly and serves them
+            automatically as a component provider, including GetSchema and Construct methods.
+            </summary>
+            <param name="args">The command-line arguments</param>
+            <param name="componentAssembly">The assembly containing component types</param>
+            <param name="packageName">Optional package name (defaults to assembly name)</param>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.LogSeverity">
             <summary>
             LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
@@ -245,6 +316,49 @@
         <member name="T:Pulumi.Experimental.Provider.PropertyValueType">
             <summary>
             Property values will be one of these types.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.OutputReference.Value">
+            <summary>
+            The value of the output, if it is known. This will never be a `Computed` value as that's
+            equivilent to unknown and thus null.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.ParametersArgs">
+            <summary>
+            A parameter value, represented as an array of strings, as might be provided by a command-line invocation, such as
+            that used to generate an SDK.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.ParametersValue">
+            <summary>
+            A parameter value, represented by an arbitrary array of bytes accompanied by a name and version. This is expected
+            to be the format used by parameterized provider SDKs.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Name">
+            <summary>
+            The sub-package name for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Version">
+            <summary>
+            The sub-package version for this sub-schema parameterization.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Value">
+            <summary>
+            The embedded value from the sub-package.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParameterizeResponse.Name">
+            <summary>
+            The name of the sub-package parameterized.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Provider.ParameterizeResponse.Version">
+            <summary>
+            The version of the sub-package parameterized.
             </summary>
         </member>
         <member name="T:Pulumi.Alias">
@@ -470,6 +584,16 @@
             </code>
             </summary>
         </member>
+        <member name="P:Pulumi.InputList`1.Value">
+             <summary>
+             InputList externally has to behave as an <c>Input{ImmutableArray{T}}</c>, but we actually want to
+             keep nested Input/Output values separate, so that we can serialise the overall list shape even if one of the
+             inner elements is an unknown value.
+            
+             To do that we keep a separate value of the form <c>Input{ImmutableArray{Input{T}}}</c>/> which each
+             time we set syncs the flattened value to the base <c>Input{ImmutableArray{T}}</c>.
+             </summary>
+        </member>
         <member name="M:Pulumi.InputList`1.Add(Pulumi.InputList{`0})">
             <summary>
             Note: this is non-standard convenience for use with collection initializers.
@@ -513,6 +637,17 @@
                 });
             </code>
             </summary>
+        </member>
+        <member name="P:Pulumi.InputMap`1.Value">
+             <summary>
+             InputMap externally has to behave as an <c>Input{ImmutableDictionary{string, T}}</c>, but we actually
+             want to keep nested Input/Output values separate, so that we can serialise the overall map shape even if
+             one of the inner elements is an unknown value.
+            
+             To do that we keep a separate value of the form <c>Input{ImmutableDictionary{string, Input{T}}}</c>
+             which each time we set syncs the flattened value to the base <c>Input{ImmutableDictionary{string,
+             T}}</c>.
+             </summary>
         </member>
         <member name="M:Pulumi.InputMap`1.Add(Pulumi.InputMap{`0})">
             <summary>
@@ -716,6 +851,12 @@
             The output properties of all resource objects in Pulumi have type <see cref="T:Pulumi.Output`1"/>.
             </summary>
         </member>
+        <member name="M:Pulumi.Output`1.WithDependencies(System.Collections.Immutable.ImmutableHashSet{Pulumi.Resource})">
+            <summary>
+            This returns a new <see cref="T:Pulumi.Output`1"/> that represents the same value as this output, but with
+            the extra dependencies specified.
+            </summary>
+        </member>
         <member name="M:Pulumi.Output`1.Apply(System.Func{`0,System.Threading.Tasks.Task})">
             <summary>
             <see cref="M:Pulumi.Output`1.Apply``1(System.Func{`0,Pulumi.Output{``0}})"/> for more details.
@@ -766,6 +907,24 @@
              run during <c>pulumi preview</c> (as the values of resources are of course not known
              then).
              </summary>
+        </member>
+        <member name="T:Pulumi.DeferredOutput`1">
+            <summary>
+            Represents the producer side of an <see cref="T:Pulumi.Output`1"/> value, providing access to the consumer side through
+            the Output property.
+            </summary>
+        </member>
+        <member name="P:Pulumi.DeferredOutput`1.Output">
+            <summary>
+            The <see cref="T:Pulumi.Output`1"/> that represents the consumer side of this <see cref="T:Pulumi.DeferredOutput`1"/>.
+            </summary>
+        </member>
+        <member name="M:Pulumi.DeferredOutput`1.Resolve(Pulumi.Output{`0})">
+            <summary>
+            Resolves the value of the <see cref="T:Pulumi.Output`1"/> represented by this <see
+            cref="T:Pulumi.DeferredOutput`1"/> to the same eventually resolved result as the provided <see
+            cref="T:Pulumi.Output`1"/>.
+            </summary>
         </member>
         <member name="T:Pulumi.OutputExtensions">
             <summary>
@@ -1391,13 +1550,25 @@
         <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <inheritdoc />
         </member>
+        <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <inheritdoc />
+        </member>
         <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Pulumi.DeploymentInstance.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
             <inheritdoc />
         </member>
         <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <inheritdoc />
         </member>
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <inheritdoc />
+        </member>
         <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Pulumi.DeploymentInstance.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
             <inheritdoc />
         </member>
         <member name="M:Pulumi.DeploymentInstance.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
@@ -1516,12 +1687,36 @@
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
+        <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
         <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
             The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -1540,12 +1735,36 @@
             <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
             </summary>
         </member>
+        <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin that returns a bag of properties with a single value that is returned.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
         <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Dynamically invokes the function '<paramref name="token"/>', which is offered by a
             provider plugin.
             <para/>
             The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
+            result value of the provider plugin that returns a bag of properties with a single value that is returned.
+            <para/>
+            The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
+            <see cref="T:System.Threading.Tasks.Task`1"/>s, <see cref="T:Pulumi.Output`1"/>s etc.).
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)">
+            <summary>
+            Dynamically invokes the function '<paramref name="token"/>', which is offered by a
+            provider plugin.
+            <para/>
+            The result of <see cref="M:Pulumi.IDeployment.InvokeSingle``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)"/> will be a <see cref="T:Pulumi.Output"/> resolved to the
             result value of the provider plugin that returns a bag of properties with a single value that is returned.
             <para/>
             The <paramref name="args"/> inputs can be a bag of computed values(including, `T`s,
@@ -1629,6 +1848,16 @@
             used when performing this invoke.
             </summary>
         </member>
+        <member name="T:Pulumi.InvokeOutputOptions">
+            <summary>
+            Options to help control the behavior of <see cref="M:Pulumi.IDeployment.Invoke``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOutputOptions,Pulumi.RegisterPackageRequest)"/>.
+            </summary>
+        </member>
+        <member name="P:Pulumi.InvokeOutputOptions.DependsOn">
+            <summary>
+            Optional additional explicit dependencies on resources.
+            </summary>
+        </member>
         <member name="T:Pulumi.TaskMonitoringHelper">
             <summary>
             Monitors dynamically added tasks for completion. Enters IDLE
@@ -1670,7 +1899,8 @@
             <summary>
             RunException can be used for terminating a program abruptly, but resulting in a clean exit
             rather than the usual verbose unhandled error logic which emits the source program text and
-            complete stack trace.  This type should be rarely used.  Ideally <see
+            complete stack trace.  This type should be rarely used and not be used by developers.
+            The reason to make it public is for it to be assertable by testing frameworks. Ideally <see
             cref="T:Pulumi.ResourceException"/> should always be used so that as many errors as possible can be
             associated with a Resource.
             </summary>
@@ -1747,6 +1977,21 @@
             <param name="args">The arguments to use to populate the new resource.</param>
             <param name="options">A bag of options that control this resource's behavior.</param>
             <param name="remote">True if this is a remote component resource.</param>
+        </member>
+        <member name="M:Pulumi.ComponentResource.#ctor(System.String,System.String,Pulumi.ResourceArgs,Pulumi.ComponentResourceOptions,System.Boolean,Pulumi.RegisterPackageRequest)">
+            <summary>
+            Creates and registers a new component resource.  <paramref name="type"/> is the fully
+            qualified type token and <paramref name="name"/> is the "name" part to use in creating a
+            stable and globally unique URN for the object. <c>options.parent</c> is the optional parent
+            for this component, and [options.dependsOn] is an optional list of other resources that
+            this resource depends on, controlling the order in which we perform resource operations.
+            </summary>
+            <param name="type">The type of the resource.</param>
+            <param name="name">The unique name of the resource.</param>
+            <param name="args">The arguments to use to populate the new resource.</param>
+            <param name="options">A bag of options that control this resource's behavior.</param>
+            <param name="remote">True if this is a remote component resource.</param>
+            <param name="registerPackageRequest">Package parameterization options.</param>
         </member>
         <member name="M:Pulumi.ComponentResource.RegisterOutputs">
             <summary>

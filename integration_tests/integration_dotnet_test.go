@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package integration_tests
+package integrationtests
 
 import (
 	"encoding/json"
@@ -21,22 +21,25 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/pulumi/pulumi/pkg/v3/engine"
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
-	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // TestPrintfDotNet tests that we capture stdout and stderr streams properly, even when the last line lacks an \n.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestPrintfDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    "printf",
@@ -45,6 +48,7 @@ func TestPrintfDotNet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackOutputsDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "stack_outputs",
@@ -67,6 +71,8 @@ func TestStackOutputsDotNet(t *testing.T) {
 }
 
 // TestStackComponentDotNet tests the programming model of defining a stack as an explicit top-level component.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackComponentDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "stack_component",
@@ -89,6 +95,8 @@ func TestStackComponentDotNet(t *testing.T) {
 }
 
 // TestStackComponentServiceProviderDotNet tests the creation of the stack using IServiceProvider.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackComponentServiceProviderDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "dotnet_service_provider",
@@ -111,6 +119,8 @@ func TestStackComponentServiceProviderDotNet(t *testing.T) {
 }
 
 // Tests basic configuration from the perspective of a Pulumi .NET program.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConfigBasicDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   "config_basic",
@@ -138,6 +148,8 @@ func TestConfigBasicDotNet(t *testing.T) {
 }
 
 // Tests that accessing config secrets using non-secret APIs results in warnings being logged.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConfigSecretsWarnDotNet(t *testing.T) {
 	// TODO[pulumi/pulumi#7127]: Re-enabled the warning.
 	t.Skip("Temporarily skipping test until we've re-enabled the warning - pulumi/pulumi#7127")
@@ -273,6 +285,7 @@ func TestConfigSecretsWarnDotNet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestStackReferenceSecretsDotnet(t *testing.T) {
 	owner := os.Getenv("PULUMI_TEST_OWNER")
 	if owner == "" {
@@ -304,6 +317,8 @@ func TestStackReferenceSecretsDotnet(t *testing.T) {
 }
 
 // Tests a resource with a large (>4mb) string prop in .Net
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestLargeResourceDotNet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir: "large_resource",
@@ -312,6 +327,8 @@ func TestLargeResourceDotNet(t *testing.T) {
 
 // tests that when a resource transformation throws an exception, the program exits
 // and doesn't hang indefinitely.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestFailingTransfomationExitsProgram(t *testing.T) {
 	stderr := &strings.Builder{}
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -358,6 +375,8 @@ func TestFailingTransfomationExitsProgram(t *testing.T) {
 //}
 
 // Test remote component construction with prompt inputs.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructPlainDotnet(t *testing.T) {
 	testDir := "construct_component_plain"
 	componentDir := "testcomponent-go"
@@ -386,11 +405,15 @@ func optsForConstructPlainDotnet(t *testing.T, expectedResourceCount int, localP
 }
 
 // Test remote component inputs properly handle unknowns.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructUnknownDotnet(t *testing.T) {
 	testConstructUnknown(t, "dotnet")
 }
 
 // Test methods on remote components.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructMethodsDotnet(t *testing.T) {
 	testDir := "construct_component_methods"
 	componentDir := "testcomponent-go"
@@ -410,14 +433,17 @@ func TestConstructMethodsDotnet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructMethodsUnknownDotnet(t *testing.T) {
 	testConstructMethodsUnknown(t, "dotnet")
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructMethodsErrorsDotnet(t *testing.T) {
 	testConstructMethodsErrors(t, "dotnet")
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestConstructProviderDotnet(t *testing.T) {
 	const testDir = "construct_component_provider"
 	componentDir := "testcomponent-go"
@@ -434,6 +460,7 @@ func TestConstructProviderDotnet(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestGetResourceDotnet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                      "get_resource",
@@ -454,25 +481,32 @@ func TestGetResourceDotnet(t *testing.T) {
 // Test that the about command works as expected. Because about parses the
 // results of each runtime independently, we have an integration test in each
 // language.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestAboutDotnet(t *testing.T) {
 	t.Parallel()
 
-	e := ptesting.NewEnvironment(t)
-	defer func() {
-		if !t.Failed() {
-			e.DeleteEnvironmentFallible()
-		}
-	}()
+	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
+	require.NoError(t, err)
+
+	e := newEnvironmentDotnet(t)
+	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("about")
 
+	e.Env = append(e.Env, getProviderPath(languagePluginPath))
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
-	_, stderr := e.RunCommand("pulumi", "about")
+	stdout, stderr := e.RunCommand("pulumi", "about")
+	// There should be no "unknown" plugin versions.
+	assert.NotContains(t, stdout, "unknown")
+	assert.NotContains(t, stderr, "unknown")
 	// This one doesn't have a current stack. Assert that we caught it.
 	assert.Contains(t, stderr, "No current stack")
 }
 
 // TestResourceRefsGetResourceDotnet tests that invoking the built-in 'pulumi:pulumi:getResource' function
 // returns resource references for any resource reference in a resource's state.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestResourceRefsGetResourceDotnet(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:   filepath.Join("resource_refs_get_resource"),
@@ -481,12 +515,14 @@ func TestResourceRefsGetResourceDotnet(t *testing.T) {
 }
 
 // TestSln tests that we run a program with a .sln file next to it.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestSln(t *testing.T) {
 	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 		var foundStdout int
 		for _, ev := range stack.Events {
 			if de := ev.DiagnosticEvent; de != nil {
-				if strings.HasPrefix(de.Message, "With sln") {
+				if strings.Contains(de.Message, "With sln") {
 					foundStdout++
 				}
 			}
@@ -501,12 +537,14 @@ func TestSln(t *testing.T) {
 }
 
 // TestSlnMultiple tests that we run a .sln file with multiple nested projects by setting the "main" option.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestSlnMultipleNested(t *testing.T) {
 	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 		var foundStdout int
 		for _, ev := range stack.Events {
 			if de := ev.DiagnosticEvent; de != nil {
-				if strings.HasPrefix(de.Message, "With sln") {
+				if strings.Contains(de.Message, "With sln") {
 					foundStdout++
 				}
 			}
@@ -520,6 +558,7 @@ func TestSlnMultipleNested(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProvider(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            filepath.Join("provider"),
@@ -530,10 +569,19 @@ func TestProvider(t *testing.T) {
 			assert.Equal(t, "hello", stack.Outputs["echoB"])
 			assert.Equal(t, []interface{}{float64(1), "goodbye", true}, stack.Outputs["echoC"])
 		},
+		PrePrepareProject: func(info *engine.Projinfo) error {
+			e := newEnvironmentDotnet(t)
+			e.CWD = info.Root
+			path := info.Proj.Plugins.Providers[0].Path
+			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "--language", "dotnet")
+			return nil
+		},
 	})
 }
 
 // TestDeletedWith tests the DeletedWith resource option.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestDeletedWith(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:            "deleted_with",
@@ -542,6 +590,7 @@ func TestDeletedWith(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderCall(t *testing.T) {
 	const testDir = "provider_call"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -551,6 +600,7 @@ func TestProviderCall(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderCallInvalidArgument(t *testing.T) {
 	const testDir = "provider_call"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -561,6 +611,16 @@ func TestProviderCallInvalidArgument(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
+func TestProviderComponentHost(t *testing.T) {
+	const testDir = "provider_component_host"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   filepath.Join(testDir, "example"),
+		Quick: true,
+	})
+}
+
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderConstruct(t *testing.T) {
 	const testDir = "provider_construct"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -569,6 +629,7 @@ func TestProviderConstruct(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderConstructDependencies(t *testing.T) {
 	const testDir = "provider_construct_dependencies"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -577,6 +638,7 @@ func TestProviderConstructDependencies(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderConstructUnknown(t *testing.T) {
 	const testDir = "provider_construct_unknown"
 	testDotnetProgram(t, &integration.ProgramTestOptions{
@@ -613,14 +675,24 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 	return events, nil
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	e := ptesting.NewEnvironment(t)
+	// TODO[pulumi/pulumi-dotnet#403]: Fix flaky test.
+	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
+		t.Skip("Temporarily skipping flaky test on macOS and Windows - pulumi/pulumi-dotnet#403")
+	}
+
+	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
+	require.NoError(t, err)
+
+	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("printf")
 
-	prepareDotnetProjectAtCwd(e.RootPath)
+	err = prepareDotnetProjectAtCwd(e.RootPath)
+	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
 
@@ -628,7 +700,7 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true")
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		e.RunCommand("pulumi", "preview", "--attach-debugger",
@@ -657,7 +729,8 @@ outer:
 	// We don't care about the actual command, and the `thread-info` command just works.
 	in := strings.NewReader("1-thread-info")
 
-	cmd := exec.Command("netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
+	cmd := exec.Command( //nolint:gosec // This is a test
+		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
 	cmd.Stdin = in
 	out, err := cmd.CombinedOutput()
 	require.NoError(t, err)
@@ -665,4 +738,21 @@ outer:
 	require.Contains(t, string(out), "1^done")
 
 	wg.Wait()
+}
+
+// Test a parameterized provider with dotnet.
+//
+//nolint:paralleltest // ProgramTest calls t.Parallel()
+func TestParameterized(t *testing.T) {
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join("parameterized"),
+		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
+		PrePrepareProject: func(info *engine.Projinfo) error {
+			e := newEnvironmentDotnet(t)
+			e.CWD = info.Root
+			path := info.Proj.Plugins.Providers[0].Path
+			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "pkg", "--language", "dotnet")
+			return nil
+		},
+	})
 }

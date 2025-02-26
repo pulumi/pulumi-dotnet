@@ -29,32 +29,86 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+        with:
+          submodules: 'recursive'
+      - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v4
+      - name: Setup dotnet SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          # Install 8.0 for Build.fsproj
+          dotnet-version: 8.0.x
       - name: Format Pulumi SDK
         run: dotnet run format-sdk verify
+
+  lint:
+    name: Lint Go
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go 1.24.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24.x
+
+      # We leverage the golangci-lint action to install
+      # and maintain the cache,
+      # but we want to run the command ourselves.
+      # The action doesn't have an install-only mode,
+      # so we'll ask it to print its help output instead.
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+          args: --help
+
+      - name: Run golangci-lint
+        # Print GitHub Actions-friendly output so that errors get marked
+        # in the pull request.
+        run: make lint GOLANGCI_LINT_ARGS=--out-format=colored-line-number
 
   build:
     needs: setup_matrix
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
-        dotnet-version: [6.0.x, 8.0.x]
+        dotnet-version: [8.0.x, 9.0.x]
 
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+        with:
+          submodules: recursive
+      - name: Setup dotnet SDK
+        id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          # Install 8.0 for Build.fsproj and the matrix version.
+          # `outputs.dotnet-version` is the latest version among the installed
+          # versions. Since Build.fsproj targets the lowest version we support,
+          # this works out ok for the matrix.
+          # https://github.com/actions/setup-dotnet?tab=readme-ov-file#dotnet-version
+          dotnet-version: |
+            8.0.x
+            ${{ matrix.dotnet-version }}
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Dotnet version
+        run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v5
+        uses: pulumi/actions@13b8b7177d6fb736766875dac9b78aab07bd785f # v6
+        with:
+          pulumi-version: latest
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Workspace clean (are xml doc file updates committed?)
         uses: pulumi/git-status-check-action@v1
+        with:
+          allowed-changes: ./global.json
       - name: Test Pulumi SDK
         run: dotnet run test-sdk coverage
       - name: Test Pulumi Automation SDK
@@ -69,25 +123,49 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
   integration-tests:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-12]
-        dotnet-version: [6.0.x, 8.0.x]
+        os: [ubuntu-latest, windows-latest, macos-13]
+        dotnet-version: [8.0.x, 9.0.x]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Set TARGET_FRAMEWORK
+        shell: bash
+        run: |
+          if [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
+          else
+            echo "Unexpected dotnet-version: ${{ matrix.dotnet-version }}"
+            exit 1
+          fi
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup dotnet SDK v6.0
+        with:
+          submodules: recursive
+      - name: Setup dotnet SDK
+        id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Set up Go 1.22.x
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Dotnet version
+        run: dotnet --version
+      - name: Set up Go 1.24.x
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.x
+          go-version: 1.24.x
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v5
+        uses: pulumi/actions@13b8b7177d6fb736766875dac9b78aab07bd785f # v6
+        with:
+          pulumi-version: latest
       - name: Install gotestsum
-        uses: jaxxstorm/action-install-gh-release@v1.11.0
+        uses: jaxxstorm/action-install-gh-release@v1.14.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -95,33 +173,86 @@ jobs:
           tag: v1.8.1
           cache: enable
       - name: Install netcoredbg (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-linux-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
           sudo cp netcoredbg/* /usr/bin/
       - uses: MinoruSekine/setup-scoop@v4.0.1
-        if: matrix.os == 'windows-latest'
+        if: startsWith(matrix.os, 'windows')
         with:
           buckets: extras
           apps: doxygen plantuml
       - name: Install netcoredbg (Windows)
-        if: matrix.os == 'windows-latest'
+        if: startsWith(matrix.os, 'windows')
         run: |
           scoop install netcoredbg
       - name: Install netcoredbg (MacOS)
-        if: matrix.os == 'macos-12'
+        if: startsWith(matrix.os, 'macos')
         id: netcoredbg
         run: |
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
           echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
       - name: Integration tests
-        if: matrix.os == 'macos-12'
+        if: startsWith(matrix.os, 'macos')
         run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_integration
       - name: Integration tests
-        if: matrix.os != 'macos-12'
+        if: startsWith(matrix.os, 'macos') != true
         run: make test_integration
+  conformance-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-13]
+        dotnet-version: [8.0.x]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set TARGET_FRAMEWORK
+        shell: bash
+        run: |
+          if [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
+          else
+            echo "Unexpected dotnet-version: ${{ matrix.dotnet-version }}"
+            exit 1
+          fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup dotnet SDK
+        id: setup-dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Dotnet version
+        run: dotnet --version
+      - name: Set up Go 1.24.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24.x
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@13b8b7177d6fb736766875dac9b78aab07bd785f # v6
+        with:
+          pulumi-version: latest
+      - name: Install gotestsum
+        uses: jaxxstorm/action-install-gh-release@v1.14.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo: gotestyourself/gotestsum
+          tag: v1.8.1
+          cache: enable
+      - name: Conformance tests
+        run: make test_conformance
 
   info:
     name: gather

@@ -1,5 +1,6 @@
 // Copyright 2016-2019, Pulumi Corporation
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -691,7 +692,7 @@ namespace Pulumi.Tests.Core
                 });
 
             [Fact]
-            public Task JsonSerializeNestedLists()
+            public Task JsonSerializeNestedCollections()
                 => RunInNormal(async () =>
                 {
                     var listv = new InputList<int> { 1, 2, 3 };
@@ -829,6 +830,28 @@ namespace Pulumi.Tests.Core
                 });
 
             [Fact]
+            public Task JsonDeserializeNestedCollections()
+                => RunInNormal(async () =>
+                {
+                    var o1 = CreateOutput("{\"Items\":[{\"Ints\":[1,2,3],\"IntMap\":{\"K1\":4}}]}", true);
+                    var o2 = Output.JsonDeserialize<Output<TestListStructure>>(o1);
+                    var data = await o2.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    var i0 = await data.Value.DataTask.ConfigureAwait(false);
+                    var items = await i0.Value.Items.ToOutput().DataTask.ConfigureAwait(false);
+                    Assert.Single(items.Value);
+                    var listv = await items.Value[0].Ints.ToOutput().DataTask.ConfigureAwait(false);
+                    Assert.Equal(3, listv.Value.Length);
+                    for (var i = 1; i <= 3; i++)
+                    {
+                        Assert.Equal(i, listv.Value[i - 1]);
+                    }
+                    var mapv = await items.Value[0].IntMap.ToOutput().DataTask.ConfigureAwait(false);
+                    Assert.Single(mapv.Value);
+                    Assert.Equal(4, mapv.Value["K1"]);
+                });
+
+            [Fact]
             public async Task JsonDeserializeNestedDependencies()
             {
                 // We need a custom mock setup for this because new CustomResource will call into the
@@ -896,6 +919,51 @@ namespace Pulumi.Tests.Core
                 Assert.False(data.IsSecret);
                 Assert.Equal("{ pip pip", data.Value);
             });
+
+
+            [Fact]
+            public Task DeferredOutput()
+                => RunInNormal(async () =>
+                {
+                    var defO = new DeferredOutput<int>();
+                    var o1 = CreateOutput(0, isKnown: true);
+
+                    Assert.False(defO.Output.DataTask.IsCompleted);
+                    defO.Resolve(o1);
+
+                    var data = await defO.Output.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.Equal(0, data.Value);
+                });
+
+            [Fact]
+            public Task DeferredOutputOnlySetOnce()
+                => RunInNormal(async () =>
+                {
+                    var defO = new DeferredOutput<int>();
+                    var o1 = CreateOutput(0, isKnown: true);
+                    defO.Resolve(o1);
+
+                    var o2 = CreateOutput(1, isKnown: true);
+                    Assert.Throws<System.InvalidOperationException>(() => defO.Resolve(o2));
+
+                    var data = await defO.Output.DataTask.ConfigureAwait(false);
+                    Assert.True(data.IsKnown);
+                    Assert.Equal(0, data.Value);
+                });
+
+            [Theory]
+            [InlineData("true")]
+            [InlineData("1")]
+            public void OutputToStringThrowsWhenSet(string? variableValue)
+            {
+                Environment.SetEnvironmentVariable("PULUMI_ERROR_OUTPUT_STRING", variableValue);
+                var o1 = CreateOutput(0, isKnown: true);
+                Assert.Throws<InvalidOperationException>(() => o1.ToString());
+
+                Environment.SetEnvironmentVariable("PULUMI_ERROR_OUTPUT_STRING", null);
+                Assert.EndsWith("This function may throw in a future version of Pulumi.", o1.ToString());
+            }
         }
     }
 }

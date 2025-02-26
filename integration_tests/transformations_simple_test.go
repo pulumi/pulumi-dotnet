@@ -1,6 +1,18 @@
-// Copyright 2016-2022, Pulumi Corporation.  All rights reserved.
+// Copyright 2016-2022, Pulumi Corporation.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-package integration_tests
+package integrationtests
 
 import (
 	"testing"
@@ -11,6 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestDotNetTransformations(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    "transformations_simple",
@@ -86,6 +99,7 @@ func dotNetValidator() func(t *testing.T, stack integration.RuntimeValidationSta
 	}
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestDotNetTransforms(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir:                    "transformations_remote",
@@ -109,6 +123,7 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 	foundRes5 := false
 	foundRes6 := false
 	foundRes7 := false
+	foundRes8 := false
 	for _, res := range stack.Deployment.Resources {
 		// "res1" has a transformation which adds additionalSecretOutputs
 		if res.URN.Name() == "res1" {
@@ -180,6 +195,12 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			assert.NotNil(t, length)
 			assert.Equal(t, 42.0, length.(float64))
 		}
+		// "res8" should have a custom provider
+		if res.URN.Name() == "res8" {
+			foundRes8 = true
+			assert.Equal(t, res.Type, tokens.Type(randomResName))
+			assert.NotContains(t, res.Provider, "default")
+		}
 	}
 	assert.True(t, foundRes1)
 	assert.True(t, foundRes2Child)
@@ -188,4 +209,5 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 	assert.True(t, foundRes5)
 	assert.True(t, foundRes6)
 	assert.True(t, foundRes7)
+	assert.True(t, foundRes8)
 }

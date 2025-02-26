@@ -13,17 +13,21 @@ class Program
         {
             DebuggerUtils.WaitForDebugger();
 
-            var complexArgs10 = new ComplexTypeArgs{ Name = "component10", IntValue = 100 };
+            var complexArgs10 = new ComplexTypeArgs{ Name = "component10", IntValue = 100, InheritInputAttribute = "SomeInput"};
+            const string inheritInputAttribute10 = "ComponentInput";
             var component10 = new Component("component10", new ComponentArgs()
             {
                 PasswordLength = 10,
-                Complex = complexArgs10
+                Complex = complexArgs10,
+                InheritInputAttribute = inheritInputAttribute10
             });
-            var complexArgs20 = new ComplexTypeArgs{ Name = "component20", IntValue = 200 };
+            var complexArgs20 = new ComplexTypeArgs{ Name = "component20", IntValue = 200, InheritInputAttribute = "AnotherInput" };
+            const string inheritInputAttribute20 = "AnotherComponentInput";
             var component20 = new Component("component20", new ComponentArgs()
             {
                 PasswordLength = 20,
-                Complex = complexArgs20
+                Complex = complexArgs20,
+                InheritInputAttribute = inheritInputAttribute20
             });
 
             var result10 = await OutputUtilities.GetValueAsync(component10.PasswordResult);
@@ -35,6 +39,11 @@ class Program
             var complexResult20 = await OutputUtilities.GetValueAsync(component20.ComplexResult);
             ValidateComplexResult(complexResult10, complexArgs10);
             ValidateComplexResult(complexResult20, complexArgs20);
+
+            var inheritedOutputResult10 = await OutputUtilities.GetValueAsync(component10.InheritOutputAttribute);
+            var inheritedOutputResult20 = await OutputUtilities.GetValueAsync(component20.InheritOutputAttribute);
+            inheritedOutputResult10.Should().Be(inheritInputAttribute10);
+            inheritedOutputResult20.Should().Be(inheritInputAttribute20);
         });
 
         return returnCode;
@@ -44,5 +53,6 @@ class Program
     {
         result.Name.Should().Be(expected.Name);
         result.IntValue.Should().Be(expected.IntValue);
+        result.InheritOutputAttribute.Should().Be(expected.InheritInputAttribute);
     }
 }

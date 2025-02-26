@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Pulumi;
+using Pulumi.Testprovider;
 
 class Program
 {
@@ -10,15 +11,15 @@ class Program
     {
         return Deployment.RunAsync(() =>
         {
-            var customA = new TestResource("a", new TestResourceArgs { Echo = 42 });
-            var customB = new TestResource("b", new TestResourceArgs { Echo = "hello" });
-            var customC = new TestResource("c", new TestResourceArgs { Echo = new object[] { 1, "goodbye", true} });
+            var customA = new Echo("a", new EchoArgs { Value = 42 });
+            var customB = new Echo("b", new EchoArgs { Value = "hello" });
+            var customC = new Echo("c", new EchoArgs { Value = new object[] { 1, "goodbye", true} });
 
             return new Dictionary<string, object?>
             {
-                {  "echoA", customA.Echo },
-                {  "echoB", customB.Echo },
-                {  "echoC", customC.Echo },
+                {  "echoA", customA.Value },
+                {  "echoB", customB.Value },
+                {  "echoC", customC.Value },
             };
         });
     }

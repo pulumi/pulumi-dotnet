@@ -297,7 +297,7 @@ namespace Pulumi
                     response.Options.IgnoreChanges.AddRange(result.Value.Options.IgnoreChanges);
                     response.Options.PluginDownloadUrl = result.Value.Options.PluginDownloadURL ?? "";
                     response.Options.Protect = result.Value.Options.Protect ?? false;
-                    response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Urn.GetValueAsync("").ConfigureAwait(false);
+                    response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Ref.ConfigureAwait(false);
                     response.Options.ReplaceOnChanges.AddRange(result.Value.Options.ReplaceOnChanges);
                     response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete ?? false;
                     response.Options.Version = result.Value.Options.Version;
@@ -311,8 +311,7 @@ namespace Pulumi
                     {
                         foreach (var provider in componentOptions.Providers)
                         {
-                            var urn = await provider.Urn.GetValueAsync("").ConfigureAwait(false);
-                            response.Options.Providers.Add(provider.Package, urn);
+                            response.Options.Providers.Add(provider.Package, await provider.Ref.ConfigureAwait(false));
                         }
                     }
                 }
@@ -530,7 +529,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
         private static Task<ImmutableArray<Resource>> GatherExplicitDependenciesAsync(InputList<Resource> resources)
             => resources.ToOutput().GetValueAsync(whenUnknown: ImmutableArray<Resource>.Empty);
 
-        internal static async Task<HashSet<string>> GetAllTransitivelyReferencedResourceUrnsAsync(
+        internal static IEnumerable<Resource> GetAllTransitivelyReferencedResources(
             HashSet<Resource> resources)
         {
             // Go through 'resources', but transitively walk through **Component** resources, collecting any
@@ -559,7 +558,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
             // * Comp3 and Cust5 because Comp3 is a child of a remote component resource
             var transitivelyReachableResources = GetTransitivelyReferencedChildResourcesOfComponentResources(resources);
 
-            var transitivelyReachableCustomResources = transitivelyReachableResources.Where(res =>
+            return transitivelyReachableResources.Where(res =>
             {
                 switch (res)
                 {
@@ -568,6 +567,12 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                     default: return false; // Unreachable
                 }
             });
+        }
+
+        internal static async Task<HashSet<string>> GetAllTransitivelyReferencedResourceUrnsAsync(
+            HashSet<Resource> resources)
+        {
+            var transitivelyReachableCustomResources = GetAllTransitivelyReferencedResources(resources);
             var tasks = transitivelyReachableCustomResources.Select(r => r.Urn.GetValueAsync(whenUnknown: ""));
             var urns = await Task.WhenAll(tasks).ConfigureAwait(false);
             return new HashSet<string>(urns.Where(urn => !string.IsNullOrEmpty(urn)));

@@ -23,6 +23,7 @@ namespace Pulumi.Experimental.Provider
         Archive,
         Secret,
         Resource,
+        Output,
         Computed,
     }
 
@@ -71,11 +72,20 @@ namespace Pulumi.Experimental.Provider
 
     public readonly struct OutputReference : IEquatable<OutputReference>
     {
+        /// <summary>
+        /// The value of the output, if it is known. This will never be a `Computed` value as that's
+        /// equivilent to unknown and thus null.
+        /// </summary>
         public readonly PropertyValue? Value;
         public readonly ImmutableHashSet<Urn> Dependencies;
 
         public OutputReference(PropertyValue? value, ImmutableHashSet<Urn> dependencies)
         {
+            // Normalise `Computed` to null
+            if (value != null && value.IsComputed)
+            {
+                value = null;
+            }
             Value = value;
             Dependencies = dependencies;
         }
@@ -169,6 +179,10 @@ namespace Pulumi.Experimental.Provider
                 else if (ResourceValue != null)
                 {
                     return PropertyValueType.Resource;
+                }
+                else if (OutputValue != null)
+                {
+                    return PropertyValueType.Output;
                 }
                 else if (IsComputed)
                 {
@@ -518,8 +532,8 @@ namespace Pulumi.Experimental.Provider
             IsComputed,
         }
 
-        public static PropertyValue Null = new PropertyValue(SpecialType.IsNull);
-        public static PropertyValue Computed = new PropertyValue(SpecialType.IsComputed);
+        public static readonly PropertyValue Null = new PropertyValue(SpecialType.IsNull);
+        public static readonly PropertyValue Computed = new PropertyValue(SpecialType.IsComputed);
 
         public PropertyValue(bool value)
         {

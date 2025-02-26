@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="sdk\dotnet\Pulumi.Pkg.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);sdk/**/*.cs</DefaultItemExcludes>
+    <OutputType>Exe</OutputType>
+    <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' != '' ">$(TARGET_FRAMEWORK)</TargetFramework>
+    <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

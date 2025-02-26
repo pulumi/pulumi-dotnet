@@ -99,6 +99,48 @@ namespace Pulumi
             }
         }
 
+        private sealed class InputListJsonConverterInner<T> : System.Text.Json.Serialization.JsonConverter<InputList<T>>
+        {
+            readonly JsonConverter<Input<ImmutableArray<T>>> Converter;
+
+            public InputListJsonConverterInner(JsonSerializerOptions options)
+            {
+                Converter = (JsonConverter<Input<ImmutableArray<T>>>)options.GetConverter(typeof(Input<ImmutableArray<T>>));
+            }
+
+            public override InputList<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var value = Converter.Read(ref reader, typeof(Input<ImmutableArray<T>>), options);
+                return value.ToOutput();
+            }
+
+            public override void Write(Utf8JsonWriter writer, InputList<T> value, JsonSerializerOptions options)
+            {
+                Converter.Write(writer, value, options);
+            }
+        }
+
+        private sealed class InputMapJsonConverterInner<T> : System.Text.Json.Serialization.JsonConverter<InputMap<T>>
+        {
+            readonly JsonConverter<Input<ImmutableDictionary<string, T>>> Converter;
+
+            public InputMapJsonConverterInner(JsonSerializerOptions options)
+            {
+                Converter = (JsonConverter<Input<ImmutableDictionary<string, T>>>)options.GetConverter(typeof(Input<ImmutableDictionary<string, T>>));
+            }
+
+            public override InputMap<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var value = Converter.Read(ref reader, typeof(Input<ImmutableDictionary<string, T>>), options);
+                return value.ToOutput();
+            }
+
+            public override void Write(Utf8JsonWriter writer, InputMap<T> value, JsonSerializerOptions options)
+            {
+                Converter.Write(writer, value, options);
+            }
+        }
+
         public bool _isSecret { get; private set; }
         private readonly ImmutableHashSet<Resource> _resources;
 
@@ -120,7 +162,7 @@ namespace Pulumi
             {
                 var genericType = typeToConvert.GetGenericTypeDefinition();
                 return genericType == typeof(Output<>) || genericType == typeof(Input<>)
-                    || IsSubclassOfGeneric(typeToConvert, typeof(Input<>));
+                    || genericType == typeof(InputList<>) || genericType == typeof(InputMap<>);
             }
             return false;
         }
@@ -129,40 +171,37 @@ namespace Pulumi
         {
             System.Diagnostics.Debug.Assert(typeToConvert.GetGenericTypeDefinition() == typeof(Output<>)
                 || typeToConvert.GetGenericTypeDefinition() == typeof(Input<>)
-                || IsSubclassOfGeneric(typeToConvert, typeof(Input<>)));
+                || typeToConvert.GetGenericTypeDefinition() == typeof(InputList<>)
+                || typeToConvert.GetGenericTypeDefinition() == typeof(InputMap<>));
             System.Diagnostics.Debug.Assert(typeToConvert.GetGenericArguments().Length == 1);
 
             Type elementType = typeToConvert.GetGenericArguments()[0];
-            if (typeToConvert.GetGenericTypeDefinition() == typeof(Output<>))
+            Type genericType = typeToConvert.GetGenericTypeDefinition();
+
+            var converterMap = new Dictionary<Type, Type>
             {
+                { typeof(Output<>), typeof(OutputJsonConverterInner<>) },
+                { typeof(Input<>), typeof(InputJsonConverterInner<>) },
+                { typeof(InputList<>), typeof(InputListJsonConverterInner<>) },
+                { typeof(InputMap<>), typeof(InputMapJsonConverterInner<>) },
+            };
+
+            if (converterMap.TryGetValue(genericType, out Type? converterType))
+            {
+                bool requiresOuterInstance = genericType == typeof(Output<>) || genericType == typeof(Input<>);
+                var args = requiresOuterInstance ? new object[] { this, options } : new object[] { options };
+
                 return (JsonConverter)Activator.CreateInstance(
-                    typeof(OutputJsonConverterInner<>).MakeGenericType(
-                        new Type[] { elementType }),
-                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
-                        binder: null,
-                        args: new object[] { this, options },
-                        culture: null)!;
-            }
-
-            // InputList<> and InputMap<> are examples of subclasses of Input<>. If we face those,
-            // we want to take the element type of Input<T> (e.g. ImmutableArray<T> for InputList),
-            // not the element type of the subclass.
-            if (IsSubclassOfGeneric(typeToConvert, typeof(Input<>)))
-            {
-                elementType = typeToConvert.BaseType!.GenericTypeArguments[0];
-            }
-
-            return (JsonConverter)Activator.CreateInstance(
-                typeof(InputJsonConverterInner<>).MakeGenericType(
-                    new Type[] { elementType }),
+                    converterType.MakeGenericType(elementType),
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
                     binder: null,
-                    args: new object[] { this, options },
-                    culture: null)!;
-        }
+                    args: args,
+                    culture: null
+                )!;
+            }
 
-        private bool IsSubclassOfGeneric(Type type, Type baseType) =>
-            type.BaseType?.IsGenericType == true && type.BaseType.GetGenericTypeDefinition() == baseType;
+            throw new InvalidOperationException($"No converter found for type {typeToConvert}");
+        }
     }
 
     /// <summary>
@@ -396,6 +435,22 @@ namespace Pulumi
                 var description = GetType().ToString();
                 instance.Runner.RegisterTask(description, dataTask);
             }
+        }
+
+        /// <summary>
+        /// This returns a new <see cref="Output{T}"/> that represents the same value as this output, but with
+        /// the extra dependencies specified.
+        /// </summary>
+        internal Output<T> WithDependencies(ImmutableHashSet<Resource> resources)
+        {
+            async Task<OutputData<T>> GetData()
+            {
+                var data = await DataTask.ConfigureAwait(false);
+                var combinedResources = data.Resources.Union(resources);
+                return new OutputData<T>(combinedResources, data.Value, data.IsKnown, data.IsSecret);
+            }
+
+            return new Output<T>(GetData());
         }
 
         internal async Task<T> GetValueAsync(T whenUnknown)
@@ -638,18 +693,74 @@ namespace Pulumi
 
         public override string ToString()
         {
-            var message = string.Join(Environment.NewLine, new string[] {
+            var message = string.Join(Environment.NewLine,
                 "Calling [ToString] on an [Output<T>] is not supported.",
                 "",
                 "To get the value of an Output<T> as an Output<string> consider:",
                 "1. o.Apply(v => $\"prefix{v}suffix\")",
                 "2. Output.Format($\"prefix{hostname}suffix\");",
                 "",
-                "See https://www.pulumi.com/docs/concepts/inputs-outputs for more details.",
-                "This function may throw in a future version of Pulumi.",
-            });
+                "See https://www.pulumi.com/docs/concepts/inputs-outputs for more details."
+            );
 
-            return message;
+            var errorOutputString = Environment.GetEnvironmentVariable("PULUMI_ERROR_OUTPUT_STRING");
+
+            if (errorOutputString == "1" || string.Equals(errorOutputString, "true", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(message);
+            }
+
+            return string.Join(Environment.NewLine, message, "This function may throw in a future version of Pulumi.");
+        }
+    }
+
+    /// <summary>
+    /// Represents the producer side of an <see cref="Output{T}"/> value, providing access to the consumer side through
+    /// the Output property.
+    /// </summary>
+    public sealed class DeferredOutput<T>
+    {
+        private int _set = 0;
+        private readonly TaskCompletionSource<OutputData<T>> _tcs = new TaskCompletionSource<OutputData<T>>();
+
+        /// <summary>
+        /// The <see cref="Output{T}"/> that represents the consumer side of this <see cref="DeferredOutput{T}"/>.
+        /// </summary>
+        public Output<T> Output { get; }
+
+        public DeferredOutput()
+        {
+            Output = new Output<T>(_tcs.Task);
+        }
+
+        /// <summary>
+        /// Resolves the value of the <see cref="Output{T}"/> represented by this <see
+        /// cref="DeferredOutput{T}"/> to the same eventually resolved result as the provided <see
+        /// cref="Output{T}"/>.
+        /// </summary>
+        public void Resolve(Output<T> output)
+        {
+            // Multithread safe check to ensure the DeferredOutput can only be set once.
+            if (System.Threading.Interlocked.Exchange(ref _set, 1) == 1)
+            {
+                throw new InvalidOperationException("DeferredOutput can only be resolved once.");
+            }
+
+            output.DataTask.ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _tcs.SetException(t.Exception!);
+                }
+                else if (t.IsCanceled)
+                {
+                    _tcs.SetCanceled();
+                }
+                else
+                {
+                    _tcs.SetResult(t.Result);
+                }
+            });
         }
     }
 }

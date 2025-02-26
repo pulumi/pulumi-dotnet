@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Support input lists and maps in JsonSerializer.SerializeAsync
-time: 2024-10-30T11:38:30.532438+01:00
-custom:
-    PR: "368"

@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="build\GitSync.fs" />
     <Compile Include="build\Nuget.fs" />
+    <Compile Include="build\PulumiSdkVersion.fs" />
     <Compile Include="build\Publish.fs" />
     <Compile Include="build\Program.fs" />
   </ItemGroup>

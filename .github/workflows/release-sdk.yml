@@ -42,13 +42,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
-      - name: Set up DotNet 6.0.x
+      - name: Set up DotNet 8.0.x
+        id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
           dotnet-quality: ga
+      - name: Create global.json
+        # This ensures that we use the matrix version instead of the runner's default version
+        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Dotnet version
+        run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v5
+        uses: pulumi/actions@13b8b7177d6fb736766875dac9b78aab07bd785f # v6
+        with:
+          pulumi-version: latest
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Test Pulumi SDK

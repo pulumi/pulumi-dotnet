@@ -9,6 +9,12 @@ namespace Pulumi.Automation
     /// </summary>
     public sealed class RefreshOptions : UpdateOptions
     {
+        /// <summary>
+        /// Only show a preview of the refresh, but don't perform the refresh
+        /// itself.
+        /// </summary>
+        public bool? PreviewOnly { get; set; }
+
         public bool? ExpectNoChanges { get; set; }
 
         /// <summary>

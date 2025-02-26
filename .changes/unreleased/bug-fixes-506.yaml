@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Fix inconsistent behavior of inheritance for InputAttribute and OutputAttribute
+time: 2025-02-24T09:40:25.1221824+01:00
+custom:
+    PR: "506"

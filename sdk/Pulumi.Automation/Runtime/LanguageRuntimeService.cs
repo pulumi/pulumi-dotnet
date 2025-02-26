@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using Pulumirpc;
@@ -73,6 +74,15 @@ namespace Pulumi.Automation
             }
 
             return new RunResponse();
+        }
+
+        public override Task<Pulumirpc.PluginInfo> GetPluginInfo(Empty request, ServerCallContext context)
+        {
+            var response = new Pulumirpc.PluginInfo
+            {
+                Version = "1.0.0",
+            };
+            return Task.FromResult(response);
         }
 
         public class CallerContext

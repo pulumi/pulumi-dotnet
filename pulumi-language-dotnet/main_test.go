@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDeterminePluginDependency(t *testing.T) {
+func TestDeterminePackageDependency(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
@@ -43,7 +43,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 
 		// Expected outputs
 		ExpectError bool
-		Expected    *pulumirpc.PluginDependency
+		Expected    *pulumirpc.PackageDependency
 	}{
 		{
 			Name:           "non-package",
@@ -58,7 +58,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 			PulumiPlugin: &plugin.PulumiPluginJSON{
 				Resource: true,
 			},
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "helloworld",
 				Version: "v1.2.3",
 			},
@@ -68,7 +68,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 			PackageName:    "Pulumi.AzureNative",
 			PackageVersion: "v1.2.3",
 			VersionTxt:     "v2.3.4",
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "azurenative",
 				Version: "v2.3.4",
 			},
@@ -78,7 +78,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 			PackageName:    "NotImportant",
 			PackageVersion: "0.0.0",
 			VersionTxt:     "AzureNative\nv2.3.4\n",
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "AzureNative",
 				Version: "v2.3.4",
 			},
@@ -100,7 +100,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 				Version:  "v3.2.1",
 				Server:   "website.com/page",
 			},
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "corporate-native",
 				Version: "v3.2.1",
 				Server:  "website.com/page",
@@ -128,7 +128,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 				Server:   "a.org/server",
 				Resource: true,
 			},
-			Expected: &pulumirpc.PluginDependency{
+			Expected: &pulumirpc.PackageDependency{
 				Name:    "name2",
 				Version: "v2.2.2",
 				Server:  "a.org/server",
@@ -167,7 +167,7 @@ func TestDeterminePluginDependency(t *testing.T) {
 				c.Expected.Kind = "resource"
 			}
 
-			actual, err := DeterminePluginDependency(cwd, c.PackageName, c.PackageVersion)
+			actual, err := DeterminePackageDependency(cwd, c.PackageName, c.PackageVersion)
 
 			if c.ExpectError {
 				t.Logf("Error expected")
@@ -181,9 +181,8 @@ func TestDeterminePluginDependency(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // mutates cwd
 func TestBuildDll(t *testing.T) {
-	t.Parallel()
-
 	cases := []struct {
 		Name       string
 		EntryPoint string
@@ -194,7 +193,7 @@ func TestBuildDll(t *testing.T) {
 	}{
 		{
 			Name:               "regular case works",
-			EntryPoint:         "",
+			EntryPoint:         ".",
 			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
 		},
 		{
@@ -209,17 +208,19 @@ func TestBuildDll(t *testing.T) {
 		},
 		{
 			Name:       "fsproj works",
-			EntryPoint: "",
+			EntryPoint: ".",
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
-				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.fsproj"))
+				err := os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.fsproj"))
+				require.NoError(t, err)
 			},
 			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
 		},
 		{
 			Name:       "vbproj works",
-			EntryPoint: "",
+			EntryPoint: ".",
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
-				os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.vbproj"))
+				err := os.Rename(filepath.Join(e.RootPath, "Empty.csproj"), filepath.Join(e.RootPath, "Empty.vbproj"))
+				require.NoError(t, err)
 			},
 			ExpectedErrorContains: "'Sub Main' was not found in 'Empty'.",
 		},
@@ -229,14 +230,14 @@ func TestBuildDll(t *testing.T) {
 			ExtraSetup: func(t *testing.T, e *ptesting.Environment) {
 				data, err := os.ReadFile("Empty.csproj")
 				assert.NoError(t, err)
-				err = os.WriteFile("Another.fsproj", data, 0o644)
+				err = os.WriteFile("Another.fsproj", data, 0o600)
 				assert.NoError(t, err)
 			},
 			ExpectedBinaryPath: filepath.Join("bin", "pulumi-debugging", "Empty.dll"),
 		},
 		{
 			Name:                  "incorrect entry point name",
-			EntryPoint:            "Another",
+			EntryPoint:            "Another.csproj",
 			ExpectedErrorContains: "Project file does not exist",
 		},
 	}
@@ -246,21 +247,13 @@ func TestBuildDll(t *testing.T) {
 		t.Run(c.Name, func(t *testing.T) {
 			e := ptesting.NewEnvironment(t)
 			e.ImportDirectory("testdata/build-dll")
-
-			pwd, err := os.Getwd()
-			require.NoError(t, err)
-			os.Chdir(e.RootPath)
-			defer os.Chdir(pwd)
+			t.Chdir(e.RootPath)
 
 			if c.ExtraSetup != nil {
 				c.ExtraSetup(t, e)
 			}
 
-			host := &dotnetLanguageHost{
-				exec: "dotnet",
-			}
-
-			binaryPath, err := host.buildDebuggingDLL(c.EntryPoint)
+			binaryPath, err := buildDebuggingDLL("dotnet", e.RootPath, c.EntryPoint)
 
 			if c.ExpectedErrorContains != "" {
 				assert.ErrorContains(t, err, c.ExpectedErrorContains)

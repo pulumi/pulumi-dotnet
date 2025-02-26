@@ -54,9 +54,18 @@ namespace Pulumi
             RegisterPackageRequest? registerPackageRequest)
             => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest));
 
+        Output<T> IDeployment.Invoke<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOutputOptions options,
+            RegisterPackageRequest? registerPackageRequest)
+            => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest));
+
         Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOptions? options)
             => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest: null));
 
+        Output<T> IDeployment.Invoke<T>(string token, InvokeArgs args, InvokeOutputOptions options)
+        => new Output<T>(RawInvoke<T>(token, args, options, registerPackageRequest: null));
 
 
         Output<T> IDeployment.InvokeSingle<T>(
@@ -69,7 +78,24 @@ namespace Pulumi
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 
+        Output<T> IDeployment.InvokeSingle<T>(
+            string token,
+            InvokeArgs args,
+            InvokeOutputOptions options,
+            RegisterPackageRequest? registerPackageRequest)
+        {
+            var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest));
+            return outputResult.Apply(outputs => outputs.Values.First());
+        }
+
         Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options)
+        {
+            var outputResult = new Output<Dictionary<string, T>>(
+                RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));
+            return outputResult.Apply(outputs => outputs.Values.First());
+        }
+
+        Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOutputOptions options)
         {
             var outputResult = new Output<Dictionary<string, T>>(
                 RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));
@@ -128,13 +154,55 @@ namespace Pulumi
                                          isSecret: false);
             }
 
+            // Resource dependencies that will be added to the Output
+            var resourceDependencies = new HashSet<Resource>();
+            // If we depend on any CustomResources, we need to ensure that their
+            // ID is known before proceeding. If it is not known, we will return
+            // an unknown result.
+            // Add the dependencies from the inputs to the set of resources to wait for.
+            var resourcesToWaitFor = serializedArgs.PropertyToDependentResources.Values.SelectMany(r => r).ToHashSet<Resource>();
+            if (options is InvokeOutputOptions outputOptions)
+            {
+                var deps = outputOptions.DependsOn;
+                if (deps != null)
+                {
+                    // The direct dependencies of the invoke.
+                    var resourceList = await GatherExplicitDependenciesAsync(deps).ConfigureAwait(false);
+                    resourcesToWaitFor.UnionWith(resourceList);
+                    // Add the resources to the list of dependencies that we'll add to the Output
+                    resourceDependencies.UnionWith(resourceList);
+                }
+            }
+            // The expanded set of dependencies, including children of components.
+            var expandedResourceList = GetAllTransitivelyReferencedResources(resourcesToWaitFor.ToHashSet());
+            resourcesToWaitFor.UnionWith(expandedResourceList);
+            // Ensure that all resource IDs are known before proceeding.
+            foreach (var resource in resourcesToWaitFor)
+            {
+                // Check if it's an instance of CustomResource.
+                // DependencyResources inherit from CustomResource, but they
+                // don't set the id. Skip them.
+                if (resource is CustomResource customResource && customResource.Id != null)
+                {
+                    var idData = await customResource.Id.DataTask.ConfigureAwait(false);
+                    if (!idData.IsKnown)
+                    {
+                        return new OutputData<T>(resources: ImmutableHashSet<Resource>.Empty,
+                                                 value: default!,
+                                                 isKnown: false,
+                                                 isSecret: false);
+                    }
+
+                }
+            }
+
             var protoArgs = serializedArgs.ToSerializationResult();
             var result = await InvokeRawAsync(token, protoArgs, options, registerPackageRequest).ConfigureAwait(false);
             var data = Pulumi.Serialization.Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result",
                                                  new Value { StructValue = result.Serialized });
             var resources = ImmutableHashSet.CreateRange(
                 result.PropertyToDependentResources.Values.SelectMany(r => r)
-                .Union(data.Resources));
+                .Union(data.Resources).Union(resourceDependencies));
             return new OutputData<T>(resources: resources,
                                      value: data.Value,
                                      isKnown: data.IsKnown,

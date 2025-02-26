@@ -1,0 +1,6 @@
+component: runtime
+kind: Bug Fixes
+body: Revert changes to target net8 in provider SDKs
+time: 2025-02-26T23:10:39.640057266Z
+custom:
+  PR: "515"

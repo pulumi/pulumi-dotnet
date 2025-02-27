@@ -2443,7 +2443,7 @@ namespace Pulumi.Automation.Tests
                 await stack.Workspace.RemoveStackAsync(stackName);
             }
         }
-        
+
         [Fact]
         public async Task InstallRunsSuccessfully()
         {

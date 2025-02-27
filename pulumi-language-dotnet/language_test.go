@@ -232,8 +232,10 @@ func TestLanguage(t *testing.T) {
 		"l2-invoke-options-depends-on":          "dotnet build failed",
 		"l2-invoke-secrets": "" +
 			"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-		"l2-map-keys":        "dotnet build failed",
-		"l2-resource-secret": "test hanging",
+		"l2-map-keys":                "dotnet build failed",
+		"l2-resource-secret":         "test hanging",
+		"l1-builtin-project-root":    "#466",
+		"l2-component-property-deps": "https://github.com/pulumi/pulumi/issues/18741: add programgen support for call",
 	}
 
 	for _, tt := range tests.Tests {

@@ -1,6 +1,0 @@
-component: sdk/auto
-kind: Improvements
-body: Add the `--preview-only` flag for the `refresh` command
-time: 2025-02-21T15:34:40.46059+01:00
-custom:
-    PR: "496"

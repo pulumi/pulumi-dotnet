@@ -1,6 +1,0 @@
-component: sdk/provider
-kind: Improvements
-body: Schema Analyzer to infer component schemas from classes
-time: 2025-02-21T17:13:41.55643+01:00
-custom:
-    PR: "468"

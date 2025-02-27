@@ -376,14 +376,19 @@ namespace Pulumi.Experimental.Provider
 
         public Task<T> Deserialize<T>(PropertyValue value)
         {
-            var rootPath = new[] { "$" };
-            var deserialized = DeserializeValue(value, typeof(T), rootPath);
+            var deserialized = Deserialize(value, typeof(T));
             if (deserialized is T deserializedValue)
             {
                 return Task.FromResult(deserializedValue);
             }
 
             throw new InvalidOperationException($"Could not deserialize value of type {typeof(T).Name}");
+        }
+
+        public object? Deserialize(PropertyValue value, Type targetType)
+        {
+            var rootPath = new[] { "$" };
+            return DeserializeValue(value, targetType, rootPath);
         }
 
         private object? DeserializeValue(PropertyValue value, Type targetType, string[] path)

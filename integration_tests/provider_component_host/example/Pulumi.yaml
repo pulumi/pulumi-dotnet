@@ -1,0 +1,13 @@
+name: dotnet-component-yaml
+runtime: yaml
+plugins:
+  providers:
+    - name: dotnet-components
+      path: ..
+resources:
+  hello:
+    type: dotnet-components:index:Component
+    properties:
+      passwordLength: 12
+outputs:
+  value: ${hello.passwordResult}

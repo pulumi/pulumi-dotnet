@@ -29,9 +29,8 @@ namespace Pulumi.Experimental.Provider
         /// <returns>A PackageSpec containing the complete schema for all components and their types</returns>
         public static PackageSpec GenerateSchema(Metadata metadata, Assembly assembly)
         {
-            var types = assembly.GetTypes()
-                .Where(t => typeof(ComponentResource).IsAssignableFrom(t) && !t.IsAbstract);
-            return GenerateSchema(metadata, types.ToArray());
+            var types = FindComponentTypes(assembly).ToArray();
+            return GenerateSchema(metadata, types);
         }
 
         /// <summary>
@@ -72,6 +71,29 @@ namespace Pulumi.Experimental.Provider
             }
 
             return analyzer.GenerateSchema(metadata, components, analyzer.typeDefinitions);
+        }
+
+        /// <summary>
+        /// Finds a component type by name in the given assembly or type array.
+        /// </summary>
+        public static Type? FindComponentType(string name, Assembly assembly, Type[]? componentTypes = null)
+        {
+            // First try to find the type in explicitly provided component types
+            var componentType = componentTypes?.FirstOrDefault(t => t.Name == name);
+
+            // Fall back to assembly lookup if not found or if no types were provided
+            if (componentType == null)
+            {
+                componentType = FindComponentTypes(assembly).FirstOrDefault(t => t.Name == name);
+            }
+
+            return componentType;
+        }
+
+        private static IEnumerable<Type> FindComponentTypes(Assembly assembly)
+        {
+            return assembly.GetTypes()
+                .Where(t => typeof(ComponentResource).IsAssignableFrom(t) && !t.IsAbstract);
         }
 
         private PackageSpec GenerateSchema(
@@ -383,6 +405,8 @@ namespace Pulumi.Experimental.Provider
                 return "pulumi.json#/Archive";
             if (type == typeof(Asset))
                 return "pulumi.json#/Asset";
+            if (type == typeof(object))
+                return "pulumi.json#/Any";
             return null;
         }
     }

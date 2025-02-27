@@ -18,5 +18,10 @@ namespace Pulumi.Automation
         /// Continue to perform the destroy operation despite the occurrence of errors.
         /// </summary>
         public bool? ContinueOnError { get; set; }
+
+        /// <summary>
+        /// Refresh the state of the stack's resources before this destroy.
+        /// </summary>
+        public bool? Refresh { get; set; }
     }
 }

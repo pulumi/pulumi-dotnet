@@ -40,5 +40,10 @@ namespace Pulumi.Automation
         /// Continue to perform the update operation despite the occurrence of errors.
         /// </summary>
         public bool? ContinueOnError { get; set; }
+
+        /// <summary>
+        /// Refresh the state of the stack's resources before this update.
+        /// </summary>
+        public bool? Refresh { get; set; }
     }
 }

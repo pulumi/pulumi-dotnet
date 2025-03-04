@@ -121,7 +121,6 @@ namespace Pulumi
             if (string.IsNullOrEmpty(monitor) ||
                 string.IsNullOrEmpty(engine) ||
                 string.IsNullOrEmpty(project) ||
-                string.IsNullOrEmpty(rootDirectory) ||
                 string.IsNullOrEmpty(stack) ||
                 !bool.TryParse(dryRun, out var dryRunValue) ||
                 !bool.TryParse(queryMode, out var queryModeValue) ||
@@ -164,7 +163,7 @@ namespace Pulumi
             _isDryRun = options?.IsPreview ?? true;
             _stackName = options?.StackName ?? "stack";
             _projectName = options?.ProjectName ?? "project";
-            _rootDirectory = options?.RootDirectory ?? "rootDirectory";
+            _rootDirectory = options?.RootDirectory;
             _organizationName = options?.OrganizationName ?? "organization";
             this.Engine = engine;
             this.Monitor = monitor;

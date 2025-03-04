@@ -27,7 +27,7 @@ namespace Pulumi
         /// <summary>
         /// Root directory. Defaults to <b>"rootDirectory"</b> if not specified.
         /// </summary>
-        public string RootDirectory => _deployment.RootDirectory;
+        public string? RootDirectory => _deployment.RootDirectory;
 
         /// <summary>
         /// Returns the current organization name.

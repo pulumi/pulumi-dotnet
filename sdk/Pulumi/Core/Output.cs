@@ -710,6 +710,8 @@ namespace Pulumi
                 throw new InvalidOperationException(message);
             }
 
+            Log.Warn(message);
+
             return string.Join(Environment.NewLine, message, "This function may throw in a future version of Pulumi.");
         }
     }

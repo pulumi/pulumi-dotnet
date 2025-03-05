@@ -961,8 +961,21 @@ namespace Pulumi.Tests.Core
                 var o1 = CreateOutput(0, isKnown: true);
                 Assert.Throws<InvalidOperationException>(() => o1.ToString());
 
+                // If we don't throw check that we log a warning, and then return the expected warning string.
+                var logger = new Moq.Mock<IEngineLogger>(Moq.MockBehavior.Strict);
+                logger.Setup(l => l.WarnAsync(Moq.It.IsAny<string>(), Moq.It.IsAny<Resource>(), Moq.It.IsAny<int?>(), Moq.It.IsAny<bool?>())).Returns(Task.CompletedTask);
+
+                var mock = new Moq.Mock<IDeploymentInternal>(Moq.MockBehavior.Strict);
+                mock.Setup(d => d.Logger).Returns(logger.Object);
+                Deployment.Instance = new DeploymentInstance(mock.Object);
+
                 Environment.SetEnvironmentVariable("PULUMI_ERROR_OUTPUT_STRING", null);
-                Assert.EndsWith("This function may throw in a future version of Pulumi.", o1.ToString());
+                var str = o1.ToString();
+                var expected = Environment.NewLine + "This function may throw in a future version of Pulumi.";
+                Assert.EndsWith(expected, str);
+                // Assert the logger was called with the same string
+                str = str.Replace(expected, "");
+                logger.Verify(l => l.WarnAsync(str, Moq.It.IsAny<Resource>(), Moq.It.IsAny<int?>(), Moq.It.IsAny<bool?>()), Moq.Times.Once);
             }
         }
     }

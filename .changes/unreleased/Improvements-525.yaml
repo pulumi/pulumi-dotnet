@@ -1,6 +1,6 @@
 component: sdk
 kind: Improvements
-body: Trying to convert outputs to strings now logs a warning
+body: Log a warning when trying to convert outputs to strings
 time: 2025-03-04T17:21:44.377761992Z
 custom:
   PR: "525"

@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Upgrade SDK tests to XUnit 2.5
+time: 2025-03-06T22:21:05.3272894+01:00
+custom:
+    PR: "528"

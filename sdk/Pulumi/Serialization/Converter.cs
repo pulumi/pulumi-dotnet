@@ -344,7 +344,12 @@ namespace Pulumi.Serialization
             Action<string> warn,
             string fieldName, object val, Type targetType)
         {
-            var element = ConvertObject(warn, fieldName, val, typeof(T));
+            var (element, error) = TryConvertObject(warn, fieldName, val, typeof(T));
+
+            if (error != null)
+            {
+                return (element, error);
+            }
 
             return (Output.Create((T)element!), null);
         }

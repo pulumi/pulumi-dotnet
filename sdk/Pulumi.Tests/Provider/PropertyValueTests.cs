@@ -736,4 +736,51 @@ public class PropertyValueTests
         Assert.Equal(5, typeWithOptionalParameterCtor.First);
         Assert.Equal(1, typeWithOptionalParameterCtor.Second);
     }
+
+    [OutputType]
+    public class OuterOutputType
+    {
+        [Output("nestedOutput")]
+        public required Output<NestedOutputType> NestedOutput { get; init; }
+    }
+
+    [OutputType]
+    public class NestedOutputType
+    {
+        [Output("stringOutput")]
+        public required Output<string> StringOutput { get; init; }
+    }
+
+    [Fact]
+    public async Task SerializingNestedOutputWorks()
+    {
+        var serializer = CreateSerializer();
+
+        var serialized = await serializer.Serialize(new OuterOutputType()
+        {
+            NestedOutput = Output.Create(new NestedOutputType
+            {
+                StringOutput = Output.Create("hello")
+            })
+        });
+
+        var expected = Object(
+            Pair("nestedOutput", Object(Pair("stringOutput", new PropertyValue("hello")))));
+
+        Assert.Equal(expected, serialized);
+    }
+
+    [Fact]
+    public async Task DeerializingNestedOutputWorks()
+    {
+        var serializer = CreateSerializer();
+        var value = Object(
+            Pair("nestedOutput", Object(Pair("stringOutput", new PropertyValue("hello")))));
+
+        var serialized = await serializer.Deserialize<OuterOutputType>(value);
+
+        var nestedValueOutput = await serialized.NestedOutput.DataTask;
+        var stringValueOutput = await nestedValueOutput.Value.StringOutput.DataTask;
+        Assert.Equal("hello", stringValueOutput.Value);
+    }
 }

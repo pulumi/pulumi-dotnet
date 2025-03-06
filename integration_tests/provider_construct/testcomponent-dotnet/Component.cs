@@ -43,6 +43,8 @@ public abstract class ComplexTypeBase
     public abstract string InheritOutputAttribute { get; set; }
 }
 
+
+
 [OutputType]
 public sealed class ComplexType : ComplexTypeBase
 {
@@ -55,12 +57,32 @@ public sealed class ComplexType : ComplexTypeBase
     // the Output attribute is inherited from the base class
     public override string InheritOutputAttribute { get; set; }
 
+
+    [Output("nestedOutput")]
+    public Output<NestedOutputType> NestedOutput { get; set; }
+
+
     [OutputConstructor]
-    public ComplexType(string name, int intValue, string inheritOutputAttribute)
+    public ComplexType(string name, int intValue, string inheritOutputAttribute, Output<NestedOutputType> nestedOutput)
     {
         Name = name;
         IntValue = intValue;
         InheritOutputAttribute = inheritOutputAttribute;
+        NestedOutput = nestedOutput;
+    }
+}
+
+
+[OutputType]
+public sealed class NestedOutputType
+{
+    [Output("value")]
+    public string Value { get; set; }
+
+    [OutputConstructor]
+    public NestedOutputType(string value)
+    {
+        Value = value;
     }
 }
 
@@ -93,7 +115,8 @@ sealed class Component : ComponentBase
         : base("test:index:Test", name, args, opts)
     {
         PasswordResult = args.PasswordLength.Apply(GenerateRandomString);
-        ComplexResult = args.Complex.Apply(complex => Output.Create(AsTask(new ComplexType(complex.Name, complex.IntValue, complex.InheritInputAttribute))));
+        var nestedOutput = args.Complex.Apply(c => AsTask(new NestedOutputType(c.Name)));
+        ComplexResult = args.Complex.Apply(complex => Output.Create(AsTask(new ComplexType(complex.Name, complex.IntValue, complex.InheritInputAttribute, nestedOutput))));
         InheritOutputAttribute = args.InheritInputAttribute;
     }
 

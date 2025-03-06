@@ -30,18 +30,18 @@ namespace Pulumi.Tests.Core
                 var result = InputMap<string>.Merge(map1, map2);
 
                 // Check the merged map
-                var data = await result.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await result.ToOutput().DataTask;
                 Assert.True(data.IsKnown);
                 Assert.Equal(4, data.Value.Count);
                 for (var i = 1; i <= 4; i++)
                     Assert.True(data.Value.Contains($"K{i}", $"V{i}"));
 
                 // Check that the input maps haven't changed
-                var map1Data = await map1.ToOutput().DataTask.ConfigureAwait(false);
+                var map1Data = await map1.ToOutput().DataTask;
                 Assert.Equal(3, map1Data.Value.Count);
                 Assert.True(map1Data.Value.ContainsValue("V3_wrong"));
 
-                var map2Data = await map2.ToOutput().DataTask.ConfigureAwait(false);
+                var map2Data = await map2.ToOutput().DataTask;
                 Assert.Equal(2, map2Data.Value.Count);
                 Assert.True(map2Data.Value.ContainsValue("V3"));
             });
@@ -57,7 +57,7 @@ namespace Pulumi.Tests.Core
                     new Dictionary<string, string> { { "K3", "V3" }, { "K4", "V4"} },
                     Output.Create(new Dictionary<string, string> { ["K5"] = "V5", ["K6"] = "V6" }.ToImmutableDictionary())
                 };
-                var data = await map.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await map.ToOutput().DataTask;
                 Assert.Equal(6, data.Value.Count);
                 Assert.Equal(new Dictionary<string, string> { ["K1"] = "V1", ["K2"] = "V2", ["K3"] = "V3", ["K4"] = "V4", ["K5"] = "V5", ["K6"] = "V6" }, data.Value);
             });
@@ -76,7 +76,7 @@ namespace Pulumi.Tests.Core
                         { "t1", Union<string, int>.FromT1(456) },
                     }
                 };
-                var data = await sample.Dict.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await sample.Dict.ToOutput().DataTask;
                 Assert.Equal(4, data.Value.Count);
                 Assert.True(data.Value.ContainsValue("testValue"));
                 Assert.True(data.Value.ContainsValue(123));
@@ -96,7 +96,7 @@ namespace Pulumi.Tests.Core
                     new List<string> { "V5", "V6" },
                     Output.Create(ImmutableArray.Create("V7", "V8"))
                 };
-                var data = await list.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await list.ToOutput().DataTask;
                 Assert.Equal(8, data.Value.Length);
                 Assert.Equal(new[] { "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8" }, data.Value);
             });
@@ -115,7 +115,7 @@ namespace Pulumi.Tests.Core
                         Union<string, int>.FromT1(456),
                     }
                 };
-                var data = await sample.List.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await sample.List.ToOutput().DataTask;
                 Assert.Equal(4, data.Value.Length);
                 Assert.True(data.Value.IndexOf("testValue") >= 0);
                 Assert.True(data.Value.IndexOf(123) >= 0);
@@ -128,19 +128,19 @@ namespace Pulumi.Tests.Core
             => RunInPreview(async () =>
             {
                 var sample = new SampleArgs { Union = "testValue" };
-                var data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await sample.Union.ToOutput().DataTask;
                 Assert.Equal("testValue", data.Value);
 
                 sample = new SampleArgs { Union = 123 };
-                data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
+                data = await sample.Union.ToOutput().DataTask;
                 Assert.Equal(123, data.Value);
 
                 sample = new SampleArgs { Union = Union<string, int>.FromT0("left") };
-                data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
+                data = await sample.Union.ToOutput().DataTask;
                 Assert.Equal("left", data.Value);
 
                 sample = new SampleArgs { Union = Union<string, int>.FromT1(456) };
-                data = await sample.Union.ToOutput().DataTask.ConfigureAwait(false);
+                data = await sample.Union.ToOutput().DataTask;
                 Assert.Equal(456, data.Value);
             });
 
@@ -157,7 +157,7 @@ namespace Pulumi.Tests.Core
                 map.Add("K2", "V2");
 
                 // We should be able to get this map still
-                var data = await map.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await map.ToOutput().DataTask;
                 Assert.Equal(2, data.Value.Count);
                 Assert.Equal(new Dictionary<string, string> { ["K1"] = "V1", ["K2"] = "V2" }, data.Value);
 
@@ -166,7 +166,7 @@ namespace Pulumi.Tests.Core
                 map.Add("K3", "V3_wrong");
 
                 // This should now throw an exception
-                await Assert.ThrowsAsync<ArgumentException>(() => map.ToOutput().DataTask).ConfigureAwait(false);
+                await Assert.ThrowsAsync<ArgumentException>(() => map.ToOutput().DataTask);
             });
 
         // Regression test for https://github.com/pulumi/pulumi-dotnet/issues/456
@@ -177,14 +177,14 @@ namespace Pulumi.Tests.Core
                 ImmutableDictionary<string, string>? nullDict = null;
                 var map = (InputMap<string>)nullDict!;
 
-                var data = await map.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await map.ToOutput().DataTask;
                 Assert.True(data.IsKnown);
                 Assert.Null(data.Value);
 
                 var nullDictOutput = Output.Create(nullDict);
                 map = (InputMap<string>)nullDictOutput!;
 
-                data = await map.ToOutput().DataTask.ConfigureAwait(false);
+                data = await map.ToOutput().DataTask;
                 Assert.True(data.IsKnown);
                 Assert.Null(data.Value);
             });
@@ -197,14 +197,14 @@ namespace Pulumi.Tests.Core
                 ImmutableArray<string> nullList = default;
                 var list = (InputList<string>)nullList;
 
-                var data = await list.ToOutput().DataTask.ConfigureAwait(false);
+                var data = await list.ToOutput().DataTask;
                 Assert.True(data.IsKnown);
                 Assert.True(data.Value.IsDefault);
 
                 var nullListOutput = Output.Create(nullList);
                 list = (InputList<string>)nullListOutput!;
 
-                data = await list.ToOutput().DataTask.ConfigureAwait(false);
+                data = await list.ToOutput().DataTask;
                 Assert.True(data.IsKnown);
                 Assert.True(data.Value.IsDefault);
             });

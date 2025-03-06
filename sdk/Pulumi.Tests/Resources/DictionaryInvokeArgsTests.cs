@@ -26,7 +26,7 @@ namespace Pulumi.Tests.Resources
             }
             catch
             {
-                Assert.True(false, "DictionaryInvokeArgs constructor should not throw an exception");
+                Assert.Fail("DictionaryInvokeArgs constructor should not throw an exception");
             }
         }
 

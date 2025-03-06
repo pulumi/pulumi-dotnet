@@ -81,11 +81,9 @@ public sealed class ComplexType : ComplexTypeBase
     // the Output attribute is inherited from the base class
     public override string InheritOutputAttribute { get; set; }
 
-
     [Output("nestedOutput")]
     public Output<NestedOutputType> NestedOutput { get; set; }
 
-    
     [OutputConstructor]
     public ComplexType(string name, int intValue, string inheritOutputAttribute, Output<NestedOutputType> nestedOutput)
     {
@@ -95,7 +93,6 @@ public sealed class ComplexType : ComplexTypeBase
         NestedOutput = nestedOutput;
     }
 }
-
 
 [OutputType]
 public sealed class NestedOutputType

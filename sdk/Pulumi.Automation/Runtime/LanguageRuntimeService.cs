@@ -1,5 +1,6 @@
 // Copyright 2016-2021, Pulumi Corporation
 
+using System;
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
@@ -23,6 +24,7 @@ namespace Pulumi.Automation
             this._callerContext = callerContext;
         }
 
+        [Obsolete]
         public override Task<GetRequiredPluginsResponse> GetRequiredPlugins(GetRequiredPluginsRequest request, ServerCallContext context)
         {
             var response = new GetRequiredPluginsResponse();

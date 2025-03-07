@@ -179,22 +179,6 @@ let testPulumiAutomationSdk coverage =
 
         then failwith "automation tests failed"
 
-let syncProtoFiles() = GitSync.repository {
-    remoteRepository = "https://github.com/pulumi/pulumi.git"
-    localRepositoryPath = repositoryRoot
-    contents = [
-        GitSync.folder {
-            sourcePath = [ "proto"; "pulumi" ]
-            destinationPath = [ "proto"; "pulumi" ]
-        }
-
-        GitSync.folder {
-            sourcePath = [ "proto"; "google"; "protobuf" ]
-            destinationPath = [ "proto"; "google"; "protobuf" ]
-        }
-    ]
-}
-
 let runSpecificIntegrationTest(testName: string) =
     buildLanguagePlugin()
     cleanSdk()
@@ -223,7 +207,6 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk false
     | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
-    | [| "sync-proto-files" |] -> syncProtoFiles()
     | [| "list-integration-tests" |] -> listIntegrationTests()
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()

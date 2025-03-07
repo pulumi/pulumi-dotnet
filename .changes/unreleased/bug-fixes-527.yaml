@@ -1,0 +1,6 @@
+component: sdk/converter
+kind: bug-fixes
+body: Fix conversion for nested Output<T>
+time: 2025-03-06T22:07:47.3405356+01:00
+custom:
+    PR: "527"

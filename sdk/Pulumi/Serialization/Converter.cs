@@ -178,6 +178,11 @@ namespace Pulumi.Serialization
                 if (targetType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
                     return TryConvertDictionary(warn, context, val, targetType);
 
+                if (targetType.GetGenericTypeDefinition() == typeof(Output<>))
+                    return ((object?, string?))TryConvertOutputMethod
+                        .MakeGenericMethod(targetType.GetGenericArguments().Single())
+                        .Invoke(null, new object?[] { warn, context, val, targetType })!;
+
                 throw new InvalidOperationException(
                     $"Unexpected generic target type {targetType.FullName} when deserializing {context}");
             }
@@ -272,6 +277,9 @@ namespace Pulumi.Serialization
                     }
                     writer.WriteEndObject();
                     return null;
+                case IOutput output:
+                    var outputData = output.GetDataAsync().GetAwaiter().GetResult();
+                    return TryWriteJson(context, writer, outputData.Value);
                 default:
                     return $"Unexpected type {val.GetType().FullName} when converting {context} to {nameof(JsonElement)}";
             }
@@ -327,6 +335,23 @@ namespace Pulumi.Serialization
             }
 
             return (builderToImmutable.Invoke(builder, null), null);
+        }
+
+        private static readonly MethodInfo TryConvertOutputMethod = typeof(Converter).GetMethod(nameof(TryConvertOutput), BindingFlags.NonPublic | BindingFlags.Static)
+                                                           ?? throw new MissingMethodException($"Method {nameof(TryConvertOutput)} not found.");
+
+        private static (object?, string?) TryConvertOutput<T>(
+            Action<string> warn,
+            string fieldName, object val, Type targetType)
+        {
+            var (element, error) = TryConvertObject(warn, fieldName, val, typeof(T));
+
+            if (error != null)
+            {
+                return (element, error);
+            }
+
+            return (Output.Create((T)element!), null);
         }
 
         private static (object?, string?) TryConvertDictionary(
@@ -469,6 +494,11 @@ namespace Pulumi.Serialization
                     }
 
                     CheckTargetType(context, dictTypeArgs[1], seenTypes);
+                    return;
+                }
+                if (targetType.GetGenericTypeDefinition() == typeof(Output<>))
+                {
+                    CheckTargetType(context, targetType.GenericTypeArguments.Single(), seenTypes);
                     return;
                 }
                 throw new InvalidOperationException($@"{context} contains invalid type {targetType.FullName}:

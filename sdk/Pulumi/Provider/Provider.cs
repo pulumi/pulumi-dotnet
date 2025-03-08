@@ -363,13 +363,15 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class ConstructRequest
     {
+        public ProviderResource? Provider { get; init; }
         public string Type { get; init; }
         public string Name { get; init; }
         public ImmutableDictionary<string, PropertyValue> Inputs { get; init; }
         public ComponentResourceOptions Options { get; init; }
 
-        public ConstructRequest(string type, string name, ImmutableDictionary<string, PropertyValue> inputs, ComponentResourceOptions options)
+        public ConstructRequest(ProviderResource? provider, string type, string name, ImmutableDictionary<string, PropertyValue> inputs, ComponentResourceOptions options)
         {
+            Provider = provider;
             Type = type;
             Name = name;
             Inputs = inputs;
@@ -393,12 +395,14 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class CallRequest
     {
+        public ProviderResource? Provider { get; init; }
         public ResourceReference? Self { get; }
         public string Tok { get; init; }
         public ImmutableDictionary<string, PropertyValue> Args { get; init; }
 
-        public CallRequest(ResourceReference? self, string tok, ImmutableDictionary<string, PropertyValue> args)
+        public CallRequest(ProviderResource? provider, ResourceReference? self, string tok, ImmutableDictionary<string, PropertyValue> args)
         {
+            Provider = provider;
             Self = self;
             Tok = tok;
             Args = args;
@@ -611,6 +615,9 @@ namespace Pulumi.Experimental.Provider
         private Provider? implementation;
         private readonly string version;
         private string? engineAddress;
+        // More recent versions of the engine send URN and ID of the provider to `Configure`. With that we can construct
+        // a `DependencyProviderResource` to use in `Construct` and `Call` to refer to the provider itself.
+        private string? providerSelfReference;
 
         Provider Implementation
         {
@@ -876,6 +883,12 @@ namespace Pulumi.Experimental.Provider
         {
             return WrapProviderCall(async () =>
                 {
+                    // Save the URN and ID for self provider references in Construct/Call later.
+                    if (request.HasId && request.HasUrn)
+                    {
+                        this.providerSelfReference = request.Urn + "::" + request.Id;
+                    }
+
                     var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Unmarshal(request.Args), request.AcceptSecrets,
                     request.AcceptResources);
                     using var cts = GetToken(context);
@@ -1057,7 +1070,13 @@ namespace Pulumi.Experimental.Provider
                     },
                 };
 
-                var domRequest = new ConstructRequest(request.Type, request.Name,
+                ProviderResource? provider = null;
+                if (providerSelfReference != null)
+                {
+                    provider = new DependencyProviderResource(providerSelfReference);
+                }
+
+                var domRequest = new ConstructRequest(provider, request.Type, request.Name,
                     Unmarshal(request.Inputs), opts);
                 using var cts = GetToken(context);
 
@@ -1098,7 +1117,13 @@ namespace Pulumi.Experimental.Provider
 
                 domArgs = PatchArgDependencies(request, domArgs);
 
-                var domRequest = new CallRequest(self, request.Tok, domArgs);
+                ProviderResource? provider = null;
+                if (providerSelfReference != null)
+                {
+                    provider = new DependencyProviderResource(providerSelfReference);
+                }
+
+                var domRequest = new CallRequest(provider, self, request.Tok, domArgs);
                 using var cts = GetToken(context);
 
                 var inlineDeploymentSettings = new InlineDeploymentSettings(logger, EngineAddress, request.MonitorEndpoint, request.Config,

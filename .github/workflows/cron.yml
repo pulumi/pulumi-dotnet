@@ -1,0 +1,13 @@
+name: Daily cron testing
+
+on:
+  schedule:
+    - cron: "27 5 * * *"
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+    with:
+      ref: ${{ github.head_ref }}

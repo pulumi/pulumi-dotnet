@@ -17,6 +17,8 @@ namespace Pulumi
 
             _organizationName = settings.Organization ?? "organization";
             _projectName = settings.Project;
+            // TODO(pulumi/pulumi#18843) Propagate this from the Construct RPC
+            _rootDirectory = null;
             _stackName = settings.Stack;
             _isDryRun = settings.IsDryRun;
             SetAllConfig(settings.Config, settings.ConfigSecretKeys);

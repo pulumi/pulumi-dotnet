@@ -15,10 +15,13 @@ build::
 changelog::
 	changie new
 
+clear_nuget_cache::
+	dotnet nuget locals --clear all
+
 test_integration:: build
 	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
 
-test_conformance:: build
+test_conformance:: clear_nuget_cache build
 	cd pulumi-language-dotnet && gotestsum -- --timeout 60m ./...
 
 # Relative paths to directories with go.mod files that should be linted.

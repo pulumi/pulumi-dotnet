@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: bug-fixes
+body: Handle logging arguments in provider's getEngineAddress
+time: 2025-03-10T11:10:52.170215+01:00
+custom:
+    PR: "536"

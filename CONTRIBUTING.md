@@ -19,7 +19,7 @@ $ changie new
 
 ## Running conformance tests
 
-When running conformance tests, nuget package caches can sometimes cause updates do the SDK to fail,
+When running conformance tests, nuget package caches can sometimes cause updates to the SDK to fail,
 in this case you can fix it by deleting the pulumi package from your cache like so:
 
 ```shell

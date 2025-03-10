@@ -25,7 +25,7 @@ namespace Pulumi
         public string ProjectName => _deployment.ProjectName;
 
         /// <summary>
-        /// Root directory. Defaults to <b>"rootDirectory"</b> if not specified.
+        /// Root directory, that is the location of the Pulumi.yaml file.
         /// </summary>
         public string? RootDirectory => _deployment.RootDirectory;
 

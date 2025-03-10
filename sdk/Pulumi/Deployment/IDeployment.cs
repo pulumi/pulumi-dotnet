@@ -19,7 +19,7 @@ namespace Pulumi
         /// <summary>
         /// Returns the project root. The location of Pulumi.yaml.
         /// </summary>
-        string? RootDirectory { get; }
+        string RootDirectory { get; }
 
         /// <summary>
         /// Returns the current organization name.

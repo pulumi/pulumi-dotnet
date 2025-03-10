@@ -85,7 +85,7 @@ namespace Pulumi
 
         private readonly string _organizationName;
         private readonly string _projectName;
-        private readonly string _rootDirectory;
+        private readonly string? _rootDirectory;
         private readonly string _stackName;
         private readonly bool _isDryRun;
         private readonly ConcurrentDictionary<string, bool> _featureSupport = new ConcurrentDictionary<string, bool>();
@@ -173,7 +173,19 @@ namespace Pulumi
 
         string IDeployment.OrganizationName => _organizationName;
         string IDeployment.ProjectName => _projectName;
-        string? IDeployment.RootDirectory => _rootDirectory;
+        string IDeployment.RootDirectory
+        {
+            get
+            {
+              if (_rootDirectory == null)
+              {
+                throw new InvalidOperationException("Root directory is not available in your version of the pulumi CLI, please upgrade to the latest version");
+              }
+
+              return _rootDirectory;
+            }
+        }
+
         string IDeployment.StackName => _stackName;
         bool IDeployment.IsDryRun => _isDryRun;
 

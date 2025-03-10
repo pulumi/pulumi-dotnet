@@ -27,7 +27,7 @@ namespace Pulumi
         /// <summary>
         /// Root directory, that is the location of the Pulumi.yaml file.
         /// </summary>
-        public string? RootDirectory => _deployment.RootDirectory;
+        public string RootDirectory => _deployment.RootDirectory;
 
         /// <summary>
         /// Returns the current organization name.

@@ -7248,9 +7248,55 @@
         <member name="M:Pulumirpc.ProviderHandshakeRequest.ClearProgramDirectory">
             <summary>Clears the value of the "program_directory" field</summary>
         </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.ConfigureWithUrnFieldNumber">
+            <summary>Field number for the "configure_with_urn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.ConfigureWithUrn">
+            <summary>
+            If true the engine will send URN, Name, Type, and ID to the provider as part of the configuration.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>
             `ProviderHandshakeResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Handshake) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeResponse.AcceptSecretsFieldNumber">
+            <summary>Field number for the "accept_secrets" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeResponse.AcceptSecrets">
+            <summary>
+            True if and only if the provider supports secrets. If true, the caller should pass secrets as strongly typed
+            values to the provider. *Must* match the value returned in response to [](pulumirpc.ResourceProvider.Configure).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeResponse.AcceptResourcesFieldNumber">
+            <summary>Field number for the "accept_resources" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeResponse.AcceptResources">
+            <summary>
+            True if and only if the provider supports strongly typed resources. If true, the caller should pass resources as
+            strongly typed values to the provider. *Must* match the value returned in response to
+            [](pulumirpc.ResourceProvider.Configure).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeResponse.AcceptOutputsFieldNumber">
+            <summary>Field number for the "accept_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeResponse.AcceptOutputs">
+            <summary>
+            True if and only if the provider supports output values as inputs. If true, the engine should pass output values
+            to the provider where possible. *Must* match the value returned in response to
+            [](pulumirpc.ResourceProvider.Configure).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeResponse.SupportsAutonamingConfigurationFieldNumber">
+            <summary>Field number for the "supports_autonaming_configuration" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeResponse.SupportsAutonamingConfiguration">
+            <summary>
+            True if the provider accepts and respects autonaming configuration that the engine provides on behalf of the
+            user. *Must* match the value returned in response to [](pulumirpc.ResourceProvider.Configure).
             </summary>
         </member>
         <member name="T:Pulumirpc.ParameterizeRequest">
@@ -7477,6 +7523,68 @@
             these calls. *Must* be true if the caller has previously called [](pulumirpc.ResourceProvider.Handshake).
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConfigureRequest.IdFieldNumber">
+            <summary>Field number for the "id" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.Id">
+            <summary>
+            The ID of the provider being configured. N.B. This will be null if configure_with_urn was false in
+            Handshake.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.HasId">
+            <summary>Gets whether the "id" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ConfigureRequest.ClearId">
+            <summary>Clears the value of the "id" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ConfigureRequest.UrnFieldNumber">
+            <summary>Field number for the "urn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.Urn">
+            <summary>
+            The URN of the provider being configured. N.B. This will be null if configure_with_urn was false in
+            Handshake.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.HasUrn">
+            <summary>Gets whether the "urn" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ConfigureRequest.ClearUrn">
+            <summary>Clears the value of the "urn" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ConfigureRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.Name">
+            <summary>
+            The name of the provider being configured. This must match the name specified by the `urn` field, and
+            is passed so that providers do not have to implement URN parsing in order to extract the name of the
+            provider.  N.B. This will be null if configure_with_urn was false in Handshake.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.HasName">
+            <summary>Gets whether the "name" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ConfigureRequest.ClearName">
+            <summary>Clears the value of the "name" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ConfigureRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.Type">
+            <summary>
+            The type of the provider being configured. This must match the type specified by the `urn` field, and
+            is passed so that providers do not have to implement URN parsing in order to extract the type of the
+            provider. N.B. This will be null if configure_with_urn was false in Handshake.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ConfigureRequest.HasType">
+            <summary>Gets whether the "type" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ConfigureRequest.ClearType">
+            <summary>Clears the value of the "type" field</summary>
+        </member>
         <member name="T:Pulumirpc.ConfigureResponse">
             <summary>
             `ConfigureResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Configure) call. Its primary
@@ -7489,7 +7597,8 @@
         <member name="P:Pulumirpc.ConfigureResponse.AcceptSecrets">
             <summary>
             True if and only if the provider supports secrets. If true, the caller should pass secrets as strongly typed
-            values to the provider. *Must* be true if the provider implements [](pulumirpc.ResourceProvider.Handshake).
+            values to the provider. *Must* match the value returned in response to [](pulumirpc.ResourceProvider.Handshake)
+            if the provider supports handshaking.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConfigureResponse.SupportsPreviewFieldNumber">
@@ -7508,8 +7617,8 @@
         <member name="P:Pulumirpc.ConfigureResponse.AcceptResources">
             <summary>
             True if and only if the provider supports strongly typed resources. If true, the caller should pass resources as
-            strongly typed values to the provider. *Must* be true if the provider implements
-            [](pulumirpc.ResourceProvider.Handshake).
+            strongly typed values to the provider. *Must* match the value returned in response to
+            [](pulumirpc.ResourceProvider.Handshake) if the provider supports handshaking.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConfigureResponse.AcceptOutputsFieldNumber">
@@ -7518,8 +7627,8 @@
         <member name="P:Pulumirpc.ConfigureResponse.AcceptOutputs">
             <summary>
             True if and only if the provider supports output values as inputs. If true, the engine should pass output values
-            to the provider where possible. *Must* be true if the provider implements
-            [](pulumirpc.ResourceProvider.Handshake).
+            to the provider where possible. *Must* match the value returned in response to
+            [](pulumirpc.ResourceProvider.Handshake) if the provider supports handshaking.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConfigureResponse.SupportsAutonamingConfigurationFieldNumber">
@@ -7527,7 +7636,9 @@
         </member>
         <member name="P:Pulumirpc.ConfigureResponse.SupportsAutonamingConfiguration">
             <summary>
-            True if the provider accepts and respects Autonaming configuration that the engine provides on behalf of user.
+            True if the provider accepts and respects autonaming configuration that the engine provides on behalf of the
+            user. *Must* match the value returned in response to [](pulumirpc.ResourceProvider.Handshake) if the provider
+            supports handshaking.
             </summary>
         </member>
         <member name="T:Pulumirpc.ConfigureErrorMissingKeys">
@@ -8881,10 +8992,7 @@
         </member>
         <member name="T:Pulumirpc.GetMappingRequest">
             <summary>
-            GetMappingRequest allows providers to return ecosystem specific information to allow the provider to be
-            converted from a source markup to Pulumi. It's expected that provider bridges that target a given ecosystem
-            (e.g. Terraform, Kubernetes) would also publish a conversion plugin to convert markup from that ecosystem
-            to Pulumi, using the bridged providers.
+            `GetMappingRequest` is the type of requests sent as part of a [](pulumirpc.ResourceProvider.GetMapping) call.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetMappingRequest.KeyFieldNumber">
@@ -8892,7 +9000,8 @@
         </member>
         <member name="P:Pulumirpc.GetMappingRequest.Key">
             <summary>
-            the conversion key for the mapping being requested.
+            The conversion key for the mapping being requested. This typically corresponds to the source language, such as
+            `terraform` in the case of mapping Terraform names to Pulumi names.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetMappingRequest.ProviderFieldNumber">
@@ -8900,15 +9009,17 @@
         </member>
         <member name="P:Pulumirpc.GetMappingRequest.Provider">
             <summary>
-            the optional provider key for the mapping being requested, if this is empty the provider should assume this
-            request is from an old engine from before GetMappings and should return it's "primary" mapping. If this is set
-            then the `provider` field in GetMappingResponse should be the same.
+            An optional *source provider key* for the mapping being requested. If this is empty, the provider should assume
+            that this request is from an old engine prior to the introduction of [](pulumirpc.ResourceProvider.GetMappings).
+            In these cases the request should be answered with the "primary" mapping. If this field is set, the `provider`
+            field in the corresponding [](pulumirpc.GetMappingResponse) should contain the same value.
             </summary>
         </member>
         <member name="T:Pulumirpc.GetMappingResponse">
             <summary>
-            GetMappingResponse returns convert plugin specific data for this provider. This will normally be human
-            readable JSON, but the engine doesn't mandate any form.
+            `GetMappingResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.GetMapping) call. The data
+            within a `GetMappingResponse` will normally be human-readable JSON (e.g. an object mapping names from the source to
+            Pulumi), but the engine doesn't mandate any specific format.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetMappingResponse.ProviderFieldNumber">
@@ -8916,7 +9027,7 @@
         </member>
         <member name="P:Pulumirpc.GetMappingResponse.Provider">
             <summary>
-            the provider key this is mapping for. For example the Pulumi provider "terraform-template" would return "template" for this.
+            The *source provider key* that this mapping contains data for.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetMappingResponse.DataFieldNumber">
@@ -8924,13 +9035,12 @@
         </member>
         <member name="P:Pulumirpc.GetMappingResponse.Data">
             <summary>
-            the conversion plugin specific data.
+            Mapping data in a format specific to the conversion plugin/source language.
             </summary>
         </member>
         <member name="T:Pulumirpc.GetMappingsRequest">
             <summary>
-            GetMappingsRequest allows providers to return ecosystem specific information without having to send back large data
-            blobs for provider mappings that the engine doesn't then need.
+            `GetMappingsRequest` is the type of requests sent as part of a [](pulumirpc.ResourceProvider.GetMappings) call.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetMappingsRequest.KeyFieldNumber">
@@ -8938,12 +9048,13 @@
         </member>
         <member name="P:Pulumirpc.GetMappingsRequest.Key">
             <summary>
-            the conversion key for the mapping being requested.
+            The conversion key for the mapping being requested. This typically corresponds to the source language, such as
+            `terraform` in the case of mapping Terraform names to Pulumi names.
             </summary>
         </member>
         <member name="T:Pulumirpc.GetMappingsResponse">
             <summary>
-            GetMappingsRequest returns a list of providers that this provider can provide mapping information for.
+            `GetMappingsResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.GetMappings) call.
             </summary>
         </member>
         <member name="F:Pulumirpc.GetMappingsResponse.ProvidersFieldNumber">
@@ -8951,8 +9062,8 @@
         </member>
         <member name="P:Pulumirpc.GetMappingsResponse.Providers">
             <summary>
-            the provider keys this provider can supply mappings for. For example the Pulumi provider "terraform-template"
-            would return ["template"] for this.
+            The set of *source provider keys* this provider can supply mappings for. For example the Pulumi provider
+            `terraform-template` would return `["template"]` for this.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceProvider">
@@ -8973,9 +9084,9 @@
             <summary>
             `Handshake` is the first call made by the engine to a provider. It is used to pass the engine's address to the
             provider so that it may establish its own connections back, and to establish protocol configuration that will be
-            used to communicate between the two parties. Providers that support `Handshake` implicitly support the set of
-            feature flags previously handled by `Configure` prior to `Handshake`'s introduction, such as secrets and resource
-            references.
+            used to communicate between the two parties. Providers that support `Handshake` should return responses
+            consistent with those returned in response to [](pulumirpc.ResourceProvider.Configure) calls where there is
+            overlap due to the use of `Configure` prior to `Handshake`'s introduction.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -9249,23 +9360,44 @@
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.GetMapping(Pulumirpc.GetMappingRequest,Grpc.Core.ServerCallContext)">
-            <summary>
-            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
-            response (not an error) if it doesn't have a mapping for the given key.
-            </summary>
-            <param name="request">The request received from the client.</param>
-            <param name="context">The context of the server-side call handler being invoked.</param>
-            <returns>The response to send back to the client (wrapped by a task).</returns>
+             <summary>
+             `GetMapping` returns mappings designed to aid in [converting programs and state from other
+             ecosystems](converters). It accepts a "conversion key", which effectively corresponds to a source language, such
+             as `terraform`, and a *source provider name*, which is the name of the provider *in the source language*. Given
+             these, it returns source-specific mapping data for the provider requested. As an example, the Pulumi AWS
+             provider, which is bridged from the Terraform AWS provider and thus capable of mapping names between the two,
+             might respond to a call with key `terraform` and source provider name `aws` with mapping data for transforming
+             (among other things) Terraform AWS names such as `aws_s3_bucket` into Pulumi AWS types such as
+             `aws:s3/bucket:Bucket`. If a provider only supports a single source provider, or has some sensible default, it
+             may respond also to a call in which the source provider name is empty (`""`), which will be made when the engine
+             does not have sufficient knowledge to work out which provider offers a specific mapping.
+            
+             In general, it is expected that providers implemented by bridging an equivalent provider from another ecosystem
+             (such as bridged Terraform providers built atop the `pulumi-terraform-bridge`, for instance) implement
+             `GetMapping` to support conversion from that ecosystem into Pulumi using the same logic that underpins the
+             bridging itself.
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.GetMappings(Pulumirpc.GetMappingsRequest,Grpc.Core.ServerCallContext)">
-            <summary>
-            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
-            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
-            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
-            </summary>
-            <param name="request">The request received from the client.</param>
-            <param name="context">The context of the server-side call handler being invoked.</param>
-            <returns>The response to send back to the client (wrapped by a task).</returns>
+             <summary>
+             `GetMappings` is an optional method designed to aid in [converting programs and state from other
+             ecosystems](converters). `GetMappings` accepts a "conversion key". This corresponds to a source language, for
+             which we want to retrieve mappings for names etc. from that source language into Pulumi. An example key might
+             therefore be `terraform` in the event that we wish to map e.g. Terraform resource names to Pulumi resource types.
+             Given a key, `GetMappings` returns a list of *source provider names* for which calls to `GetMapping` will return
+             mappings. So, continuing the Terraform example, the Pulumi AWS provider, which is bridged from the Terraform AWS
+             provider and thus capable of mapping names between the two, might return the list `["aws"]` in response to a call
+             with key `terraform`.
+            
+             If a provider does not implement `GetMappings`, the engine will fall back to calling `GetMapping` blindly without
+             a source provider name (that is, with the value `""`).
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
         <member name="T:Pulumirpc.ResourceProvider.ResourceProviderClient">
             <summary>Client for ResourceProvider</summary>
@@ -9289,9 +9421,9 @@
             <summary>
             `Handshake` is the first call made by the engine to a provider. It is used to pass the engine's address to the
             provider so that it may establish its own connections back, and to establish protocol configuration that will be
-            used to communicate between the two parties. Providers that support `Handshake` implicitly support the set of
-            feature flags previously handled by `Configure` prior to `Handshake`'s introduction, such as secrets and resource
-            references.
+            used to communicate between the two parties. Providers that support `Handshake` should return responses
+            consistent with those returned in response to [](pulumirpc.ResourceProvider.Configure) calls where there is
+            overlap due to the use of `Configure` prior to `Handshake`'s introduction.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -9303,9 +9435,9 @@
             <summary>
             `Handshake` is the first call made by the engine to a provider. It is used to pass the engine's address to the
             provider so that it may establish its own connections back, and to establish protocol configuration that will be
-            used to communicate between the two parties. Providers that support `Handshake` implicitly support the set of
-            feature flags previously handled by `Configure` prior to `Handshake`'s introduction, such as secrets and resource
-            references.
+            used to communicate between the two parties. Providers that support `Handshake` should return responses
+            consistent with those returned in response to [](pulumirpc.ResourceProvider.Configure) calls where there is
+            overlap due to the use of `Configure` prior to `Handshake`'s introduction.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -9315,9 +9447,9 @@
             <summary>
             `Handshake` is the first call made by the engine to a provider. It is used to pass the engine's address to the
             provider so that it may establish its own connections back, and to establish protocol configuration that will be
-            used to communicate between the two parties. Providers that support `Handshake` implicitly support the set of
-            feature flags previously handled by `Configure` prior to `Handshake`'s introduction, such as secrets and resource
-            references.
+            used to communicate between the two parties. Providers that support `Handshake` should return responses
+            consistent with those returned in response to [](pulumirpc.ResourceProvider.Configure) calls where there is
+            overlap due to the use of `Configure` prior to `Handshake`'s introduction.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -9329,9 +9461,9 @@
             <summary>
             `Handshake` is the first call made by the engine to a provider. It is used to pass the engine's address to the
             provider so that it may establish its own connections back, and to establish protocol configuration that will be
-            used to communicate between the two parties. Providers that support `Handshake` implicitly support the set of
-            feature flags previously handled by `Configure` prior to `Handshake`'s introduction, such as secrets and resource
-            references.
+            used to communicate between the two parties. Providers that support `Handshake` should return responses
+            consistent with those returned in response to [](pulumirpc.ResourceProvider.Configure) calls where there is
+            overlap due to the use of `Configure` prior to `Handshake`'s introduction.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -10454,88 +10586,172 @@
             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMapping(Pulumirpc.GetMappingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
-            response (not an error) if it doesn't have a mapping for the given key.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The response received from the server.</returns>
+             <summary>
+             `GetMapping` returns mappings designed to aid in [converting programs and state from other
+             ecosystems](converters). It accepts a "conversion key", which effectively corresponds to a source language, such
+             as `terraform`, and a *source provider name*, which is the name of the provider *in the source language*. Given
+             these, it returns source-specific mapping data for the provider requested. As an example, the Pulumi AWS
+             provider, which is bridged from the Terraform AWS provider and thus capable of mapping names between the two,
+             might respond to a call with key `terraform` and source provider name `aws` with mapping data for transforming
+             (among other things) Terraform AWS names such as `aws_s3_bucket` into Pulumi AWS types such as
+             `aws:s3/bucket:Bucket`. If a provider only supports a single source provider, or has some sensible default, it
+             may respond also to a call in which the source provider name is empty (`""`), which will be made when the engine
+             does not have sufficient knowledge to work out which provider offers a specific mapping.
+            
+             In general, it is expected that providers implemented by bridging an equivalent provider from another ecosystem
+             (such as bridged Terraform providers built atop the `pulumi-terraform-bridge`, for instance) implement
+             `GetMapping` to support conversion from that ecosystem into Pulumi using the same logic that underpins the
+             bridging itself.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMapping(Pulumirpc.GetMappingRequest,Grpc.Core.CallOptions)">
-            <summary>
-            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
-            response (not an error) if it doesn't have a mapping for the given key.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The response received from the server.</returns>
+             <summary>
+             `GetMapping` returns mappings designed to aid in [converting programs and state from other
+             ecosystems](converters). It accepts a "conversion key", which effectively corresponds to a source language, such
+             as `terraform`, and a *source provider name*, which is the name of the provider *in the source language*. Given
+             these, it returns source-specific mapping data for the provider requested. As an example, the Pulumi AWS
+             provider, which is bridged from the Terraform AWS provider and thus capable of mapping names between the two,
+             might respond to a call with key `terraform` and source provider name `aws` with mapping data for transforming
+             (among other things) Terraform AWS names such as `aws_s3_bucket` into Pulumi AWS types such as
+             `aws:s3/bucket:Bucket`. If a provider only supports a single source provider, or has some sensible default, it
+             may respond also to a call in which the source provider name is empty (`""`), which will be made when the engine
+             does not have sufficient knowledge to work out which provider offers a specific mapping.
+            
+             In general, it is expected that providers implemented by bridging an equivalent provider from another ecosystem
+             (such as bridged Terraform providers built atop the `pulumi-terraform-bridge`, for instance) implement
+             `GetMapping` to support conversion from that ecosystem into Pulumi using the same logic that underpins the
+             bridging itself.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingAsync(Pulumirpc.GetMappingRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
-            response (not an error) if it doesn't have a mapping for the given key.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The call object.</returns>
+             <summary>
+             `GetMapping` returns mappings designed to aid in [converting programs and state from other
+             ecosystems](converters). It accepts a "conversion key", which effectively corresponds to a source language, such
+             as `terraform`, and a *source provider name*, which is the name of the provider *in the source language*. Given
+             these, it returns source-specific mapping data for the provider requested. As an example, the Pulumi AWS
+             provider, which is bridged from the Terraform AWS provider and thus capable of mapping names between the two,
+             might respond to a call with key `terraform` and source provider name `aws` with mapping data for transforming
+             (among other things) Terraform AWS names such as `aws_s3_bucket` into Pulumi AWS types such as
+             `aws:s3/bucket:Bucket`. If a provider only supports a single source provider, or has some sensible default, it
+             may respond also to a call in which the source provider name is empty (`""`), which will be made when the engine
+             does not have sufficient knowledge to work out which provider offers a specific mapping.
+            
+             In general, it is expected that providers implemented by bridging an equivalent provider from another ecosystem
+             (such as bridged Terraform providers built atop the `pulumi-terraform-bridge`, for instance) implement
+             `GetMapping` to support conversion from that ecosystem into Pulumi using the same logic that underpins the
+             bridging itself.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingAsync(Pulumirpc.GetMappingRequest,Grpc.Core.CallOptions)">
-            <summary>
-            GetMapping fetches the mapping for this resource provider, if any. A provider should return an empty
-            response (not an error) if it doesn't have a mapping for the given key.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The call object.</returns>
+             <summary>
+             `GetMapping` returns mappings designed to aid in [converting programs and state from other
+             ecosystems](converters). It accepts a "conversion key", which effectively corresponds to a source language, such
+             as `terraform`, and a *source provider name*, which is the name of the provider *in the source language*. Given
+             these, it returns source-specific mapping data for the provider requested. As an example, the Pulumi AWS
+             provider, which is bridged from the Terraform AWS provider and thus capable of mapping names between the two,
+             might respond to a call with key `terraform` and source provider name `aws` with mapping data for transforming
+             (among other things) Terraform AWS names such as `aws_s3_bucket` into Pulumi AWS types such as
+             `aws:s3/bucket:Bucket`. If a provider only supports a single source provider, or has some sensible default, it
+             may respond also to a call in which the source provider name is empty (`""`), which will be made when the engine
+             does not have sufficient knowledge to work out which provider offers a specific mapping.
+            
+             In general, it is expected that providers implemented by bridging an equivalent provider from another ecosystem
+             (such as bridged Terraform providers built atop the `pulumi-terraform-bridge`, for instance) implement
+             `GetMapping` to support conversion from that ecosystem into Pulumi using the same logic that underpins the
+             bridging itself.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappings(Pulumirpc.GetMappingsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
-            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
-            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The response received from the server.</returns>
+             <summary>
+             `GetMappings` is an optional method designed to aid in [converting programs and state from other
+             ecosystems](converters). `GetMappings` accepts a "conversion key". This corresponds to a source language, for
+             which we want to retrieve mappings for names etc. from that source language into Pulumi. An example key might
+             therefore be `terraform` in the event that we wish to map e.g. Terraform resource names to Pulumi resource types.
+             Given a key, `GetMappings` returns a list of *source provider names* for which calls to `GetMapping` will return
+             mappings. So, continuing the Terraform example, the Pulumi AWS provider, which is bridged from the Terraform AWS
+             provider and thus capable of mapping names between the two, might return the list `["aws"]` in response to a call
+             with key `terraform`.
+            
+             If a provider does not implement `GetMappings`, the engine will fall back to calling `GetMapping` blindly without
+             a source provider name (that is, with the value `""`).
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappings(Pulumirpc.GetMappingsRequest,Grpc.Core.CallOptions)">
-            <summary>
-            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
-            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
-            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The response received from the server.</returns>
+             <summary>
+             `GetMappings` is an optional method designed to aid in [converting programs and state from other
+             ecosystems](converters). `GetMappings` accepts a "conversion key". This corresponds to a source language, for
+             which we want to retrieve mappings for names etc. from that source language into Pulumi. An example key might
+             therefore be `terraform` in the event that we wish to map e.g. Terraform resource names to Pulumi resource types.
+             Given a key, `GetMappings` returns a list of *source provider names* for which calls to `GetMapping` will return
+             mappings. So, continuing the Terraform example, the Pulumi AWS provider, which is bridged from the Terraform AWS
+             provider and thus capable of mapping names between the two, might return the list `["aws"]` in response to a call
+             with key `terraform`.
+            
+             If a provider does not implement `GetMappings`, the engine will fall back to calling `GetMapping` blindly without
+             a source provider name (that is, with the value `""`).
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingsAsync(Pulumirpc.GetMappingsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
-            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
-            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The call object.</returns>
+             <summary>
+             `GetMappings` is an optional method designed to aid in [converting programs and state from other
+             ecosystems](converters). `GetMappings` accepts a "conversion key". This corresponds to a source language, for
+             which we want to retrieve mappings for names etc. from that source language into Pulumi. An example key might
+             therefore be `terraform` in the event that we wish to map e.g. Terraform resource names to Pulumi resource types.
+             Given a key, `GetMappings` returns a list of *source provider names* for which calls to `GetMapping` will return
+             mappings. So, continuing the Terraform example, the Pulumi AWS provider, which is bridged from the Terraform AWS
+             provider and thus capable of mapping names between the two, might return the list `["aws"]` in response to a call
+             with key `terraform`.
+            
+             If a provider does not implement `GetMappings`, the engine will fall back to calling `GetMapping` blindly without
+             a source provider name (that is, with the value `""`).
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.GetMappingsAsync(Pulumirpc.GetMappingsRequest,Grpc.Core.CallOptions)">
-            <summary>
-            GetMappings is an optional method that returns what mappings (if any) a provider supports. If a provider does not
-            implement this method the engine falls back to the old behaviour of just calling GetMapping without a name.
-            If this method is implemented than the engine will then call GetMapping only with the names returned from this method.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The call object.</returns>
+             <summary>
+             `GetMappings` is an optional method designed to aid in [converting programs and state from other
+             ecosystems](converters). `GetMappings` accepts a "conversion key". This corresponds to a source language, for
+             which we want to retrieve mappings for names etc. from that source language into Pulumi. An example key might
+             therefore be `terraform` in the event that we wish to map e.g. Terraform resource names to Pulumi resource types.
+             Given a key, `GetMappings` returns a list of *source provider names* for which calls to `GetMapping` will return
+             mappings. So, continuing the Terraform example, the Pulumi AWS provider, which is bridged from the Terraform AWS
+             provider and thus capable of mapping names between the two, might return the list `["aws"]` in response to a call
+             with key `terraform`.
+            
+             If a provider does not implement `GetMappings`, the engine will fall back to calling `GetMapping` blindly without
+             a source provider name (that is, with the value `""`).
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
@@ -11818,6 +12034,18 @@
             inputTypes in python.
             </summary>
         </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.ProgramOverridesFieldNumber">
+            <summary>Field number for the "program_overrides" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.ProgramOverrides">
+            <summary>
+            A map of test names to program overrides. This may be used to specify tests for which program generation should
+            not be run (e.g. because it does not support the necessary features), but where the test can still execute and
+            pass. This is useful in cases where e.g. a language's code SDK is relatively feature complete (and thus it's
+            desirable to test that feature set) but where program code generation is not yet complete enough to support
+            generating programs which exercise that functionality.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">
             <summary>Container for nested types declared in the PrepareLanguageTestsRequest message type.</summary>
         </member>
@@ -11829,6 +12057,24 @@
         </member>
         <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.Replacement.Replacement_FieldNumber">
             <summary>Field number for the "replacement" field.</summary>
+        </member>
+        <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.ProgramOverride">
+            <summary>
+            ProgramOverrides represent overrides whereby a test may specify a set of hardcoded or pre-generated programs to
+            be used, in place of running GenerateProject on source PCL. This is useful for testing SDK functionality when the
+            requisite program code generation is not yet complete enough to support generating programs which exercise that
+            functionality.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.ProgramOverride.PathsFieldNumber">
+            <summary>Field number for the "paths" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types.ProgramOverride.Paths">
+            <summary>
+            A list of paths to directories containing programs to use for the test. The length of this list should
+            correspond to the number of `Runs` in the test, with each entry being used for the corresponding run (e.g.
+            entry 0 for run 0, entry 1 for run 1, etc.).
+            </summary>
         </member>
         <member name="F:Pulumirpc.Testing.PrepareLanguageTestsResponse.TokenFieldNumber">
             <summary>Field number for the "token" field.</summary>

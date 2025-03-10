@@ -41,6 +41,7 @@ namespace Pulumi.Tests.Provider
             }.ToImmutableDictionary();
             var options = new ComponentResourceOptions();
             var request = new ConstructRequest(
+                null,
                 "test-package:index:TestComponent",
                 name,
                 inputs,
@@ -62,6 +63,7 @@ namespace Pulumi.Tests.Provider
         public async Task Construct_InvalidPackageName_ShouldThrowException()
         {
             var request = new ConstructRequest(
+                null,
                 "wrong:index:TestComponent",
                 "test",
                 ImmutableDictionary<string, PropertyValue>.Empty,
@@ -79,6 +81,7 @@ namespace Pulumi.Tests.Provider
         public async Task Construct_NonExistentComponent_ShouldThrowException()
         {
             var request = new ConstructRequest(
+                null,
                 "test-package:index:NonExistentComponent",
                 "test",
                 ImmutableDictionary<string, PropertyValue>.Empty,

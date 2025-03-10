@@ -606,11 +606,11 @@ namespace Pulumi.Experimental.Provider
         private static string? GetEngineAddress(string[] args)
         {
             var cleanArgs = new List<string>();
-            
+
             for (int i = 0; i < args.Length; i++)
             {
                 var arg = args[i];
-                
+
                 // Skip logging-related arguments
                 if (arg == "--logtostderr") continue;
                 if (arg.StartsWith("-v=")) continue;
@@ -620,7 +620,7 @@ namespace Pulumi.Experimental.Provider
                     i++; // Skip the tracing value
                     continue;
                 }
-                
+
                 cleanArgs.Add(arg);
             }
 
@@ -628,7 +628,7 @@ namespace Pulumi.Experimental.Provider
             {
                 return null;
             }
-            
+
             if (cleanArgs.Count > 1)
             {
                 throw new ArgumentException(

@@ -93,9 +93,9 @@ namespace Pulumi.Tests.Provider
         {
             // Helper method to access the private static method for testing
             var method = typeof(Pulumi.Experimental.Provider.Provider).GetMethod(
-                "GetEngineAddress", 
+                "GetEngineAddress",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            
+
             try
             {
                 return (string?)method?.Invoke(null, new object[] { args });
@@ -119,7 +119,7 @@ namespace Pulumi.Tests.Provider
         [Fact]
         public void GetEngineAddress_WithLoggingArgs_ReturnsAddress()
         {
-            var args = new[] { 
+            var args = new[] {
                 "--logtostderr",
                 "-v=3",
                 "127.0.0.1:51776",

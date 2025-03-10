@@ -151,6 +151,42 @@ namespace Pulumi.Tests.Serialization
             Assert.Equal(id, v);
         }
 
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public async Task SerializeCustomResourceDependencies(bool isPreview, bool excludeFromDependencies)
+        {
+            var resources = await RunAsync<MyStack>(isPreview);
+            var res = resources.OfType<MyCustomResource>().Single();
+
+            async Task Test<T>(T value)
+            {
+                var serializer = new Serializer(excessiveDebugOutput: false);
+                Serializer.CreateValue(await serializer.SerializeAsync("", value, true,
+                    excludeResourceReferencesFromDependencies: excludeFromDependencies));
+
+                if (excludeFromDependencies)
+                {
+                    Assert.Empty(serializer.DependentResources);
+                }
+                else
+                {
+                    Assert.Equal(new HashSet<Resource> { res }, serializer.DependentResources);
+                }
+            }
+
+            // Single resource.
+            await Test(res);
+
+            // Resource in list.
+            await Test(new List<Resource> { res });
+
+            // Resource in dictionary.
+            await Test(new Dictionary<string, Resource> { { "resource", res } });
+        }
+
         public class DeserializeCustomResourceStack : Stack
         {
             [Output("values")]

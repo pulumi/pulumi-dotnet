@@ -177,12 +177,12 @@ namespace Pulumi
         {
             get
             {
-              if (_rootDirectory == null)
-              {
-                throw new InvalidOperationException("Root directory is not available in your version of the pulumi CLI, please upgrade to the latest version");
-              }
+                if (_rootDirectory == null)
+                {
+                  throw new InvalidOperationException("The Pulumi CLI version does not support root directory. Please update the Pulumi CLI.");
+                }
 
-              return _rootDirectory;
+                return _rootDirectory;
             }
         }
 

@@ -95,7 +95,17 @@ namespace Pulumi.Tests.Provider
             var method = typeof(Pulumi.Experimental.Provider.Provider).GetMethod(
                 "GetEngineAddress", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            return (string?)method?.Invoke(null, new object[] { args });
+            
+            try
+            {
+                return (string?)method?.Invoke(null, new object[] { args });
+            }
+            catch (System.Reflection.TargetInvocationException ex)
+            {
+                if (ex.InnerException != null)
+                    throw ex.InnerException;
+                throw;
+            }
         }
 
         [Fact]
@@ -132,19 +142,19 @@ namespace Pulumi.Tests.Provider
         }
 
         [Fact]
-        public void GetEngineAddress_WithNoArgs_ThrowsException()
+        public void GetEngineAddress_WithNoArgs_ReturnsNull()
         {
             var args = Array.Empty<string>();
-            var ex = Assert.Throws<ArgumentException>(() => GetEngineAddress(args));
-            Assert.Equal("No engine address provided in arguments", ex.Message);
+            var address = GetEngineAddress(args);
+            Assert.Null(address);
         }
 
         [Fact]
-        public void GetEngineAddress_WithOnlyLoggingArgs_ThrowsException()
+        public void GetEngineAddress_WithOnlyLoggingArgs_ReturnsNull()
         {
             var args = new[] { "--logtostderr", "-v=3", "--logflow" };
-            var ex = Assert.Throws<ArgumentException>(() => GetEngineAddress(args));
-            Assert.Equal("No engine address provided in arguments", ex.Message);
+            var address = GetEngineAddress(args);
+            Assert.Null(address);
         }
 
         [Fact]
@@ -156,7 +166,7 @@ namespace Pulumi.Tests.Provider
             };
             var ex = Assert.Throws<ArgumentException>(() => GetEngineAddress(args));
             Assert.Equal(
-                "Expected exactly one engine address argument, but got 2 non-logging arguments",
+                "Expected at most one engine address argument, but got 2 non-logging arguments",
                 ex.Message);
         }
     }

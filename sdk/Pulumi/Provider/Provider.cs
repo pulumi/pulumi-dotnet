@@ -562,7 +562,10 @@ namespace Pulumi.Experimental.Provider
                             config.Sources.Clear();
 
                             var memConfig = new Dictionary<string, string?>();
-                            memConfig.Add("Host", engineAddress);
+                            if (engineAddress != null)
+                            {
+                                memConfig.Add("Host", engineAddress);
+                            }
                             if (version != null)
                             {
                                 memConfig.Add("Version", version);
@@ -623,13 +626,13 @@ namespace Pulumi.Experimental.Provider
 
             if (cleanArgs.Count == 0)
             {
-                throw new ArgumentException("No engine address provided in arguments");
+                return null;
             }
             
             if (cleanArgs.Count > 1)
             {
                 throw new ArgumentException(
-                    $"Expected exactly one engine address argument, but got {cleanArgs.Count} non-logging arguments");
+                    $"Expected at most one engine address argument, but got {cleanArgs.Count} non-logging arguments");
             }
 
             return cleanArgs[0];

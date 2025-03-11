@@ -81,7 +81,7 @@ namespace Pulumi
             public override void Write(Utf8JsonWriter writer, Input<T> value, JsonSerializerOptions options)
             {
                 // Sadly we have to block here as converters aren't async
-                var result = value.ToOutput<T>().DataTask.Result;
+                var result = value.ToOutput().DataTask.Result;
                 // Add the seen dependencies to the resources set
                 Parent._seenResources.AddRange(result.Resources);
                 if (!result.IsKnown)
@@ -108,9 +108,12 @@ namespace Pulumi
                 Converter = (JsonConverter<Input<ImmutableArray<T>>>)options.GetConverter(typeof(Input<ImmutableArray<T>>));
             }
 
-            public override InputList<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            public override InputList<T>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 var value = Converter.Read(ref reader, typeof(Input<ImmutableArray<T>>), options);
+                if (value == null) {
+                    return null;
+                }
                 return value.ToOutput();
             }
 
@@ -129,9 +132,12 @@ namespace Pulumi
                 Converter = (JsonConverter<Input<ImmutableDictionary<string, T>>>)options.GetConverter(typeof(Input<ImmutableDictionary<string, T>>));
             }
 
-            public override InputMap<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            public override InputMap<T>?  Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 var value = Converter.Read(ref reader, typeof(Input<ImmutableDictionary<string, T>>), options);
+                if (value == null) {
+                    return null;
+                }
                 return value.ToOutput();
             }
 
@@ -558,7 +564,13 @@ namespace Pulumi
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
         /// </summary>
         public Output<U> Apply<U>(Func<T, Input<U>?> func)
-            => Apply(t => func(t).ToOutput());
+            => Apply(t => {
+                var i = func(t);
+                if (i == null) {
+                    return null;
+                }
+                return i.ToOutput();
+            });
 
         /// <summary>
         /// Transforms the data of this <see cref="Output{T}"/> with the provided <paramref

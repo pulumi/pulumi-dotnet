@@ -68,6 +68,7 @@ public class PropertyValueTests
             Pair("password", new PropertyValue(new PropertyValue("PW"))));
 
         var basicArgs = await serializer.Deserialize<SecretArgs>(data);
+        Assert.NotNull(basicArgs.Password);
         var passwordOutput = await basicArgs.Password.ToOutput().DataTask;
         Assert.True(passwordOutput.IsSecret);
         Assert.True(passwordOutput.IsKnown);

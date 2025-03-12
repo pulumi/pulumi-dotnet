@@ -152,7 +152,7 @@ namespace Pulumi.Tests.Provider
         [Fact]
         public void GetEngineAddress_WithOnlyLoggingArgs_ReturnsNull()
         {
-            var args = new[] { "--logtostderr", "-v=3", "--logflow" };
+            var args = new[] { "--logtostderr", "-v10", "--logflow" };
             var address = GetEngineAddress(args);
             Assert.Null(address);
         }

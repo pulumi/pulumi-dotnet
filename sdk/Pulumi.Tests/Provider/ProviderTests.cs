@@ -86,4 +86,88 @@ namespace Pulumi.Tests.Provider
             Assert.Contains("GetSchema", exc.Message);
         }
     }
+
+    public class ProviderEngineAddressTests
+    {
+        private static string? GetEngineAddress(string[] args)
+        {
+            // Helper method to access the private static method for testing
+            var method = typeof(Pulumi.Experimental.Provider.Provider).GetMethod(
+                "GetEngineAddress",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+            try
+            {
+                return (string?)method?.Invoke(null, new object[] { args });
+            }
+            catch (System.Reflection.TargetInvocationException ex)
+            {
+                if (ex.InnerException != null)
+                    throw ex.InnerException;
+                throw;
+            }
+        }
+
+        [Fact]
+        public void GetEngineAddress_WithValidAddress_ReturnsAddress()
+        {
+            var args = new[] { "127.0.0.1:51776" };
+            var address = GetEngineAddress(args);
+            Assert.Equal("127.0.0.1:51776", address);
+        }
+
+        [Fact]
+        public void GetEngineAddress_WithLoggingArgs_ReturnsAddress()
+        {
+            var args = new[] {
+                "--logtostderr",
+                "-v=3",
+                "127.0.0.1:51776",
+                "--logflow"
+            };
+            var address = GetEngineAddress(args);
+            Assert.Equal("127.0.0.1:51776", address);
+        }
+
+        [Fact]
+        public void GetEngineAddress_WithTracingArg_ReturnsAddress()
+        {
+            var args = new[] {
+                "--tracing",
+                "1",
+                "127.0.0.1:51776"
+            };
+            var address = GetEngineAddress(args);
+            Assert.Equal("127.0.0.1:51776", address);
+        }
+
+        [Fact]
+        public void GetEngineAddress_WithNoArgs_ReturnsNull()
+        {
+            var args = Array.Empty<string>();
+            var address = GetEngineAddress(args);
+            Assert.Null(address);
+        }
+
+        [Fact]
+        public void GetEngineAddress_WithOnlyLoggingArgs_ReturnsNull()
+        {
+            var args = new[] { "--logtostderr", "-v10", "--logflow" };
+            var address = GetEngineAddress(args);
+            Assert.Null(address);
+        }
+
+        [Fact]
+        public void GetEngineAddress_WithMultipleAddresses_ThrowsException()
+        {
+            var args = new[] {
+                "127.0.0.1:51776",
+                "127.0.0.1:51777"
+            };
+            var ex = Assert.Throws<ArgumentException>(() => GetEngineAddress(args));
+            Assert.Equal(
+                "Expected at most one engine address argument, but got 2 non-logging arguments",
+                ex.Message);
+        }
+    }
 }

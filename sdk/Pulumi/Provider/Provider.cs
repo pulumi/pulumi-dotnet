@@ -542,6 +542,8 @@ namespace Pulumi.Experimental.Provider
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
 
+            var engineAddress = GetEngineAddress(args);
+
             return Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -560,9 +562,9 @@ namespace Pulumi.Experimental.Provider
                             config.Sources.Clear();
 
                             var memConfig = new Dictionary<string, string?>();
-                            if (args.Length > 0)
+                            if (engineAddress != null)
                             {
-                                memConfig.Add("Host", args[0]);
+                                memConfig.Add("Host", engineAddress);
                             }
                             if (version != null)
                             {
@@ -599,6 +601,41 @@ namespace Pulumi.Experimental.Provider
                     configuration?.Invoke(webBuilder);
                 })
                 .Build();
+        }
+
+        private static string? GetEngineAddress(string[] args)
+        {
+            var cleanArgs = new List<string>();
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                var arg = args[i];
+
+                // Skip logging-related arguments
+                if (arg == "--logtostderr") continue;
+                if (arg.StartsWith("-v")) continue;
+                if (arg == "--logflow") continue;
+                if (arg == "--tracing")
+                {
+                    i++; // Skip the tracing value
+                    continue;
+                }
+
+                cleanArgs.Add(arg);
+            }
+
+            if (cleanArgs.Count == 0)
+            {
+                return null;
+            }
+
+            if (cleanArgs.Count > 1)
+            {
+                throw new ArgumentException(
+                    $"Expected at most one engine address argument, but got {cleanArgs.Count} non-logging arguments");
+            }
+
+            return cleanArgs[0];
         }
     }
 

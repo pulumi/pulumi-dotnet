@@ -451,10 +451,7 @@ namespace Pulumi.Automation
                     args.Add("--expect-no-changes");
 
                 if (options.ShowReads.HasValue)
-                {
-                    args.Add("--show-reads");
-                    args.Add(options.ShowReads.Value ? "true" : "false");
-                }
+                    args.Add($"--show-reads={options.ShowReads.Value ? "true" : "false"}");
 
                 if (options.Diff is true)
                     args.Add("--diff");

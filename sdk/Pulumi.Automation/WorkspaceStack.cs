@@ -332,6 +332,12 @@ namespace Pulumi.Automation
                 if (options.ExpectNoChanges is true)
                     args.Add("--expect-no-changes");
 
+                if (options.ShowReads.HasValue)
+                {
+                    args.Add("--show-reads");
+                    args.Add(options.ShowReads.Value ? "true" : "false");
+                }
+
                 if (options.Diff is true)
                     args.Add("--diff");
 
@@ -446,6 +452,12 @@ namespace Pulumi.Automation
 
                 if (options.ExpectNoChanges is true)
                     args.Add("--expect-no-changes");
+
+                if (options.ShowReads.HasValue)
+                {
+                    args.Add("--show-reads");
+                    args.Add(options.ShowReads.Value ? "true" : "false");
+                }
 
                 if (options.Diff is true)
                     args.Add("--diff");

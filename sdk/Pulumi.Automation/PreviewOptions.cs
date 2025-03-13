@@ -37,7 +37,7 @@ namespace Pulumi.Automation
         public bool? Refresh { get; set; }
 
         /// <summary>
-        /// Show read logs in the preview.
+        /// Show resources that are being read in, alongside those being managed directly in the stack.
         /// </summary>
         public bool? ShowReads { get; set; }
     }

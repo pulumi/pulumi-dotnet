@@ -333,7 +333,10 @@ namespace Pulumi.Automation
                     args.Add("--expect-no-changes");
 
                 if (options.ShowReads.HasValue)
-                    args.Add($"--show-reads={options.ShowReads.Value ? "true" : "false"}");
+                {
+                    var showReads = options.ShowReads.Value ? "true" : "false";
+                    args.Add($"--show-reads={showReads}");
+                }
 
                 if (options.Diff is true)
                     args.Add("--diff");
@@ -451,7 +454,10 @@ namespace Pulumi.Automation
                     args.Add("--expect-no-changes");
 
                 if (options.ShowReads.HasValue)
-                    args.Add($"--show-reads={options.ShowReads.Value ? "true" : "false"}");
+                {
+                    var showReads = options.ShowReads.Value ? "true" : "false";
+                    args.Add($"--show-reads={showReads}");
+                }
 
                 if (options.Diff is true)
                     args.Add("--diff");

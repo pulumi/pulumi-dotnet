@@ -88,7 +88,8 @@ namespace Pulumi
                     $"call:{token}",
                     argsDict, _ => true,
                     keepResources: true,
-                    keepOutputValues: await MonitorSupportsOutputValues().ConfigureAwait(false)).ConfigureAwait(false);
+                    keepOutputValues: await MonitorSupportsOutputValues().ConfigureAwait(false),
+                    excludeResourceReferencesFromDependencies: true).ConfigureAwait(false);
             Log.Debug($"Call RPC prepared: token={token}" +
                 (_excessiveDebugOutput ? $", obj={serialized}" : ""));
 

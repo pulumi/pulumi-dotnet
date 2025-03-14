@@ -1491,17 +1491,17 @@
             `Resources` vector in presence of deliberate errors.
             </summary>
         </member>
-        <member name="M:Pulumi.Deployment.SerializeResourcePropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Boolean,System.Boolean)">
+        <member name="M:Pulumi.Deployment.SerializeResourcePropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Boolean,System.Boolean,System.Boolean)">
             <summary>
-            <see cref="M:Pulumi.Deployment.SerializeResourcePropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Boolean,System.Boolean)"/> walks the props object passed in,
+            <see cref="M:Pulumi.Deployment.SerializeResourcePropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Boolean,System.Boolean,System.Boolean)"/> walks the props object passed in,
             awaiting all interior promises besides those for <see cref="P:Pulumi.Resource.Urn"/> and <see
             cref="P:Pulumi.CustomResource.Id"/>, creating a reasonable POCO object that can be remoted over
             to registerResource.
             </summary>
         </member>
-        <member name="M:Pulumi.Deployment.SerializeFilteredPropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Predicate{System.String},System.Boolean,System.Boolean)">
+        <member name="M:Pulumi.Deployment.SerializeFilteredPropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Predicate{System.String},System.Boolean,System.Boolean,System.Boolean)">
              <summary>
-             <see cref="M:Pulumi.Deployment.SerializeFilteredPropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Predicate{System.String},System.Boolean,System.Boolean)"/> walks the props object passed in,
+             <see cref="M:Pulumi.Deployment.SerializeFilteredPropertiesAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Predicate{System.String},System.Boolean,System.Boolean,System.Boolean)"/> walks the props object passed in,
              awaiting all interior promises for properties with keys that match the provided filter,
              creating a reasonable POCO object that can be remoted over to registerResource.
              </summary>
@@ -1515,8 +1515,14 @@
              responsibility to ensure that the monitor supports the OutputValues
              feature.
              </param>
+             <param name="excludeResourceReferencesFromDependencies">
+             Specifies if we should exclude resource references from the resulting
+             <see cref="F:Pulumi.Deployment.SerializationResult.PropertyToDependentResources"/>. This is useful for remote
+             components (i.e. multi-lang components, or MLCs) where we want property dependencies to be
+             empty for a property that only contains resource references.
+             </param>
         </member>
-        <member name="M:Pulumi.Deployment.SerializeFilteredPropertiesRawAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Predicate{System.String},System.Boolean,System.Boolean)">
+        <member name="M:Pulumi.Deployment.SerializeFilteredPropertiesRawAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.Object},System.Predicate{System.String},System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Acts as `SerializeFilteredPropertiesAsync` without the
             last step of encoding the value into a Protobuf form.
@@ -2851,7 +2857,7 @@
             SpecialOutputValueSig is a randomly assigned hash used to identify outputs in maps. See sdk/go/common/resource/properties.go.
             </summary>
         </member>
-        <member name="M:Pulumi.Serialization.Serializer.SerializeAsync(System.String,System.Object,System.Boolean,System.Boolean)">
+        <member name="M:Pulumi.Serialization.Serializer.SerializeAsync(System.String,System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Takes in an arbitrary object and serializes it into a uniform form that can converted
             trivially to a protobuf to be passed to the Pulumi engine.
@@ -2923,7 +2929,7 @@
         </member>
         <member name="M:Pulumi.Serialization.Serializer.CreateStruct(System.Collections.Immutable.ImmutableDictionary{System.String,System.Object})">
             <summary>
-            Given a <see cref="T:System.Collections.Immutable.ImmutableDictionary`2"/> produced by <see cref="M:Pulumi.Serialization.Serializer.SerializeAsync(System.String,System.Object,System.Boolean,System.Boolean)"/>,
+            Given a <see cref="T:System.Collections.Immutable.ImmutableDictionary`2"/> produced by <see cref="M:Pulumi.Serialization.Serializer.SerializeAsync(System.String,System.Object,System.Boolean,System.Boolean,System.Boolean)"/>,
             produces the equivalent <see cref="T:Google.Protobuf.WellKnownTypes.Struct"/> that can be passed to the Pulumi engine.
             </summary>
         </member>

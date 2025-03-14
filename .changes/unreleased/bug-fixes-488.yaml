@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Exclude resource references from property dependencies for packaged components
+time: 2025-03-14T14:41:36.577785-07:00
+custom:
+    PR: "488"

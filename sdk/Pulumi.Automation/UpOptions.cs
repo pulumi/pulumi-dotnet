@@ -45,5 +45,10 @@ namespace Pulumi.Automation
         /// Refresh the state of the stack's resources before this update.
         /// </summary>
         public bool? Refresh { get; set; }
+
+        /// <summary>
+        /// Show resources that are being read in, alongside those being managed directly in the stack.
+        /// </summary>
+        public bool? ShowReads { get; set; }
     }
 }

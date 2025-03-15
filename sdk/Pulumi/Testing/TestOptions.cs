@@ -11,6 +11,11 @@ namespace Pulumi.Testing
         public string? ProjectName { get; set; }
 
         /// <summary>
+        /// Root directory. Defaults to <b>"rootDirectory"</b> if not specified.
+        /// </summary>
+        public string? RootDirectory { get; set; }
+
+        /// <summary>
         /// Stack name. Defaults to <b>"stack"</b> if not specified.
         /// </summary>
         public string? StackName { get; set; }

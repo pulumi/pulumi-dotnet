@@ -37,12 +37,20 @@ namespace Pulumi
             // the Resources pointed to by any Dependency objects we encounter, adding them to 'propertyDependencies'.
             LogExcessive($"Serializing properties: t={type}, name={name}, custom={custom}, remote={remote}");
             var dictionary = await args.ToDictionaryAsync().ConfigureAwait(false);
+            var keepResources = await MonitorSupportsResourceReferences().ConfigureAwait(false);
+            var keepOutputValues = remote && await MonitorSupportsOutputValues().ConfigureAwait(false);
+            // When remote is true (and the monitor supports resource references), exclude resource references
+            // from `propertyToDirectDependencies`. This way, component providers creating outputs for component
+            // inputs based on "propertyDependencies" won't create outputs for properties that only contain
+            // resource references.
+            var excludeResourceReferencesFromDependencies = remote && keepResources;
             var (serializedProps, propertyToDirectDependencies) =
                 await SerializeResourcePropertiesAsync(
                         label,
                         dictionary,
-                        await this.MonitorSupportsResourceReferences().ConfigureAwait(false),
-                        keepOutputValues: remote && await MonitorSupportsOutputValues().ConfigureAwait(false)).ConfigureAwait(false);
+                        keepResources,
+                        keepOutputValues,
+                        excludeResourceReferencesFromDependencies).ConfigureAwait(false);
             LogExcessive($"Serialized properties: t={type}, name={name}, custom={custom}, remote={remote}");
 
             // Wait for the parent to complete.

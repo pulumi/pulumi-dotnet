@@ -11,8 +11,8 @@ replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.156.1-0.20250317114508-9b05e1c2404a
-	github.com/pulumi/pulumi/sdk/v3 v3.156.1-0.20250317115244-fb5684a726c7
+	github.com/pulumi/pulumi/pkg/v3 v3.156.1-0.20250317094519-6a6a9bdb81eb
+	github.com/pulumi/pulumi/sdk/v3 v3.156.0
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1

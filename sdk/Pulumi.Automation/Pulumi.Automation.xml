@@ -939,6 +939,11 @@
             Refresh the state of the stack's resources before this preview.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.PreviewOptions.ShowReads">
+            <summary>
+            Show resources that are being read in, alongside those being managed directly in the stack.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.ProjectBackend">
             <summary>
             Configuration for the project's Pulumi state storage backend.
@@ -1522,6 +1527,11 @@
         <member name="P:Pulumi.Automation.UpOptions.Refresh">
             <summary>
             Refresh the state of the stack's resources before this update.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.UpOptions.ShowReads">
+            <summary>
+            Show resources that are being read in, alongside those being managed directly in the stack.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.Workspace">

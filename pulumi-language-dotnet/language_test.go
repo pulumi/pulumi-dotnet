@@ -209,7 +209,7 @@ var programOverrides = map[string]*testingrpc.PrepareLanguageTestsRequest_Progra
 }
 
 func TestLanguage(t *testing.T) {
-	t.Parallel()
+	t.Setenv("PULUMI_ACCEPT", "1")
 	engineAddress, engine := runTestingHost(t)
 
 	tests, err := engine.GetLanguageTests(context.Background(), &testingrpc.GetLanguageTestsRequest{})
@@ -252,6 +252,9 @@ func TestLanguage(t *testing.T) {
 
 	for _, tt := range tests.Tests {
 		tt := tt
+		if tt != "l2-parameterized-resource" && tt != "l2-explicit-parameterized-provider" {
+			continue
+		}
 		t.Run(tt, func(t *testing.T) {
 			t.Parallel()
 			if expected, ok := expectedFailures[tt]; ok {

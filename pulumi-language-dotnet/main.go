@@ -1143,7 +1143,11 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 		cmd := exec.Command( //nolint:gas // intentionally running dynamic program name.
 			opts.dotnetExec, "build", "-c", "Release")
 		cmd.Dir = req.PackageDirectory
-		return cmd.Run()
+		output, err := cmd.Output()
+		if err != nil {
+			return fmt.Errorf("failed to build: %w\n%s", err, string(output))
+		}
+		return nil
 	}
 
 	if err := build(); err != nil {

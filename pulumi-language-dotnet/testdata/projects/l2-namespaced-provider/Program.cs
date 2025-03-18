@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pulumi;
-using Namespaced = Pulumi.Namespaced;
+using Namespaced = ANamespace.Namespaced;
 
 return await Deployment.RunAsync(() => 
 {

@@ -40,6 +40,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/cmdutil"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/util/errutil"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/executable"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/logging"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
@@ -1130,24 +1131,24 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 		return nil, err
 	}
 
-	build := func() error {
+	build := func() ([]byte, error) {
 		err := os.RemoveAll(filepath.Join(req.PackageDirectory, "bin"))
 		if err != nil {
-			return err
+			return nil, err
 		}
 		err = os.RemoveAll(filepath.Join(req.PackageDirectory, "obj"))
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		cmd := exec.Command( //nolint:gas // intentionally running dynamic program name.
 			opts.dotnetExec, "build", "-c", "Release")
 		cmd.Dir = req.PackageDirectory
-		return cmd.Run()
+		return cmd.CombinedOutput()
 	}
 
-	if err := build(); err != nil {
-		return nil, fmt.Errorf("build error before pack: %w", err)
+	if out, err := build(); err != nil {
+		return nil, errutil.ErrorWithStderr(err, "build error before pack.  stdout: "+string(out))
 	}
 
 	destination := filepath.Join(req.DestinationDirectory, filepath.Base(projectFile))

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RestoreSources>ROOT/artifacts/ANamespace.Namespaced;ROOT/artifacts/Pulumi;$(RestoreSources)</RestoreSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="ANamespace.Namespaced" Version="16.0.0" />
+		<PackageReference Include="Pulumi" Version="1.0.0" />
+	</ItemGroup>
+
+</Project>

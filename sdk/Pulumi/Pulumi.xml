@@ -3525,6 +3525,14 @@
             a config block that will be used to configure timeouts for CRUD operations.
             </summary>
         </member>
+        <member name="F:Pulumirpc.AnalyzerResourceOptions.ParentFieldNumber">
+            <summary>Field number for the "parent" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerResourceOptions.Parent">
+            <summary>
+            an optional parent URN that this child resource belongs to.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AnalyzerResourceOptions.Types">
             <summary>Container for nested types declared in the AnalyzerResourceOptions message type.</summary>
         </member>

@@ -196,6 +196,7 @@ var expectedFailures = map[string]string{
 	"l2-map-keys":             "dotnet build failed",
 	"l2-resource-secret":      "test hanging",
 	"l1-builtin-project-root": "#466",
+	"l2-rtti":                 "codegen not implemented",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

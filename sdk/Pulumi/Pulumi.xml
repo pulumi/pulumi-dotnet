@@ -8780,6 +8780,12 @@
             Protected resources cannot be deleted without first being unprotected.
             </summary>
         </member>
+        <member name="P:Pulumirpc.ConstructRequest.HasProtect">
+            <summary>Gets whether the "protect" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ConstructRequest.ClearProtect">
+            <summary>Clears the value of the "protect" field</summary>
+        </member>
         <member name="F:Pulumirpc.ConstructRequest.AliasesFieldNumber">
             <summary>Field number for the "aliases" field.</summary>
         </member>
@@ -8826,6 +8832,12 @@
             If true, this resource (and its nested resources) must be deleted *before* its replacement is created.
             </summary>
         </member>
+        <member name="P:Pulumirpc.ConstructRequest.HasDeleteBeforeReplace">
+            <summary>Gets whether the "deleteBeforeReplace" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ConstructRequest.ClearDeleteBeforeReplace">
+            <summary>Clears the value of the "deleteBeforeReplace" field</summary>
+        </member>
         <member name="F:Pulumirpc.ConstructRequest.IgnoreChangesFieldNumber">
             <summary>Field number for the "ignoreChanges" field.</summary>
         </member>
@@ -8850,6 +8862,12 @@
             True if [](pulumirpc.ResourceProvider.Delete) should *not* be called when the resource (and by extension, its
             nested resources) are removed from a Pulumi program.
             </summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.HasRetainOnDelete">
+            <summary>Gets whether the "retainOnDelete" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ConstructRequest.ClearRetainOnDelete">
+            <summary>Clears the value of the "retainOnDelete" field</summary>
         </member>
         <member name="F:Pulumirpc.ConstructRequest.AcceptsOutputValuesFieldNumber">
             <summary>Field number for the "accepts_output_values" field.</summary>
@@ -11007,6 +11025,12 @@
             true if the resource should be marked protected.
             </summary>
         </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.HasProtect">
+            <summary>Gets whether the "protect" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.RegisterResourceRequest.ClearProtect">
+            <summary>Clears the value of the "protect" field</summary>
+        </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.DependenciesFieldNumber">
             <summary>Field number for the "dependencies" field.</summary>
         </member>
@@ -11166,6 +11190,12 @@
             <summary>
             if true the engine will not call the resource providers delete method for this resource.
             </summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.HasRetainOnDelete">
+            <summary>Gets whether the "retainOnDelete" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.RegisterResourceRequest.ClearRetainOnDelete">
+            <summary>Clears the value of the "retainOnDelete" field</summary>
         </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.AliasesFieldNumber">
             <summary>Field number for the "aliases" field.</summary>
@@ -11544,6 +11574,12 @@
         <member name="F:Pulumirpc.TransformResourceOptions.ProtectFieldNumber">
             <summary>Field number for the "protect" field.</summary>
         </member>
+        <member name="P:Pulumirpc.TransformResourceOptions.HasProtect">
+            <summary>Gets whether the "protect" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.TransformResourceOptions.ClearProtect">
+            <summary>Clears the value of the "protect" field</summary>
+        </member>
         <member name="F:Pulumirpc.TransformResourceOptions.IgnoreChangesFieldNumber">
             <summary>Field number for the "ignore_changes" field.</summary>
         </member>
@@ -11567,6 +11603,12 @@
         </member>
         <member name="F:Pulumirpc.TransformResourceOptions.RetainOnDeleteFieldNumber">
             <summary>Field number for the "retain_on_delete" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TransformResourceOptions.HasRetainOnDelete">
+            <summary>Gets whether the "retain_on_delete" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.TransformResourceOptions.ClearRetainOnDelete">
+            <summary>Clears the value of the "retain_on_delete" field</summary>
         </member>
         <member name="F:Pulumirpc.TransformResourceOptions.DeletedWithFieldNumber">
             <summary>Field number for the "deleted_with" field.</summary>

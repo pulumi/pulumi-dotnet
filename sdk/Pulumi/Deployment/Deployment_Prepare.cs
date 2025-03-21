@@ -306,13 +306,13 @@ namespace Pulumi
                     response.Options.PluginDownloadUrl = result.Value.Options.PluginDownloadURL ?? "";
                     if (result.Value.Options.Protect != null)
                     {
-                        response.Options.Protect =  result.Value.Options.Protect.Value;
+                        response.Options.Protect = result.Value.Options.Protect.Value;
                     }
                     response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Ref.ConfigureAwait(false);
                     response.Options.ReplaceOnChanges.AddRange(result.Value.Options.ReplaceOnChanges);
                     if (result.Value.Options.RetainOnDelete != null)
                     {
-                        response.Options.RetainOnDelete =  result.Value.Options.RetainOnDelete.Value;
+                        response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete.Value;
                     }
                     response.Options.Version = result.Value.Options.Version;
 

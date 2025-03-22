@@ -245,10 +245,10 @@ namespace Pulumi
                 opts.IgnoreChanges = request.Options.IgnoreChanges.ToList();
                 opts.Parent = request.Parent == "" ? null : new DependencyResource(request.Parent);
                 opts.PluginDownloadURL = request.Options.PluginDownloadUrl == "" ? null : request.Options.PluginDownloadUrl;
-                opts.Protect = request.Options.Protect;
+                opts.Protect = request.Options.HasProtect ? request.Options.Protect : null;
                 opts.Provider = request.Options.Provider == "" ? null : new DependencyProviderResource(request.Options.Provider);
                 opts.ReplaceOnChanges = request.Options.ReplaceOnChanges.ToList();
-                opts.RetainOnDelete = request.Options.RetainOnDelete;
+                opts.RetainOnDelete = request.Options.RetainOnDelete ? request.Options.RetainOnDelete : null;
                 opts.Version = request.Options.Version;
 
                 var args = new ResourceTransformArgs(
@@ -304,15 +304,24 @@ namespace Pulumi
                     }
                     response.Options.IgnoreChanges.AddRange(result.Value.Options.IgnoreChanges);
                     response.Options.PluginDownloadUrl = result.Value.Options.PluginDownloadURL ?? "";
-                    response.Options.Protect = result.Value.Options.Protect ?? false;
+                    if (result.Value.Options.Protect != null)
+                    {
+                        response.Options.Protect = result.Value.Options.Protect.Value;
+                    }
                     response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Ref.ConfigureAwait(false);
                     response.Options.ReplaceOnChanges.AddRange(result.Value.Options.ReplaceOnChanges);
-                    response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete ?? false;
+                    if (result.Value.Options.RetainOnDelete != null)
+                    {
+                        response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete.Value;
+                    }
                     response.Options.Version = result.Value.Options.Version;
 
                     if (result.Value.Options is CustomResourceOptions customOptions)
                     {
-                        response.Options.DeleteBeforeReplace = customOptions.DeleteBeforeReplace ?? false;
+                        if (customOptions.DeleteBeforeReplace != null)
+                        {
+                            response.Options.DeleteBeforeReplace = customOptions.DeleteBeforeReplace.Value;
+                        }
                         response.Options.AdditionalSecretOutputs.AddRange(customOptions.AdditionalSecretOutputs);
                     }
                     if (result.Value.Options is ComponentResourceOptions componentOptions)

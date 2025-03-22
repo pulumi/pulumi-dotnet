@@ -101,20 +101,30 @@ namespace Pulumi
                 Type = type,
                 Name = name,
                 Custom = custom,
-                Protect = options.Protect ?? false,
                 Version = options.Version ?? "",
                 PluginDownloadURL = options.PluginDownloadURL ?? "",
                 ImportId = customOpts?.ImportId ?? "",
                 AcceptSecrets = true,
                 AcceptResources = !_disableResourceReferences,
-                DeleteBeforeReplace = deleteBeforeReplace ?? false,
                 DeleteBeforeReplaceDefined = deleteBeforeReplace != null,
                 CustomTimeouts = options.CustomTimeouts?.Serialize(),
                 Remote = remote,
-                RetainOnDelete = options.RetainOnDelete ?? false,
                 DeletedWith = deletedWith,
                 SupportsResultReporting = true,
             };
+
+            if (deleteBeforeReplace != null)
+            {
+                request.DeleteBeforeReplace = deleteBeforeReplace.Value;
+            }
+            if (options.Protect != null)
+            {
+                request.Protect = options.Protect.Value;
+            }
+            if (options.RetainOnDelete != null)
+            {
+                request.RetainOnDelete = options.RetainOnDelete.Value;
+            }
 
             if (customOpts != null)
             {

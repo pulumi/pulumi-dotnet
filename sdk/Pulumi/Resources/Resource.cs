@@ -64,7 +64,7 @@ namespace Pulumi
         /// <summary>
         /// When set to true, protect ensures this resource cannot be deleted.
         /// </summary>
-        private readonly bool _protect;
+        private readonly bool? _protect;
 
         /// <summary>
         /// A collection of transformations to apply as part of resource registration.
@@ -260,7 +260,7 @@ namespace Pulumi
                 this._providers = this._providers.AddRange(ConvertToProvidersMap(providerList));
             }
 
-            this._protect = options.Protect == true;
+            this._protect = options.Protect;
             this._provider = custom ? options.Provider : null;
             this._version = options.Version;
             this._pluginDownloadURL = options.PluginDownloadURL;

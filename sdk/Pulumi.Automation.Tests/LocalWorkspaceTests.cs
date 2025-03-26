@@ -739,12 +739,12 @@ namespace Pulumi.Automation.Tests
         [Fact]
         public async Task PreviewDestroy()
         {
-            var program = PulumiFn.Create(() => {});
+            var program = PulumiFn.Create(() => { });
             Assert.IsType<PulumiFnInline>(program);
 
             var stackName = $"{RandomStackName()}";
             var projectName = "inline_node";
-            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program) {});
+            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program) { });
 
             try
             {
@@ -756,8 +756,9 @@ namespace Pulumi.Automation.Tests
 
                 // pulumi destroy
                 var destroyResult = await stack.DestroyAsync(new DestroyOptions
-                    { PreviewOnly = true
-                    });
+                {
+                    PreviewOnly = true
+                });
                 Assert.Equal(UpdateKind.Update, destroyResult.Summary.Kind);
                 Assert.Equal(UpdateState.Succeeded, destroyResult.Summary.Result);
             }

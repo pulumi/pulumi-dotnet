@@ -755,7 +755,9 @@ namespace Pulumi.Automation.Tests
                 Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
 
                 // pulumi destroy
-                var destroyResult = await stack.DestroyAsync(DestroyOptions{ PreviewOnly = true });
+                var destroyResult = await stack.DestroyAsync(new DestroyOptions
+                    { PreviewOnly = true
+                    });
                 Assert.Equal(UpdateKind.Update, destroyResult.Summary.Kind);
                 Assert.Equal(UpdateState.Succeeded, destroyResult.Summary.Result);
             }

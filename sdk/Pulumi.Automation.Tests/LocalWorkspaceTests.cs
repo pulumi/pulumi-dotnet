@@ -737,6 +737,35 @@ namespace Pulumi.Automation.Tests
         }
 
         [Fact]
+        public async Task PreviewDestroy()
+        {
+            var program = PulumiFn.Create(() => {});
+            Assert.IsType<PulumiFnInline>(program);
+
+            var stackName = $"{RandomStackName()}";
+            var projectName = "inline_node";
+            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program) {});
+
+            try
+            {
+
+                // pulumi up
+                var upResult = await stack.UpAsync();
+                Assert.Equal(UpdateKind.Update, upResult.Summary.Kind);
+                Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
+
+                // pulumi destroy
+                var destroyResult = await stack.DestroyAsync(DestroyOptions{ PreviewOnly = true });
+                Assert.Equal(UpdateKind.Update, destroyResult.Summary.Kind);
+                Assert.Equal(UpdateState.Succeeded, destroyResult.Summary.Result);
+            }
+            finally
+            {
+                await stack.Workspace.RemoveStackAsync(stackName);
+            }
+        }
+
+        [Fact]
         public async Task InlineProgramDoesNotEmitWarning()
         {
             var program = PulumiFn.Create(() =>

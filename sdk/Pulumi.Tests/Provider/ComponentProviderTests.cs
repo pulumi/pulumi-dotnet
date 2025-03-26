@@ -16,7 +16,7 @@ namespace Pulumi.Tests.Provider
         public ComponentProviderTests()
         {
             var assembly = typeof(TestComponent).Assembly;
-            _provider = new ComponentProvider(assembly, "test-package", new[] { typeof(TestComponent) });
+            _provider = new ComponentProvider(assembly, "test-package", null, new[] { typeof(TestComponent) });
         }
 
         [Fact]

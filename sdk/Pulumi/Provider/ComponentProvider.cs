@@ -18,6 +18,7 @@ namespace Pulumi.Experimental.Provider
     {
         private readonly Assembly componentAssembly;
         private readonly string packageName;
+        private readonly string ns;
         private readonly Type[]? componentTypes;
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly PropertyValueSerializer serializer;
@@ -28,11 +29,13 @@ namespace Pulumi.Experimental.Provider
         /// </summary>
         /// <param name="componentAssembly">The assembly containing component types</param>
         /// <param name="packageName">Optional package name (defaults to assembly name)</param>
+        /// <param name="ns">Optional namespace (defaults to assembly namespace)</param>
         /// <param name="componentTypes">Optional array of known component types</param>
-        public ComponentProvider(Assembly componentAssembly, string? packageName = null, Type[]? componentTypes = null)
+        public ComponentProvider(Assembly componentAssembly, string? packageName = null, string? ns = null, Type[]? componentTypes = null)
         {
             this.componentAssembly = componentAssembly;
             this.packageName = packageName ?? this.componentAssembly.GetName().Name!.ToLower();
+            this.ns = this.componentAssembly.GetTypes().First().Namespace!.ToLower();
             this.componentTypes = componentTypes;
 #pragma warning disable CS0618 // Type or member is obsolete
             this.serializer = new PropertyValueSerializer();
@@ -47,7 +50,7 @@ namespace Pulumi.Experimental.Provider
         /// <returns>The schema for the components in the assembly</returns>
         public override Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
-            var metadata = new Metadata(packageName);
+            var metadata = new Metadata(packageName, ns);
             var schema = componentTypes != null
                 ? ComponentAnalyzer.GenerateSchema(metadata, componentTypes)
                 : ComponentAnalyzer.GenerateSchema(metadata, componentAssembly);

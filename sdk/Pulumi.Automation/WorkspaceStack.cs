@@ -630,9 +630,9 @@ namespace Pulumi.Automation
             var args = new List<string> { "destroy" };
 
             if (options != null && options.PreviewOnly is true) {
-              args.Add("--preview-only")
+              args.Add("--preview-only");
             } else {
-              args.Add("--yes", "--skip-preview")
+              args.Add("--yes", "--skip-preview");
             }
 
             args.AddRange(GetRemoteArgs());

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Humanizer;
 using Pulumi.Utilities;
 
 namespace Pulumi.Experimental.Provider
@@ -17,8 +18,7 @@ namespace Pulumi.Experimental.Provider
     public class ComponentProvider : Provider
     {
         private readonly Assembly componentAssembly;
-        private readonly string packageName;
-        private readonly string ns;
+        private readonly Metadata metadata;
         private readonly Type[]? componentTypes;
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly PropertyValueSerializer serializer;
@@ -28,14 +28,12 @@ namespace Pulumi.Experimental.Provider
         /// Creates a new component provider.
         /// </summary>
         /// <param name="componentAssembly">The assembly containing component types</param>
-        /// <param name="packageName">Optional package name (defaults to assembly name)</param>
-        /// <param name="ns">Optional namespace (defaults to assembly namespace)</param>
+        /// <param name="metadata">The metadata for the package</param>
         /// <param name="componentTypes">Optional array of known component types</param>
-        public ComponentProvider(Assembly componentAssembly, string? packageName = null, string? ns = null, Type[]? componentTypes = null)
+        public ComponentProvider(Assembly componentAssembly, Metadata metadata, Type[]? componentTypes = null)
         {
             this.componentAssembly = componentAssembly;
-            this.packageName = packageName ?? this.componentAssembly.GetName().Name!.ToLower();
-            this.ns = this.componentAssembly.GetTypes().First().Namespace!.ToLower();
+            this.metadata = metadata;
             this.componentTypes = componentTypes;
 #pragma warning disable CS0618 // Type or member is obsolete
             this.serializer = new PropertyValueSerializer();
@@ -50,7 +48,6 @@ namespace Pulumi.Experimental.Provider
         /// <returns>The schema for the components in the assembly</returns>
         public override Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
-            var metadata = new Metadata(packageName, ns);
             var schema = componentTypes != null
                 ? ComponentAnalyzer.GenerateSchema(metadata, componentTypes)
                 : ComponentAnalyzer.GenerateSchema(metadata, componentAssembly);
@@ -80,7 +77,7 @@ namespace Pulumi.Experimental.Provider
         {
             // Parse type token
             var parts = request.Type.Split(':');
-            if (parts.Length != 3 || parts[0] != packageName)
+            if (parts.Length != 3 || parts[0] != metadata.Name)
                 throw new ArgumentException($"Invalid resource type: {request.Type}");
 
             var componentName = parts[2];
@@ -102,7 +99,7 @@ namespace Pulumi.Experimental.Provider
 
             var stateValue = await serializer.StateFromComponentResource(component);
 
-            return new ConstructResponse(new Experimental.Provider.Urn(urn), stateValue, ImmutableDictionary<string, ISet<Urn>>.Empty);
+            return new ConstructResponse(new Urn(urn), stateValue, ImmutableDictionary<string, ISet<Urn>>.Empty);
         }
 
         private static Type GetArgsType(Type componentType)

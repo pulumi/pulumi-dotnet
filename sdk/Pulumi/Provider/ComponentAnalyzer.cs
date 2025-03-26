@@ -419,19 +419,5 @@ namespace Pulumi.Experimental.Provider
         }
     }
 
-    public class Metadata
-    {
-        public string Name { get; }
-        public string? Namespace { get; }
-        public string? Version { get; }
-        public string? DisplayName { get; }
-
-        public Metadata(string name, string? ns = null, string? version = null, string? displayName = null)
-        {
-            Name = name;
-            Namespace = ns;
-            Version = version;
-            DisplayName = displayName;
-        }
-    }
+    public record Metadata(string Name, string? Namespace = null, string? Version = null, string? DisplayName = null);
 }

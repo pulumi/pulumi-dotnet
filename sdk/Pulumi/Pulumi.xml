@@ -201,12 +201,13 @@
             A provider that can be used to construct components from a given assembly with automatic schema inference.
             </summary>
         </member>
-        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.#ctor(System.Reflection.Assembly,System.String,System.Type[])">
+        <member name="M:Pulumi.Experimental.Provider.ComponentProvider.#ctor(System.Reflection.Assembly,System.String,System.String,System.Type[])">
             <summary>
             Creates a new component provider.
             </summary>
             <param name="componentAssembly">The assembly containing component types</param>
             <param name="packageName">Optional package name (defaults to assembly name)</param>
+            <param name="ns">Optional namespace (defaults to assembly namespace)</param>
             <param name="componentTypes">Optional array of known component types</param>
         </member>
         <member name="M:Pulumi.Experimental.Provider.ComponentProvider.GetSchema(Pulumi.Experimental.Provider.GetSchemaRequest,System.Threading.CancellationToken)">

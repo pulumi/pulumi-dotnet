@@ -632,7 +632,8 @@ namespace Pulumi.Automation
             if (options != null && options.PreviewOnly is true) {
               args.Add("--preview-only");
             } else {
-              args.Add("--yes", "--skip-preview");
+              args.Add("--yes");
+              args.Add("--skip-preview");
             }
 
             args.AddRange(GetRemoteArgs());

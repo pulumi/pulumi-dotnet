@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: bug-fixes
+body: Add missing support for EnumType to PropertyValueSerializer
+time: 2025-03-27T12:02:57.6027097+01:00
+custom:
+    PR: "557"

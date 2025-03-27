@@ -613,7 +613,7 @@ namespace Pulumi.Experimental.Provider
 
                 // Skip logging-related arguments
                 if (arg == "--logtostderr") continue;
-                if (arg.StartsWith("-v")) continue;
+                if (arg.StartsWith("-v", StringComparison.Ordinal)) continue;
                 if (arg == "--logflow") continue;
                 if (arg == "--tracing")
                 {

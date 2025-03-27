@@ -1,6 +1,0 @@
-component: sdk/provider
-kind: Improvements
-body: Default the version of ComponentProviderHost to 0.0.0
-time: 2025-03-27T10:31:22.779157+01:00
-custom:
-    PR: "556"

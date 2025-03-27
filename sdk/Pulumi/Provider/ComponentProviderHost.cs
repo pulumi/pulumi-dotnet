@@ -23,8 +23,10 @@ namespace Pulumi.Experimental.Provider
             var assembly = componentAssembly ?? Assembly.GetCallingAssembly();
             (var parsedNamespace, var parsedPackage) = ParseAssemblyName(assembly.GetName().Name);
             packageName = packageName ?? parsedPackage ?? throw new ArgumentNullException(nameof(packageName));
-            var metadata = new Metadata(Name: packageName, Namespace: parsedNamespace);
-            return Provider.Serve(args, null, host => new ComponentProvider(assembly, metadata), CancellationToken.None);
+            // Default the version to "0.0.0" for now, otherwise SDK codegen gets confused without a version.
+            var version = "0.0.0";
+            var metadata = new Metadata(Name: packageName, Namespace: parsedNamespace, Version: version);
+            return Provider.Serve(args, version, host => new ComponentProvider(assembly, metadata), CancellationToken.None);
         }
 
         internal static (string? namespaceName, string? packageName) ParseAssemblyName(string? assemblyName)

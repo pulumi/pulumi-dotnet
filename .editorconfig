@@ -4,3 +4,9 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
 dotnet_diagnostic.CA1310.severity = error
+
+# ReSharper properties
+resharper_keep_existing_declaration_parens_arrangement = false
+resharper_keep_existing_primary_constructor_declaration_parens_arrangement = true
+resharper_wrap_before_primary_constructor_declaration_lpar = true
+resharper_wrap_before_primary_constructor_declaration_rpar = true

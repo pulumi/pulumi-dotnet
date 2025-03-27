@@ -1,6 +1,0 @@
-component: sdk/provider
-kind: Improvements
-body: Infer package name and namespace in ComponentProviderHost
-time: 2025-03-26T23:35:49.26489+01:00
-custom:
-    PR: "555"

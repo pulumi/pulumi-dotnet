@@ -53,6 +53,13 @@ namespace Pulumi.Experimental.Provider
                     nameof(metadata));
             }
 
+            if (metadata.Namespace != null && !Regex.IsMatch(metadata.Namespace, "^[a-z][-a-z0-9]*$"))
+            {
+                throw new ArgumentException(
+                    "Namespace must start with a letter and contain only lowercase letters, numbers and hyphens",
+                    nameof(metadata));
+            }
+
             if (componentTypes.Length == 0)
             {
                 throw new ArgumentException("At least one component type must be provided");
@@ -128,6 +135,7 @@ namespace Pulumi.Experimental.Provider
             {
                 Name = metadata.Name,
                 Version = metadata.Version ?? "",
+                Namespace = metadata.Namespace ?? "",
                 DisplayName = metadata.DisplayName ?? metadata.Name,
                 Language = languages.ToImmutableSortedDictionary(),
                 Resources = resources.ToImmutableSortedDictionary(),
@@ -411,17 +419,5 @@ namespace Pulumi.Experimental.Provider
         }
     }
 
-    public class Metadata
-    {
-        public string Name { get; }
-        public string? Version { get; }
-        public string? DisplayName { get; }
-
-        public Metadata(string name, string? version = null, string? displayName = null)
-        {
-            Name = name;
-            Version = version;
-            DisplayName = displayName;
-        }
-    }
+    public record Metadata(string Name, string? Namespace = null, string? Version = null, string? DisplayName = null);
 }

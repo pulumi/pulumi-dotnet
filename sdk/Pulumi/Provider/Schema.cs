@@ -11,6 +11,9 @@ namespace Pulumi.Experimental.Provider
         [JsonPropertyName("name")]
         public string Name { get; init; } = "";
 
+        [JsonPropertyName("namespace")]
+        public string Namespace { get; init; } = "";
+
         [JsonPropertyName("displayName")]
         public string DisplayName { get; init; } = "";
 

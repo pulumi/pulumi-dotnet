@@ -928,7 +928,7 @@ public class ComponentAnalyzerTests
         Assert.Equal(name, schema.Name);
     }
 
-    private readonly Metadata _metadata = new Metadata("my-component", "0.0.1", "Test package");
+    private readonly Metadata _metadata = new Metadata("my-component", "my-package", "0.0.1", "Test package");
 
     private static PackageSpec CreateBasePackageSpec(
         Dictionary<string, ResourceSpec>? resources = null,
@@ -937,6 +937,7 @@ public class ComponentAnalyzerTests
         var pkg = new PackageSpec
         {
             Name = "my-component",
+            Namespace = "my-package",
             Version = "0.0.1",
             DisplayName = "Test package"
         };

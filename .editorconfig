@@ -6,3 +6,9 @@ charset = utf-8
 
 # CA1848: Use the LoggerMessage delegates - disable this rule as our use isn't performance sensitive
 dotnet_diagnostic.CA1848.severity = none
+
+# ReSharper properties
+resharper_keep_existing_declaration_parens_arrangement = false
+resharper_keep_existing_primary_constructor_declaration_parens_arrangement = true
+resharper_wrap_before_primary_constructor_declaration_lpar = true
+resharper_wrap_before_primary_constructor_declaration_rpar = true

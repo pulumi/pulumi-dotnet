@@ -2,6 +2,7 @@
 
 using System;
 using Google.Protobuf.WellKnownTypes;
+using Type = System.Type;
 
 namespace Pulumi
 {
@@ -122,5 +123,126 @@ namespace Pulumi
             Type = type;
             Version = version;
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class PolicyResourceTypeAttribute : Attribute
+    {
+        /// <summary>
+        /// The token of the PolicyResource.
+        /// </summary>
+        public string Type { get; }
+
+        /// <summary>
+        /// The version of the PolicyResource.
+        /// </summary>
+        public string? Version { get; }
+
+        public PolicyResourceTypeAttribute(string type, string? version)
+        {
+            Type = type;
+            Version = version;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class PolicyPackTypeAttribute : Attribute
+    {
+        /// <summary>
+        /// The name of the Policy pack.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// The version of the Policy pack.
+        /// </summary>
+        public string Version { get; }
+
+        public PolicyPackTypeAttribute(string name, string? version)
+        {
+            Name = name;
+            Version = version ?? "1.0.0";
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class PolicyPackResourceAttribute : Attribute
+    {
+        /// <summary>
+        /// The PolicyResource type this rule applies to.
+        /// </summary>
+        public Type Target { get; }
+
+        /// <summary>
+        /// The name of the Policy rule.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// A description of the rule.
+        /// </summary>
+        public string Description { get; }
+
+        /// <summary>
+        /// The enforcement level of
+        /// </summary>
+        public EnforcementLevel EnforcementLevel { get; }
+
+        public PolicyPackResourceAttribute(Type target, string name, string description, EnforcementLevel enforcementLevel)
+        {
+            Target = target;
+            Name = name;
+            Description = description;
+            EnforcementLevel = enforcementLevel;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class PolicyPackStackAttribute : Attribute
+    {
+        /// <summary>
+        /// The name of the Policy rule.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// A description of the rule.
+        /// </summary>
+        public string Description { get; }
+
+        /// <summary>
+        /// The enforcement level of
+        /// </summary>
+        public EnforcementLevel EnforcementLevel { get; }
+
+        public PolicyPackStackAttribute(string name, string description, EnforcementLevel enforcementLevel)
+        {
+            Name = name;
+            Description = description;
+            EnforcementLevel = enforcementLevel;
+        }
+    }
+
+    public enum EnforcementLevel
+    {
+        /// <summary>
+        /// Displayed to users, but does not block deployment.
+        /// </summary>
+        ADVISORY = 0,
+
+        /// <summary>
+        /// Stops deployment, cannot be overridden.
+        /// </summary>
+        MANDATORY = 1,
+
+        /// <summary>
+        /// Disabled policies do not run during a deployment.
+        /// </summary>
+        DISABLED = 2,
+
+        /// <summary>
+        /// Remediated policies actually fixes problems instead of issuing diagnostics.
+        /// </summary>
+        REMEDIATE = 3,
     }
 }

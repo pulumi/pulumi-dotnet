@@ -370,7 +370,7 @@ namespace Pulumi.Experimental.Provider
                 }
             }
 
-            if (!type.IsInterface && !type.IsPrimitive && type != typeof(string) && !(type.Namespace?.StartsWith("System") ?? false))
+            if (!type.IsInterface && !type.IsPrimitive && type != typeof(string) && !(type.Namespace?.StartsWith("System", StringComparison.Ordinal) ?? false))
             {
                 var typeName = GetTypeName(type);
                 var typeRef = $"#/types/{metadata.Name}:index:{typeName}";
@@ -391,7 +391,7 @@ namespace Pulumi.Experimental.Provider
         private string GetTypeName(Type type)
         {
             var name = type.Name;
-            return name.EndsWith("Args") ? name[..^4] : name;
+            return name.EndsWith("Args", StringComparison.Ordinal) ? name[..^4] : name;
         }
 
         private string? GetBuiltinTypeName(Type type)

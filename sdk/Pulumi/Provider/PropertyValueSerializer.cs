@@ -280,6 +280,24 @@ namespace Pulumi.Experimental.Provider
                 return new PropertyValue(enumValue);
             }
 
+            if (targetType.IsValueType && targetType.GetCustomAttribute<EnumTypeAttribute>() != null)
+            {
+                var mi = targetType.GetMethod("op_Explicit", BindingFlags.Public | BindingFlags.Static, null, new[] { targetType }, null);
+                if (mi == null || (mi.ReturnType != typeof(string) && mi.ReturnType != typeof(double)))
+                {
+                    throw new InvalidOperationException($"Expected {targetType.FullName} to have an explicit conversion operator to String or Double");
+                }
+
+                if (mi.ReturnType == typeof(string))
+                {
+                    return new PropertyValue((string)mi.Invoke(null, new object?[] { value })!);
+                }
+                if (mi.ReturnType == typeof(double))
+                {
+                    return new PropertyValue((double)mi.Invoke(null, new object?[] { value })!);
+                }
+            }
+
             async Task<PropertyValue> SerializeOutput(IOutput output)
             {
                 var data = await output.GetDataAsync().ConfigureAwait(false);
@@ -358,20 +376,21 @@ namespace Pulumi.Experimental.Provider
         }
 
         private string DeserializationError(
-            PropertyValueType expected,
+            ICollection<PropertyValueType> expected,
             PropertyValueType actual,
             Type targetType,
             string[] path)
         {
+            var expectedTypes = expected.Count == 1 ? expected.First().ToString() : $"[{string.Join(", ", expected.Select(x => x.ToString()))}]";
             if (path.Length == 1 && path[0] == "$")
             {
                 return $"Error while deserializing value of type {targetType.Name} from property value of type {actual}. "
-                       + $"Expected {expected} instead.";
+                       + $"Expected {expectedTypes} instead.";
             }
 
             var propertyPath = $"[" + string.Join(", ", path) + "]";
             return $"Error while deserializing value of type {targetType.Name} from property value of type {actual}. "
-                   + $"Expected {expected} instead at path {propertyPath}.";
+                   + $"Expected {expectedTypes} instead at path {propertyPath}.";
         }
 
         public Task<T> Deserialize<T>(PropertyValue value)
@@ -395,8 +414,16 @@ namespace Pulumi.Experimental.Provider
         {
             void ThrowTypeMismatchError(PropertyValueType expectedType)
             {
+                ThrowTypesMismatchError(new List<PropertyValueType>()
+                {
+                    expectedType
+                });
+            }
+
+            void ThrowTypesMismatchError(ICollection<PropertyValueType> expectedTypes)
+            {
                 var error = DeserializationError(
-                    expected: expectedType,
+                    expected: expectedTypes,
                     actual: value.Type,
                     targetType: targetType,
                     path: path);
@@ -739,6 +766,34 @@ namespace Pulumi.Experimental.Provider
                 }
 
                 ThrowTypeMismatchError(PropertyValueType.Number);
+            }
+
+            if (targetType.IsValueType && targetType.GetCustomAttribute<EnumTypeAttribute>() != null)
+            {
+                object? val;
+                Type underlyingType;
+                if (value.TryGetString(out var stringValue))
+                {
+                    val = stringValue;
+                    underlyingType = typeof(string);
+                }
+                else if (value.TryGetNumber(out var doubleValue))
+                {
+                    val = doubleValue;
+                    underlyingType = typeof(double);
+                }
+                else
+                {
+                    ThrowTypesMismatchError(new List<PropertyValueType>() { PropertyValueType.String, PropertyValueType.Number });
+                    return false;
+                }
+                var constructor = targetType.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { underlyingType }, null);
+                if (constructor == null)
+                {
+                    return false;
+                }
+
+                return constructor.Invoke(new[] { val });
             }
 
             if (targetType == typeof(Asset))

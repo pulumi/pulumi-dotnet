@@ -1,3 +1,5 @@
+using Pulumi.Tests.Serialization;
+
 namespace Pulumi.Tests.Provider;
 
 using Pulumi.Experimental.Provider;
@@ -347,6 +349,64 @@ public class PropertyValueTests
         var data = Object(Pair("EnumInput", new PropertyValue(1)));
         var args = await serializer.Deserialize<EnumArgs>(data);
         Assert.Equal(TestEnum.Default, args.EnumInput);
+    }
+
+    class EnumTypeStringArgs : ResourceArgs
+    {
+        [Input(nameof(ContainerColor))]
+        public ComplexTypeConverterTests.ContainerColor ContainerColor { get; set; }
+    }
+
+    [Fact]
+    public async Task SerializingEnumTypeStringWorks()
+    {
+        var serializer = CreateSerializer();
+        var containerColor = ComplexTypeConverterTests.ContainerColor.Blue;
+        var serialized = await serializer.Serialize(new EnumTypeStringArgs
+        {
+            ContainerColor = containerColor
+        });
+        var expected = Object(Pair(nameof(EnumTypeStringArgs.ContainerColor), new PropertyValue((string)containerColor)));
+        Assert.Equal(expected, serialized);
+    }
+
+    [Fact]
+    public async Task DeserializingEnumTypeFromStringWorks()
+    {
+        var serializer = CreateSerializer();
+        var containerColor = ComplexTypeConverterTests.ContainerColor.Blue;
+        var data = Object(Pair(nameof(EnumTypeStringArgs.ContainerColor), new PropertyValue((string)containerColor)));
+        var args = await serializer.Deserialize<EnumTypeStringArgs>(data);
+        Assert.Equal(containerColor, args.ContainerColor);
+    }
+
+    class EnumTypeDoubleArgs : ResourceArgs
+    {
+        [Input(nameof(ContainerBrightness))]
+        public EnumConverterTests.ContainerBrightness ContainerBrightness { get; set; }
+    }
+
+    [Fact]
+    public async Task SerializingEnumTypeDoubleWorks()
+    {
+        var serializer = CreateSerializer();
+        var containerBrightness = EnumConverterTests.ContainerBrightness.ZeroPointOne;
+        var serialized = await serializer.Serialize(new EnumTypeDoubleArgs
+        {
+            ContainerBrightness = containerBrightness
+        });
+        var expected = Object(Pair(nameof(EnumTypeDoubleArgs.ContainerBrightness), new PropertyValue((double)containerBrightness))); ;
+        Assert.Equal(expected, serialized);
+    }
+
+    [Fact]
+    public async Task DeserializingEnumTypeFromDoubleWorks()
+    {
+        var serializer = CreateSerializer();
+        var containerBrightness = EnumConverterTests.ContainerBrightness.ZeroPointOne;
+        var data = Object(Pair(nameof(EnumTypeDoubleArgs.ContainerBrightness), new PropertyValue((double)containerBrightness)));
+        var args = await serializer.Deserialize<EnumTypeDoubleArgs>(data);
+        Assert.Equal(containerBrightness, args.ContainerBrightness);
     }
 
     [Fact]

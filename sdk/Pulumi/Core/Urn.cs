@@ -8,17 +8,40 @@ namespace Pulumi
     /// An automatically generated logical URN, used to stably identify resources. These are created
     /// automatically by Pulumi to identify resources.  They cannot be manually constructed.
     /// </summary>
-    public static class Urn
+    public class Urn
     {
+        private const string Prefix = "urn:pulumi:";
+        private const string PartsSeparator = "::";
+        private const string PartsSeparatorRegex = "[:][:]";
+        private const string TypeSeparator = ":";
+        private const string TypeSeparatorRegex = "[:]";
+        private const string ParentSeparator = "$";
+        private const string ParentSeparatorRegex = "\\$";
+
+        public readonly string Stack;
+        public readonly string Project;
+        public readonly string QualifiedType;
+        public readonly string Name;
+
+        private Urn(string stack, string project, string qualifiedType, string name)
+        {
+            this.Stack = stack;
+            this.Project = project;
+            this.QualifiedType = qualifiedType;
+            this.Name = name;
+        }
+
         /// <summary>
         /// Computes a URN from the combination of a resource name, resource type, optional parent,
         /// optional project and optional stack.
         /// </summary>
         /// <returns></returns>
-        public static Output<string> Create(
-            Input<string> name, Input<string> type,
-            Resource? parent = null, Input<string>? parentUrn = null,
-            Input<string>? project = null, Input<string>? stack = null)
+        public static Output<string> Create(Input<string> name,
+            Input<string> type,
+            Resource? parent = null,
+            Input<string>? parentUrn = null,
+            Input<string>? project = null,
+            Input<string>? stack = null)
         {
             if (parent != null && parentUrn != null)
                 throw new ArgumentException("Only one of 'parent' and 'parentUrn' can be non-null.");
@@ -74,17 +97,72 @@ namespace Pulumi
             return urn;
         }
 
-        internal static string Name(string urn)
+        internal static string GetName(string urn)
         {
             var parts = urn.Split("::");
             return parts[3];
         }
 
-        internal static string Type(string urn)
+        internal static string GetType(string urn)
         {
             var parts = urn.Split("::");
             var typeParts = parts[2].Split("$");
-            return typeParts[typeParts.Length - 1];
+            return typeParts[^1];
+        }
+
+        public static Urn Parse(String urn)
+        {
+            if (string.IsNullOrEmpty(urn))
+            {
+                throw new ArgumentException($"expected urn to be not empty and not null, got: '{urn}'");
+            }
+
+            if (urn.StartsWith(Prefix, StringComparison.Ordinal))
+            {
+                throw new ArgumentException($"expected urn to start with '{Prefix}', got: '{urn}'");
+            }
+
+            var urnParts = urn.Split(PartsSeparator); // -1 avoids dropping trailing empty strings
+            if (urnParts.Length != 4)
+            {
+                throw new ArgumentException($"expected urn to have 4 parts, separated by '{PartsSeparator}', got '{urnParts.Length}' in '{urn}'");
+            }
+
+            var stack = urnParts[0].Substring(Prefix.Length);
+            if (string.IsNullOrEmpty(stack))
+            {
+                throw new ArgumentException($"expected urn stack part to be not empty, got: '{urn}'");
+            }
+
+            if (stack.Contains(ParentSeparator))
+            {
+                throw new ArgumentException($"expected urn stack part to not contain '{ParentSeparator}', got: '{stack}'");
+            }
+
+            var project = urnParts[1];
+            if (string.IsNullOrEmpty(project))
+            {
+                throw new ArgumentException($"expected urn project part to be not empty, got: '{urn}'");
+            }
+
+            if (project.Contains(ParentSeparator))
+            {
+                throw new ArgumentException($"expected urn project part to not contain '{ParentSeparator}', got: '{project}'");
+            }
+
+            var qualifiedType = urnParts[2];
+            if (string.IsNullOrEmpty(qualifiedType))
+            {
+                throw new ArgumentException($"expected urn qualifiedType part to be not empty, got: '{urn}'");
+            }
+
+            var name = urnParts[3];
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException($"expected urn name part to be not empty, got: '{urn}'");
+            }
+
+            return new Urn(stack, project, qualifiedType, name);
         }
     }
 }

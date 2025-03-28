@@ -136,12 +136,12 @@ namespace Pulumi
         /// <summary>
         /// The version of the PolicyResource.
         /// </summary>
-        public string? Version { get; }
+        public string? Version { get; set; }
 
-        public PolicyResourceTypeAttribute(string type, string? version)
+        public PolicyResourceTypeAttribute(string type)
         {
             Type = type;
-            Version = version;
+            // Version = version;
         }
     }
 
@@ -158,10 +158,10 @@ namespace Pulumi
         /// </summary>
         public string Version { get; }
 
-        public PolicyPackTypeAttribute(string name, string? version)
+        public PolicyPackTypeAttribute(string name, string version = "1.0.0")
         {
             Name = name;
-            Version = version ?? "1.0.0";
+            Version = version;
         }
     }
 
@@ -195,6 +195,8 @@ namespace Pulumi
             Description = description;
             EnforcementLevel = enforcementLevel;
         }
+
+        internal Pulumirpc.EnforcementLevel EnforcementLevelForRpc => PolicyPackStackAttribute.ToRpc(EnforcementLevel);
     }
 
     [AttributeUsage(AttributeTargets.Method)]
@@ -221,6 +223,20 @@ namespace Pulumi
             Description = description;
             EnforcementLevel = enforcementLevel;
         }
+
+        internal Pulumirpc.EnforcementLevel EnforcementLevelForRpc => ToRpc(EnforcementLevel);
+
+        internal static Pulumirpc.EnforcementLevel ToRpc(EnforcementLevel enforcementLevel)
+        {
+            return enforcementLevel switch
+            {
+                EnforcementLevel.Advisory => global::Pulumirpc.EnforcementLevel.Advisory,
+                EnforcementLevel.Mandatory => global::Pulumirpc.EnforcementLevel.Mandatory,
+                EnforcementLevel.Disabled => global::Pulumirpc.EnforcementLevel.Disabled,
+                EnforcementLevel.Remediate => global::Pulumirpc.EnforcementLevel.Remediate,
+                _ => global::Pulumirpc.EnforcementLevel.Disabled,
+            };
+        }
     }
 
     public enum EnforcementLevel
@@ -228,21 +244,21 @@ namespace Pulumi
         /// <summary>
         /// Displayed to users, but does not block deployment.
         /// </summary>
-        ADVISORY = 0,
+        Advisory = 0,
 
         /// <summary>
         /// Stops deployment, cannot be overridden.
         /// </summary>
-        MANDATORY = 1,
+        Mandatory = 1,
 
         /// <summary>
         /// Disabled policies do not run during a deployment.
         /// </summary>
-        DISABLED = 2,
+        Disabled = 2,
 
         /// <summary>
         /// Remediated policies actually fixes problems instead of issuing diagnostics.
         /// </summary>
-        REMEDIATE = 3,
+        Remediate = 3,
     }
 }

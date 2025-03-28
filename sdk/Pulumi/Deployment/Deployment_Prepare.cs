@@ -455,8 +455,8 @@ namespace Pulumi
                     {
                         var inheritedAlias = CollapseAliasToUrn(childAlias, childName, childType, parent).Apply(childAliasURN =>
                         {
-                            var aliasedChildName = Pulumi.Urn.Name(childAliasURN);
-                            var aliasedChildType = Pulumi.Urn.Type(childAliasURN);
+                            var aliasedChildName = Pulumi.Urn.GetName(childAliasURN);
+                            var aliasedChildType = Pulumi.Urn.GetType(childAliasURN);
                             return Pulumi.Urn.InheritedChildAlias(aliasedChildName, parentName, parentAlias, aliasedChildType);
                         });
                         aliases.Add(inheritedAlias);

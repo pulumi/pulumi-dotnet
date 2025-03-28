@@ -104,8 +104,8 @@ namespace Pulumi.Experimental.Provider
         // be sent as separate string fields by the engine, rather than expecting every language to correctly
         // parse URNs. But for now we're half-waying this by having the public dotnet API expose Type and Name
         // directly, but by parsing the single URN sent from the engine.
-        public string Type => Pulumi.Urn.Type(Urn);
-        public string Name => Pulumi.Urn.Name(Urn);
+        public string Type => Pulumi.Urn.GetType(Urn);
+        public string Name => Pulumi.Urn.GetName(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> OldInputs;
         public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
         public readonly ImmutableArray<byte> RandomSeed;
@@ -144,8 +144,8 @@ namespace Pulumi.Experimental.Provider
     public sealed class DiffRequest
     {
         public readonly Urn Urn;
-        public string Type => Pulumi.Urn.Type(Urn);
-        public string Name => Pulumi.Urn.Name(Urn);
+        public string Type => Pulumi.Urn.GetType(Urn);
+        public string Name => Pulumi.Urn.GetName(Urn);
         public readonly string Id;
         public readonly ImmutableDictionary<string, PropertyValue> OldState;
         public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
@@ -262,8 +262,8 @@ namespace Pulumi.Experimental.Provider
     public sealed class CreateRequest
     {
         public readonly Urn Urn;
-        public string Type => Pulumi.Urn.Type(Urn);
-        public string Name => Pulumi.Urn.Name(Urn);
+        public string Type => Pulumi.Urn.GetType(Urn);
+        public string Name => Pulumi.Urn.GetName(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly TimeSpan Timeout;
         public readonly bool Preview;
@@ -287,8 +287,8 @@ namespace Pulumi.Experimental.Provider
     {
         public readonly Urn Urn;
         public readonly string Id;
-        public string Type => Pulumi.Urn.Type(Urn);
-        public string Name => Pulumi.Urn.Name(Urn);
+        public string Type => Pulumi.Urn.GetType(Urn);
+        public string Name => Pulumi.Urn.GetName(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly ImmutableDictionary<string, PropertyValue> Inputs;
 
@@ -312,8 +312,8 @@ namespace Pulumi.Experimental.Provider
     {
         public readonly Urn Urn;
         public readonly string Id;
-        public string Type => Pulumi.Urn.Type(Urn);
-        public string Name => Pulumi.Urn.Name(Urn);
+        public string Type => Pulumi.Urn.GetType(Urn);
+        public string Name => Pulumi.Urn.GetName(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Olds;
         public readonly ImmutableDictionary<string, PropertyValue> News;
         public readonly TimeSpan Timeout;
@@ -347,8 +347,8 @@ namespace Pulumi.Experimental.Provider
     {
         public readonly Urn Urn;
         public readonly string Id;
-        public string Type => Pulumi.Urn.Type(Urn);
-        public string Name => Pulumi.Urn.Name(Urn);
+        public string Type => Pulumi.Urn.GetType(Urn);
+        public string Name => Pulumi.Urn.GetName(Urn);
         public readonly ImmutableDictionary<string, PropertyValue> Properties;
         public readonly TimeSpan Timeout;
 

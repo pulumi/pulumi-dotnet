@@ -57,11 +57,15 @@ namespace Pulumi
             return type != null;
         }
 
+        internal static IEnumerable<Assembly> DiscoverCandidateAssemblies()
+        {
+            return from a in LoadReferencedAssemblies() where MayContainResourceTypes(a) select a;
+        }
+
         private static ImmutableDictionary<string, ImmutableList<(string?, Type)>> DiscoverResourceTypes()
         {
             var pairs =
-                from a in LoadReferencedAssemblies()
-                where MayContainResourceTypes(a)
+                from a in DiscoverCandidateAssemblies()
                 from t in a.GetTypes()
                 where typeof(Resource).IsAssignableFrom(t)
                 let attr = t.GetCustomAttribute<ResourceTypeAttribute>()

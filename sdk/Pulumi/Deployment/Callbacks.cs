@@ -71,12 +71,16 @@ namespace Pulumi
             {
                 // When we invoke callbacks we want to invoke them in the async context that originally constructed the Callback system.
                 Task<IMessage>? task = null;
-                if (_executionContext is not null) {
-                    ExecutionContext.Run(_executionContext, (_) => {
+                if (_executionContext is not null)
+                {
+                    ExecutionContext.Run(_executionContext, (_) =>
+                    {
                         task = callback(request.Request, context.CancellationToken);
                     }, null);
                     Debug.Assert(task != null, "task != null");
-                } else {
+                }
+                else
+                {
                     task = callback(request.Request, context.CancellationToken);
                 }
                 var result = await task.ConfigureAwait(false);

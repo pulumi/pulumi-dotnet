@@ -743,7 +743,7 @@ namespace Pulumi.Automation.Tests
             Assert.IsType<PulumiFnInline>(program);
 
             var stackName = $"{RandomStackName()}";
-            var projectName = "inline_node";
+            var projectName = "inline_dotnet";
             using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program) { });
 
             try

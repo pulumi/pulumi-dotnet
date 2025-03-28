@@ -36,10 +36,12 @@ namespace Pulumi
     internal sealed class Callbacks : Pulumirpc.Callbacks.CallbacksBase
     {
         private readonly ConcurrentDictionary<string, Callback> _callbacks = new ConcurrentDictionary<string, Callback>();
+        private readonly ExecutionContext? _executionContext;
         private readonly Task<string> _target;
 
-        public Callbacks(Task<string> target)
+        public Callbacks(Task<string> target, ExecutionContext? context)
         {
+            _executionContext = context;
             _target = target;
         }
 
@@ -67,7 +69,17 @@ namespace Pulumi
 
             try
             {
-                var result = await callback(request.Request, context.CancellationToken).ConfigureAwait(false);
+                // When we invoke callbacks we want to invoke them in the async context that originally constructed the Callback system.
+                Task<IMessage>? task = null;
+                if (_executionContext is not null) {
+                    ExecutionContext.Run(_executionContext, (_) => {
+                        task = callback(request.Request, context.CancellationToken);
+                    }, null);
+                    Debug.Assert(task != null, "task != null");
+                } else {
+                    task = callback(request.Request, context.CancellationToken);
+                }
+                var result = await task.ConfigureAwait(false);
                 var response = new Pulumirpc.CallbackInvokeResponse();
                 response.Response = result.ToByteString();
                 return response;
@@ -85,7 +97,7 @@ namespace Pulumi
         private readonly IHost _host;
         private readonly CancellationTokenRegistration _portRegistration;
 
-        public CallbacksHost()
+        public CallbacksHost(ExecutionContext? context)
         {
             this._host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -112,7 +124,7 @@ namespace Pulumi
                         .ConfigureServices(services =>
                         {
                             // Injected into Callbacks constructor
-                            services.AddSingleton(new Callbacks(_targetTcs.Task));
+                            services.AddSingleton(new Callbacks(_targetTcs.Task, context));
 
                             services.AddGrpc(grpcOptions =>
                             {

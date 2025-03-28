@@ -15,6 +15,11 @@ namespace Pulumi.Automation
         public bool? ShowSecrets { get; set; }
 
         /// <summary>
+        /// Only show a preview of the destroy, but don't perform the destroy itself.
+        /// </summary>
+        public bool? PreviewOnly { get; set; }
+
+        /// <summary>
         /// Continue to perform the destroy operation despite the occurrence of errors.
         /// </summary>
         public bool? ContinueOnError { get; set; }

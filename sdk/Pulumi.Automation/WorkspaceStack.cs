@@ -627,12 +627,17 @@ namespace Pulumi.Automation
             DestroyOptions? options = null,
             CancellationToken cancellationToken = default)
         {
-            var args = new List<string>
+            var args = new List<string> { "destroy" };
+
+            if (options != null && options.PreviewOnly is true)
             {
-                "destroy",
-                "--yes",
-                "--skip-preview",
-            };
+                args.Add("--preview-only");
+            }
+            else
+            {
+                args.Add("--yes");
+                args.Add("--skip-preview");
+            }
 
             args.AddRange(GetRemoteArgs());
 

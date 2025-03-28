@@ -65,6 +65,11 @@
             Show config secrets when they appear.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.DestroyOptions.PreviewOnly">
+            <summary>
+            Only show a preview of the destroy, but don't perform the destroy itself.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.DestroyOptions.ContinueOnError">
             <summary>
             Continue to perform the destroy operation despite the occurrence of errors.

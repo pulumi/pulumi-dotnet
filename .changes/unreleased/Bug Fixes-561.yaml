@@ -1,0 +1,7 @@
+component: sdk
+kind: Bug Fixes
+body: Async context is now captured from the main program and restored in transform
+  functions
+time: 2025-03-28T21:44:55.124212431Z
+custom:
+  PR: "561"

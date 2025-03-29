@@ -183,8 +183,10 @@ namespace Pulumi
                 return _callbacks;
             }
 
-            // Atomically allocate a callbacks instance to use
-            var callbacks = new CallbacksHost();
+            // Atomically allocate a callbacks instance to use, capture the current async context and pass it
+            // to the callbacks host. Importantly this captures the current Deployment.Instance, so basic
+            // things like engine logging work in transforms.
+            var callbacks = new CallbacksHost(ExecutionContext.Capture());
             var current = Interlocked.CompareExchange(ref _callbacks, callbacks, null);
             if (current == null)
             {

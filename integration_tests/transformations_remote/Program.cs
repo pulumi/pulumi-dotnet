@@ -162,6 +162,9 @@ class TransformsStack : Stack
     // Scenario #3 - apply a transformation to the Stack to transform all (future) resources in the stack
     private static async Task<ResourceTransformResult?> Scenario3(ResourceTransformArgs args, CancellationToken ct)
     {
+        // Log each transform that happens to check that we have full access to the Deployment here
+        Pulumi.Log.Debug($"Transforming {args.Type} with stack transform");
+
         if (args.Type == "testprovider:index:Random")
         {
             var resultArgs = args.Args;

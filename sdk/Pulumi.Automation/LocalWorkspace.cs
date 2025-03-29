@@ -282,7 +282,7 @@ namespace Pulumi.Automation
             CancellationToken cancellationToken)
         {
             if (args.ProjectSettings is null)
-                throw new ArgumentNullException(nameof(args.ProjectSettings));
+                throw new ArgumentNullException(nameof(args), $"{nameof(args.ProjectSettings)} cannot be null.");
 
             var ws = new LocalWorkspace(
                 await LocalPulumiCommand.CreateAsync(new LocalPulumiCommandOptions

@@ -202,19 +202,19 @@ namespace Pulumi.Automation.Commands
 
         private static async Task<string> DownloadToTmpFileAsync(string url, string extension, CancellationToken cancellationToken)
         {
-            var response = await new HttpClient().GetAsync(url);
+            var response = await new HttpClient().GetAsync(url, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception($"Failed to download {url}");
             }
-            var scriptData = await response.Content.ReadAsByteArrayAsync();
+            var scriptData = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             string tempFile = Path.GetTempFileName();
             string tempFileWithExtension = Path.ChangeExtension(tempFile, extension);
             File.Move(tempFile, tempFileWithExtension);
             try
             {
 
-                await File.WriteAllBytesAsync(tempFileWithExtension, scriptData);
+                await File.WriteAllBytesAsync(tempFileWithExtension, scriptData, cancellationToken);
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {

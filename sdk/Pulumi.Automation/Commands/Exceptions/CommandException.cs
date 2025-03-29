@@ -28,8 +28,8 @@ namespace Pulumi.Automation.Commands.Exceptions
         internal static CommandException CreateFromResult(CommandResult result)
             => _notFoundRegexPattern.IsMatch(result.StandardError) ? new StackNotFoundException(result)
             : _alreadyExistsRegexPattern.IsMatch(result.StandardError) ? new StackAlreadyExistsException(result)
-            : result.StandardError.IndexOf(_conflictText, StringComparison.Ordinal) >= 0 ? new ConcurrentUpdateException(result)
-            : result.StandardError.IndexOf(_localBackendConflictText, StringComparison.Ordinal) >= 0 ? new ConcurrentUpdateException(result)
+            : result.StandardError.Contains(_conflictText) ? new ConcurrentUpdateException(result)
+            : result.StandardError.Contains(_localBackendConflictText) ? new ConcurrentUpdateException(result)
             : new CommandException(result);
     }
 }

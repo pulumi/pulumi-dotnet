@@ -138,7 +138,7 @@ namespace Pulumi.Automation
                     {
                         await workspace.CreateStackAsync(name, cancellationToken).ConfigureAwait(false);
                     }
-                }),
+                }, cancellationToken),
                 _ => throw new InvalidOperationException($"Unexpected Stack creation mode: {mode}")
             };
         }
@@ -408,7 +408,7 @@ namespace Pulumi.Automation
                 // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
                 // load the project file.
                 var showSecrets = Remote ? false : options?.ShowSecrets;
-                var summary = await this.GetInfoAsync(cancellationToken, showSecrets).ConfigureAwait(false);
+                var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
                 return new UpResult(
                     upResult.StandardOutput,
                     upResult.StandardError,
@@ -611,7 +611,7 @@ namespace Pulumi.Automation
             // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
             // load the project file.
             var showSecrets = Remote ? false : options?.ShowSecrets;
-            var summary = await this.GetInfoAsync(cancellationToken, showSecrets).ConfigureAwait(false);
+            var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
             return new UpdateResult(
                 result.StandardOutput,
                 result.StandardError,
@@ -663,7 +663,7 @@ namespace Pulumi.Automation
             // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
             // load the project file.
             var showSecrets = Remote ? false : options?.ShowSecrets;
-            var summary = await this.GetInfoAsync(cancellationToken, showSecrets).ConfigureAwait(false);
+            var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
             return new UpdateResult(
                 result.StandardOutput,
                 result.StandardError,
@@ -748,7 +748,7 @@ namespace Pulumi.Automation
                 }
 
                 var result = await this.RunCommandAsync(args, options.OnStandardOutput, options.OnStandardError, null, cancellationToken).ConfigureAwait(false);
-                var summary = await this.GetInfoAsync(cancellationToken, options.ShowSecrets).ConfigureAwait(false);
+                var summary = await this.GetInfoAsync(options.ShowSecrets, cancellationToken).ConfigureAwait(false);
                 var generatedCode =
                     options.GenerateCode is not false
                         ? await File.ReadAllTextAsync(generatedCodeOutputPath, cancellationToken).ConfigureAwait(false)
@@ -800,7 +800,7 @@ namespace Pulumi.Automation
             if (options?.PageSize.HasValue == true)
             {
                 if (options.PageSize!.Value < 1)
-                    throw new ArgumentException($"{nameof(options.PageSize)} must be greater than or equal to 1.", nameof(options.PageSize));
+                    throw new ArgumentException($"{nameof(options.PageSize)} must be greater than or equal to 1.", nameof(options));
 
                 var page = !options.Page.HasValue ? 1
                     : options.Page.Value < 1 ? 1
@@ -841,10 +841,10 @@ namespace Pulumi.Automation
 
         public async Task<UpdateSummary?> GetInfoAsync(CancellationToken cancellationToken = default)
         {
-            return await GetInfoAsync(cancellationToken, true);
+            return await GetInfoAsync(true, cancellationToken);
         }
 
-        private async Task<UpdateSummary?> GetInfoAsync(CancellationToken cancellationToken = default, bool? showSecrets = default)
+        private async Task<UpdateSummary?> GetInfoAsync(bool? showSecrets = default, CancellationToken cancellationToken = default)
         {
             var history = await this.GetHistoryAsync(
                 new HistoryOptions

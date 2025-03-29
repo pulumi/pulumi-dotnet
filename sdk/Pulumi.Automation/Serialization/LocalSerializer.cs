@@ -27,7 +27,10 @@ namespace Pulumi.Automation.Serialization
             this._yamlSerializer = BuildYamlSerializer();
         }
 
+        // This is a public non-static method that's already shipped as non-static, so disable the warning.
+#pragma warning disable CA1822 // Mark members as static
         public bool IsValidJson(string content)
+#pragma warning restore CA1822 // Mark members as static
         {
             try
             {

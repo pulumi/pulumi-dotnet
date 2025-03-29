@@ -504,7 +504,12 @@ namespace Pulumi.Experimental.Provider
             return Serve(args, version, factory, cancellationToken, System.Console.Out);
         }
 
+// Consider getting rid of this overload or changing it so the CancellationToken is last.
+// This was introduced in https://github.com/pulumi/pulumi-dotnet/pull/108 for a test, but
+// is no longer used as of https://github.com/pulumi/pulumi-dotnet/pull/277.
+#pragma warning disable CA1068 // CancellationToken parameters must come last
         public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
+#pragma warning restore CA1068 // CancellationToken parameters must come last
         {
             using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
 
@@ -755,7 +760,7 @@ namespace Pulumi.Experimental.Provider
 
         // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
         // This keeps the PropertyValue. Unmarshal clean in terms of not handling nulls.
-        private ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
+        private static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
         {
             if (properties == null)
             {
@@ -765,7 +770,7 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Helper to marshal CheckFailures from the domain to the GRPC layer.
-        private IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
+        private static IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
         {
             if (failures != null)
             {

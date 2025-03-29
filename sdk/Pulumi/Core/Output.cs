@@ -309,7 +309,7 @@ namespace Pulumi
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             async Task<OutputData<string>> GetData()
@@ -358,7 +358,7 @@ namespace Pulumi
         {
             if (json == null)
             {
-                throw new ArgumentNullException("json");
+                throw new ArgumentNullException(nameof(json));
             }
 
             async Task<OutputData<T>> GetData()

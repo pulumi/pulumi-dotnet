@@ -107,7 +107,7 @@ namespace Pulumi
 
             if (idx > 0 && key.Substring(idx + 1).StartsWith("config:", StringComparison.Ordinal))
             {
-                return key.Substring(0, idx) + ":" + key.Substring(idx + 1 + "config:".Length);
+                return string.Concat(key.AsSpan(0, idx), ":", key.AsSpan(idx + 1 + "config:".Length));
             }
 
             return key;

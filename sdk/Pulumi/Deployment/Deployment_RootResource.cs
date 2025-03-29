@@ -13,7 +13,7 @@ namespace Pulumi
         /// parented to a common parent resource.
         /// </summary>
         /// <returns></returns>
-        internal async Task<string?> GetRootResourceAsync(string type)
+        internal static async Task<string?> GetRootResourceAsync(string type)
         {
             // If we're calling this while creating the stack itself.  No way to know its urn at
             // this point.

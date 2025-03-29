@@ -181,7 +181,7 @@ namespace Pulumi.Experimental.Converter
             _convertProgram = implementation.ConvertProgram;
         }
 
-        private Pulumirpc.Codegen.Range RpcRange(Pulumi.Codegen.Range range)
+        private static Pulumirpc.Codegen.Range RpcRange(Pulumi.Codegen.Range range)
         {
             var rpcRange = new Pulumirpc.Codegen.Range();
             rpcRange.Filename = range.Filename ?? "";

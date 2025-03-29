@@ -34,7 +34,7 @@ namespace Pulumi.Automation
             => runner.RunAsync(() =>
             {
                 if (this._serviceProvider is null)
-                    throw new ArgumentNullException(nameof(this._serviceProvider), $"The provided service provider was null by the time this {nameof(PulumiFn)} was invoked.");
+                    throw new InvalidOperationException($"The provided service provider was null by the time this {nameof(PulumiFn)} was invoked.");
 
                 return this._serviceProvider.GetService(this._stackType) as Stack
                     ?? throw new ApplicationException(

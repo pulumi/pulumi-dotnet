@@ -104,7 +104,7 @@ namespace Pulumi
 
             public void RegisterTask(string description, Task task)
             {
-                _deploymentLogger.LogDebug($"Registering task: {description}");
+                _deploymentLogger.LogDebug("Registering task: {Description}", description);
                 _inFlightTasks.AddTask(task);
 
                 // Ensure completion message is logged at most once when the task finishes.
@@ -122,7 +122,7 @@ namespace Pulumi
                     {
                         task.ContinueWith(task =>
                         {
-                            _deploymentLogger.LogDebug($"Completed task: {description}");
+                            _deploymentLogger.LogDebug("Completed task: {Description}", description);
                             _descriptions.TryRemove(key, out _);
                         });
                     }

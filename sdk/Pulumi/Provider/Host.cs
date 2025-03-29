@@ -38,17 +38,17 @@ namespace Pulumi.Experimental.Provider
         /// <summary>
         /// The logging level of this message.
         /// </summary>
-        public readonly LogSeverity Severity;
+        public LogSeverity Severity { get; }
 
         /// <summary>
         /// The contents of the logged message.
         /// </summary>
-        public readonly string Message;
+        public string Message { get; }
 
         /// <summary>
         /// The (optional) resource urn this log is associated with.
         /// </summary>
-        public readonly Urn? Urn;
+        public Urn? Urn { get; }
 
         /// <summary>
         /// The (optional) stream id that a stream of log messages can be associated with. This allows
@@ -60,12 +60,12 @@ namespace Pulumi.Experimental.Provider
         /// <remarks>
         /// 0 means do not associate with any stream.
         /// </remarks>
-        public readonly int StreamId;
+        public int StreamId { get; }
 
         /// <summary>
         /// Optional value indicating whether this is a status message.
         /// </summary>
-        public readonly bool Ephemeral;
+        public bool Ephemeral { get; }
 
         public LogMessage(LogSeverity severity, string message, Urn? urn = null, int streamId = 0, bool ephemeral = false)
         {

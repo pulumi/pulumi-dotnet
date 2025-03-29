@@ -3,4 +3,6 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
-dotnet_diagnostic.CA1310.severity = error
+
+# CA1848: Use the LoggerMessage delegates - disable this rule as our use isn't performance sensitive
+dotnet_diagnostic.CA1848.severity = none

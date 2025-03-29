@@ -37,7 +37,7 @@ namespace Pulumi.Automation
                     throw new InvalidOperationException($"The provided service provider was null by the time this {nameof(PulumiFn)} was invoked.");
 
                 return this._serviceProvider.GetService(this._stackType) as Stack
-                    ?? throw new ApplicationException(
+                    ?? throw new InvalidOperationException(
                         $"Failed to resolve instance of type {this._stackType.FullName} from service provider. Register the type with the service provider before this {nameof(PulumiFn)} is invoked.");
             });
     }

@@ -76,14 +76,14 @@ namespace Pulumi.Automation.Serialization.Yaml
 
             if (runtime.Options is null)
             {
-                emitter.Emit(new Scalar(runtime.Name.ToString().ToLower()));
+                emitter.Emit(new Scalar(runtime.Name.ToString().ToLowerInvariant()));
             }
             else
             {
                 emitter.Emit(new MappingStart(null, null, false, MappingStyle.Block));
 
                 emitter.Emit(new Scalar("name"));
-                emitter.Emit(new Scalar(runtime.Name.ToString().ToLower()));
+                emitter.Emit(new Scalar(runtime.Name.ToString().ToLowerInvariant()));
 
                 emitter.Emit(new Scalar("options"));
                 this._optionsConverter.WriteYaml(emitter, runtime.Options, _optionsType, serializer);

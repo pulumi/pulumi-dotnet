@@ -40,7 +40,13 @@ namespace Pulumi
     ///     });
     /// </code>
     /// </summary>
+#pragma warning disable CA1010 // Generic interface should also be implemented
+#pragma warning disable CA1710 // Identifiers should have correct suffix
+#pragma warning disable CA1715 // Identifiers should have correct prefix
     public sealed class InputMap<V> : Input<ImmutableDictionary<string, V>>, IEnumerable, IAsyncEnumerable<Input<KeyValuePair<string, V>>>
+#pragma warning restore CA1715 // Identifiers should have correct prefix
+#pragma warning restore CA1710 // Identifiers should have correct suffix
+#pragma warning restore CA1010 // Generic interface should also be implemented
     {
         private static Input<ImmutableDictionary<string, V>> Flatten(Input<ImmutableDictionary<string, Input<V>>> inputs)
         {
@@ -157,7 +163,10 @@ namespace Pulumi
         /// key clash.</param>
         /// <returns>A new instance of <see cref="InputMap{V}"/> that contains the items from
         /// both input maps.</returns>
+// This has already shipped as static and we're not planning to make a breaking change here.
+#pragma warning disable CA1000 // Do not declare static members on generic types
         public static InputMap<V> Merge(InputMap<V> first, InputMap<V> second)
+#pragma warning restore CA1000 // Do not declare static members on generic types
         {
             var output = Output.Tuple(first.Value, second.Value)
                                .Apply(dicts =>

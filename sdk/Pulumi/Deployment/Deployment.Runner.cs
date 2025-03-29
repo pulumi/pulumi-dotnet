@@ -66,7 +66,7 @@ namespace Pulumi
                 }
 
                 return RunAsync(() => serviceProvider.GetService(typeof(TStack)) as TStack
-                    ?? throw new ApplicationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
+                    ?? throw new InvalidOperationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
             }
 
             public async Task<T> RunAsync<T>(Func<Task<T>> func)

@@ -271,22 +271,22 @@
             A log message to be sent to the Pulumi engine.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Severity">
+        <member name="P:Pulumi.Experimental.Provider.LogMessage.Severity">
             <summary>
             The logging level of this message.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Message">
+        <member name="P:Pulumi.Experimental.Provider.LogMessage.Message">
             <summary>
             The contents of the logged message.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Urn">
+        <member name="P:Pulumi.Experimental.Provider.LogMessage.Urn">
             <summary>
             The (optional) resource urn this log is associated with.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.StreamId">
+        <member name="P:Pulumi.Experimental.Provider.LogMessage.StreamId">
             <summary>
             The (optional) stream id that a stream of log messages can be associated with. This allows
             clients to not have to buffer a large set of log messages that they all want to be
@@ -298,7 +298,7 @@
             0 means do not associate with any stream.
             </remarks>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.LogMessage.Ephemeral">
+        <member name="P:Pulumi.Experimental.Provider.LogMessage.Ephemeral">
             <summary>
             Optional value indicating whether this is a status message.
             </summary>
@@ -318,7 +318,7 @@
             Property values will be one of these types.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.OutputReference.Value">
+        <member name="P:Pulumi.Experimental.Provider.OutputReference.Value">
             <summary>
             The value of the output, if it is known. This will never be a `Computed` value as that's
             equivilent to unknown and thus null.
@@ -336,27 +336,27 @@
             to be the format used by parameterized provider SDKs.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Name">
+        <member name="P:Pulumi.Experimental.Provider.ParametersValue.Name">
             <summary>
             The sub-package name for this sub-schema parameterization.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Version">
+        <member name="P:Pulumi.Experimental.Provider.ParametersValue.Version">
             <summary>
             The sub-package version for this sub-schema parameterization.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.ParametersValue.Value">
+        <member name="P:Pulumi.Experimental.Provider.ParametersValue.Value">
             <summary>
             The embedded value from the sub-package.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.ParameterizeResponse.Name">
+        <member name="P:Pulumi.Experimental.Provider.ParameterizeResponse.Name">
             <summary>
             The name of the sub-package parameterized.
             </summary>
         </member>
-        <member name="F:Pulumi.Experimental.Provider.ParameterizeResponse.Version">
+        <member name="P:Pulumi.Experimental.Provider.ParameterizeResponse.Version">
             <summary>
             The version of the sub-package parameterized.
             </summary>
@@ -2312,37 +2312,37 @@
             <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
             <param name="registerPackageRequest">Options for package parameterization.</param>
         </member>
-        <member name="F:Pulumi.RegisterPackageRequest.PackageParameterization.Name">
+        <member name="P:Pulumi.RegisterPackageRequest.PackageParameterization.Name">
             <summary>
             The name of the parameterized package
             </summary>
         </member>
-        <member name="F:Pulumi.RegisterPackageRequest.PackageParameterization.Version">
+        <member name="P:Pulumi.RegisterPackageRequest.PackageParameterization.Version">
             <summary>
             The version of the parameterized package
             </summary>
         </member>
-        <member name="F:Pulumi.RegisterPackageRequest.PackageParameterization.Value">
+        <member name="P:Pulumi.RegisterPackageRequest.PackageParameterization.Value">
             <summary>
             The paramter value for the parameterized package
             </summary>
         </member>
-        <member name="F:Pulumi.RegisterPackageRequest.Name">
+        <member name="P:Pulumi.RegisterPackageRequest.Name">
             <summary>
             The plugin name
             </summary>
         </member>
-        <member name="F:Pulumi.RegisterPackageRequest.Version">
+        <member name="P:Pulumi.RegisterPackageRequest.Version">
             <summary>
             The plugin version
             </summary>
         </member>
-        <member name="F:Pulumi.RegisterPackageRequest.DownloadUrl">
+        <member name="P:Pulumi.RegisterPackageRequest.DownloadUrl">
             <summary>
             the optional plugin download url.
             </summary>
         </member>
-        <member name="F:Pulumi.RegisterPackageRequest.Checksums">
+        <member name="P:Pulumi.RegisterPackageRequest.Checksums">
             <summary>
             the optional plugin checksums
             </summary>

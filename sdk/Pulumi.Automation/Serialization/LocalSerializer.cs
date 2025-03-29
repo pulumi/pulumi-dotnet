@@ -52,10 +52,14 @@ namespace Pulumi.Automation.Serialization
             where T : class
             => this._yamlDeserializer.Deserialize<T>(content);
 
+#pragma warning disable CA1720 // Identifier contains type name
         public string SerializeJson<T>(T @object)
+#pragma warning restore CA1720 // Identifier contains type name
             => JsonSerializer.Serialize(@object, this._jsonOptions);
 
+#pragma warning disable CA1720 // Identifier contains type name
         public string SerializeYaml<T>(T @object)
+#pragma warning restore CA1720 // Identifier contains type name
             where T : class
             => this._yamlSerializer.Serialize(@object);
 

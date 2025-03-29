@@ -44,7 +44,11 @@ namespace Pulumi
     ///     });
     /// </code>
     /// </summary>
+#pragma warning disable CA1010 // Generic interface should also be implemented
+#pragma warning disable CA1710 // Identifiers should have correct suffix
     public sealed class InputList<T> : Input<ImmutableArray<T>>, IEnumerable, IAsyncEnumerable<Input<T>>
+#pragma warning restore CA1710 // Identifiers should have correct suffix
+#pragma warning restore CA1010 // Generic interface should also be implemented
     {
         Input<ImmutableArray<Input<T>>> _inputValue;
         /// <summary>

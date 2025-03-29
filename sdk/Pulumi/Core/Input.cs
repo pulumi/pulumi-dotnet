@@ -51,25 +51,33 @@ namespace Pulumi
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, U> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => input.ToOutput().Apply(func);
 
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, Task<U>> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => input.ToOutput().Apply(func);
 
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, Input<U>?> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => input.ToOutput().Apply(func);
 
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, Output<U>?> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => input.ToOutput().Apply(func);
 
         public static Output<T> ToOutput<T>(this Input<T>? input)
@@ -78,19 +86,27 @@ namespace Pulumi
 
     public static class InputListExtensions
     {
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static void Add<T, U>(this InputList<Union<T, U>> list, Input<T> value)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => list.Add(value.ToOutput().Apply(v => (Union<T, U>)v));
 
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static void Add<T, U>(this InputList<Union<T, U>> list, Input<U> value)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => list.Add(value.ToOutput().Apply(v => (Union<T, U>)v));
     }
 
     public static class InputMapExtensions
     {
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static void Add<T, U>(this InputMap<Union<T, U>> map, string key, Input<T> value)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => map.Add(key, value.ToOutput().Apply(v => (Union<T, U>)v));
 
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public static void Add<T, U>(this InputMap<Union<T, U>> map, string key, Input<U> value)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => map.Add(key, value.ToOutput().Apply(v => (Union<T, U>)v));
     }
 }

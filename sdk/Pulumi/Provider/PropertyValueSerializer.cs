@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -276,7 +277,7 @@ namespace Pulumi.Experimental.Provider
 
             if (targetType.IsEnum)
             {
-                var enumValue = Convert.ToInt32(value);
+                var enumValue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
                 return new PropertyValue(enumValue);
             }
 

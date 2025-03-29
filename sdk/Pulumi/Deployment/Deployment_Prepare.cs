@@ -142,7 +142,7 @@ namespace Pulumi
                 var resourceMonitorSupportsTransforms = await MonitorSupportsTransforms().ConfigureAwait(false);
                 if (!resourceMonitorSupportsTransforms)
                 {
-                    throw new Exception("The Pulumi CLI does not support resource transforms. Please update the Pulumi CLI.");
+                    throw new InvalidOperationException("The Pulumi CLI does not support resource transforms. Please update the Pulumi CLI.");
                 }
 
                 var callbacks = await this.GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
@@ -354,7 +354,7 @@ namespace Pulumi
 
             if (!await MonitorSupportsParameterization().ConfigureAwait(false))
             {
-                throw new Exception("The Pulumi CLI does not support parameterization. Please update the Pulumi CLI.");
+                throw new InvalidOperationException("The Pulumi CLI does not support parameterization. Please update the Pulumi CLI.");
             }
 
             async Task<string?> CreateResolver()

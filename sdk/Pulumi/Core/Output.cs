@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -295,7 +296,7 @@ namespace Pulumi
             }
 
             return All(inputs).Apply(objs =>
-                string.Format(formattableString.Format, objs.ToArray()));
+                string.Format(CultureInfo.InvariantCulture, formattableString.Format, objs.ToArray()));
         }
 
         internal static Output<ImmutableArray<T>> Concat<T>(Output<ImmutableArray<T>> values1, Output<ImmutableArray<T>> values2)
@@ -468,7 +469,10 @@ namespace Pulumi
         async Task<OutputData<object?>> IOutput.GetDataAsync()
             => await DataTask.ConfigureAwait(false);
 
+        // This has already shipped as static and we're not planning to make a breaking change here.
+#pragma warning disable CA1000 // Do not declare static members on generic types
         public static Output<T> Create(Task<T> value)
+#pragma warning restore CA1000 // Do not declare static members on generic types
             => Create(value, isSecret: false);
 
         internal static Output<T> CreateSecret(Task<T> value)
@@ -543,7 +547,9 @@ namespace Pulumi
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public Output<U> Apply<U>(Func<T, U> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
         {
             return Apply(t => Output.Create(func(t)));
         }
@@ -551,13 +557,17 @@ namespace Pulumi
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public Output<U> Apply<U>(Func<T, Task<U>> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => Apply(t => Output.Create(func(t)));
 
         /// <summary>
         /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public Output<U> Apply<U>(Func<T, Input<U>?> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => Apply(t => func(t).ToOutput());
 
         /// <summary>
@@ -589,7 +599,9 @@ namespace Pulumi
         /// run during <c>pulumi preview</c> (as the values of resources are of course not known
         /// then).
         /// </summary>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public Output<U> Apply<U>(Func<T, Output<U>?> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
             => new Output<U>(ApplyHelperAsync(DataTask, func));
 
         private static async Task<OutputData<U>> ApplyHelperAsync<U>(
@@ -617,7 +629,9 @@ namespace Pulumi
                 data.IsKnown && innerData.IsKnown, data.IsSecret || innerData.IsSecret);
         }
 
+#pragma warning disable CA1715 // Identifiers should have correct prefix
         public Output<U> UntypedApply<U>(Func<object?, Output<U>> func)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
         {
             return Apply(v => func(v));
         }
@@ -722,7 +736,7 @@ namespace Pulumi
     /// </summary>
     public sealed class DeferredOutput<T>
     {
-        private int _set = 0;
+        private int _set;
         private readonly TaskCompletionSource<OutputData<T>> _tcs = new TaskCompletionSource<OutputData<T>>();
 
         /// <summary>

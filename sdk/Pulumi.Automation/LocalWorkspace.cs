@@ -796,7 +796,7 @@ namespace Pulumi.Automation
             {
                 "plugin",
                 "rm",
-                kind.ToString().ToLower(),
+                kind.ToString().ToLowerInvariant(),
             };
 
             if (!string.IsNullOrWhiteSpace(name))

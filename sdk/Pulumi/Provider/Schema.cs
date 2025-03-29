@@ -97,8 +97,10 @@ namespace Pulumi.Experimental.Provider
 
     public record PropertySpec : TypeSpec
     {
+#pragma warning disable CA1720 // Identifier contains type name
         public static PropertySpec String => CreateBuiltin(BuiltinTypeSpec.String);
         public static PropertySpec Integer => CreateBuiltin(BuiltinTypeSpec.Integer);
+#pragma warning restore CA1720 // Identifier contains type name
         public static PropertySpec Number => CreateBuiltin(BuiltinTypeSpec.Number);
         public static PropertySpec Boolean => CreateBuiltin(BuiltinTypeSpec.Boolean);
 
@@ -148,10 +150,12 @@ namespace Pulumi.Experimental.Provider
 
     public static class BuiltinTypeSpec
     {
+#pragma warning disable CA1720 // Identifier contains type name
+        public const string Object = "object";
         public const string String = "string";
         public const string Integer = "integer";
+#pragma warning restore CA1720 // Identifier contains type name
         public const string Number = "number";
         public const string Boolean = "boolean";
-        public const string Object = "object";
     }
 }

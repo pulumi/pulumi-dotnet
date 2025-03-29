@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -40,7 +41,9 @@ namespace Pulumi.Automation
     /// <para/>
     /// Will dispose the <see cref="Workspace"/> on <see cref="Dispose"/>.
     /// </summary>
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
     public sealed class WorkspaceStack : IDisposable
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
         private readonly Task _readyTask;
 
@@ -807,9 +810,9 @@ namespace Pulumi.Automation
                     : options.Page.Value;
 
                 args.Add("--page-size");
-                args.Add(options.PageSize.Value.ToString());
+                args.Add(options.PageSize.Value.ToString(CultureInfo.InvariantCulture));
                 args.Add("--page");
-                args.Add(page.ToString());
+                args.Add(page.ToString(CultureInfo.InvariantCulture));
             }
 
             var result = await this.RunCommandAsync(args, null, null, null, cancellationToken).ConfigureAwait(false);
@@ -1003,7 +1006,7 @@ namespace Pulumi.Automation
             if (options.Parallel.HasValue)
             {
                 args.Add("--parallel");
-                args.Add(options.Parallel.Value.ToString());
+                args.Add(options.Parallel.Value.ToString(CultureInfo.InvariantCulture));
             }
 
             if (!string.IsNullOrWhiteSpace(options.Message))
@@ -1053,7 +1056,7 @@ namespace Pulumi.Automation
             if (options.LogVerbosity.HasValue)
             {
                 args.Add("--verbose");
-                args.Add(options.LogVerbosity.Value.ToString());
+                args.Add(options.LogVerbosity.Value.ToString(CultureInfo.InvariantCulture));
             }
 
             if (options.LogToStdErr is true)

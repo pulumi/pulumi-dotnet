@@ -502,17 +502,7 @@ namespace Pulumi.Experimental.Provider
             throw new NotImplementedException($"The method '{nameof(Call)}' is not implemented ");
         }
 
-        public static Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
-        {
-            return Serve(args, version, factory, cancellationToken, System.Console.Out);
-        }
-
-// Consider getting rid of this overload or changing it so the CancellationToken is last.
-// This was introduced in https://github.com/pulumi/pulumi-dotnet/pull/108 for a test, but
-// is no longer used as of https://github.com/pulumi/pulumi-dotnet/pull/277.
-#pragma warning disable CA1068 // CancellationToken parameters must come last
-        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
-#pragma warning restore CA1068 // CancellationToken parameters must come last
+        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
         {
             using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
 
@@ -524,7 +514,7 @@ namespace Pulumi.Experimental.Provider
             // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
             // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
             // we work around this here so that old engines can use dotnet providers as well.
-            stdout.Write(port.ToString(CultureInfo.InvariantCulture) + "\n");
+            Console.Write(port.ToString(CultureInfo.InvariantCulture) + "\n");
 
             await host.WaitForShutdownAsync(cancellationToken);
         }

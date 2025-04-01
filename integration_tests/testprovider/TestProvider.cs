@@ -50,6 +50,9 @@ public class TestProvider : Provider
 {
     ""name"": ""NAME"",
     ""version"": ""1.0.0"",
+    ""meta"": {
+        ""supportPack"": true
+    },
     ""resources"": {
         ""NAME:index:Echo"": {
             ""description"": ""A test resource that echoes its input."",
@@ -81,7 +84,10 @@ public class TestProvider : Provider
     }
 ";
 
-
+        if (parameter == "testprovider")
+        {
+            parameterization = "";
+        }
 
         // Very hacky schema build just to test out that parameterization calls are made
         parameterization = parameterization.Replace("UTFBYTES", Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(parameter)));

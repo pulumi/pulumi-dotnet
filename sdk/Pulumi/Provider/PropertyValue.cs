@@ -196,26 +196,23 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Unwraps any outer secret or output values.
-        public bool TryUnwrap([NotNullWhen(true)] out PropertyValue? value)
+        public PropertyValue Unwrap()
         {
             if (SecretValue != null)
             {
-                value = null;
-                return SecretValue.TryUnwrap(out value);
+                return SecretValue.Unwrap();
             }
             else if (OutputValue.HasValue)
             {
                 var inner = OutputValue.Value.Value;
-                // Might be null
+                // Might be null which means this is unknown, translate that Computed
                 if (inner == null)
                 {
-                    value = null;
-                    return false;
+                    return Computed;
                 }
-                return inner.TryUnwrap(out value);
+                return inner.Unwrap();
             }
-            value = this;
-            return true;
+            return this;
         }
 
         public bool IsNull

@@ -1,6 +1,6 @@
 component: sdk
 kind: bug-fixes
-body: Use the invariant culture when converting strings/numbers and replace some readonly fields with readonly properties in `Pulumi.Experimental`
+body: Use the invariant culture when converting strings/numbers, replace some readonly fields with readonly properties in `Pulumi.Experimental`, and rename some generic type parameters to follow the standard naming convention of being prefixed by `T`, e.g. `InputMap<V>` => `InputMap<TValue>`
 time: 2025-04-01T15:39:12.36651-07:00
 custom:
     PR: "564"

@@ -409,7 +409,7 @@ namespace Pulumi
         /// </summary>
         Task<OutputData<object?>> GetDataAsync();
 
-        Output<U> UntypedApply<U>(Func<object?, Output<U>> func);
+        Output<TResult> UntypedApply<TResult>(Func<object?, Output<TResult>> func);
     }
 
     /// <summary>
@@ -527,7 +527,7 @@ namespace Pulumi
             => Unknown(default!).Apply(_ => valueFactory());
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
         public Output<ValueTuple> Apply(Func<T, Task> func)
         {
@@ -545,29 +545,23 @@ namespace Pulumi
         }
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
-#pragma warning disable CA1715 // Identifiers should have correct prefix
-        public Output<U> Apply<U>(Func<T, U> func)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
+        public Output<TResult> Apply<TResult>(Func<T, TResult> func)
         {
             return Apply(t => Output.Create(func(t)));
         }
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
-#pragma warning disable CA1715 // Identifiers should have correct prefix
-        public Output<U> Apply<U>(Func<T, Task<U>> func)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
+        public Output<TResult> Apply<TResult>(Func<T, Task<TResult>> func)
             => Apply(t => Output.Create(func(t)));
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
-#pragma warning disable CA1715 // Identifiers should have correct prefix
-        public Output<U> Apply<U>(Func<T, Input<U>?> func)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
+        public Output<TResult> Apply<TResult>(Func<T, Input<TResult>?> func)
             => Apply(t => func(t).ToOutput());
 
         /// <summary>
@@ -592,20 +586,19 @@ namespace Pulumi
         /// Importantly, the Resources that d2 feels like it will depend on are the same resources
         /// as d1. If you need have multiple <see cref="Output{T}"/>s and a single <see
         /// cref="Output{T}"/> is needed that combines both set of resources, then <see
-        /// cref="Output.All{T}(Input{T}[])"/> or <see cref="Output.Tuple{X, Y, Z}(Input{X}, Input{Y}, Input{Z})"/>
+        /// cref="Output.All{T}(Input{T}[])"/> or <see
+        /// cref="Output.Tuple{T1, T2, T3}(Input{T1}, Input{T2}, Input{T3})"/>
         /// should be used instead.
         /// <para/>
         /// This function will only be called execution of a <c>pulumi up</c> request.  It will not
         /// run during <c>pulumi preview</c> (as the values of resources are of course not known
         /// then).
         /// </summary>
-#pragma warning disable CA1715 // Identifiers should have correct prefix
-        public Output<U> Apply<U>(Func<T, Output<U>?> func)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
-            => new Output<U>(ApplyHelperAsync(DataTask, func));
+        public Output<TResult> Apply<TResult>(Func<T, Output<TResult>?> func)
+            => new Output<TResult>(ApplyHelperAsync(DataTask, func));
 
-        private static async Task<OutputData<U>> ApplyHelperAsync<U>(
-            Task<OutputData<T>> dataTask, Func<T, Output<U>?> func)
+        private static async Task<OutputData<TResult>> ApplyHelperAsync<TResult>(
+            Task<OutputData<T>> dataTask, Func<T, Output<TResult>?> func)
         {
             var data = await dataTask.ConfigureAwait(false);
             var resources = data.Resources;
@@ -613,13 +606,13 @@ namespace Pulumi
             // give us an actual value for this Output.
             if (!data.IsKnown)
             {
-                return new OutputData<U>(resources, default!, isKnown: false, data.IsSecret);
+                return new OutputData<TResult>(resources, default!, isKnown: false, data.IsSecret);
             }
 
             var inner = func(data.Value);
             if (inner == null)
             {
-                return OutputData.Create(resources, default(U)!, data.IsKnown, data.IsSecret);
+                return OutputData.Create(resources, default(TResult)!, data.IsKnown, data.IsSecret);
             }
 
             var innerData = await inner.DataTask.ConfigureAwait(false);
@@ -629,9 +622,7 @@ namespace Pulumi
                 data.IsKnown && innerData.IsKnown, data.IsSecret || innerData.IsSecret);
         }
 
-#pragma warning disable CA1715 // Identifiers should have correct prefix
-        public Output<U> UntypedApply<U>(Func<object?, Output<U>> func)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
+        public Output<TResult> UntypedApply<TResult>(Func<object?, Output<TResult>> func)
         {
             return Apply(v => func(v));
         }

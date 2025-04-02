@@ -900,7 +900,8 @@
              Importantly, the Resources that d2 feels like it will depend on are the same resources
              as d1. If you need have multiple <see cref="T:Pulumi.Output`1"/>s and a single <see
              cref="T:Pulumi.Output`1"/> is needed that combines both set of resources, then <see
-             cref="M:Pulumi.Output.All``1(Pulumi.Input{``0}[])"/> or <see cref="M:Pulumi.Output.Tuple``3(Pulumi.Input{``0},Pulumi.Input{``1},Pulumi.Input{``2})"/>
+             cref="M:Pulumi.Output.All``1(Pulumi.Input{``0}[])"/> or <see
+             cref="M:Pulumi.Output.Tuple``3(Pulumi.Input{``0},Pulumi.Input{``1},Pulumi.Input{``2})"/>
              should be used instead.
              <para/>
              This function will only be called execution of a <c>pulumi up</c> request.  It will not

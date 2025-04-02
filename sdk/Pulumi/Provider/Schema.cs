@@ -20,6 +20,10 @@ namespace Pulumi.Experimental.Provider
         [JsonPropertyName("version")]
         public string Version { get; init; } = "";
 
+        [JsonPropertyName("meta")]
+        public ImmutableSortedDictionary<string, object> Meta { get; init; } =
+            ImmutableSortedDictionary<string, object>.Empty;
+
         [JsonPropertyName("resources")]
         public ImmutableSortedDictionary<string, ResourceSpec> Resources { get; init; } =
             ImmutableSortedDictionary<string, ResourceSpec>.Empty;
@@ -50,9 +54,10 @@ namespace Pulumi.Experimental.Provider
             Dictionary<string, PropertySpec> inputProperties,
             HashSet<string> requiredInputs,
             Dictionary<string, PropertySpec> properties,
-            HashSet<string> required)
+            HashSet<string> required,
+            bool isComponent)
         {
-            IsComponent = true;
+            IsComponent = isComponent;
             Type = "object";
             InputProperties = inputProperties.ToImmutableSortedDictionary();
             RequiredInputs = requiredInputs.ToImmutableSortedSet();

@@ -1,0 +1,172 @@
+name: Build and test
+
+
+on:
+    workflow_call:
+      inputs:
+        ref:
+          required: true
+          description: "GitHub ref to use"
+          type: string
+      secrets:
+        PULUMI_ACCESS_TOKEN_PRODUCTION:
+          required: true
+          description: "Pulumi access token, required to run tests against the service"
+        GITHUB_TOKEN:
+            required: true
+            description: "GitHub token"
+        CODECOV_TOKEN:
+            required: true
+            description: "Codecov token"
+
+env:
+PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN_PRODUCTION }}
+AWS_REGION: us-west-2
+GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+PULUMI_TEST_OWNER: "moolumi"
+
+jobs:
+  setup_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          os="${{ contains(github.event.pull_request.labels.*.name, 'ci/test') && 'ubuntu-latest macos-latest windows-latest' || 'ubuntu-latest' }}"
+          echo "matrix={\"os\": $(echo $os | jq -cR 'split(" ")')}" >> $GITHUB_OUTPUT
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup dotnet SDK v6.0
+        uses: actions/setup-dotnet@v4
+      - name: Format Pulumi SDK
+        run: dotnet run format-sdk verify
+
+  build:
+    needs: setup_matrix
+    strategy:
+      matrix:
+        os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
+        dotnet-version: [6.0.x, 8.0.x]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup dotnet SDK v6.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v5
+        with:
+          pulumi-version: latest
+      - name: Build Pulumi SDK
+        run: dotnet run build-sdk
+      - name: Workspace clean (are xml doc file updates committed?)
+        uses: pulumi/git-status-check-action@v1
+      - name: Test Pulumi SDK
+        run: dotnet run test-sdk coverage
+      - name: Test Pulumi Automation SDK
+        run: dotnet run test-automation-sdk coverage
+      - name: Upload coverage data
+        uses: codecov/codecov-action@v4
+        with:
+          directory: coverage
+          files: "*"
+          fail_ci_if_error: false
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  integration-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13]
+        dotnet-version: [6.0.x, 8.0.x]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set TARGET_FRAMEWORK
+        shell: bash
+        run: |
+          if [[ "${{ matrix.dotnet-version }}" == "6.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net6.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
+          elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
+            echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
+          else
+            echo "Unexpected dotnet-version: ${{ matrix.dotnet-version }}"
+            exit 1
+          fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup dotnet SDK v6.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Set up Go 1.22.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.x
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v5
+        with:
+          pulumi-version: latest
+      - name: Install gotestsum
+        uses: jaxxstorm/action-install-gh-release@v1.14.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repo: gotestyourself/gotestsum
+          tag: v1.8.1
+          cache: enable
+      - name: Install netcoredbg (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-linux-amd64.tar.gz -o netcoredbg.tar.gz
+          tar xzf netcoredbg.tar.gz
+          sudo cp netcoredbg/* /usr/bin/
+      - uses: MinoruSekine/setup-scoop@v4.0.1
+        if: matrix.os == 'windows-latest'
+        with:
+          buckets: extras
+          apps: doxygen plantuml
+      - name: Install netcoredbg (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          scoop install netcoredbg
+      - name: Install netcoredbg (MacOS)
+        if: matrix.os == 'macos-13'
+        id: netcoredbg
+        run: |
+          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
+          tar xzf netcoredbg.tar.gz
+          echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
+      - name: Integration tests
+        if: matrix.os == 'macos-13'
+        run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_integration
+      - name: Integration tests
+        if: matrix.os != 'macos-13'
+        run: make test_integration
+
+  check-pr:
+    needs: ["build", "integration-tests", "format"]
+    runs-on: ubuntu-latest
+    if: always() # always report a status
+    steps:
+      - name: Build failed
+        if: ${{ needs.build.result != 'success' }}
+        run: exit 1
+      - name: Integration tests failed
+        if: ${{ needs.integration-tests.result != 'success' }}
+        run: exit 1
+      - name: Format failed
+        if: ${{ needs.format.result != 'success' }}
+        run: exit 1
+      - name: CI succeeded
+        run: exit 0

@@ -1,5 +1,7 @@
 // Copyright 2016-2020, Pulumi Corporation
 
+using System.Collections.Immutable;
+
 namespace Pulumi.Tests.Mocks
 {
     [ResourceType("aws:ec2/instance:Instance", null)]
@@ -47,4 +49,28 @@ namespace Pulumi.Tests.Mocks
             this.PublicIp = myInstance.PublicIp;
         }
     }
+
+    [OutputType]
+    public sealed class ObjectMeta
+    {
+        public readonly ImmutableDictionary<string, string> Labels;
+
+        [OutputConstructor]
+        private ObjectMeta(ImmutableDictionary<string, string> labels){
+            Labels = labels;
+        }
+    }
+
+
+    public class CustomMap : CustomResource
+    {
+        [Output("metadata")]
+        public Output<ObjectMeta> Metadata { get; private set; } = null!;
+
+        public CustomMap(string name, CustomResourceOptions? options = null)
+            : base("pkg:index:CustomMap", name, null, options)
+        {
+        }
+    }
+
 }

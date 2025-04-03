@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace Pulumi.Automation
 {
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
     public sealed class RemoteWorkspaceStack : IDisposable
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
         private readonly WorkspaceStack _stack;
 

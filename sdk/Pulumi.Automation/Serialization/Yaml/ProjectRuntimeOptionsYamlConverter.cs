@@ -75,7 +75,7 @@ namespace Pulumi.Automation.Serialization.Yaml
             if (options.TypeScript != null)
             {
                 emitter.Emit(new Scalar("typescript"));
-                emitter.Emit(new Scalar(options.TypeScript.ToString()!.ToLower()));
+                emitter.Emit(new Scalar(options.TypeScript.ToString()!.ToLowerInvariant()));
             }
 
             if (!string.IsNullOrWhiteSpace(options.VirtualEnv))

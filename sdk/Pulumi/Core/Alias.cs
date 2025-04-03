@@ -22,7 +22,9 @@ namespace Pulumi
     /// <para/>
     /// <c>Aliases = { new Alias { NoParent = true } }</c>
     /// </summary>
+#pragma warning disable CA1716 // Identifiers should not match keywords
     public sealed class Alias
+#pragma warning restore CA1716 // Identifiers should not match keywords
     {
         /// <summary>
         /// The previous urn to alias to.  If this is provided, no other properties in this type

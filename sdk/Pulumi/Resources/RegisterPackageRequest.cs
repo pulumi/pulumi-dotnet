@@ -9,15 +9,15 @@ public sealed class RegisterPackageRequest
         /// <summary>
         /// The name of the parameterized package
         /// </summary>
-        public readonly string Name;
+        public string Name { get; }
         /// <summary>
         /// The version of the parameterized package
         /// </summary>
-        public readonly string Version;
+        public string Version { get; }
         /// <summary>
         /// The paramter value for the parameterized package
         /// </summary>
-        public readonly byte[] Value;
+        public byte[] Value { get; }
 
         public PackageParameterization(string name, string version, byte[] value)
         {
@@ -30,21 +30,21 @@ public sealed class RegisterPackageRequest
     /// <summary>
     /// The plugin name
     /// </summary>
-    public readonly string Name;
+    public string Name { get; }
     /// <summary>
     /// The plugin version
     /// </summary>
-    public readonly string Version;
+    public string Version { get; }
     /// <summary>
     /// the optional plugin download url.
     /// </summary>
-    public readonly string DownloadUrl;
+    public string DownloadUrl { get; }
     /// <summary>
     /// the optional plugin checksums
     /// </summary>
-    public readonly Dictionary<string, byte[]> Checksums;
+    public Dictionary<string, byte[]> Checksums { get; }
 
-    public readonly PackageParameterization? Parameterization;
+    public PackageParameterization? Parameterization { get; }
 
     public RegisterPackageRequest(
         string name,

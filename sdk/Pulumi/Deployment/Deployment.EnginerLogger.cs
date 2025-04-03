@@ -45,7 +45,9 @@ namespace Pulumi
             /// </summary>
             Task IEngineLogger.DebugAsync(string message, Resource? resource, int? streamId, bool? ephemeral)
             {
+#pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogDebug(message);
+#pragma warning restore CA2254 // Template should be a static expression
                 return LogImplAsync(LogSeverity.Debug, message, resource, streamId, ephemeral);
             }
 
@@ -55,7 +57,9 @@ namespace Pulumi
             /// </summary>
             Task IEngineLogger.InfoAsync(string message, Resource? resource, int? streamId, bool? ephemeral)
             {
+#pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogInformation(message);
+#pragma warning restore CA2254 // Template should be a static expression
                 return LogImplAsync(LogSeverity.Info, message, resource, streamId, ephemeral);
             }
 
@@ -64,7 +68,9 @@ namespace Pulumi
             /// </summary>
             Task IEngineLogger.WarnAsync(string message, Resource? resource, int? streamId, bool? ephemeral)
             {
+#pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogWarning(message);
+#pragma warning restore CA2254 // Template should be a static expression
                 return LogImplAsync(LogSeverity.Warning, message, resource, streamId, ephemeral);
             }
 
@@ -77,7 +83,9 @@ namespace Pulumi
 
             private Task ErrorAsync(string message, Resource? resource = null, int? streamId = null, bool? ephemeral = null)
             {
+#pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogError(message);
+#pragma warning restore CA2254 // Template should be a static expression
                 return LogImplAsync(LogSeverity.Error, message, resource, streamId, ephemeral);
             }
 

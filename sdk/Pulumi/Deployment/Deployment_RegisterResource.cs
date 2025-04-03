@@ -25,7 +25,7 @@ namespace Pulumi
 
             if (options.DeletedWith != null && !(await MonitorSupportsDeletedWith().ConfigureAwait(false)))
             {
-                throw new Exception("The Pulumi CLI does not support the DeletedWith option. Please update the Pulumi CLI.");
+                throw new InvalidOperationException("The Pulumi CLI does not support the DeletedWith option. Please update the Pulumi CLI.");
             }
 
             var request = await CreateRegisterResourceRequest(type, name, custom, remote, options);

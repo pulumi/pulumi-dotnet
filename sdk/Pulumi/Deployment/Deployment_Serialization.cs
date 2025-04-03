@@ -11,7 +11,8 @@ namespace Pulumi
 {
     public partial class Deployment
     {
-        internal static bool _excessiveDebugOutput = false;
+        // Set to true to enable excessive debug output. This is useful for debugging.
+        internal static bool _excessiveDebugOutput;
 
         /// <summary>
         /// <see cref="SerializeResourcePropertiesAsync"/> walks the props object passed in,

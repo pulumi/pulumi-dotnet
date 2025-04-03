@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -295,7 +296,7 @@ namespace Pulumi
             }
 
             return All(inputs).Apply(objs =>
-                string.Format(formattableString.Format, objs.ToArray()));
+                string.Format(CultureInfo.InvariantCulture, formattableString.Format, objs.ToArray()));
         }
 
         internal static Output<ImmutableArray<T>> Concat<T>(Output<ImmutableArray<T>> values1, Output<ImmutableArray<T>> values2)
@@ -309,7 +310,7 @@ namespace Pulumi
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             async Task<OutputData<string>> GetData()
@@ -358,7 +359,7 @@ namespace Pulumi
         {
             if (json == null)
             {
-                throw new ArgumentNullException("json");
+                throw new ArgumentNullException(nameof(json));
             }
 
             async Task<OutputData<T>> GetData()
@@ -408,7 +409,7 @@ namespace Pulumi
         /// </summary>
         Task<OutputData<object?>> GetDataAsync();
 
-        Output<U> UntypedApply<U>(Func<object?, Output<U>> func);
+        Output<TResult> UntypedApply<TResult>(Func<object?, Output<TResult>> func);
     }
 
     /// <summary>
@@ -468,7 +469,10 @@ namespace Pulumi
         async Task<OutputData<object?>> IOutput.GetDataAsync()
             => await DataTask.ConfigureAwait(false);
 
+        // This has already shipped as static and we're not planning to make a breaking change here.
+#pragma warning disable CA1000 // Do not declare static members on generic types
         public static Output<T> Create(Task<T> value)
+#pragma warning restore CA1000 // Do not declare static members on generic types
             => Create(value, isSecret: false);
 
         internal static Output<T> CreateSecret(Task<T> value)
@@ -523,7 +527,7 @@ namespace Pulumi
             => Unknown(default!).Apply(_ => valueFactory());
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
         public Output<ValueTuple> Apply(Func<T, Task> func)
         {
@@ -541,23 +545,23 @@ namespace Pulumi
         }
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
-        public Output<U> Apply<U>(Func<T, U> func)
+        public Output<TResult> Apply<TResult>(Func<T, TResult> func)
         {
             return Apply(t => Output.Create(func(t)));
         }
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
-        public Output<U> Apply<U>(Func<T, Task<U>> func)
+        public Output<TResult> Apply<TResult>(Func<T, Task<TResult>> func)
             => Apply(t => Output.Create(func(t)));
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}})"/> for more details.
         /// </summary>
-        public Output<U> Apply<U>(Func<T, Input<U>?> func)
+        public Output<TResult> Apply<TResult>(Func<T, Input<TResult>?> func)
             => Apply(t => func(t).ToOutput());
 
         /// <summary>
@@ -582,18 +586,19 @@ namespace Pulumi
         /// Importantly, the Resources that d2 feels like it will depend on are the same resources
         /// as d1. If you need have multiple <see cref="Output{T}"/>s and a single <see
         /// cref="Output{T}"/> is needed that combines both set of resources, then <see
-        /// cref="Output.All{T}(Input{T}[])"/> or <see cref="Output.Tuple{X, Y, Z}(Input{X}, Input{Y}, Input{Z})"/>
+        /// cref="Output.All{T}(Input{T}[])"/> or <see
+        /// cref="Output.Tuple{T1, T2, T3}(Input{T1}, Input{T2}, Input{T3})"/>
         /// should be used instead.
         /// <para/>
         /// This function will only be called execution of a <c>pulumi up</c> request.  It will not
         /// run during <c>pulumi preview</c> (as the values of resources are of course not known
         /// then).
         /// </summary>
-        public Output<U> Apply<U>(Func<T, Output<U>?> func)
-            => new Output<U>(ApplyHelperAsync(DataTask, func));
+        public Output<TResult> Apply<TResult>(Func<T, Output<TResult>?> func)
+            => new Output<TResult>(ApplyHelperAsync(DataTask, func));
 
-        private static async Task<OutputData<U>> ApplyHelperAsync<U>(
-            Task<OutputData<T>> dataTask, Func<T, Output<U>?> func)
+        private static async Task<OutputData<TResult>> ApplyHelperAsync<TResult>(
+            Task<OutputData<T>> dataTask, Func<T, Output<TResult>?> func)
         {
             var data = await dataTask.ConfigureAwait(false);
             var resources = data.Resources;
@@ -601,13 +606,13 @@ namespace Pulumi
             // give us an actual value for this Output.
             if (!data.IsKnown)
             {
-                return new OutputData<U>(resources, default!, isKnown: false, data.IsSecret);
+                return new OutputData<TResult>(resources, default!, isKnown: false, data.IsSecret);
             }
 
             var inner = func(data.Value);
             if (inner == null)
             {
-                return OutputData.Create(resources, default(U)!, data.IsKnown, data.IsSecret);
+                return OutputData.Create(resources, default(TResult)!, data.IsKnown, data.IsSecret);
             }
 
             var innerData = await inner.DataTask.ConfigureAwait(false);
@@ -617,7 +622,7 @@ namespace Pulumi
                 data.IsKnown && innerData.IsKnown, data.IsSecret || innerData.IsSecret);
         }
 
-        public Output<U> UntypedApply<U>(Func<object?, Output<U>> func)
+        public Output<TResult> UntypedApply<TResult>(Func<object?, Output<TResult>> func)
         {
             return Apply(v => func(v));
         }
@@ -722,7 +727,7 @@ namespace Pulumi
     /// </summary>
     public sealed class DeferredOutput<T>
     {
-        private int _set = 0;
+        private int _set;
         private readonly TaskCompletionSource<OutputData<T>> _tcs = new TaskCompletionSource<OutputData<T>>();
 
         /// <summary>

@@ -142,7 +142,7 @@ namespace Pulumi
                 var resourceMonitorSupportsTransforms = await MonitorSupportsTransforms().ConfigureAwait(false);
                 if (!resourceMonitorSupportsTransforms)
                 {
-                    throw new Exception("The Pulumi CLI does not support resource transforms. Please update the Pulumi CLI.");
+                    throw new InvalidOperationException("The Pulumi CLI does not support resource transforms. Please update the Pulumi CLI.");
                 }
 
                 var callbacks = await this.GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
@@ -354,7 +354,7 @@ namespace Pulumi
 
             if (!await MonitorSupportsParameterization().ConfigureAwait(false))
             {
-                throw new Exception("The Pulumi CLI does not support parameterization. Please update the Pulumi CLI.");
+                throw new InvalidOperationException("The Pulumi CLI does not support parameterization. Please update the Pulumi CLI.");
             }
 
             async Task<string?> CreateResolver()
@@ -507,10 +507,10 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 var (parent, parentUrn) = GetParentInfo(defaultParent, a);
 
                 if (name == null)
-                    throw new ArgumentNullException("No valid 'Name' passed in for alias.");
+                    throw new ArgumentException($"No valid '{nameof(a.Name)}' passed in for alias.");
 
                 if (type == null)
-                    throw new ArgumentNullException("No valid 'type' passed in for alias.");
+                    throw new ArgumentException($"No valid '{nameof(a.Type)}' passed in for alias.");
 
                 return Pulumi.Urn.Create(name, type, parent, parentUrn, project, stack);
             });

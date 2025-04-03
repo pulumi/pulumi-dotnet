@@ -281,7 +281,7 @@ namespace Pulumi
             return new SerializationResult(result.Return, argsSerializationResult.PropertyToDependentResources);
         }
 
-        private async Task<RawSerializationResult> SerializeInvokeArgs(string token, InvokeArgs args, bool keepResources)
+        private static async Task<RawSerializationResult> SerializeInvokeArgs(string token, InvokeArgs args, bool keepResources)
         {
             Log.Debug($"Invoking function: token={token} asynchronously");
 

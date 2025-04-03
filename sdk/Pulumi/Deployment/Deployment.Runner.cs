@@ -66,7 +66,7 @@ namespace Pulumi
                 }
 
                 return RunAsync(() => serviceProvider.GetService(typeof(TStack)) as TStack
-                    ?? throw new ApplicationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
+                    ?? throw new InvalidOperationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
             }
 
             public async Task<T> RunAsync<T>(Func<Task<T>> func)
@@ -104,7 +104,7 @@ namespace Pulumi
 
             public void RegisterTask(string description, Task task)
             {
-                _deploymentLogger.LogDebug($"Registering task: {description}");
+                _deploymentLogger.LogDebug("Registering task: {Description}", description);
                 _inFlightTasks.AddTask(task);
 
                 // Ensure completion message is logged at most once when the task finishes.
@@ -122,7 +122,7 @@ namespace Pulumi
                     {
                         task.ContinueWith(task =>
                         {
-                            _deploymentLogger.LogDebug($"Completed task: {description}");
+                            _deploymentLogger.LogDebug("Completed task: {Description}", description);
                             _descriptions.TryRemove(key, out _);
                         });
                     }

@@ -54,7 +54,7 @@ namespace Pulumi
         Task<T> InvokeAsync<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? option,
+            InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest);
 
         /// <summary>

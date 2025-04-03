@@ -77,7 +77,7 @@ namespace Pulumi.Experimental.Provider
                 components[type.Name] = analyzer.AnalyzeComponent(type);
             }
 
-            return analyzer.GenerateSchema(metadata, components, analyzer.typeDefinitions);
+            return GenerateSchema(metadata, components, analyzer.typeDefinitions);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Pulumi.Experimental.Provider
                 .Where(t => typeof(ComponentResource).IsAssignableFrom(t) && !t.IsAbstract);
         }
 
-        private PackageSpec GenerateSchema(
+        private static PackageSpec GenerateSchema(
             Metadata metadata,
             Dictionary<string, ResourceSpec> components,
             Dictionary<string, ComplexTypeSpec> typeDefinitions)
@@ -156,7 +156,7 @@ namespace Pulumi.Experimental.Provider
                 outputAnalysis.Required);
         }
 
-        private Type GetArgsType(Type componentType)
+        private static Type GetArgsType(Type componentType)
         {
             return componentType.GetConstructors()
                 .Where(c => c.GetParameters().Length == 3)  // Exactly 3 parameters
@@ -218,7 +218,7 @@ namespace Pulumi.Experimental.Provider
             };
         }
 
-        private bool IsOptionalProperty(MemberInfo member)
+        private static bool IsOptionalProperty(MemberInfo member)
         {
             Type memberType = member switch
             {
@@ -260,7 +260,7 @@ namespace Pulumi.Experimental.Provider
             return true;
         }
 
-        private string GetSchemaPropertyName(MemberInfo member)
+        private static string GetSchemaPropertyName(MemberInfo member)
         {
             var inputAttr = member.GetCustomAttribute<InputAttribute>();
             if (inputAttr != null && !string.IsNullOrEmpty(inputAttr.Name))
@@ -388,13 +388,13 @@ namespace Pulumi.Experimental.Provider
             throw new ArgumentException($"Type '{type.FullName}' is not supported as a parameter type");
         }
 
-        private string GetTypeName(Type type)
+        private static string GetTypeName(Type type)
         {
             var name = type.Name;
             return name.EndsWith("Args", StringComparison.Ordinal) ? name[..^4] : name;
         }
 
-        private string? GetBuiltinTypeName(Type type)
+        private static string? GetBuiltinTypeName(Type type)
         {
             if (type == typeof(string))
                 return BuiltinTypeSpec.String;
@@ -407,7 +407,7 @@ namespace Pulumi.Experimental.Provider
             return null;
         }
 
-        private string? GetSpecialTypeRef(Type type)
+        private static string? GetSpecialTypeRef(Type type)
         {
             if (type == typeof(Archive))
                 return "pulumi.json#/Archive";

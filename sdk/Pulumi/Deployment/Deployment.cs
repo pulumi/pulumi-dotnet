@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -207,11 +208,11 @@ namespace Pulumi
             set => Stack = value;
         }
 
-        private ILogger CreateDefaultLogger()
+        private static ILogger CreateDefaultLogger()
         {
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Is(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PULUMI_DOTNET_LOG_VERBOSE")) ? LogEventLevel.Verbose : LogEventLevel.Fatal)
-                .WriteTo.Console()
+                .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
                 .CreateLogger();
 
             var loggerFactory = new SerilogLoggerFactory(logger);

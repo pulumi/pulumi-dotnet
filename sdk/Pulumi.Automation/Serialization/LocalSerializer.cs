@@ -27,7 +27,10 @@ namespace Pulumi.Automation.Serialization
             this._yamlSerializer = BuildYamlSerializer();
         }
 
+        // This is a public non-static method that's already shipped as non-static, so disable the warning.
+#pragma warning disable CA1822 // Mark members as static
         public bool IsValidJson(string content)
+#pragma warning restore CA1822 // Mark members as static
         {
             try
             {
@@ -49,10 +52,14 @@ namespace Pulumi.Automation.Serialization
             where T : class
             => this._yamlDeserializer.Deserialize<T>(content);
 
+#pragma warning disable CA1720 // Identifier contains type name
         public string SerializeJson<T>(T @object)
+#pragma warning restore CA1720 // Identifier contains type name
             => JsonSerializer.Serialize(@object, this._jsonOptions);
 
+#pragma warning disable CA1720 // Identifier contains type name
         public string SerializeYaml<T>(T @object)
+#pragma warning restore CA1720 // Identifier contains type name
             where T : class
             => this._yamlSerializer.Serialize(@object);
 

@@ -30,9 +30,8 @@ namespace Pulumi
                     ? parent.Urn
                     : parentUrn!.ToOutput();
 
-                parentPrefix = parentUrnOutput.Apply(
-                    parentUrnString => parentUrnString.Substring(
-                        0, parentUrnString.LastIndexOf("::", StringComparison.Ordinal)) + "$");
+                parentPrefix = parentUrnOutput.Apply(s =>
+                    string.Concat(s.AsSpan(0, s.LastIndexOf("::", StringComparison.Ordinal)), "$"));
             }
             else
             {
@@ -65,8 +64,8 @@ namespace Pulumi
             var aliasName = Output.Create(childName);
             if (childName!.StartsWith(parentName, StringComparison.Ordinal))
             {
-                aliasName = parentAlias.ToOutput().Apply<string>(parentAliasUrn =>
-                    parentAliasUrn.Substring(parentAliasUrn.LastIndexOf("::", StringComparison.Ordinal) + 2) + childName.Substring(parentName.Length));
+                aliasName = parentAlias.ToOutput().Apply(s =>
+                    string.Concat(s.AsSpan(s.LastIndexOf("::", StringComparison.Ordinal) + 2), childName.AsSpan(parentName.Length)));
             }
 
             var urn = Create(

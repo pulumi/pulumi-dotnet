@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Pulumi.Experimental.Provider
     {
         string CamelCase(string input) =>
             input.Length > 1
-                ? input.Substring(0, 1).ToLowerInvariant() + input.Substring(1)
+                ? char.ToLowerInvariant(input[0]) + input[1..]
                 : input.ToLowerInvariant();
 
         private object? DeserializeObject(ImmutableDictionary<string, PropertyValue> inputs, Type targetType, string[] path)
@@ -276,7 +277,7 @@ namespace Pulumi.Experimental.Provider
 
             if (targetType.IsEnum)
             {
-                var enumValue = Convert.ToInt32(value);
+                var enumValue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
                 return new PropertyValue(enumValue);
             }
 
@@ -911,7 +912,7 @@ namespace Pulumi.Experimental.Provider
                     var addMethod =
                         targetType
                             .GetMethods()
-                            .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Count() == 2);
+                            .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Length == 2);
 
                     var valueType = targetType.GenericTypeArguments[1];
                     foreach (var pair in values)
@@ -941,7 +942,7 @@ namespace Pulumi.Experimental.Provider
                     builder
                         .GetType()
                         .GetMethods()
-                        .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Count() == 2);
+                        .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Length == 2);
 
                 var builderToImmutable = builder.GetType()
                     .GetMethod(nameof(ImmutableDictionary<int, int>.Builder.ToImmutable))!;

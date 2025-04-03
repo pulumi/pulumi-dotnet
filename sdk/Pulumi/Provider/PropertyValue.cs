@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace Pulumi.Experimental.Provider
 {
@@ -16,9 +17,11 @@ namespace Pulumi.Experimental.Provider
         Null,
         Bool,
         Number,
+#pragma warning disable CA1720 // Identifier contains type name
         String,
         Array,
         Object,
+#pragma warning restore CA1720 // Identifier contains type name
         Asset,
         Archive,
         Secret,
@@ -29,9 +32,9 @@ namespace Pulumi.Experimental.Provider
 
     public readonly struct ResourceReference : IEquatable<ResourceReference>
     {
-        public readonly Urn URN;
-        public readonly PropertyValue? Id;
-        public readonly string PackageVersion;
+        public Urn URN { get; }
+        public PropertyValue? Id { get; }
+        public string PackageVersion { get; }
 
         public ResourceReference(Urn urn, PropertyValue? id, string version)
         {
@@ -76,8 +79,8 @@ namespace Pulumi.Experimental.Provider
         /// The value of the output, if it is known. This will never be a `Computed` value as that's
         /// equivilent to unknown and thus null.
         /// </summary>
-        public readonly PropertyValue? Value;
-        public readonly ImmutableHashSet<Urn> Dependencies;
+        public PropertyValue? Value { get; }
+        public ImmutableHashSet<Urn> Dependencies { get; }
 
         public OutputReference(PropertyValue? value, ImmutableHashSet<Urn> dependencies)
         {
@@ -510,7 +513,7 @@ namespace Pulumi.Experimental.Provider
             return Match<string?>(
                 () => "null",
                 b => b.ToString(),
-                n => n.ToString(),
+                n => n.ToString(CultureInfo.InvariantCulture),
                 s => s,
                 a => "[" + String.Join(",", a.Select(i => i.ToString())) + "]",
                 o => "{" + String.Join(",", o.Select(i => i.Key + ":" + i.Value.ToString())) + "}",

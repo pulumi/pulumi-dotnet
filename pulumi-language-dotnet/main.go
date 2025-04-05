@@ -740,7 +740,11 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 		go func() {
-			err = startDebugging(ctx, engineClient, cmd)
+			info := programInfo{
+				Name: fmt.Sprintf("%s (program)", req.Project),
+				Cwd:  cmd.Dir,
+			}
+			err = startDebugging(ctx, engineClient, cmd, info)
 			if err != nil {
 				// kill the program if we can't start debugging.
 				logging.Errorf("Unable to start debugging: %v", err)
@@ -776,17 +780,23 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 	return &pulumirpc.RunResponse{Error: errResult}, nil
 }
 
-func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cmd *exec.Cmd) error {
+type programInfo struct {
+	Name string
+	Cwd  string
+}
+
+func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cmd *exec.Cmd, info programInfo) error {
 	// wait for the debugger to be ready
 	ctx, cancel := context.WithTimeoutCause(ctx, 1*time.Minute, errors.New("debugger startup timed out"))
 	defer cancel()
 	// wait for the debugger to be ready
 
 	debugConfig, err := structpb.NewStruct(map[string]interface{}{
-		"name":      "Pulumi: Program (Dotnet)",
-		"type":      "coreclr",
-		"request":   "attach",
-		"processId": cmd.Process.Pid,
+		"name":       info.Name,
+		"type":       "coreclr",
+		"request":    "attach",
+		"processId":  cmd.Process.Pid,
+		"justMyCode": false,
 	})
 	if err != nil {
 		return err
@@ -1002,6 +1012,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 	req *pulumirpc.RunPluginRequest, server pulumirpc.LanguageRuntime_RunPluginServer,
 ) error {
 	logging.V(5).Infof("Attempting to run dotnet plugin in %s", req.Pwd)
+	ctx := server.Context()
 
 	closer, stdout, stderr, err := rpcutil.MakeRunPluginStreams(server, false)
 	if err != nil {
@@ -1064,8 +1075,31 @@ func (host *dotnetLanguageHost) RunPlugin(
 			return err
 		}
 
-		// Now run from source without re-building.
-		args = append(args, "run", "--no-build", "--project", project, "--")
+		// Locate the output DLL after building. This is required to run the plugin as an executable.
+		type projectInfo struct {
+			Properties struct {
+				OutputPath   string `json:"OutputPath"`
+				AssemblyName string `json:"AssemblyName"`
+			} `json:"Properties"`
+		}
+		findArgs := []string{"msbuild", "-getProperty:OutputPath", "-getProperty:AssemblyName"}
+		cmd = exec.Command(executable, findArgs...) //nolint:gas // intentionally running dynamic program name.
+		cmd.Dir = project
+		cmd.Env = req.Env
+		var findOutput bytes.Buffer
+		cmd.Stdout, cmd.Stderr = &findOutput, &findOutput
+		if err = cmd.Run(); err != nil {
+			err = errors.Wrapf(err, "Problem building plugin program (could not read project information)")
+			return err
+		}
+		var info projectInfo
+		if err := json.Unmarshal(findOutput.Bytes(), &info); err != nil {
+			return err
+		}
+
+		// run `dotnet <name>.dll`
+		binary := filepath.Join(project, info.Properties.OutputPath, info.Properties.AssemblyName+".dll")
+		args = append(args, binary)
 	}
 
 	// Add on all the request args to start this plugin
@@ -1076,12 +1110,47 @@ func (host *dotnetLanguageHost) RunPlugin(
 		logging.V(5).Infoln("Language host launching process: ", executable, " ", commandStr)
 	}
 
+	// Construct the environment for the plugin
+	env := []string{}
+	maybeAppendEnv := func(k, v string) {
+		if v != "" {
+			env = append(env, strings.ToUpper("PULUMI_"+k)+"="+v)
+		}
+	}
+	env = append(env, req.Env...)
+	maybeAppendEnv("attach_debugger", strconv.FormatBool(req.GetAttachDebugger()))
+
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	cmd := exec.Command(executable, args...) //nolint:gas // intentionally running dynamic program name.
 	cmd.Dir = req.Pwd
-	cmd.Env = req.Env
+	cmd.Env = env
 	cmd.Stdout, cmd.Stderr = stdout, stderr
-	if err = cmd.Run(); err != nil {
+
+	run := func() error {
+		if err := cmd.Start(); err != nil {
+			return err
+		}
+		if req.GetAttachDebugger() {
+			engineClient, closer, err := host.connectToEngine()
+			if err != nil {
+				return err
+			}
+			defer contract.IgnoreClose(closer)
+
+			info := programInfo{
+				Name: req.Prefix,
+				Cwd:  req.Pwd,
+			}
+			err = startDebugging(ctx, engineClient, cmd, info)
+			if err != nil {
+				// kill the program if we can't start debugging.
+				logging.Errorf("Unable to start debugging: %v", err)
+				contract.IgnoreError(cmd.Process.Kill())
+			}
+		}
+		return cmd.Wait()
+	}
+	if err = run(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			// If the program ran, but exited with a non-zero error code.  This will happen often, since user
 			// errors will trigger this.  So, the error message should look as nice as possible.

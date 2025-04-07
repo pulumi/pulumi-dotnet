@@ -18,10 +18,10 @@ namespace Pulumi
         private const string ParentSeparator = "$";
         private const string ParentSeparatorRegex = "\\$";
 
-        public readonly string Stack;
-        public readonly string Project;
-        public readonly string QualifiedType;
-        public readonly string Name;
+        public string Stack { get; }
+        public string Project { get; }
+        public string QualifiedType { get; }
+        public string Name { get; }
 
         private Urn(string stack, string project, string qualifiedType, string name)
         {

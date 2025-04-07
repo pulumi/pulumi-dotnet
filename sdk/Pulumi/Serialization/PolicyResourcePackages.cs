@@ -14,10 +14,10 @@ namespace Pulumi
 {
     public class PolicyForResource
     {
-        public readonly PolicyPackResourceAttribute Annotation;
-        public readonly MethodBase Target;
-        public readonly string Type;
-        public readonly Type ResourceClass;
+        public PolicyPackResourceAttribute Annotation { get; }
+        public MethodBase Target { get; }
+        public string Type { get; }
+        public Type ResourceClass { get; }
 
         public PolicyForResource(PolicyPackResourceAttribute annotation,
             MethodBase target,
@@ -31,10 +31,11 @@ namespace Pulumi
         }
     }
 
+#pragma warning disable CA1711
     public class PolicyForStack
     {
-        public readonly PolicyPackStackAttribute Annotation;
-        public readonly MethodBase Target;
+        public PolicyPackStackAttribute Annotation { get; }
+        public MethodBase Target { get; }
 
         public PolicyForStack(PolicyPackStackAttribute annotation,
             MethodBase target)
@@ -43,12 +44,13 @@ namespace Pulumi
             this.Target = target;
         }
     }
+#pragma warning restore CA1711
 
     public class PolicyPack
     {
-        public readonly PolicyPackTypeAttribute Annotation;
-        public readonly PolicyForStack? StackPolicy;
-        public readonly ImmutableDictionary<String, PolicyForResource> ResourcePolicies;
+        public PolicyPackTypeAttribute Annotation { get; }
+        public PolicyForStack? StackPolicy { get; }
+        public ImmutableDictionary<String, PolicyForResource> ResourcePolicies { get; }
 
         public PolicyPack(PolicyPackTypeAttribute annotation,
             PolicyForStack? stackPolicy,
@@ -137,7 +139,7 @@ namespace Pulumi
                         }
 
                         var types = m.GetParameters().Select(p => p.ParameterType).ToImmutableList();
-                        if (types.Count() != 2)
+                        if (types.Count != 2)
                         {
                             throw new ArgumentException(
                                 $"Method '{m}' of class '{type}': it should have two parameters, a PolicyManager and a list of PolicyResource");

@@ -34,22 +34,22 @@
             A log message to be sent to the Pulumi engine.
             </summary>
         </member>
-        <member name="F:Pulumi.Analyzer.LogMessage.Severity">
+        <member name="P:Pulumi.Analyzer.LogMessage.Severity">
             <summary>
             The logging level of this message.
             </summary>
         </member>
-        <member name="F:Pulumi.Analyzer.LogMessage.Message">
+        <member name="P:Pulumi.Analyzer.LogMessage.Message">
             <summary>
             The contents of the logged message.
             </summary>
         </member>
-        <member name="F:Pulumi.Analyzer.LogMessage.Urn">
+        <member name="P:Pulumi.Analyzer.LogMessage.Urn">
             <summary>
             The (optional) resource urn this log is associated with.
             </summary>
         </member>
-        <member name="F:Pulumi.Analyzer.LogMessage.StreamId">
+        <member name="P:Pulumi.Analyzer.LogMessage.StreamId">
             <summary>
             The (optional) stream id that a stream of log messages can be associated with. This allows
             clients to not have to buffer a large set of log messages that they all want to be
@@ -61,7 +61,7 @@
             0 means do not associate with any stream.
             </remarks>
         </member>
-        <member name="F:Pulumi.Analyzer.LogMessage.Ephemeral">
+        <member name="P:Pulumi.Analyzer.LogMessage.Ephemeral">
             <summary>
             Optional value indicating whether this is a status message.
             </summary>
@@ -81,7 +81,7 @@
             Property values will be one of these types.
             </summary>
         </member>
-        <member name="F:Pulumi.Analyzer.OutputReference.Value">
+        <member name="P:Pulumi.Analyzer.OutputReference.Value">
             <summary>
             The value of the output, if it is known. This will never be a `Computed` value as that's
             equivilent to unknown and thus null.
@@ -2364,6 +2364,9 @@
             PolicyResource represents a class whose CRUD operations are implemented by a provider plugin.
             </summary>
         </member>
+        <member name="M:Pulumi.PolicyResource.CheckSpecialStruct(Google.Protobuf.WellKnownTypes.Value,System.String@)">
+            @return signature of the special Struct or empty if not a special Struct
+        </member>
         <member name="T:Pulumi.ProviderResource">
             <summary>
             <see cref="T:Pulumi.ProviderResource"/> is a <see cref="T:Pulumi.Resource"/> that implements CRUD operations
@@ -2966,22 +2969,22 @@
             The enforcement level of
             </summary>
         </member>
-        <member name="F:Pulumi.EnforcementLevel.ADVISORY">
+        <member name="F:Pulumi.EnforcementLevel.Advisory">
             <summary>
             Displayed to users, but does not block deployment.
             </summary>
         </member>
-        <member name="F:Pulumi.EnforcementLevel.MANDATORY">
+        <member name="F:Pulumi.EnforcementLevel.Mandatory">
             <summary>
             Stops deployment, cannot be overridden.
             </summary>
         </member>
-        <member name="F:Pulumi.EnforcementLevel.DISABLED">
+        <member name="F:Pulumi.EnforcementLevel.Disabled">
             <summary>
             Disabled policies do not run during a deployment.
             </summary>
         </member>
-        <member name="F:Pulumi.EnforcementLevel.REMEDIATE">
+        <member name="F:Pulumi.EnforcementLevel.Remediate">
             <summary>
             Remediated policies actually fixes problems instead of issuing diagnostics.
             </summary>

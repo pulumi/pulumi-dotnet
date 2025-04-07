@@ -102,7 +102,7 @@ namespace Pulumi.Analyzer
             // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
             // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
             // we work around this here so that old engines can use dotnet providers as well.
-            Console.Out.Write(port.ToString() + "\n");
+            Console.Out.Write(port + "\n");
 
             await host.WaitForShutdownAsync(CancellationToken.None);
             return 0;
@@ -183,7 +183,7 @@ namespace Pulumi.Analyzer
             var assemblyVersion = entryName.Version;
             if (assemblyVersion == null)
             {
-                throw new Exception("Provider.Serve must be called with a version, or an assembly version must be set.");
+                throw new ArgumentException("Provider.Serve must be called with a version, or an assembly version must be set.");
             }
 
             // Pulumi expects semver style versions, so we convert from the .NET version format by
@@ -196,7 +196,7 @@ namespace Pulumi.Analyzer
             this.rootCTS.Dispose();
         }
 
-        private async Task<T> WrapProviderCall<T>(Func<Task<T>> call, [CallerMemberName] string? methodName = default)
+        private static async Task<T> WrapProviderCall<T>(Func<Task<T>> call, [CallerMemberName] string? methodName = default)
         {
             try
             {
@@ -223,7 +223,7 @@ namespace Pulumi.Analyzer
 
         // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
         // This keeps the PropertyValue. Unmarshal clean in terms of not handling nulls.
-        private ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
+        private static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
         {
             if (properties == null)
             {
@@ -234,7 +234,7 @@ namespace Pulumi.Analyzer
         }
 
         // Helper to marshal CheckFailures from the domain to the GRPC layer.
-        private IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
+        private static IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
         {
             if (failures != null)
             {

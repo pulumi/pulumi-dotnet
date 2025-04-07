@@ -12,9 +12,9 @@ namespace Pulumi
 {
     public class ResourceIdentity
     {
-        public readonly string Type;
-        public readonly string Version;
-        public readonly string Urn;
+        public string Type { get; }
+        public string Version { get; }
+        public string Urn { get; }
 
         public ResourceIdentity(string type, string version, string urn)
         {
@@ -45,7 +45,7 @@ namespace Pulumi
 
             if (result == null)
             {
-                throw new Exception($"Cannot create instance of type {type.Name}.");
+                throw new ArgumentException($"Cannot create instance of type {type.Name}.");
             }
 
             var map = new Dictionary<string, FieldInfo>();

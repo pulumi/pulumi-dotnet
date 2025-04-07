@@ -13,6 +13,7 @@ namespace Pulumi.Analyzer
     /// </summary>
     public enum PropertyValueType
     {
+#pragma warning disable CA1720
         Null,
         Bool,
         Number,
@@ -25,13 +26,14 @@ namespace Pulumi.Analyzer
         Resource,
         Output,
         Computed,
+#pragma warning restore CA1720
     }
 
     public readonly struct ResourceReference : IEquatable<ResourceReference>
     {
-        public readonly Urn URN;
-        public readonly PropertyValue? Id;
-        public readonly string PackageVersion;
+        public Urn URN { get; }
+        public PropertyValue? Id { get; }
+        public string PackageVersion { get; }
 
         public ResourceReference(Urn urn, PropertyValue? id, string version)
         {
@@ -76,8 +78,8 @@ namespace Pulumi.Analyzer
         /// The value of the output, if it is known. This will never be a `Computed` value as that's
         /// equivilent to unknown and thus null.
         /// </summary>
-        public readonly PropertyValue? Value;
-        public readonly ImmutableHashSet<Urn> Dependencies;
+        public PropertyValue? Value { get; }
+        public ImmutableHashSet<Urn> Dependencies { get; }
 
         public OutputReference(PropertyValue? value, ImmutableHashSet<Urn> dependencies)
         {
@@ -513,7 +515,9 @@ namespace Pulumi.Analyzer
             return Match<string?>(
                 () => "null",
                 b => b.ToString(),
-                n => n.ToString(),
+#pragma warning disable CA1305
+                n =>  n.ToString(),
+#pragma warning restore CA1305
                 s => s,
                 a => "[" + String.Join(",", a.Select(i => i.ToString())) + "]",
                 o => "{" + String.Join(",", o.Select(i => i.Key + ":" + i.Value.ToString())) + "}",

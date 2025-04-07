@@ -15,7 +15,7 @@ namespace Pulumi.Analyzer
     {
         string CamelCase(string input) =>
             input.Length > 1
-                ? input.Substring(0, 1).ToLowerInvariant() + input.Substring(1)
+                ? string.Concat(input.Substring(0, 1).ToLowerInvariant(), input.AsSpan(1))
                 : input.ToLowerInvariant();
 
         private object? DeserializeObject(ImmutableDictionary<string, PropertyValue> inputs, Type targetType, string[] path)
@@ -276,7 +276,10 @@ namespace Pulumi.Analyzer
 
             if (targetType.IsEnum)
             {
+#pragma warning disable CA1305
                 var enumValue = Convert.ToInt32(value);
+#pragma warning restore CA1305
+
                 return new PropertyValue(enumValue);
             }
 
@@ -856,7 +859,7 @@ namespace Pulumi.Analyzer
                     var addMethod =
                         targetType
                             .GetMethods()
-                            .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Count() == 2);
+                            .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Length == 2);
 
                     var valueType = targetType.GenericTypeArguments[1];
                     foreach (var pair in values)
@@ -886,7 +889,7 @@ namespace Pulumi.Analyzer
                     builder
                         .GetType()
                         .GetMethods()
-                        .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Count() == 2);
+                        .First(methodInfo => methodInfo.Name == "Add" && methodInfo.GetParameters().Length == 2);
 
                 var builderToImmutable = builder.GetType()
                     .GetMethod(nameof(ImmutableDictionary<int, int>.Builder.ToImmutable))!;

@@ -1271,13 +1271,31 @@ func (host *dotnetLanguageHost) GeneratePackage(
 			Diagnostics: rpcDiagnostics,
 		}, nil
 	}
-	files, err := dotnetcodegen.GeneratePackage("pulumi-language-dotnet", pkg, req.ExtraFiles, req.LocalDependencies)
+	files, err := dotnetcodegen.GeneratePackage("pulumi-language-dotnet", pkg, req.ExtraFiles, req.LocalDependencies, false)
 	if err != nil {
 		return nil, err
 	}
 
 	for filename, data := range files {
 		outPath := filepath.Join(req.Directory, filename)
+		err := os.MkdirAll(filepath.Dir(outPath), 0o700)
+		if err != nil {
+			return nil, fmt.Errorf("could not create output directory %s: %w", filepath.Dir(filename), err)
+		}
+
+		err = os.WriteFile(outPath, data, 0o600)
+		if err != nil {
+			return nil, fmt.Errorf("could not write output file %s: %w", filename, err)
+		}
+	}
+
+	filesForPolicyPack, err := dotnetcodegen.GeneratePackage("pulumi-language-dotnet", pkg, req.ExtraFiles, req.LocalDependencies, true)
+	if err != nil {
+		return nil, err
+	}
+
+	for filename, data := range filesForPolicyPack {
+		outPath := filepath.Join(req.Directory+"_policy", filename)
 		err := os.MkdirAll(filepath.Dir(outPath), 0o700)
 		if err != nil {
 			return nil, fmt.Errorf("could not create output directory %s: %w", filepath.Dir(filename), err)

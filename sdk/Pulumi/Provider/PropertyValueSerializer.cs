@@ -469,16 +469,21 @@ namespace Pulumi.Experimental.Provider
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(InputMap<>))
             {
-                // change InputMap<T> to Output<ImmutableDictionary<string, T>> and deserialize
+                // change InputMap<T> to Input<ImmutableDictionary<string, Input<T>>> and deserialize
                 var valueType = targetType.GetGenericArguments()[0];
+                valueType = typeof(Input<>).MakeGenericType(valueType);
                 var dictionaryType = typeof(ImmutableDictionary<,>).MakeGenericType(typeof(string), valueType);
-                var outputMapType = typeof(Output<>).MakeGenericType(dictionaryType);
-                var outputDictionary = DeserializeValue(value, outputMapType, path);
-                var fromOutputMap = targetType.GetMethod(
-                    "op_Implicit",
-                    types: new[] { outputMapType })!;
+                var inputDictionaryType = typeof(Input<>).MakeGenericType(dictionaryType);
+                var inputDictionary = DeserializeValue(value, inputDictionaryType, path);
 
-                return fromOutputMap.Invoke(null, new[] { outputDictionary });
+                var ctor = targetType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, new Type[]{inputDictionaryType});
+                if (ctor == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Could not find constructor for type {targetType}");
+                }
+
+                return ctor.Invoke(new[] { inputDictionary });
             }
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Output<>))

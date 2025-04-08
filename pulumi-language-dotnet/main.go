@@ -740,7 +740,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 		go func() {
-			info := programInfo{
+			info := sessionInfo{
 				Name: fmt.Sprintf("%s (program)", req.Project),
 				Cwd:  cmd.Dir,
 			}
@@ -780,12 +780,12 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 	return &pulumirpc.RunResponse{Error: errResult}, nil
 }
 
-type programInfo struct {
+type sessionInfo struct {
 	Name string
 	Cwd  string
 }
 
-func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cmd *exec.Cmd, info programInfo) error {
+func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cmd *exec.Cmd, info sessionInfo) error {
 	// wait for the debugger to be ready
 	ctx, cancel := context.WithTimeoutCause(ctx, 1*time.Minute, errors.New("debugger startup timed out"))
 	defer cancel()
@@ -1137,8 +1137,8 @@ func (host *dotnetLanguageHost) RunPlugin(
 			}
 			defer contract.IgnoreClose(closer)
 
-			info := programInfo{
-				Name: req.Prefix,
+			info := sessionInfo{
+				Name: req.Name,
 				Cwd:  req.Pwd,
 			}
 			err = startDebugging(ctx, engineClient, cmd, info)

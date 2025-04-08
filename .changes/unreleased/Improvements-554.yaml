@@ -1,6 +1,0 @@
-component: sdk/auto
-kind: Improvements
-body: Add the `--preview-only` flag to the `destroy` command in the Automation API
-time: 2025-03-26T15:10:14.335982Z
-custom:
-    PR: "554"

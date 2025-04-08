@@ -1,6 +1,0 @@
-component: sdk/provider
-kind: Improvements
-body: Replaced `PropertyValue.TryUnwrap` with `Unwrap`
-time: 2025-03-31T14:22:07.096797+01:00
-custom:
-    PR: "562"

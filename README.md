@@ -94,9 +94,6 @@ make build
 # Testing the language plugin
 dotnet run test-language-plugin
 
-# Sync proto files from pulumi/pulumi
-dotnet run sync-proto-files
-
 # List all integration tests
 dotnet run list-integration-tests
 

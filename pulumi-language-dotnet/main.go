@@ -154,10 +154,7 @@ type dotnetOptions struct {
 	dotnetExec string
 }
 
-func parseOptions(
-	root string,
-	options map[string]interface{},
-) (dotnetOptions, error) {
+func parseOptions(root string, options map[string]interface{}) (dotnetOptions, error) {
 	var dotnetOptions dotnetOptions
 	if binary, ok := options["binary"]; ok {
 		if binary, ok := binary.(string); ok {
@@ -309,7 +306,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	// installed locally and not need to do anything.
 	args := []string{"list", "package", "--include-transitive"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false, programDirectory, false)
+	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory, false /*outputToError*/)
 	if err != nil {
 		return nil, err
 	}
@@ -377,7 +374,7 @@ func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
 	// plugin is installed locally and not need to do anything.
 	args := []string{"nuget", "locals", "global-packages", "--list"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false, programDirectory, false)
+	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory, false /*outputToError*/)
 	if err != nil {
 		return "", err
 	}
@@ -400,10 +397,7 @@ type versionFile struct {
 	version string
 }
 
-func newVersionFile(
-	b []byte,
-	packageName string,
-) *versionFile {
+func newVersionFile(b []byte, packageName string) *versionFile {
 	var name string
 	version := strings.TrimSpace(string(b))
 	parts := strings.SplitN(version, "\n", 2)
@@ -517,7 +511,7 @@ func (host *dotnetLanguageHost) DotnetBuild(
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
-	_, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, true, req.Info.ProgramDirectory, false)
+	_, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, true /*logToUser*/, req.Info.ProgramDirectory, false /*outputToError*/)
 	if err != nil {
 		return err
 	}
@@ -666,11 +660,7 @@ func buildDebuggingDLL(dotnetExec, programDirectory, entryPoint string) (string,
 	}
 
 	var binaryPath string
-	err = filepath.WalkDir(programDirectory, func(
-		path string,
-		d os.DirEntry,
-		err error,
-	) error {
+	err = filepath.WalkDir(programDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -694,10 +684,7 @@ func buildDebuggingDLL(dotnetExec, programDirectory, entryPoint string) (string,
 }
 
 // Run is the RPC endpoint for LanguageRuntimeServer::Run
-func (host *dotnetLanguageHost) Run(
-	ctx context.Context,
-	req *pulumirpc.RunRequest,
-) (*pulumirpc.RunResponse, error) {
+func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunRequest) (*pulumirpc.RunResponse, error) {
 	opts, err := parseOptions(req.Info.RootDirectory, req.Info.Options.AsMap())
 	if err != nil {
 		return nil, err
@@ -812,11 +799,7 @@ func (host *dotnetLanguageHost) Run(
 	return &pulumirpc.RunResponse{Error: errResult}, nil
 }
 
-func startDebugging(
-	ctx context.Context,
-	engineClient pulumirpc.EngineClient,
-	cmd *exec.Cmd,
-) error {
+func startDebugging(ctx context.Context, engineClient pulumirpc.EngineClient, cmd *exec.Cmd) error {
 	// wait for the debugger to be ready
 	ctx, cancel := context.WithTimeoutCause(ctx, 1*time.Minute, errors.New("debugger startup timed out"))
 	defer cancel()
@@ -842,10 +825,7 @@ func startDebugging(
 	return nil
 }
 
-func (host *dotnetLanguageHost) constructEnv(
-	req *pulumirpc.RunRequest,
-	config, configSecretKeys string,
-) []string {
+func (host *dotnetLanguageHost) constructEnv(req *pulumirpc.RunRequest, config, configSecretKeys string) []string {
 	env := os.Environ()
 
 	maybeAppendEnv := func(k, v string) {
@@ -902,18 +882,14 @@ func (host *dotnetLanguageHost) constructConfigSecretKeys(req *pulumirpc.RunRequ
 	return string(configSecretKeysJSON), nil
 }
 
-func (host *dotnetLanguageHost) GetPluginInfo(
-	ctx context.Context,
-	req *emptypb.Empty,
-) (*pulumirpc.PluginInfo, error) {
+func (host *dotnetLanguageHost) GetPluginInfo(ctx context.Context, req *emptypb.Empty) (*pulumirpc.PluginInfo, error) {
 	return &pulumirpc.PluginInfo{
 		Version: version.Version,
 	}, nil
 }
 
 func (host *dotnetLanguageHost) InstallDependencies(
-	req *pulumirpc.InstallDependenciesRequest,
-	server pulumirpc.LanguageRuntime_InstallDependenciesServer,
+	req *pulumirpc.InstallDependenciesRequest, server pulumirpc.LanguageRuntime_InstallDependenciesServer,
 ) error {
 	closer, stdout, stderr, err := rpcutil.MakeInstallDependenciesStreams(server, req.IsTerminal)
 	if err != nil {
@@ -953,13 +929,9 @@ func (host *dotnetLanguageHost) RuntimeOptionsPrompts(
 }
 
 func (host *dotnetLanguageHost) About(
-	ctx context.Context,
-	req *pulumirpc.AboutRequest,
+	ctx context.Context, req *pulumirpc.AboutRequest,
 ) (*pulumirpc.AboutResponse, error) {
-	getResponse := func(
-		execString string,
-		args ...string,
-	) (string, string, error) {
+	getResponse := func(execString string, args ...string) (string, string, error) {
 		ex, err := executable.FindExecutable(execString)
 		if err != nil {
 			return "", "", fmt.Errorf("could not find executable '%s': %w", execString, err)
@@ -988,8 +960,7 @@ func (host *dotnetLanguageHost) About(
 }
 
 func (host *dotnetLanguageHost) GetProgramDependencies(
-	ctx context.Context,
-	req *pulumirpc.GetProgramDependenciesRequest,
+	ctx context.Context, req *pulumirpc.GetProgramDependenciesRequest,
 ) (*pulumirpc.GetProgramDependenciesResponse, error) {
 	// dotnet list package
 
@@ -1052,8 +1023,7 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 }
 
 func (host *dotnetLanguageHost) RunPlugin(
-	req *pulumirpc.RunPluginRequest,
-	server pulumirpc.LanguageRuntime_RunPluginServer,
+	req *pulumirpc.RunPluginRequest, server pulumirpc.LanguageRuntime_RunPluginServer,
 ) error {
 	logging.V(5).Infof("Attempting to run dotnet plugin in %s", req.Pwd)
 
@@ -1162,17 +1132,10 @@ func (host *dotnetLanguageHost) RunPlugin(
 	return nil
 }
 
-func (host *dotnetLanguageHost) Pack(
-	ctx context.Context,
-	req *pulumirpc.PackRequest,
-) (*pulumirpc.PackResponse, error) {
+func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackRequest) (*pulumirpc.PackResponse, error) {
 	// copy the source to the target.
 	projectFile := ""
-	err := filepath.Walk(req.PackageDirectory, func(
-		path string,
-		info os.FileInfo,
-		err error,
-	) error {
+	err := filepath.Walk(req.PackageDirectory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -1223,11 +1186,7 @@ func (host *dotnetLanguageHost) Pack(
 	}
 
 	var nugetFilePath string
-	err = filepath.Walk(destination, func(
-		path string,
-		info os.FileInfo,
-		err error,
-	) error {
+	err = filepath.Walk(destination, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -1247,8 +1206,7 @@ func (host *dotnetLanguageHost) Pack(
 }
 
 func (host *dotnetLanguageHost) GeneratePackage(
-	ctx context.Context,
-	req *pulumirpc.GeneratePackageRequest,
+	ctx context.Context, req *pulumirpc.GeneratePackageRequest,
 ) (*pulumirpc.GeneratePackageResponse, error) {
 	loader, err := schema.NewLoaderClient(req.LoaderTarget)
 	if err != nil {
@@ -1271,7 +1229,7 @@ func (host *dotnetLanguageHost) GeneratePackage(
 			Diagnostics: rpcDiagnostics,
 		}, nil
 	}
-	files, err := dotnetcodegen.GeneratePackage("pulumi-language-dotnet", pkg, req.ExtraFiles, req.LocalDependencies, false)
+	files, err := dotnetcodegen.GeneratePackage("pulumi-language-dotnet", pkg, req.ExtraFiles, req.LocalDependencies, false /*generatePolicyPack*/)
 	if err != nil {
 		return nil, err
 	}
@@ -1313,8 +1271,7 @@ func (host *dotnetLanguageHost) GeneratePackage(
 }
 
 func (host *dotnetLanguageHost) GenerateProject(
-	ctx context.Context,
-	req *pulumirpc.GenerateProjectRequest,
+	ctx context.Context, req *pulumirpc.GenerateProjectRequest,
 ) (*pulumirpc.GenerateProjectResponse, error) {
 	loader, err := schema.NewLoaderClient(req.LoaderTarget)
 	if err != nil {

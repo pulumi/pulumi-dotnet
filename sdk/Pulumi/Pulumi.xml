@@ -2934,11 +2934,6 @@
             The version of the Policy pack.
             </summary>
         </member>
-        <member name="P:Pulumi.PolicyPackResourceAttribute.Target">
-            <summary>
-            The PolicyResource type this rule applies to.
-            </summary>
-        </member>
         <member name="P:Pulumi.PolicyPackResourceAttribute.Name">
             <summary>
             The name of the Policy rule.

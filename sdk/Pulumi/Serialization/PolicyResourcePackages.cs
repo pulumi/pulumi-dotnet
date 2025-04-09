@@ -112,7 +112,6 @@ namespace Pulumi
                             throw new ArgumentException($"Method '{m}' of class '{type}': it should have two parameters, a PolicyManager and a PolicyResource");
                         }
 
-                        var classForResource = annotationResource.Target;
                         var typeForManager = types[0];
                         var typeForResource = types[1];
 
@@ -121,13 +120,13 @@ namespace Pulumi
                             throw new ArgumentException($"Method '{m}' of class '{type}': first parameter has to be PolicyManager");
                         }
 
-                        var annotation = classForResource.GetCustomAttribute<PolicyResourceTypeAttribute>();
-                        if (annotation == null || classForResource != typeForResource)
+                        var annotation = typeForResource.GetCustomAttribute<PolicyResourceTypeAttribute>();
+                        if (annotation == null || !typeof(PolicyResource).IsAssignableFrom(typeForResource))
                         {
                             throw new ArgumentException($"Method '{m}' of class '{type}': second parameter has to be a subclass of Pulumi PolicyResource");
                         }
 
-                        resourcePolicies.Add(new PolicyForResource(annotationResource, m, annotation.Type, classForResource));
+                        resourcePolicies.Add(new PolicyForResource(annotationResource, m, annotation.Type, typeForResource));
                     }
 
                     var annotationStack = m.GetCustomAttribute<PolicyPackStackAttribute>();

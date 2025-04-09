@@ -169,11 +169,6 @@ namespace Pulumi
     public class PolicyPackResourceAttribute : Attribute
     {
         /// <summary>
-        /// The PolicyResource type this rule applies to.
-        /// </summary>
-        public Type Target { get; }
-
-        /// <summary>
         /// The name of the Policy rule.
         /// </summary>
         public string Name { get; }
@@ -188,9 +183,8 @@ namespace Pulumi
         /// </summary>
         public EnforcementLevel EnforcementLevel { get; }
 
-        public PolicyPackResourceAttribute(Type target, string name, string description, EnforcementLevel enforcementLevel)
+        public PolicyPackResourceAttribute(string name, string description, EnforcementLevel enforcementLevel)
         {
-            Target = target;
             Name = name;
             Description = description;
             EnforcementLevel = enforcementLevel;

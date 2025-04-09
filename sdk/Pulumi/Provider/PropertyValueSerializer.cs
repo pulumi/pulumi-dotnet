@@ -476,7 +476,7 @@ namespace Pulumi.Experimental.Provider
                 var inputDictionaryType = typeof(Input<>).MakeGenericType(dictionaryType);
                 var inputDictionary = DeserializeValue(value, inputDictionaryType, path);
 
-                var ctor = targetType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, new Type[]{inputDictionaryType});
+                var ctor = targetType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, new Type[] { inputDictionaryType });
                 if (ctor == null)
                 {
                     throw new InvalidOperationException(

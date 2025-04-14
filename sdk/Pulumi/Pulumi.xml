@@ -1995,6 +1995,11 @@
             associated with a Resource.
             </summary>
         </member>
+        <member name="T:Pulumi.UndeferrableValueException">
+            <summary>
+            UndeferrableValueException is raised when accessing a PolicyResource property that has an unknown value.
+            </summary>
+        </member>
         <member name="T:Pulumi.Log">
             <summary>
             Logging functions that can be called from a .NET application that will be logged to the
@@ -2361,11 +2366,21 @@
         </member>
         <member name="T:Pulumi.PolicyResource">
             <summary>
-            PolicyResource represents a class whose CRUD operations are implemented by a provider plugin.
+            PolicyResource represents the base class for all policy packs objects.
             </summary>
         </member>
         <member name="M:Pulumi.PolicyResource.CheckSpecialStruct(Google.Protobuf.WellKnownTypes.Value,System.String@)">
             @return signature of the special Struct or empty if not a special Struct
+        </member>
+        <member name="T:Pulumi.PolicyResourceInput">
+            <summary>
+            PolicyResourceInput represents the common class for all Policy Pack Input states.
+            </summary>
+        </member>
+        <member name="T:Pulumi.PolicyResourceOutput">
+            <summary>
+            PolicyResourceInput represents the common class for all Policy Pack Output states.
+            </summary>
         </member>
         <member name="T:Pulumi.ProviderResource">
             <summary>
@@ -2920,6 +2935,16 @@
             </summary>
         </member>
         <member name="P:Pulumi.PolicyResourceTypeAttribute.Version">
+            <summary>
+            The version of the PolicyResource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.PolicyResourcePropertyAttribute.Name">
+            <summary>
+            The token of the PolicyResource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.PolicyResourcePropertyAttribute.Flag">
             <summary>
             The version of the PolicyResource.
             </summary>

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -274,7 +275,7 @@ namespace Pulumi.Analyzer
 
                 foreach (var pack in PolicyPackages.Get())
                 {
-                    if (pack.ResourcePolicies.TryGetValue(resourceType, out var policy))
+                    if (pack.ResourcePolicyInputs.TryGetValue(resourceType, out var policy))
                     {
                         var manager = new PolicyManagerDelegator(description =>
                             {
@@ -294,9 +295,26 @@ namespace Pulumi.Analyzer
                             urn => null
                         );
 
-                        var resourceArgs = PolicyResource.Deserialize(request.Properties, policy.ResourceClass);
+                        try
+                        {
+                            var resourceArgs = PolicyResource.Deserialize(request.Properties, policy.ResourceClass, true);
 
-                        policy.Target.Invoke(null, new[] { manager, resourceArgs });
+                            Invoke(() => policy.Target.Invoke(null, new[] { manager, resourceArgs }));
+                        }
+                        catch (UndeferrableValueException e)
+                        {
+                            var diag = new AnalyzeDiagnostic
+                            {
+                                EnforcementLevel = policy.Annotation.EnforcementLevelForRpc,
+                                PolicyPackName = pack.Annotation.Name,
+                                PolicyPackVersion = pack.Annotation.Version,
+                                PolicyName = policy.Annotation.Name,
+                                Description = policy.Annotation.Description,
+                                Urn = request.Urn,
+                                Message = $"can't run policy during preview: {e.Message}",
+                            };
+                            response.Diagnostics.Add(diag);
+                        }
                     }
                 }
 
@@ -314,27 +332,54 @@ namespace Pulumi.Analyzer
                 {
                     if (pack.StackPolicy != null)
                     {
-                        // var manager = new PolicyManagerDelegator(description =>
-                        //     {
-                        //         var diag = new AnalyzeDiagnostic
-                        //         {
-                        //             EnforcementLevel = policy.Annotation.EnforcementLevelForRpc,
-                        //             PolicyPackName = pack.Annotation.Name,
-                        //             PolicyPackVersion = pack.Annotation.Version,
-                        //             PolicyName = policy.Annotation.Name,
-                        //             Description = policy.Annotation.Description,
-                        //             Urn = request.Urn,
-                        //             Message = description,
-                        //         };
-                        //         response.Diagnostics.Add(diag);
-                        //     },
-                        //     (description, involved) => { },
-                        //     urn => null
-                        // );
-                        //
-                        // var resourceArgs = PolicyResource.Deserialize(request.Properties, policy.ResourceClass);
-                        //
-                        // policy.Target.Invoke(null, new[] { manager, resourceArgs });
+                        var manager = new PolicyManagerDelegator(description =>
+                            {
+                                var diag = new AnalyzeDiagnostic
+                                {
+                                    PolicyPackName = pack.Annotation.Name,
+                                    PolicyPackVersion = pack.Annotation.Version,
+                                    PolicyName = pack.StackPolicy.Annotation.Name,
+                                    EnforcementLevel = pack.StackPolicy.Annotation.EnforcementLevelForRpc,
+                                    Description = pack.StackPolicy.Annotation.Description,
+                                    Message = description,
+                                };
+                                response.Diagnostics.Add(diag);
+                            },
+                            (description, involved) => { },
+                            urn => null
+                        );
+
+                        try
+                        {
+                            var resources = new List<PolicyResourceOutput>();
+
+                            foreach (var res in request.Resources)
+                            {
+                                var resourceClass = PolicyResourcePackages.ResolveOutputType(res.Type, "");
+                                if (resourceClass == null)
+                                {
+                                    continue;
+                                }
+
+                                var resourceArgs = (PolicyResourceOutput)PolicyResource.Deserialize(res.Properties, resourceClass, false);
+                                resources.Add(resourceArgs);
+                            }
+
+                            Invoke(() => pack.StackPolicy.Target.Invoke(null, new[] { manager, (object)resources }));
+                        }
+                        catch (UndeferrableValueException e)
+                        {
+                            var diag = new AnalyzeDiagnostic
+                            {
+                                EnforcementLevel = Pulumirpc.EnforcementLevel.Advisory,
+                                PolicyPackName = pack.Annotation.Name,
+                                PolicyPackVersion = pack.Annotation.Version,
+                                PolicyName = pack.StackPolicy.Annotation.Name,
+                                Description = pack.StackPolicy.Annotation.Description,
+                                Message = $"can't run policy during preview: {e.Message}",
+                            };
+                            response.Diagnostics.Add(diag);
+                        }
                     }
                 }
 
@@ -342,12 +387,21 @@ namespace Pulumi.Analyzer
             });
         }
 
+        private static void Invoke(Action runnable)
+        {
+            try
+            {
+                runnable();
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException ?? e;
+            }
+        }
+
         public override Task<RemediateResponse> Remediate(AnalyzeRequest request, ServerCallContext context)
         {
-            return WrapProviderCall(() =>
-            {
-                return Task.FromResult(new RemediateResponse());
-            });
+            return WrapProviderCall(() => { return Task.FromResult(new RemediateResponse()); });
         }
 
         public override Task<AnalyzerInfo> GetAnalyzerInfo(Empty request, ServerCallContext context)
@@ -362,11 +416,8 @@ namespace Pulumi.Analyzer
                         Version = pack.Annotation.Version,
                     };
 
-                    foreach (var entry in pack.ResourcePolicies)
+                    void AddEntry(PolicyForResource value)
                     {
-                        var key = entry.Key;
-                        var value = entry.Value;
-
                         var policyInfo = new PolicyInfo
                         {
                             Name = value.Annotation.Name,
@@ -375,6 +426,16 @@ namespace Pulumi.Analyzer
                         };
 
                         analyzerInfo.Policies.Add(policyInfo);
+                    }
+
+                    foreach (var entry in pack.ResourcePolicyInputs.Values)
+                    {
+                        AddEntry(entry);
+                    }
+
+                    foreach (var entry in pack.ResourcePolicyOutputs.Values)
+                    {
+                        AddEntry(entry);
                     }
 
                     return Task.FromResult(analyzerInfo);

@@ -145,6 +145,26 @@ namespace Pulumi
         }
     }
 
+    [AttributeUsage(AttributeTargets.Field)]
+    public class PolicyResourcePropertyAttribute : Attribute
+    {
+        /// <summary>
+        /// The token of the PolicyResource.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// The version of the PolicyResource.
+        /// </summary>
+        public string Flag { get; }
+
+        public PolicyResourcePropertyAttribute(string name, string flag)
+        {
+            Name = name;
+            Flag = flag;
+        }
+    }
+
     [AttributeUsage(AttributeTargets.Class)]
     public class PolicyPackTypeAttribute : Attribute
     {

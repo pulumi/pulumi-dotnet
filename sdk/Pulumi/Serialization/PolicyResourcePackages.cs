@@ -50,21 +50,30 @@ namespace Pulumi
     {
         public PolicyPackTypeAttribute Annotation { get; }
         public PolicyForStack? StackPolicy { get; }
-        public ImmutableDictionary<String, PolicyForResource> ResourcePolicies { get; }
+        public ImmutableDictionary<String, PolicyForResource> ResourcePolicyInputs { get; }
+        public ImmutableDictionary<String, PolicyForResource> ResourcePolicyOutputs { get; }
 
         public PolicyPack(PolicyPackTypeAttribute annotation,
             PolicyForStack? stackPolicy,
-            List<PolicyForResource> resourcePolicies)
+            List<PolicyForResource> resourcePolicyInputs,
+            List<PolicyForResource> resourcePolicyOutputs)
         {
-            var map = new Dictionary<string, PolicyForResource>();
-            foreach (var policy in resourcePolicies)
+            var mapInputs = new Dictionary<string, PolicyForResource>();
+            foreach (var policy in resourcePolicyInputs)
             {
-                map[policy.Type] = policy;
+                mapInputs[policy.Type] = policy;
+            }
+
+            var mapOutputs = new Dictionary<string, PolicyForResource>();
+            foreach (var policy in resourcePolicyOutputs)
+            {
+                mapOutputs[policy.Type] = policy;
             }
 
             this.Annotation = annotation;
             this.StackPolicy = stackPolicy;
-            this.ResourcePolicies = map.ToImmutableDictionary();
+            this.ResourcePolicyInputs = mapInputs.ToImmutableDictionary();
+            this.ResourcePolicyOutputs = mapOutputs.ToImmutableDictionary();
         }
     }
 
@@ -94,7 +103,8 @@ namespace Pulumi
                 var attr = pair.attr;
 
                 PolicyForStack? stackPolicy = null;
-                List<PolicyForResource> resourcePolicies = new();
+                List<PolicyForResource> resourcePolicyInputs = new();
+                List<PolicyForResource> resourcePolicyOutputs = new();
 
                 foreach (var m in type.GetMethods())
                 {
@@ -121,12 +131,23 @@ namespace Pulumi
                         }
 
                         var annotation = typeForResource.GetCustomAttribute<PolicyResourceTypeAttribute>();
-                        if (annotation == null || !typeof(PolicyResource).IsAssignableFrom(typeForResource))
+                        if (annotation == null)
                         {
                             throw new ArgumentException($"Method '{m}' of class '{type}': second parameter has to be a subclass of Pulumi PolicyResource");
                         }
 
-                        resourcePolicies.Add(new PolicyForResource(annotationResource, m, annotation.Type, typeForResource));
+                        if (typeof(PolicyResourceInput).IsAssignableFrom(typeForResource))
+                        {
+                            resourcePolicyInputs.Add(new PolicyForResource(annotationResource, m, annotation.Type, typeForResource));
+                        }
+                        else if (typeof(PolicyResourceOutput).IsAssignableFrom(typeForResource))
+                        {
+                            resourcePolicyOutputs.Add(new PolicyForResource(annotationResource, m, annotation.Type, typeForResource));
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Method '{m}' of class '{type}': second parameter has to be a subclass of Pulumi PolicyResource");
+                        }
                     }
 
                     var annotationStack = m.GetCustomAttribute<PolicyPackStackAttribute>();
@@ -152,7 +173,7 @@ namespace Pulumi
                             throw new ArgumentException($"Method '{m}' of class '{type}': first parameter has to be PolicyManager");
                         }
 
-                        if (!typeForResources.IsAssignableFrom(typeof(List<PolicyResource>)))
+                        if (!typeForResources.IsAssignableFrom(typeof(List<PolicyResourceOutput>)))
                         {
                             throw new ArgumentException($"Method '{m}' of class '{type}': second parameter has to be List<PolicyResource>");
                         }
@@ -166,9 +187,9 @@ namespace Pulumi
                     }
                 }
 
-                if (stackPolicy != null || resourcePolicies.Count > 0)
+                if (stackPolicy != null || resourcePolicyInputs.Count > 0 || resourcePolicyOutputs.Count > 0)
                 {
-                    res.Add(new PolicyPack(pair.attr, stackPolicy, resourcePolicies));
+                    res.Add(new PolicyPack(pair.attr, stackPolicy, resourcePolicyInputs, resourcePolicyOutputs));
                 }
             }
 

@@ -1,8 +1,9 @@
-// Copyright 2016-2019, Pulumi Corporation
+// Copyright 2016-2025, Pulumi Corporation
 
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Reflection;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
@@ -25,196 +26,214 @@ namespace Pulumi
     }
 
     /// <summary>
-    /// PolicyResource represents a class whose CRUD operations are implemented by a provider plugin.
+    /// PolicyResource represents the base class for all policy packs objects.
     /// </summary>
     public abstract class PolicyResource
     {
-        public static object Deserialize(Struct args, System.Type type)
+        internal class ValueAndFlag
         {
-            object? result = null;
+            internal readonly FieldInfo Value;
+            internal readonly FieldInfo Flag;
 
-            foreach (var constructor in type.GetConstructors())
+            internal ValueAndFlag(FieldInfo value, FieldInfo flag)
             {
-                var parameters = constructor.GetParameters();
-                if (parameters.Length == 0)
+                this.Value = value;
+                this.Flag = flag;
+            }
+        }
+
+        internal class DeserializedValue
+        {
+            internal static readonly DeserializedValue Empty = new DeserializedValue();
+
+            internal readonly object? Value;
+            internal readonly bool Unknown;
+
+            internal DeserializedValue()
+            {
+                Value = null;
+                Unknown = true;
+            }
+
+            internal DeserializedValue(object? value)
+            {
+                Value = value;
+                Unknown = false;
+            }
+        }
+
+        private static readonly ConcurrentDictionary<System.Type, Dictionary<String, ValueAndFlag>> _sLookupFields = new();
+
+        private static T CreateInstance<T>(System.Type t, params object?[]? args)
+        {
+            return (T)(Activator.CreateInstance(t, args) ?? throw new ArgumentException($"Cannot create instance of type {t.Name}."));
+        }
+
+        private static Dictionary<String, ValueAndFlag> GetFieldsMapping(System.Type t)
+        {
+            if (!_sLookupFields.TryGetValue(t, out var res))
+            {
+                res = new Dictionary<string, ValueAndFlag>();
+
+                var fieldLookup = new Dictionary<String, FieldInfo>();
+
+                foreach (var field in t.GetFields(BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic))
                 {
-                    result = constructor.Invoke(null);
-                    break;
+                    fieldLookup[field.Name] = field;
                 }
-            }
 
-            if (result == null)
-            {
-                throw new ArgumentException($"Cannot create instance of type {type.Name}.");
-            }
-
-            var map = new Dictionary<string, FieldInfo>();
-
-            foreach (var field in type.GetFields())
-            {
-                foreach (var attr in field.GetCustomAttributes())
+                foreach (var field in fieldLookup.Values)
                 {
-                    if (attr is InputAttribute attr2)
+                    foreach (var attr in field.GetCustomAttributes())
                     {
-                        map.Add(attr2.Name, field);
+                        if (attr is PolicyResourcePropertyAttribute attr2)
+                        {
+                            var entry = new ValueAndFlag(field, fieldLookup[attr2.Flag]);
+                            res.Add(attr2.Name, entry);
+                        }
                     }
                 }
+
+                _sLookupFields[t] = res;
             }
+
+            return res;
+        }
+
+        public static object Deserialize(Struct args, System.Type type, bool asInput)
+        {
+            object result = CreateInstance<object>(type);
+
+            var map = GetFieldsMapping(type);
 
             foreach (var entry in args.Fields)
             {
-                if (!map.TryGetValue(entry.Key, out var field))
+                if (!map.TryGetValue(entry.Key, out var pair))
                 {
                     // Ignore missing fields
                     continue;
                 }
 
-                var fieldFieldType = field.FieldType;
-                var valueData = DeserializeInner(entry.Value, fieldFieldType);
-                if (valueData is String valueAsStr && fieldFieldType != typeof(string))
-                {
-                    var value = (Value)JsonParser.Default.Parse(valueAsStr, Value.Descriptor);
-                    valueData = DeserializeInner(value, fieldFieldType);
-                }
+                // var fieldFieldType = field.FieldType;
 
-                if (valueData != null)
-                {
-                    field.SetValue(result, valueData);
-                }
+                var valueData = DeserializeInner(entry.Value, pair.Value.FieldType, asInput);
+                pair.Value.SetValue(result, valueData.Value);
+                pair.Flag.SetValue(result, valueData.Unknown);
             }
 
             return result;
         }
 
-        public static object? DeserializeInner(Value value, System.Type type)
+        private static DeserializedValue DeserializeInner(Value value, System.Type type, bool asInput)
         {
-            return DeserializeCore(value, v =>
+            value = UnwrapSecret(value);
+
+            if (value.KindCase == Value.KindOneofCase.StringValue)
             {
-                switch (v.KindCase)
+                if (value.StringValue == Constants.UnknownValue)
                 {
-                    case Value.KindOneofCase.NumberValue:
-                        return DeserializeDouble(v);
-
-                    case Value.KindOneofCase.StringValue:
-                        return DeserializeString(v);
-
-                    case Value.KindOneofCase.BoolValue:
-                        return DeserializeBoolean(v);
-
-                    case Value.KindOneofCase.StructValue:
-                        return DeserializeStruct(v, type.GetElementType() ?? throw new InvalidOperationException());
-
-                    case Value.KindOneofCase.ListValue:
-                        return DeserializeList(v, type.GetElementType() ?? throw new InvalidOperationException());
-
-                    case Value.KindOneofCase.NullValue:
-                        return null;
-
-                    case Value.KindOneofCase.None:
-                        throw new NotSupportedException("Should never get 'None' type when deserializing protobuf");
-                    default:
-                        throw new NotSupportedException($"Unknown type when deserializing protobuf: {v.KindCase}");
+                    // Always deserialize unknown as the empty value.
+                    return DeserializedValue.Empty;
                 }
-            });
-        }
 
-        private static object? DeserializeCore(Value maybeSecret, Func<Value, object?> func)
-        {
-            var value = UnwrapSecret(maybeSecret);
-
-            if (value is { KindCase: Value.KindOneofCase.StringValue, StringValue: Constants.UnknownValue })
-            {
-                // always deserialize unknown as the null value.
-                return null;
+                if (type != typeof(string))
+                {
+                    value = (Value)JsonParser.Default.Parse(value.StringValue, Value.Descriptor);
+                }
             }
 
             if (TryDeserializeAssetOrArchive(value, out var assetOrArchive))
             {
-                return assetOrArchive;
+                return new DeserializedValue(assetOrArchive);
             }
 
-            if (TryDeserializeResource(value, out var resource))
+            if (TryDeserializeResource(value, asInput, out var resource))
             {
-                return resource;
+                return new DeserializedValue(resource);
             }
 
-            return func.Invoke(value);
-        }
-
-        private static bool DeserializeBoolean(Value value)
-        {
-            return (bool)(deserializeOneOf(value, Value.KindOneofCase.BoolValue, v => value.BoolValue) ?? throw new InvalidOperationException());
-        }
-
-        private static string DeserializeString(Value value)
-        {
-            return (string)(deserializeOneOf(value, Value.KindOneofCase.StringValue, v => value.StringValue) ?? throw new InvalidOperationException());
-        }
-
-        private static double DeserializeDouble(Value value)
-        {
-            return (double)(deserializeOneOf(value, Value.KindOneofCase.NumberValue, v => value.NumberValue) ?? throw new InvalidOperationException());
-        }
-
-        private static object? DeserializeList(Value value, System.Type type)
-        {
-            return deserializeOneOf(value, Value.KindOneofCase.ListValue, v =>
+            switch (value.KindCase)
             {
-                var result = new List<object?>(); // will hold nulls
+                case Value.KindOneofCase.NumberValue:
+                    return new DeserializedValue(value.NumberValue);
 
-                foreach (var element in v.ListValue.Values)
+                case Value.KindOneofCase.StringValue:
+                    return new DeserializedValue(value.StringValue);
+
+                case Value.KindOneofCase.BoolValue:
+                    return new DeserializedValue(value.BoolValue);
+
+                case Value.KindOneofCase.StructValue:
                 {
-                    result.Add(DeserializeInner(element, type));
+                    var structValue = value.StructValue;
+
+                    if (typeof(IDictionary).IsAssignableFrom(type))
+                    {
+                        var subType = type.GenericTypeArguments[1] ?? throw new InvalidOperationException();
+
+                        var result = CreateInstance<IDictionary>(type);
+
+                        foreach (var entry in structValue.Fields)
+                        {
+                            var key = entry.Key;
+                            var element = entry.Value;
+
+                            // Unilaterally skip properties considered internal by the Pulumi engine.
+                            // These don't actually contribute to the exposed shape of the object, do
+                            // not need to be passed back to the engine, and often will not match the
+                            // expected type we are deserializing into.
+                            if (key.StartsWith("__", StringComparison.Ordinal))
+                            {
+                                continue;
+                            }
+
+                            var elementData = DeserializeInner(element, subType, asInput);
+                            if (elementData.Unknown || elementData.Value == null)
+                            {
+                                continue; // skip null early, because most collections cannot handle null values
+                            }
+
+                            result[key] = elementData.Value;
+                        }
+
+                        return new DeserializedValue(result);
+                    }
+                    else
+                    {
+                        var obj = Deserialize(structValue, type, asInput);
+                        return new DeserializedValue(obj);
+                    }
                 }
 
-                return result;
-            });
-        }
-
-        private static object? DeserializeStruct(Value value, System.Type type)
-        {
-            return deserializeOneOf(value, Value.KindOneofCase.StructValue, v =>
-            {
-                var result = new Dictionary<string, object>();
-
-                foreach (var entry in v.StructValue.Fields)
+                case Value.KindOneofCase.ListValue:
                 {
-                    var key = entry.Key;
-                    var element = entry.Value;
+                    var subType = type.GenericTypeArguments[0] ?? throw new InvalidOperationException();
 
-                    // Unilaterally skip properties considered internal by the Pulumi engine.
-                    // These don't actually contribute to the exposed shape of the object, do
-                    // not need to be passed back to the engine, and often will not match the
-                    // expected type we are deserializing into.
-                    if (key.StartsWith("__", StringComparison.Ordinal))
+                    var result = CreateInstance<IList>(type);
+
+                    foreach (var element in value.ListValue.Values)
                     {
-                        continue;
+                        var elementData = DeserializeInner(element, subType, asInput);
+                        if (elementData.Unknown)
+                        {
+                            // If any of the values in the list are unknown, the whole list is treated as unknown.
+                            return DeserializedValue.Empty;
+                        }
+
+                        result.Add(elementData.Value);
                     }
 
-                    var elementData = DeserializeInner(element, type);
-                    if (elementData == null)
-                    {
-                        continue; // skip null early, because most collections cannot handle null values
-                    }
-
-                    result[key] = elementData;
+                    return new DeserializedValue(result);
                 }
 
-                return result.ToImmutableDictionary();
-            });
-        }
+                case Value.KindOneofCase.NullValue:
+                    return new DeserializedValue(null);
 
-        private static object? deserializeOneOf(Value value, Value.KindOneofCase kind, Func<Value, object?> func)
-        {
-            return DeserializeCore(value, v =>
-            {
-                if (v.KindCase != kind)
-                {
-                    throw new NotSupportedException($"Trying to deserialize '{v.KindCase}' as a '{kind}'");
-                }
-
-                return func.Invoke(v);
-            });
+                case Value.KindOneofCase.None:
+                    throw new NotSupportedException("Should never get 'None' type when deserializing protobuf");
+                default:
+                    throw new NotSupportedException($"Unknown type when deserializing protobuf: {value.KindCase}");
+            }
         }
 
         private static Value UnwrapSecret(Value value)
@@ -339,7 +358,7 @@ namespace Pulumi
             throw new NotSupportedException("Value was marked as Asset, but did not conform to required shape.");
         }
 
-        private static bool TryDeserializeResource(Value value, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out PolicyResource? result)
+        private static bool TryDeserializeResource(Value value, bool asInput, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out PolicyResource? result)
         {
             var id = TryDecodingResourceIdentity(value);
             if (id == null)
@@ -348,13 +367,15 @@ namespace Pulumi
                 return false;
             }
 
-            var resourceClass = PolicyResourcePackages.ResolveType(id.Type, id.Version);
+            var resourceClass = asInput
+                ? PolicyResourcePackages.ResolveInputType(id.Type, id.Version)
+                : PolicyResourcePackages.ResolveOutputType(id.Type, id.Version);
             if (resourceClass == null)
             {
                 throw new NotSupportedException("Value was marked as a Resource, but did not map to any known resource type.");
             }
 
-            result = (PolicyResource)Deserialize(value.StructValue, resourceClass);
+            result = (PolicyResource)Deserialize(value.StructValue, resourceClass, asInput);
             return true;
         }
 
@@ -417,5 +438,19 @@ namespace Pulumi
         {
             return fields.Fields.TryGetValue(key, out result);
         }
+    }
+
+    /// <summary>
+    /// PolicyResourceInput represents the common class for all Policy Pack Input states.
+    /// </summary>
+    public abstract class PolicyResourceInput : PolicyResource
+    {
+    }
+
+    /// <summary>
+    /// PolicyResourceInput represents the common class for all Policy Pack Output states.
+    /// </summary>
+    public abstract class PolicyResourceOutput : PolicyResource
+    {
     }
 }

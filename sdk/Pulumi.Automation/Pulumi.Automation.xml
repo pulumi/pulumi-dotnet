@@ -1503,6 +1503,11 @@
             Format standard output as JSON not text.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.UpdateOptions.ConfigFile">
+            <summary>
+            Path to a YAML file containing stack configuration values.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.UpOptions">
             <summary>
             Options controlling the behavior of an <see cref="M:Pulumi.Automation.WorkspaceStack.UpAsync(Pulumi.Automation.UpOptions,System.Threading.CancellationToken)"/> operation.

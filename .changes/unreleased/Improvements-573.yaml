@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Adds the `ConfigFile` option to all operation options in the Automation API (UpOptions, PreviewOptions, RefreshOptions, DestroyOptions) to support specifyin
+time: 2025-04-15T13:27:42.162596701-05:00
+custom:
+    PR: "573"

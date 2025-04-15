@@ -1079,6 +1079,12 @@ namespace Pulumi.Automation
             {
                 args.Add("--json");
             }
+
+            if (!string.IsNullOrWhiteSpace(options.ConfigFile))
+            {
+                args.Add("--config-file");
+                args.Add(options.ConfigFile);
+            }
         }
 
         private bool Remote

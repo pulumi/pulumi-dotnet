@@ -71,5 +71,10 @@ namespace Pulumi.Automation
         /// Format standard output as JSON not text.
         /// </summary>
         public bool? Json { get; set; }
+
+        /// <summary>
+        /// Path to a YAML file containing stack configuration values.
+        /// </summary>
+        public string? ConfigFile { get; set; }
     }
 }

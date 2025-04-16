@@ -6,12 +6,11 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<PropertyGroup>
-		<RestoreSources>ROOT/artifacts/ANamespace.Namespaced;ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Component;$(RestoreSources)</RestoreSources>
+		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Simple;$(RestoreSources)</RestoreSources>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Pulumi.Component" Version="13.3.7" />
-		<PackageReference Include="ANamespace.Namespaced" Version="16.0.0" />
 		<PackageReference Include="Pulumi" Version="1.0.0" />
+		<PackageReference Include="Pulumi.Simple" Version="2.0.0" />
 	</ItemGroup>
 
 </Project>

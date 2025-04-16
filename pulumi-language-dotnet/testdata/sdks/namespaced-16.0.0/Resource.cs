@@ -13,6 +13,9 @@ namespace ANamespace.Namespaced
     [NamespacedResourceType("namespaced:index:Resource")]
     public partial class Resource : global::Pulumi.CustomResource
     {
+        [Output("resourceRef")]
+        public Output<Pulumi.Component.Custom?> ResourceRef { get; private set; } = null!;
+
         [Output("value")]
         public Output<bool> Value { get; private set; } = null!;
 
@@ -61,6 +64,9 @@ namespace ANamespace.Namespaced
 
     public sealed class ResourceArgs : global::Pulumi.ResourceArgs
     {
+        [Input("resourceRef")]
+        public Input<Pulumi.Component.Custom>? ResourceRef { get; set; }
+
         [Input("value", required: true)]
         public Input<bool> Value { get; set; } = null!;
 

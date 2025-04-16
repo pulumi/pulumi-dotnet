@@ -5579,7 +5579,7 @@
         </member>
         <member name="P:Pulumirpc.RunRequest.QueryMode">
             <summary>
-            True if and only if we are only performing a query.
+            This is deprecated, query mode is no longer a supported feature. 
             </summary>
         </member>
         <member name="F:Pulumirpc.RunRequest.ConfigSecretKeysFieldNumber">
@@ -9251,16 +9251,6 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
-        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.StreamInvoke(Pulumirpc.InvokeRequest,Grpc.Core.IServerStreamWriter{Pulumirpc.InvokeResponse},Grpc.Core.ServerCallContext)">
-            <summary>
-            StreamInvoke dynamically executes a built-in function in the provider, which returns a stream
-            of responses.
-            </summary>
-            <param name="request">The request received from the client.</param>
-            <param name="responseStream">Used for sending responses back to the client.</param>
-            <param name="context">The context of the server-side call handler being invoked.</param>
-            <returns>A task indicating completion of the handler.</returns>
-        </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.Call(Pulumirpc.CallRequest,Grpc.Core.ServerCallContext)">
             <summary>
             Call dynamically executes a method in the provider associated with a component resource.
@@ -10025,26 +10015,6 @@
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.InvokeAsync(Pulumirpc.InvokeRequest,Grpc.Core.CallOptions)">
             <summary>
             Invoke dynamically executes a built-in function in the provider.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The call object.</returns>
-        </member>
-        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.StreamInvoke(Pulumirpc.InvokeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            StreamInvoke dynamically executes a built-in function in the provider, which returns a stream
-            of responses.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The call object.</returns>
-        </member>
-        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.StreamInvoke(Pulumirpc.InvokeRequest,Grpc.Core.CallOptions)">
-            <summary>
-            StreamInvoke dynamically executes a built-in function in the provider, which returns a stream
-            of responses.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>

@@ -31,7 +31,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RestoreSources>ROOT/artifacts/Pulumi;$(RestoreSources)</RestoreSources>
+    <RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Component;$(RestoreSources)</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Pulumi" Version="1.0.0" />
+    <PackageReference Include="Pulumi.Component" Version="13.3.7" ExcludeAssets="contentFiles" />
   </ItemGroup>
 
   <ItemGroup>

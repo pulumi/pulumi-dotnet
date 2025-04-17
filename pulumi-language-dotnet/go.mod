@@ -8,6 +8,8 @@ replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.5.0
 
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 
+replace github.com/atotto/clipboard => github.com/tgummerer/clipboard v0.0.0-20241001131231-d02d263e614e
+
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/pkg/errors v0.9.1

@@ -35,6 +35,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version"
 	dotnetcodegen "github.com/pulumi/pulumi/pkg/v3/codegen/dotnet"
+	hclsyntax "github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/syntax"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/pcl"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
@@ -1267,6 +1268,63 @@ func (host *dotnetLanguageHost) GenerateProject(
 	}
 
 	return &pulumirpc.GenerateProjectResponse{
+		Diagnostics: rpcDiagnostics,
+	}, nil
+}
+
+func (host *dotnetLanguageHost) GenerateProgram(
+	ctx context.Context, req *pulumirpc.GenerateProgramRequest,
+) (*pulumirpc.GenerateProgramResponse, error) {
+	loader, err := schema.NewLoaderClient(req.LoaderTarget)
+	if err != nil {
+		return nil, err
+	}
+	defer loader.Close()
+
+	parser := hclsyntax.NewParser()
+	// Load all .pp files in the directory
+	for path, contents := range req.Source {
+		err = parser.ParseFile(strings.NewReader(contents), path)
+		if err != nil {
+			return nil, err
+		}
+		diags := parser.Diagnostics
+		if diags.HasErrors() {
+			return nil, diags
+		}
+	}
+
+	bindOptions := []pcl.BindOption{
+		pcl.Loader(schema.NewCachedLoader(loader)),
+	}
+
+	if !req.Strict {
+		bindOptions = append(bindOptions, pcl.NonStrictBindOptions()...)
+	}
+
+	program, diags, err := pcl.BindProgram(parser.Files, bindOptions...)
+	if err != nil {
+		return nil, err
+	}
+
+	rpcDiagnostics := plugin.HclDiagnosticsToRPCDiagnostics(diags)
+	if diags.HasErrors() {
+		return &pulumirpc.GenerateProgramResponse{
+			Diagnostics: rpcDiagnostics,
+		}, nil
+	}
+	if program == nil {
+		return nil, errors.New("internal error program was nil")
+	}
+
+	files, diags, err := dotnetcodegen.GenerateProgram(program)
+	if err != nil {
+		return nil, err
+	}
+	rpcDiagnostics = append(rpcDiagnostics, plugin.HclDiagnosticsToRPCDiagnostics(diags)...)
+
+	return &pulumirpc.GenerateProgramResponse{
+		Source:      files,
 		Diagnostics: rpcDiagnostics,
 	}, nil
 }

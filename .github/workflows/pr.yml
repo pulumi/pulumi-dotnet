@@ -67,6 +67,19 @@ jobs:
         # in the pull request.
         run: make lint GOLANGCI_LINT_ARGS=--out-format=colored-line-number
 
+  lint-changelog:
+    name: Lint Changelog
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint changelog
+        run: |
+          # Check the changelog is batchable
+          if [ ! -z $(ls .changes/unreleased) ]; then
+              # There are changes so check changie will batch them
+              changie batch auto --dry-run
+          fi
+
   build:
     needs: setup_matrix
     strategy:

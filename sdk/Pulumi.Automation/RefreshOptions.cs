@@ -36,5 +36,10 @@ namespace Pulumi.Automation
         /// <see cref="PendingCreateValue"/> values to import into the stack
         /// </summary>
         public List<PendingCreateValue>? ImportPendingCreates { get; set; }
+
+        /// <summary>
+        /// Runs the program in the workspace to perform the refresh.
+        /// </summary>
+        public bool? RunProgram { get; set; }
     }
 }

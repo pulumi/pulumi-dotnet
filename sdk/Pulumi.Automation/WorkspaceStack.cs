@@ -603,6 +603,18 @@ namespace Pulumi.Automation
                     }
                 }
 
+                if (options.RunProgram is not null)
+                {
+                    if (options.RunProgram is true)
+                    {
+                        args.Add("--run-program=true");
+                    }
+                    else
+                    {
+                        args.Add("--run-program=false");
+                    }
+                }
+
                 ApplyUpdateOptions(options, args);
             }
 
@@ -654,6 +666,18 @@ namespace Pulumi.Automation
 
                 if (options.Refresh is true)
                     args.Add("--refresh");
+
+                if (options.RunProgram is not null)
+                {
+                    if (options.RunProgram is true)
+                    {
+                        args.Add("--run-program=true");
+                    }
+                    else
+                    {
+                        args.Add("--run-program=false");
+                    }
+                }
 
                 ApplyUpdateOptions(options, args);
             }

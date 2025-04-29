@@ -16,6 +16,8 @@ namespace Pulumi.Automation
 
         public List<string>? Replace { get; set; }
 
+        public bool? ExcludeDependents { get; set; }
+
         public bool? TargetDependents { get; set; }
 
         public PulumiFn? Program { get; set; }

@@ -18,6 +18,8 @@ namespace Pulumi.Automation
 
         public List<string>? Target { get; set; }
 
+        public List<string>? Exclude { get; set; }
+
         public List<string>? PolicyPacks { get; set; }
 
         public List<string>? PolicyPackConfigs { get; set; }

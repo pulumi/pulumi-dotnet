@@ -7,6 +7,8 @@ namespace Pulumi.Automation
     /// </summary>
     public sealed class DestroyOptions : UpdateOptions
     {
+        public bool? ExcludeDependents { get; set; }
+
         public bool? TargetDependents { get; set; }
 
         /// <summary>

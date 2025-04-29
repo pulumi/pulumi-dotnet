@@ -359,6 +359,9 @@ namespace Pulumi.Automation
                     }
                 }
 
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
+
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
 
@@ -479,6 +482,9 @@ namespace Pulumi.Automation
                         args.Add(item);
                     }
                 }
+
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
 
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
@@ -658,6 +664,9 @@ namespace Pulumi.Automation
 
             if (options != null)
             {
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
+
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
 
@@ -1037,6 +1046,15 @@ namespace Pulumi.Automation
             {
                 args.Add("--message");
                 args.Add(options.Message);
+            }
+
+            if (options.Exclude?.Any() == true)
+            {
+                foreach (var item in options.Exclude)
+                {
+                    args.Add("--exclude");
+                    args.Add(item);
+                }
             }
 
             if (options.Target?.Any() == true)

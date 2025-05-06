@@ -147,7 +147,7 @@ let buildLanguagePlugin() =
     cleanLanguagePlugin()
     let devVersion = getDevVersion()
     printfn $"Building pulumi-language-dotnet Plugin {devVersion}"
-    let ldflags = $"-ldflags \"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version.Version={devVersion}\""
+    let ldflags = $"-ldflags \"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version={devVersion}\""
     if Shell.Exec("go", $"build {ldflags}", pulumiLanguageDotnet) <> 0
     then failwith "Building pulumi-language-dotnet failed"
     let output = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")

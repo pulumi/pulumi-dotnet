@@ -1013,11 +1013,11 @@ namespace Pulumi.Automation
 
                 if (_remoteExecutorImage.credentials)
                 {
-                    args.Add("--remote-executor-image-username")
-                    args.Add(_remoteExecutorImage.credentials.username)
+                    args.Add("--remote-executor-image-username");
+                    args.Add(_remoteExecutorImage.credentials.username);
 
-                    args.Add("--remote-executor-image-password")
-                    args.Add(_remoteExecutorImage.credentials.password)
+                    args.Add("--remote-executor-image-password");
+                    args.Add(_remoteExecutorImage.credentials.password);
                 }
             }
 

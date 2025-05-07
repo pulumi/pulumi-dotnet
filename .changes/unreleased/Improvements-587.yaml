@@ -1,6 +1,6 @@
 component: sdk/auto
 kind: Improvements
-body: Expose `--remote-executor-*` flags in the Automation API.
+body: Expose `--remote-executor-*` flags in the Automation API
 time: 2025-05-06T15:07:46.076901+02:00
 custom:
     PR: "587"

@@ -85,6 +85,21 @@
             Runs the program in the workspace to perform the destroy.
             </summary>
         </member>
+        <member name="T:Pulumi.Automation.DockerImageCredentials">
+            <summary>
+            Credentials for the remote execution Docker image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.DockerImageCredentials.Username">
+            <summary>
+            The username for the image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.DockerImageCredentials.Password">
+            <summary>
+            The password for the image.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Events.CancelEvent">
             <summary>
             <see cref="T:Pulumi.Automation.Events.CancelEvent"/> is emitted when the user initiates a cancellation of the update in progress, or
@@ -374,6 +389,21 @@
              settings file found on disk.
             
              </summary>
+        </member>
+        <member name="T:Pulumi.Automation.ExecutorImage">
+            <summary>
+            Information about the remote execution image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.ExecutorImage.Image">
+            <summary>
+            The Docker image to use.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.ExecutorImage.Credentials">
+            <summary>
+            Credentials for the remote execution Docker image.
+            </summary>
         </member>
         <member name="T:Pulumi.Automation.HistoryOptions">
             <summary>
@@ -889,6 +919,11 @@
             An optional list of arbitrary commands to run before a remote Pulumi operation is invoked.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.LocalWorkspaceOptions.RemoteExecutorImage">
+            <summary>
+            Optional information about a remote execution image.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.LocalWorkspaceOptions.RemoteSkipInstallDependencies">
             <summary>
             Whether to skip the default dependency installation step.
@@ -1322,6 +1357,11 @@
         <member name="P:Pulumi.Automation.RemoteWorkspaceOptions.SkipInstallDependencies">
             <summary>
             Whether to skip the default dependency installation step.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RemoteWorkspaceOptions.ExecutorImage">
+            <summary>
+            Information about a remote execution image.
             </summary>
         </member>
         <member name="P:Pulumi.Automation.RemoteWorkspaceStack.Name">

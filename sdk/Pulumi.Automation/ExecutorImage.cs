@@ -7,6 +7,11 @@ namespace Pulumi.Automation
     /// </summary>
     public class ExecutorImage
     {
+        public ExecutorImage(string image)
+        {
+            this.Image = image;
+        }
+
         /// <summary>
         /// The Docker image to use.
         /// </summary>
@@ -15,6 +20,6 @@ namespace Pulumi.Automation
         /// <summary>
         /// Credentials for the remote execution Docker image.
         /// </summary>
-        public DockerImageCredentials? DockerImageCredentials { get; set; }
+        public DockerImageCredentials? Credentials { get; set; }
     }
 }

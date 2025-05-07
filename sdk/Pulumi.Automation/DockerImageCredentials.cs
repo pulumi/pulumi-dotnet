@@ -16,5 +16,11 @@ namespace Pulumi.Automation
         /// The password for the image.
         /// </summary>
         public string Password { get; set; }
+
+        public DockerImageCredentials(string username, string password)
+        {
+            this.Username = username;
+            this.Password = password;
+        }
     }
 }

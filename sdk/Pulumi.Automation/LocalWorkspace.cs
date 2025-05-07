@@ -1006,18 +1006,18 @@ namespace Pulumi.Automation
                 args.Add("--remote-skip-install-dependencies");
             }
 
-            if (_remoteExecutorImage)
+            if (_remoteExecutorImage != null)
             {
                 args.Add("--remote-executor-image");
-                args.Add(_remoteExecutorImage.image);
+                args.Add(_remoteExecutorImage.Image);
 
-                if (_remoteExecutorImage.credentials)
+                if (_remoteExecutorImage.Credentials != null)
                 {
                     args.Add("--remote-executor-image-username");
-                    args.Add(_remoteExecutorImage.credentials.username);
+                    args.Add(_remoteExecutorImage.Credentials.Username);
 
                     args.Add("--remote-executor-image-password");
-                    args.Add(_remoteExecutorImage.credentials.password);
+                    args.Add(_remoteExecutorImage.Credentials.Password);
                 }
             }
 

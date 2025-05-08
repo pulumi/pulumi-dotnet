@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: implement config options functionality
+time: 2025-05-08T10:49:51.83992634-05:00
+custom:
+    PR: "590"

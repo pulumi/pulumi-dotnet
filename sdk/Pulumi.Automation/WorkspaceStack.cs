@@ -1134,5 +1134,24 @@ namespace Pulumi.Automation
 
         private IReadOnlyList<string> GetRemoteArgs()
             => Workspace is LocalWorkspace localWorkspace ? localWorkspace.GetRemoteArgs() : Array.Empty<string>();
+
+        // Config options overloads
+        public Task<ConfigValue> GetConfigWithOptionsAsync(string key, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+            => this.Workspace.GetConfigWithOptionsAsync(this.Name, key, options, cancellationToken);
+
+        public Task SetConfigWithOptionsAsync(string key, ConfigValue value, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+            => this.Workspace.SetConfigWithOptionsAsync(this.Name, key, value, options, cancellationToken);
+
+        public Task RemoveConfigWithOptionsAsync(string key, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+            => this.Workspace.RemoveConfigWithOptionsAsync(this.Name, key, options, cancellationToken);
+
+        public Task<ImmutableDictionary<string, ConfigValue>> GetAllConfigWithOptionsAsync(GetAllConfigOptions? options = null, CancellationToken cancellationToken = default)
+            => this.Workspace.GetAllConfigWithOptionsAsync(this.Name, options, cancellationToken);
+
+        public Task SetAllConfigWithOptionsAsync(IDictionary<string, ConfigValue> configMap, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+            => this.Workspace.SetAllConfigWithOptionsAsync(this.Name, configMap, options, cancellationToken);
+
+        public Task RemoveAllConfigWithOptionsAsync(IEnumerable<string> keys, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+            => this.Workspace.RemoveAllConfigWithOptionsAsync(this.Name, keys, options, cancellationToken);
     }
 }

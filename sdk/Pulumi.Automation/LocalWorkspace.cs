@@ -1040,5 +1040,198 @@ namespace Pulumi.Automation
             }
         }
 
+        // Config options overloads
+        public override async Task<ConfigValue> GetConfigWithOptionsAsync(string stackName, string key, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var args = new List<string> { "config", "get", key, "--json", "--stack", stackName };
+            if (options != null)
+            {
+                if (options.Path) args.Add("--path");
+                if (!string.IsNullOrEmpty(options.ConfigFile)) { args.Add("--config-file"); args.Add(options.ConfigFile!); }
+                // Note: --show-secrets flag is not supported for 'config get' command,
+                // it's only for 'config' command (get all)
+            }
+            var result = await this.RunCommandAsync(args, null, null, null, null, cancellationToken).ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(result.StandardOutput))
+            {
+                return new ConfigValue(string.Empty);
+            }
+
+            try
+            {
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                // Try deserializing as ConfigValue object with value/secret properties
+                var configValue = System.Text.Json.JsonSerializer.Deserialize<ConfigValueModel>(
+                    result.StandardOutput, jsonOptions);
+
+                if (configValue != null)
+                {
+                    return new ConfigValue(configValue.Value ?? string.Empty, configValue.Secret);
+                }
+
+                // If that fails, might be a plain string value
+                return new ConfigValue(result.StandardOutput.Trim('"'));
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // If JSON parsing fails, return the raw value trimmed
+                return new ConfigValue(result.StandardOutput.Trim());
+            }
+        }
+
+        // Helper class to deserialize JSON response from pulumi config get --json
+        private class ConfigValueModel
+        {
+            public string? Value { get; set; }
+            public bool Secret { get; set; }
+        }
+
+        public override async Task SetConfigWithOptionsAsync(string stackName, string key, ConfigValue value, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var args = new List<string> { "config", "set", key, value.Value, "--stack", stackName };
+            if (options != null)
+            {
+                if (options.Path) args.Add("--path");
+                if (!string.IsNullOrEmpty(options.ConfigFile)) { args.Add("--config-file"); args.Add(options.ConfigFile!); }
+            }
+            if (value.IsSecret) args.Add("--secret");
+            await this.RunCommandAsync(args, null, null, null, null, cancellationToken).ConfigureAwait(false);
+        }
+
+        public override async Task RemoveConfigWithOptionsAsync(string stackName, string key, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var args = new List<string> { "config", "rm", key, "--stack", stackName };
+            if (options != null)
+            {
+                if (options.Path) args.Add("--path");
+                if (!string.IsNullOrEmpty(options.ConfigFile)) { args.Add("--config-file"); args.Add(options.ConfigFile!); }
+            }
+            await this.RunCommandAsync(args, null, null, null, null, cancellationToken).ConfigureAwait(false);
+        }
+
+        public override async Task<ImmutableDictionary<string, ConfigValue>> GetAllConfigWithOptionsAsync(string stackName, GetAllConfigOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var args = new List<string> { "config", "--json", "--stack", stackName };
+            if (options != null)
+            {
+                if (options.Path) args.Add("--path");
+                if (!string.IsNullOrEmpty(options.ConfigFile)) { args.Add("--config-file"); args.Add(options.ConfigFile!); }
+                if (options.ShowSecrets) args.Add("--show-secrets");
+            }
+            var result = await this.RunCommandAsync(args, null, null, null, null, cancellationToken).ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(result.StandardOutput))
+            {
+                return ImmutableDictionary<string, ConfigValue>.Empty;
+            }
+
+            try
+            {
+                // Parse JSON response into Dictionary<string, JsonElement> first to handle various value types
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var configValues = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, System.Text.Json.JsonElement>>(
+                    result.StandardOutput, jsonOptions);
+
+                if (configValues == null)
+                {
+                    return ImmutableDictionary<string, ConfigValue>.Empty;
+                }
+
+                // Convert each entry to a ConfigValue
+                var builder = ImmutableDictionary.CreateBuilder<string, ConfigValue>();
+                foreach (var entry in configValues)
+                {
+                    if (entry.Value.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        // For secret values, look for a structure like {"value":"secretvalue","secret":true}
+                        var isSecret = false;
+                        var value = string.Empty;
+
+                        if (entry.Value.TryGetProperty("secret", out var secretProp) &&
+                            secretProp.ValueKind == System.Text.Json.JsonValueKind.True)
+                        {
+                            isSecret = true;
+                        }
+
+                        if (entry.Value.TryGetProperty("value", out var valueProp) &&
+                            valueProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
+                            value = valueProp.GetString() ?? string.Empty;
+                        }
+
+                        builder.Add(entry.Key, new ConfigValue(value, isSecret));
+                    }
+                    else if (entry.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                    {
+                        // Plain string value
+                        builder.Add(entry.Key, new ConfigValue(entry.Value.GetString() ?? string.Empty));
+                    }
+                    else
+                    {
+                        // Convert any other value to string
+                        builder.Add(entry.Key, new ConfigValue(entry.Value.ToString()));
+                    }
+                }
+
+                return builder.ToImmutable();
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                throw new InvalidOperationException($"Could not parse config values: {ex.Message}");
+            }
+        }
+
+        public override async Task SetAllConfigWithOptionsAsync(string stackName, IDictionary<string, ConfigValue> configMap, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            if (configMap == null || !configMap.Any())
+            {
+                return;
+            }
+
+            var args = new List<string> { "config", "set-all", "--stack", stackName };
+            if (options != null)
+            {
+                if (options.Path) args.Add("--path");
+                if (!string.IsNullOrEmpty(options.ConfigFile)) { args.Add("--config-file"); args.Add(options.ConfigFile!); }
+            }
+
+            // For each config value, add as either secret or plaintext
+            foreach (var kvp in configMap)
+            {
+                args.Add(kvp.Value.IsSecret ? "--secret" : "--plaintext");
+                args.Add($"{kvp.Key}={kvp.Value.Value}");
+            }
+
+            await this.RunCommandAsync(args, null, null, null, null, cancellationToken).ConfigureAwait(false);
+        }
+
+        public override async Task RemoveAllConfigWithOptionsAsync(string stackName, IEnumerable<string> keys, ConfigOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            if (keys == null || !keys.Any())
+            {
+                return;
+            }
+
+            var args = new List<string> { "config", "rm-all", "--stack", stackName };
+            if (options != null)
+            {
+                if (options.Path) args.Add("--path");
+                if (!string.IsNullOrEmpty(options.ConfigFile)) { args.Add("--config-file"); args.Add(options.ConfigFile!); }
+            }
+
+            // Add all keys to remove
+            args.AddRange(keys);
+
+            await this.RunCommandAsync(args, null, null, null, null, cancellationToken).ConfigureAwait(false);
+        }
     }
 }

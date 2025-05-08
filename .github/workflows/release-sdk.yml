@@ -44,7 +44,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
-        uses: pulumi/esc-action@v1
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
@@ -64,7 +64,7 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@9519177da243fd32cab35cdbf19cce1ab7472fcc # v6
+        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
         with:
           pulumi-version: latest
       - name: Build Pulumi SDK

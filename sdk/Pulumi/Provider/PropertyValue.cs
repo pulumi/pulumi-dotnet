@@ -24,9 +24,7 @@ namespace Pulumi.Experimental.Provider
 #pragma warning restore CA1720 // Identifier contains type name
         Asset,
         Archive,
-        Secret,
         Resource,
-        Output,
         Computed,
     }
 
@@ -73,74 +71,6 @@ namespace Pulumi.Experimental.Provider
         }
     }
 
-    public readonly struct OutputReference : IEquatable<OutputReference>
-    {
-        /// <summary>
-        /// The value of the output, if it is known. This will never be a `Computed` value as that's
-        /// equivilent to unknown and thus null.
-        /// </summary>
-        public PropertyValue? Value { get; }
-        public ImmutableHashSet<Urn> Dependencies { get; }
-
-        public OutputReference(PropertyValue? value, ImmutableHashSet<Urn> dependencies)
-        {
-            // Normalise `Computed` to null
-            if (value != null && value.IsComputed)
-            {
-                value = null;
-            }
-            Value = value;
-            Dependencies = dependencies;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Value, Dependencies);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is OutputReference reference)
-            {
-                return Equals(reference);
-            }
-            return false;
-        }
-
-        public bool Equals(OutputReference other)
-        {
-            if (!Dependencies.SetEquals(other.Dependencies))
-            {
-                return false;
-            }
-
-            if (Value == null && other.Value == null)
-            {
-                return true;
-            }
-            if (Value != null && other.Value != null)
-            {
-                return Value.Equals(other.Value);
-            }
-            return false;
-        }
-
-        public static bool operator ==(OutputReference left, OutputReference right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(OutputReference left, OutputReference right)
-        {
-            return !(left == right);
-        }
-
-        public override string ToString()
-        {
-            return $"Output({Value}, {Dependencies})";
-        }
-    }
-
     public sealed class PropertyValue : IEquatable<PropertyValue>
     {
         public PropertyValueType Type
@@ -175,17 +105,9 @@ namespace Pulumi.Experimental.Provider
                 {
                     return PropertyValueType.Archive;
                 }
-                else if (SecretValue != null)
-                {
-                    return PropertyValueType.Secret;
-                }
                 else if (ResourceValue != null)
                 {
                     return PropertyValueType.Resource;
-                }
-                else if (OutputValue != null)
-                {
-                    return PropertyValueType.Output;
                 }
                 else if (IsComputed)
                 {
@@ -196,26 +118,6 @@ namespace Pulumi.Experimental.Provider
                     return PropertyValueType.Null;
                 }
             }
-        }
-
-        // Unwraps any outer secret or output values.
-        public PropertyValue Unwrap()
-        {
-            if (SecretValue != null)
-            {
-                return SecretValue.Unwrap();
-            }
-            else if (OutputValue.HasValue)
-            {
-                var inner = OutputValue.Value.Value;
-                // Might be null which means this is unknown, translate that Computed
-                if (inner == null)
-                {
-                    return Computed;
-                }
-                return inner.Unwrap();
-            }
-            return this;
         }
 
         public bool IsNull
@@ -231,9 +133,7 @@ namespace Pulumi.Experimental.Provider
                     ObjectValue == null &&
                     AssetValue == null &&
                     ArchiveValue == null &&
-                    SecretValue == null &&
                     ResourceValue == null &&
-                    OutputValue == null &&
                     !IsComputed;
             }
         }
@@ -247,14 +147,25 @@ namespace Pulumi.Experimental.Provider
         private readonly ImmutableDictionary<string, PropertyValue>? ObjectValue;
         private readonly Asset? AssetValue;
         private readonly Archive? ArchiveValue;
-        private readonly PropertyValue? SecretValue;
         private readonly ResourceReference? ResourceValue;
-        private readonly OutputReference? OutputValue;
         private readonly bool _isComputed;
+
+        public bool IsSecret { get; init; }
+
+        public ImmutableHashSet<Urn> Dependencies { get; init; }
 
         public bool Equals(PropertyValue? other)
         {
             if (other == null)
+            {
+                return false;
+            }
+
+            if (IsSecret != other.IsSecret)
+            {
+                return false;
+            }
+            if (!Dependencies.SetEquals(other.Dependencies))
             {
                 return false;
             }
@@ -317,17 +228,9 @@ namespace Pulumi.Experimental.Provider
             {
                 return ArchiveValue.Equals(other.ArchiveValue);
             }
-            else if (SecretValue != null && other.SecretValue != null)
-            {
-                return SecretValue.Equals(other.SecretValue);
-            }
             else if (ResourceValue != null && other.ResourceValue != null)
             {
                 return ResourceValue.Equals(other.ResourceValue);
-            }
-            else if (OutputValue != null && other.OutputValue != null)
-            {
-                return OutputValue.Equals(other.OutputValue);
             }
             else if (IsComputed && other.IsComputed)
             {
@@ -352,22 +255,18 @@ namespace Pulumi.Experimental.Provider
 
         public override int GetHashCode()
         {
-            if (BoolValue != null) return BoolValue.GetHashCode();
-            if (NumberValue != null) return NumberValue.GetHashCode();
-            if (StringValue != null) return StringValue.GetHashCode();
-            if (ArrayValue != null) return ArrayValue.GetHashCode();
-            if (ObjectValue != null) return ObjectValue.GetHashCode();
-            if (AssetValue != null) return AssetValue.GetHashCode();
-            if (ArchiveValue != null) return ArchiveValue.GetHashCode();
-            if (SecretValue != null)
-            {
-                // So that this isn't just the same as the inner non-secret value
-                return HashCode.Combine(true, SecretValue);
-            }
-            if (ResourceValue != null) return ResourceValue.GetHashCode();
-            if (OutputValue != null) return OutputValue.GetHashCode();
-            if (IsComputed) return SpecialType.IsComputed.GetHashCode();
-            return SpecialType.IsNull.GetHashCode();
+            var hash = HashCode.Combine(IsSecret, Dependencies);
+
+            if (BoolValue != null) return HashCode.Combine(hash, BoolValue.GetHashCode());
+            if (NumberValue != null) return HashCode.Combine(hash, NumberValue.GetHashCode());
+            if (StringValue != null) return HashCode.Combine(hash, StringValue.GetHashCode());
+            if (ArrayValue != null) return HashCode.Combine(hash, ArrayValue.GetHashCode());
+            if (ObjectValue != null) return HashCode.Combine(hash, ObjectValue.GetHashCode());
+            if (AssetValue != null) return HashCode.Combine(hash, AssetValue.GetHashCode());
+            if (ArchiveValue != null) return HashCode.Combine(hash, ArchiveValue.GetHashCode());
+            if (ResourceValue != null) return HashCode.Combine(hash, ResourceValue.GetHashCode());
+            if (IsComputed) return HashCode.Combine(hash, SpecialType.IsComputed.GetHashCode());
+            return HashCode.Combine(hash, SpecialType.IsNull.GetHashCode());
         }
 
         public T Match<T>(
@@ -379,9 +278,7 @@ namespace Pulumi.Experimental.Provider
             Func<ImmutableDictionary<string, PropertyValue>, T> objectCase,
             Func<Asset, T> assetCase,
             Func<Archive, T> archiveCase,
-            Func<PropertyValue, T> secretCase,
             Func<ResourceReference, T> resourceCase,
-            Func<OutputReference, T> outputCase,
             Func<T> computedCase)
         {
             if (BoolValue != null) return boolCase(BoolValue.Value);
@@ -391,9 +288,7 @@ namespace Pulumi.Experimental.Provider
             if (ObjectValue != null) return objectCase(ObjectValue);
             if (AssetValue != null) return assetCase(AssetValue);
             if (ArchiveValue != null) return archiveCase(ArchiveValue);
-            if (SecretValue != null) return secretCase(SecretValue);
             if (ResourceValue != null) return resourceCase(ResourceValue.Value);
-            if (OutputValue != null) return outputCase(OutputValue.Value);
             if (IsComputed) return computedCase();
             return nullCase();
         }
@@ -475,17 +370,6 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        public bool TryGetSecret([NotNullWhen(true)] out PropertyValue? value)
-        {
-            if (SecretValue != null)
-            {
-                value = SecretValue;
-                return true;
-            }
-            value = default;
-            return false;
-        }
-
         public bool TryGetResource(out ResourceReference value)
         {
             if (ResourceValue != null)
@@ -497,20 +381,9 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        public bool TryGetOutput(out OutputReference value)
-        {
-            if (OutputValue != null)
-            {
-                value = OutputValue.Value;
-                return true;
-            }
-            value = default;
-            return false;
-        }
-
         public override string? ToString()
         {
-            return Match<string?>(
+            var val = Match<string?>(
                 () => "null",
                 b => b.ToString(),
                 n => n.ToString(CultureInfo.InvariantCulture),
@@ -519,11 +392,21 @@ namespace Pulumi.Experimental.Provider
                 o => "{" + String.Join(",", o.Select(i => i.Key + ":" + i.Value.ToString())) + "}",
                 asset => asset.ToString(),
                 archive => archive.ToString(),
-                s => "secret(" + s.ToString() + ")",
                 r => r.ToString(),
-                o => o.ToString(),
                 () => "{unknown}"
             );
+
+            if (IsSecret)
+            {
+                val = $"{val} (secret)";
+            }
+
+            if (!Dependencies.IsEmpty)
+            {
+                val = $"{val} (deps: {string.Join(", ", Dependencies.Select(d => d.ToString()))})";
+            }
+
+            return val;
         }
 
         private enum SpecialType
@@ -538,42 +421,50 @@ namespace Pulumi.Experimental.Provider
         public PropertyValue(bool value)
         {
             BoolValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
         public PropertyValue(double value)
         {
             NumberValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
         public PropertyValue(string value)
         {
             StringValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
         public PropertyValue(ImmutableArray<PropertyValue> value)
         {
             ArrayValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
         public PropertyValue(ImmutableDictionary<string, PropertyValue> value)
         {
             ObjectValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
         public PropertyValue(Asset value)
         {
             AssetValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
         public PropertyValue(Archive value)
         {
             ArchiveValue = value;
-        }
-        public PropertyValue(PropertyValue value)
-        {
-            SecretValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
         public PropertyValue(ResourceReference value)
         {
             ResourceValue = value;
-        }
-        public PropertyValue(OutputReference value)
-        {
-            OutputValue = value;
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
         }
 
         private PropertyValue(SpecialType type)
@@ -582,6 +473,34 @@ namespace Pulumi.Experimental.Provider
             {
                 _isComputed = true;
             }
+            IsSecret = false;
+            Dependencies = ImmutableHashSet<Urn>.Empty;
+        }
+
+        private PropertyValue(PropertyValue value, bool isSecret, ImmutableHashSet<Urn> dependencies)
+        {
+            IsSecret = isSecret;
+            Dependencies = dependencies;
+
+            BoolValue = value.BoolValue;
+            NumberValue = value.NumberValue;
+            StringValue = value.StringValue;
+            ArrayValue = value.ArrayValue;
+            ObjectValue = value.ObjectValue;
+            AssetValue = value.AssetValue;
+            ArchiveValue = value.ArchiveValue;
+            ResourceValue = value.ResourceValue;
+            _isComputed = value._isComputed;
+        }
+
+        public PropertyValue WithSecret(bool secret)
+        {
+            return new PropertyValue(this, secret, Dependencies);
+        }
+
+        public PropertyValue WithDependencies(ImmutableHashSet<Urn> dependencies)
+        {
+            return new PropertyValue(this, IsSecret, dependencies);
         }
 
         static bool TryGetStringValue(Google.Protobuf.Collections.MapField<string, Value> fields, string key, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? result)
@@ -648,7 +567,7 @@ namespace Pulumi.Experimental.Provider
                                         if (!structValue.Fields.TryGetValue(Constants.ValueName, out var secretValue))
                                             throw new InvalidOperationException("Secrets must have a field called 'value'");
 
-                                        return new PropertyValue(Unmarshal(secretValue));
+                                        return Unmarshal(secretValue).WithSecret(true);
                                     }
                                 case Constants.SpecialAssetSig:
                                     {
@@ -721,7 +640,7 @@ namespace Pulumi.Experimental.Provider
                                     }
                                 case Constants.SpecialOutputValueSig:
                                     {
-                                        PropertyValue? element = null;
+                                        PropertyValue element = Computed;
                                         if (structValue.Fields.TryGetValue(Constants.ValueName, out var knownElement))
                                         {
                                             element = Unmarshal(knownElement);
@@ -762,16 +681,7 @@ namespace Pulumi.Experimental.Provider
                                             }
                                         }
 
-                                        var output = new OutputReference(element, dependenciesBuilder.ToImmutable());
-
-                                        if (secret)
-                                        {
-                                            return new PropertyValue(new PropertyValue(output));
-                                        }
-                                        else
-                                        {
-                                            return new PropertyValue(output);
-                                        }
+                                        return element.WithDependencies(dependenciesBuilder.ToImmutable()).WithSecret(secret);
                                     }
 
                                 default:
@@ -849,30 +759,9 @@ namespace Pulumi.Experimental.Provider
             throw new InvalidOperationException("Internal error, AssetOrArchive was neither an Asset or Archive");
         }
 
-        private static Value MarshalOutput(OutputReference output, bool secret)
-        {
-            var result = new Struct();
-            result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialOutputValueSig);
-            if (output.Value != null)
-            {
-                result.Fields[Constants.ValueName] = Marshal(output.Value);
-            }
-
-            var dependencies = new Value[output.Dependencies.Count];
-            var i = 0;
-            foreach (var dependency in output.Dependencies)
-            {
-                dependencies[i++] = Value.ForString(dependency);
-            }
-            result.Fields[Constants.DependenciesName] = Value.ForList(dependencies);
-            result.Fields[Constants.SecretName] = Value.ForBool(secret);
-
-            return Value.ForStruct(result);
-        }
-
         internal static Value Marshal(PropertyValue value)
         {
-            return value.Match<Value>(
+            var val = value.Match<Value>(
                 () => Value.ForNull(),
                 b => Value.ForBool(b),
                 n => Value.ForNumber(n),
@@ -897,18 +786,6 @@ namespace Pulumi.Experimental.Provider
                 },
                 asset => MarshalAsset(asset),
                 archive => MarshalArchive(archive),
-                secret =>
-                {
-                    // Special case if our secret value is an output
-                    if (secret.OutputValue != null)
-                    {
-                        return MarshalOutput(secret.OutputValue.Value, true);
-                    }
-                    var result = new Struct();
-                    result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialSecretSig);
-                    result.Fields[Constants.ValueName] = Marshal(secret);
-                    return Value.ForStruct(result);
-                },
                 resource =>
                 {
                     var result = new Struct();
@@ -924,9 +801,39 @@ namespace Pulumi.Experimental.Provider
                     }
                     return Value.ForStruct(result);
                 },
-                output => MarshalOutput(output, false),
                 () => Value.ForString(Constants.UnknownValue)
             );
+
+            if (!value.Dependencies.IsEmpty)
+            {
+                var result = new Struct();
+                result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialOutputValueSig);
+                result.Fields[Constants.ValueName] = val;
+
+                var deps = new Value[value.Dependencies.Count];
+                var i = 0;
+                foreach (var dependency in value.Dependencies)
+                {
+                    deps[i++] = Value.ForString(dependency);
+                }
+                result.Fields[Constants.DependenciesName] = Value.ForList(deps);
+                if (value.IsSecret)
+                {
+                    result.Fields[Constants.SecretName] = Value.ForBool(true);
+                }
+
+                return Value.ForStruct(result);
+            }
+
+            if (value.IsSecret)
+            {
+                var result = new Struct();
+                result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialSecretSig);
+                result.Fields[Constants.ValueName] = val;
+                return Value.ForStruct(result);
+            }
+
+            return val;
         }
     }
 }

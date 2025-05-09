@@ -20,7 +20,7 @@ namespace Pulumi.Experimental.Provider
 #pragma warning disable CA1720 // Identifier contains type name
         String,
         Array,
-        Object,
+        Map,
 #pragma warning restore CA1720 // Identifier contains type name
         Asset,
         Archive,
@@ -93,9 +93,9 @@ namespace Pulumi.Experimental.Provider
                 {
                     return PropertyValueType.Array;
                 }
-                else if (ObjectValue != null)
+                else if (MapValue != null)
                 {
-                    return PropertyValueType.Object;
+                    return PropertyValueType.Map;
                 }
                 else if (AssetValue != null)
                 {
@@ -130,7 +130,7 @@ namespace Pulumi.Experimental.Provider
                     NumberValue == null &&
                     StringValue == null &&
                     ArrayValue == null &&
-                    ObjectValue == null &&
+                    MapValue == null &&
                     AssetValue == null &&
                     ArchiveValue == null &&
                     ResourceValue == null &&
@@ -144,7 +144,7 @@ namespace Pulumi.Experimental.Provider
         private readonly double? NumberValue;
         private readonly string? StringValue;
         private readonly ImmutableArray<PropertyValue>? ArrayValue;
-        private readonly ImmutableDictionary<string, PropertyValue>? ObjectValue;
+        private readonly ImmutableDictionary<string, PropertyValue>? MapValue;
         private readonly Asset? AssetValue;
         private readonly Archive? ArchiveValue;
         private readonly ResourceReference? ResourceValue;
@@ -199,10 +199,10 @@ namespace Pulumi.Experimental.Provider
                 }
                 return true;
             }
-            else if (ObjectValue != null && other.ObjectValue != null)
+            else if (MapValue != null && other.MapValue != null)
             {
-                var self = ObjectValue;
-                var them = other.ObjectValue;
+                var self = MapValue;
+                var them = other.MapValue;
                 if (self.Count != them.Count)
                 {
                     return false;
@@ -261,7 +261,7 @@ namespace Pulumi.Experimental.Provider
             if (NumberValue != null) return HashCode.Combine(hash, NumberValue.GetHashCode());
             if (StringValue != null) return HashCode.Combine(hash, StringValue.GetHashCode());
             if (ArrayValue != null) return HashCode.Combine(hash, ArrayValue.GetHashCode());
-            if (ObjectValue != null) return HashCode.Combine(hash, ObjectValue.GetHashCode());
+            if (MapValue != null) return HashCode.Combine(hash, MapValue.GetHashCode());
             if (AssetValue != null) return HashCode.Combine(hash, AssetValue.GetHashCode());
             if (ArchiveValue != null) return HashCode.Combine(hash, ArchiveValue.GetHashCode());
             if (ResourceValue != null) return HashCode.Combine(hash, ResourceValue.GetHashCode());
@@ -275,7 +275,7 @@ namespace Pulumi.Experimental.Provider
             Func<double, T> numberCase,
             Func<string, T> stringCase,
             Func<ImmutableArray<PropertyValue>, T> arrayCase,
-            Func<ImmutableDictionary<string, PropertyValue>, T> objectCase,
+            Func<ImmutableDictionary<string, PropertyValue>, T> mapCase,
             Func<Asset, T> assetCase,
             Func<Archive, T> archiveCase,
             Func<ResourceReference, T> resourceCase,
@@ -285,7 +285,7 @@ namespace Pulumi.Experimental.Provider
             if (NumberValue != null) return numberCase(NumberValue.Value);
             if (StringValue != null) return stringCase(StringValue);
             if (ArrayValue != null) return arrayCase(ArrayValue.Value);
-            if (ObjectValue != null) return objectCase(ObjectValue);
+            if (MapValue != null) return mapCase(MapValue);
             if (AssetValue != null) return assetCase(AssetValue);
             if (ArchiveValue != null) return archiveCase(ArchiveValue);
             if (ResourceValue != null) return resourceCase(ResourceValue.Value);
@@ -337,11 +337,11 @@ namespace Pulumi.Experimental.Provider
             return false;
         }
 
-        public bool TryGetObject([NotNullWhen(true)] out ImmutableDictionary<string, PropertyValue>? value)
+        public bool TryGetMap([NotNullWhen(true)] out ImmutableDictionary<string, PropertyValue>? value)
         {
-            if (ObjectValue != null)
+            if (MapValue != null)
             {
-                value = ObjectValue;
+                value = MapValue;
                 return true;
             }
             value = default;
@@ -444,7 +444,7 @@ namespace Pulumi.Experimental.Provider
         }
         public PropertyValue(ImmutableDictionary<string, PropertyValue> value)
         {
-            ObjectValue = value;
+            MapValue = value;
             IsSecret = false;
             Dependencies = ImmutableHashSet<Urn>.Empty;
         }
@@ -486,7 +486,7 @@ namespace Pulumi.Experimental.Provider
             NumberValue = value.NumberValue;
             StringValue = value.StringValue;
             ArrayValue = value.ArrayValue;
-            ObjectValue = value.ObjectValue;
+            MapValue = value.MapValue;
             AssetValue = value.AssetValue;
             ArchiveValue = value.ArchiveValue;
             ResourceValue = value.ResourceValue;

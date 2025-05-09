@@ -882,7 +882,7 @@ namespace Pulumi.Experimental.Provider
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
-                if (value.TryGetObject(out var values))
+                if (value.TryGetMap(out var values))
                 {
                     var dictionary = Activator.CreateInstance(targetType);
                     var addMethod =
@@ -903,7 +903,7 @@ namespace Pulumi.Experimental.Provider
                     return dictionary;
                 }
 
-                ThrowTypeMismatchError(PropertyValueType.Object);
+                ThrowTypeMismatchError(PropertyValueType.Map);
             }
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
@@ -924,7 +924,7 @@ namespace Pulumi.Experimental.Provider
                     .GetMethod(nameof(ImmutableDictionary<int, int>.Builder.ToImmutable))!;
                 var valueType = targetType.GenericTypeArguments[1];
 
-                if (value.TryGetObject(out var values))
+                if (value.TryGetMap(out var values))
                 {
                     foreach (var pair in values)
                     {
@@ -938,12 +938,12 @@ namespace Pulumi.Experimental.Provider
                     return builderToImmutable.Invoke(builder, Array.Empty<object>());
                 }
 
-                ThrowTypeMismatchError(PropertyValueType.Object);
+                ThrowTypeMismatchError(PropertyValueType.Map);
             }
 
             if (targetType.IsClass || targetType.IsValueType)
             {
-                if (value.TryGetObject(out var objectProperties))
+                if (value.TryGetMap(out var objectProperties))
                 {
                     return DeserializeObject(objectProperties, targetType, path);
                 }

@@ -1196,7 +1196,7 @@ func (host *dotnetLanguageHost) GeneratePackage(
 		return nil, err
 	}
 
-	pkg, diags, err := schema.BindSpec(spec, loader)
+	pkg, diags, err := schema.BindSpec(spec, loader, schema.ValidationOptions{})
 	if err != nil {
 		return nil, err
 	}

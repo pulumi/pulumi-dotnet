@@ -31,7 +31,7 @@ public class ComponentResourceProviderBase : Provider
 
         var serializedResult = await serializer.Serialize(result);
 
-        if (!serializedResult.TryGetObject(out var resultObject))
+        if (!serializedResult.TryGetMap(out var resultObject))
         {
             throw new InvalidOperationException("Expected result to be an object");
         }

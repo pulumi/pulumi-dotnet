@@ -318,12 +318,6 @@
             Property values will be one of these types.
             </summary>
         </member>
-        <member name="P:Pulumi.Experimental.Provider.OutputReference.Value">
-            <summary>
-            The value of the output, if it is known. This will never be a `Computed` value as that's
-            equivilent to unknown and thus null.
-            </summary>
-        </member>
         <member name="T:Pulumi.Experimental.Provider.ParametersArgs">
             <summary>
             A parameter value, represented as an array of strings, as might be provided by a command-line invocation, such as

@@ -69,6 +69,23 @@ namespace Pulumi.Tests.Mocks
         }
 
         [Fact]
+        public async Task TestTwoOutputStack()
+        {
+            var resources = await Testing.RunAsync<TwoOutputStack>();
+
+            var stack = resources.OfType<TwoOutputStack>().FirstOrDefault();
+            Assert.NotNull(stack);
+
+            var output1 = stack.Output1;
+            Assert.NotNull(output1);
+            Assert.Equal("output1", await output1.GetValueAsync(whenUnknown: default!));
+
+            var output2 = stack.Output2;
+            Assert.NotNull(output2);
+            Assert.Equal("output2", await output2.GetValueAsync(whenUnknown: default!));
+        }
+
+        [Fact]
         public async Task TestCustomWithResourceReference()
         {
             var resources = await Testing.RunAsync<MyStack>();
@@ -170,9 +187,8 @@ namespace Pulumi.Tests.Mocks
             catch (Exception ex)
             {
                 Assert.Contains(
-                    "System.InvalidOperationException: " +
-                    "[Output] Pulumi.Tests.Mocks.MocksTests+NullOutputStack.Foo " +
-                    "did not have a 'set' method",
+                    "Pulumi.RunException: Output(s) 'foo' have no value assigned." +
+                    " [Output] attributed properties must be assigned inside Stack constructor.",
                     ex.ToString());
                 return;
             }

@@ -60,6 +60,7 @@ class Child : ComponentResource
     {
         if (opts?.Urn is null)
         {
+            Message = Output.Create(args.Message);
             RegisterOutputs(new Dictionary<string, object?>
             {
                 { "message", args.Message },
@@ -85,6 +86,7 @@ class Container : ComponentResource
     {
         if (opts?.Urn is null)
         {
+            Child = Output.Create(args.Child);
             RegisterOutputs(new Dictionary<string, object?>
             {
                 { "child", args.Child },

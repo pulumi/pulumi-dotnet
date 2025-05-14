@@ -57,7 +57,7 @@ namespace Pulumi.Serialization
 
     internal static class OutputCompletionSource
     {
-        public static ImmutableDictionary<string, IOutputCompletionSource> InitializeOutputs(Resource resource)
+        public static ImmutableDictionary<string, IOutputCompletionSource> InitializeOutputs(Resource resource, bool remote)
         {
             var query = from property in resource.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
                         let attr = property.GetCustomAttribute<OutputAttribute>()
@@ -67,6 +67,14 @@ namespace Pulumi.Serialization
             var result = ImmutableDictionary.CreateBuilder<string, IOutputCompletionSource>();
             foreach (var (prop, attrName) in query.ToList())
             {
+                // For non-remote component resource we DO NOT want to overwrite any outputs declared on the
+                // component class. Users may be setting them via property initializers that run before this
+                // constructor code, and we don't want to overwrite them.
+                if (resource is ComponentResource && !remote && prop.DeclaringType != typeof(Resource))
+                {
+                    continue;
+                }
+
                 var propType = prop.PropertyType;
                 var propFullName = $"[Output] {resource.GetType().FullName}.{prop.Name}";
                 if (!propType.IsConstructedGenericType ||

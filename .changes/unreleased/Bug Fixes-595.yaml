@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Component output properties are no longer overwritten with `unknown`
+time: 2025-05-13T12:10:47.339155938+01:00
+custom:
+  PR: "595"

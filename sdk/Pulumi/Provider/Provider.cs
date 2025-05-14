@@ -1167,9 +1167,8 @@ namespace Pulumi.Experimental.Provider
 
                 if (domArgs.TryGetValue(argDependency.Key, out var currentValue))
                 {
-                    domArgs = domArgs.SetItem(argDependency.Key,
-                        new PropertyValue(new OutputReference(currentValue,
-                            argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableHashSet())));
+                    domArgs = domArgs.SetItem(argDependency.Key, currentValue.WithDependencies(
+                        argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableHashSet()));
                 }
             }
 

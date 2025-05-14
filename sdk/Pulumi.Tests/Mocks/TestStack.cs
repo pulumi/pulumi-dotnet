@@ -1,5 +1,7 @@
 // Copyright 2016-2020, Pulumi Corporation
 
+using System;
+
 namespace Pulumi.Tests.Mocks
 {
     [ResourceType("aws:ec2/instance:Instance", null)]
@@ -45,6 +47,21 @@ namespace Pulumi.Tests.Mocks
             var myInstance = new Instance("instance", new InstanceArgs());
             new MyCustom("mycustom", new MyCustomArgs { Instance = myInstance });
             this.PublicIp = myInstance.PublicIp;
+        }
+    }
+
+    // Regression test data for https://github.com/pulumi/pulumi-dotnet/issues/594
+    public class TwoOutputStack : Stack
+    {
+        [Output("output1")]
+        public Output<string> Output1 { get; set; } = Output.Create<string>("output1");
+
+        [Output("output2")]
+        public Output<string> Output2 { get; set; }
+
+        public TwoOutputStack()
+        {
+            Output2 = Output.Create<string>("output2");
         }
     }
 }

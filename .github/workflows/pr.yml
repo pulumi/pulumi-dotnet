@@ -12,6 +12,7 @@ env:
   AWS_REGION: us-west-2
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   PULUMI_TEST_OWNER: "moolumi"
+  GOLANGCI_LINT_VERSION: v2.1.6
   ESC_ACTION_OIDC_AUTH: true
   ESC_ACTION_OIDC_ORGANIZATION: pulumi
   ESC_ACTION_OIDC_REQUESTED_TOKEN_TYPE: urn:pulumi:token-type:access_token:organization

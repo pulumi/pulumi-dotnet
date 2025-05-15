@@ -308,7 +308,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	//    Transitive Package                                       Resolved
 	//    > Google.Protobuf                                        3.10.0
 	//    > Grpc                                                   2.24.0
-	outputLines := strings.Split(strings.Replace(commandOutput, "\r\n", "\n", -1), "\n")
+	outputLines := strings.Split(strings.ReplaceAll(commandOutput, "\r\n", "\n"), "\n")
 
 	sawPulumi := false
 	packages := [][]string{}
@@ -819,7 +819,6 @@ func (host *dotnetLanguageHost) constructEnv(req *pulumirpc.RunRequest, config, 
 	maybeAppendEnv("stack", req.GetStack())
 	maybeAppendEnv("pwd", req.GetPwd())
 	maybeAppendEnv("dry_run", strconv.FormatBool(req.GetDryRun()))
-	maybeAppendEnv("query_mode", strconv.FormatBool(req.GetQueryMode()))
 	maybeAppendEnv("parallel", strconv.Itoa(int(req.GetParallel())))
 	maybeAppendEnv("tracing", host.tracing)
 	maybeAppendEnv("config", config)
@@ -1142,7 +1141,7 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 			return nil, err
 		}
 
-		cmd := exec.Command( //nolint:gas // intentionally running dynamic program name.
+		cmd := exec.Command( //nolint:gosec // intentionally running dynamic program name.
 			opts.dotnetExec, "build", "-c", "Release")
 		cmd.Dir = req.PackageDirectory
 		return cmd.CombinedOutput()
@@ -1154,7 +1153,7 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	destination := filepath.Join(req.DestinationDirectory, filepath.Base(projectFile))
 
-	cmd := exec.Command( //nolint:gas // intentionally running dynamic program name.
+	cmd := exec.Command( //nolint:gosec // intentionally running dynamic program name.
 		opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
 	cmd.Dir = req.PackageDirectory
 

@@ -504,6 +504,15 @@ namespace Pulumi.Experimental.Provider
 
         public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
         {
+            var value = System.Environment.GetEnvironmentVariable("PULUMI_ATTACH_DEBUGGER");
+            if (value != null && value == "true")
+            {
+                while (!System.Diagnostics.Debugger.IsAttached)
+                {
+                    // keep waiting until the debugger is attached
+                    System.Threading.Thread.Sleep(1);
+                }
+            }
             using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
 
             // before starting the host, set up this callback to tell us what port was selected

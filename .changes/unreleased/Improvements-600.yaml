@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Enable debugging providers using --attach-debugger=plugins
+time: 2025-05-15T15:38:00.505388921+02:00
+custom:
+    PR: "600"

@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Update PropertyValue to track secretness and dependencies directly on PropertyValue
-time: 2025-05-08T20:57:40.898523836+01:00
-custom:
-  PR: "591"

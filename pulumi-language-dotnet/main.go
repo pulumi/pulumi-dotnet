@@ -620,7 +620,10 @@ func buildDebuggingDLL(dotnetExec, programDirectory, entryPoint string) (string,
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
-	args := []string{"build", "-nologo", "-o", "bin/pulumi-debugging"}
+	args := []string{
+		"build", "-nologo", "-o",
+		filepath.Join(programDirectory, "bin", "pulumi-debugging"),
+	}
 	args = append(args, filepath.Join(programDirectory, entryPoint))
 
 	cmd := exec.Command(dotnetExec, args...)
@@ -1018,16 +1021,30 @@ func (host *dotnetLanguageHost) RunPlugin(
 		return err
 	}
 
+	binaryPath := opts.binary
+	if req.GetAttachDebugger() && opts.binary == "" {
+		var err error
+		binaryPath, err = buildDebuggingDLL(
+			opts.dotnetExec, req.GetInfo().GetRootDirectory(), req.GetInfo().GetEntryPoint())
+		if err != nil {
+			return err
+		}
+		binaryPath = filepath.Join(req.GetInfo().GetRootDirectory(), binaryPath)
+		if binaryPath == "" {
+			return errors.New("failed to find project file, and could not start debugging")
+		}
+	}
+
 	executable := opts.dotnetExec
 	args := []string{}
 
 	switch {
-	case opts.binary != "" && strings.HasSuffix(opts.binary, ".dll"):
+	case binaryPath != "" && strings.HasSuffix(binaryPath, ".dll"):
 		// Portable pre-compiled dll: run `dotnet <name>.dll`
-		args = append(args, opts.binary)
-	case opts.binary != "":
+		args = append(args, binaryPath)
+	case binaryPath != "":
 		// Self-contained executable: run it directly.
-		executable = opts.binary
+		executable = binaryPath
 	default:
 		// Build from source and then run. We build separately so that we can elide the build output from the
 		// user unless there's an error. You would think you could pass something like `-v=q` to `dotnet run`
@@ -1082,9 +1099,36 @@ func (host *dotnetLanguageHost) RunPlugin(
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	cmd := exec.Command(executable, args...) //nolint:gas // intentionally running dynamic program name.
 	cmd.Dir = req.Pwd
+
 	cmd.Env = req.Env
+	if req.GetAttachDebugger() {
+		cmd.Env = append(req.Env, "PULUMI_ATTACH_DEBUGGER=true")
+	}
 	cmd.Stdout, cmd.Stderr = stdout, stderr
-	if err = cmd.Run(); err != nil {
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	if req.GetAttachDebugger() {
+		engineClient, closer, err := host.connectToEngine()
+		if err != nil {
+			return err
+		}
+		defer contract.IgnoreClose(closer)
+
+		ctx, cancel := context.WithCancel(server.Context())
+		defer cancel()
+		go func() {
+			err = startDebugging(ctx, engineClient, cmd)
+			if err != nil {
+				// kill the program if we can't start debugging.
+				logging.Errorf("Unable to start debugging: %v", err)
+				contract.IgnoreError(cmd.Process.Kill())
+			}
+		}()
+	}
+
+	if err = cmd.Wait(); err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			// If the program ran, but exited with a non-zero error code.  This will happen often, since user
 			// errors will trigger this.  So, the error message should look as nice as possible.

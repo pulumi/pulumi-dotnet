@@ -65,7 +65,7 @@ jobs:
         with:
           go-version: 1.24.x
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v8
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
           args: --help
@@ -73,7 +73,7 @@ jobs:
       - name: Run golangci-lint
         # Print GitHub Actions-friendly output so that errors get marked
         # in the pull request.
-        run: make lint GOLANGCI_LINT_ARGS=--out-format=colored-line-number
+        run: make lint GOLANGCI_LINT_ARGS=--output.text.path=stdout
 
   lint-changelog:
     name: Lint Changelog

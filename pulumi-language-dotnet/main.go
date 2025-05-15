@@ -819,7 +819,9 @@ func (host *dotnetLanguageHost) constructEnv(req *pulumirpc.RunRequest, config, 
 	maybeAppendEnv("stack", req.GetStack())
 	maybeAppendEnv("pwd", req.GetPwd())
 	maybeAppendEnv("dry_run", strconv.FormatBool(req.GetDryRun()))
-	maybeAppendEnv("query_mode", strconv.FormatBool(req.GetQueryMode())) //nolint:staticcheck // Still needed.
+	// The engine no longer supports query mode, but the runtime expects this envvar to be set to tell that it
+	// was called correctly. See the Deployment constructor in sdk/Pulumi/Deployment/Deployment.cs.
+	maybeAppendEnv("query_mode", "false")
 	maybeAppendEnv("parallel", strconv.Itoa(int(req.GetParallel())))
 	maybeAppendEnv("tracing", host.tracing)
 	maybeAppendEnv("config", config)

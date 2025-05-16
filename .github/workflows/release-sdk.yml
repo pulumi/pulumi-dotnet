@@ -66,7 +66,7 @@ jobs:
       - name: Install Pulumi CLI
         uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
         with:
-          pulumi-version: latest
+          pulumi-version: dev
       - name: Build Pulumi SDK
         run: dotnet run build-sdk
       - name: Test Pulumi SDK

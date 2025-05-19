@@ -124,6 +124,7 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 	foundRes6 := false
 	foundRes7 := false
 	foundRes8 := false
+	foundRes9 := false
 	for _, res := range stack.Deployment.Resources {
 		// "res1" has a transformation which adds additionalSecretOutputs
 		if res.URN.Name() == "res1" {
@@ -201,6 +202,10 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			assert.Equal(t, res.Type, tokens.Type(randomResName))
 			assert.NotContains(t, res.Provider, "default")
 		}
+		if res.URN.Name() == "res9" {
+			foundRes9 = true
+			assert.Equal(t, res.Type, tokens.Type(randomResName))
+		}
 	}
 	assert.True(t, foundRes1)
 	assert.True(t, foundRes2Child)
@@ -210,4 +215,5 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 	assert.True(t, foundRes6)
 	assert.True(t, foundRes7)
 	assert.True(t, foundRes8)
+	assert.True(t, foundRes9)
 }

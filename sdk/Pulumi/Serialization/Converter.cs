@@ -201,11 +201,13 @@ namespace Pulumi.Serialization
 
             var constructorParameters = constructor.GetParameters();
             var arguments = new object?[constructorParameters.Length];
+            var warning = "";
 
             for (int i = 0, n = constructorParameters.Length; i < n; i++)
             {
                 var parameter = constructorParameters[i];
                 var parameterName = parameter.Name!;
+
                 var attribute = parameter.GetCustomAttribute<OutputConstructorParameterAttribute>();
                 if (attribute != null)
                 {
@@ -217,10 +219,17 @@ namespace Pulumi.Serialization
                 // default value needed for the parameter type.
                 dictionary!.TryGetValue(parameterName, out var argValue);
 
+                if (argValue != null) {
+                    var actual = argValue.GetType();
+                    var expected = parameter.ParameterType;
+
+                    warning += $"Actual argument type for {parameterName} {actual} does not match expected argument type {expected}. A cast will be attempted.\n";
+                }
+
                 arguments[i] = ConvertObject(warn, $"{targetType.FullName}({parameter.Name})", argValue, parameter.ParameterType);
             }
 
-            return (constructor.Invoke(arguments), null);
+            return (constructor.Invoke(arguments), warning);
         }
 
         private static (object?, string?) TryConvertJsonElement(

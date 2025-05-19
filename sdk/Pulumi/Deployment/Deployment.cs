@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -269,6 +271,34 @@ namespace Pulumi
         internal Task<bool> MonitorSupportsTransforms()
         {
             return MonitorSupportsFeature("transforms");
+        }
+
+        /// <summary>
+        /// Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
+        /// </summary>
+        public Task<bool> MonitorSupportsInvokeTransforms()
+        {
+            return MonitorSupportsFeature("invokeTransforms");
+        }
+
+        public void RegisterInvokeTransforms(List<InvokeTransform> transforms)
+        {
+            if (transforms.Count > 0)
+            {
+                var monitorSupportsInvokeTransforms = MonitorSupportsInvokeTransforms().Result;
+                if (!monitorSupportsInvokeTransforms)
+                {
+                    throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
+                }
+
+                var callbacks = GetCallbacksAsync(CancellationToken.None).Result;
+
+                foreach (var t in transforms)
+                {
+                    var callback = AllocateInvokeTransform(callbacks.Callbacks, t).Result;
+                    Monitor.RegisterStackInvokeTransform(callback).Wait();
+                }
+            }
         }
 
         // Because the secrets feature predates the Pulumi .NET SDK, we assume

@@ -61,5 +61,8 @@ namespace Pulumi
 
         public async Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request)
             => await this._client.RegisterResourceOutputsAsync(request);
+
+        public async Task RegisterStackInvokeTransform(Pulumirpc.Callback callback)
+            => await this._client.RegisterStackInvokeTransformAsync(callback);
     }
 }

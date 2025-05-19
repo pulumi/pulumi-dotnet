@@ -337,6 +337,48 @@ namespace Pulumi
             return await callbacks.AllocateCallback(wrapper);
         }
 
+        private static async Task<Pulumirpc.Callback> AllocateInvokeTransform(Callbacks callbacks, InvokeTransform transform)
+        {
+            var wrapper = new Callback(async (message, token) =>
+            {
+                var request = Pulumirpc.TransformInvokeRequest.Parser.ParseFrom(message);
+
+                var requestArgs = ImmutableDictionary.CreateBuilder<string, object?>();
+                foreach (var kv in request.Args.Fields)
+                {
+                    var outputData = Serialization.Deserializer.Deserialize(kv.Value);
+                    // The data from the engine will include output values, which will be deserialized
+                    // into instances of `Output<T>`, which will track whether the value is known,
+                    // is secret, and dependencies. We can ignore those values on outputData.
+                    requestArgs.Add(kv.Key, outputData.Value);
+                }
+
+                InvokeOptions opts = new InvokeOptions();
+                opts.Provider = request.Options.Provider == "" ? null : new DependencyProviderResource(request.Options.Provider);
+                opts.Version = request.Options.Version;
+                opts.PluginDownloadURL = request.Options.PluginDownloadUrl;
+
+                var args = new InvokeTransformArgs(request.Token, requestArgs.ToImmutable(), opts);
+                var result = await transform(args, token).ConfigureAwait(false);
+
+                var response = new Pulumirpc.TransformInvokeResponse();
+                if (result != null)
+                {
+                    var serializer = new Serializer(excessiveDebugOutput: false);
+                    var serialized = await serializer.SerializeAsync("Args", result.Value.Args,
+                        keepResources: true, keepOutputValues: true).ConfigureAwait(false);
+                    response.Args = Serializer.CreateStruct((ImmutableDictionary<string, object?>)serialized!);
+
+                    response.Options = new Pulumirpc.TransformInvokeOptions();
+                    response.Options.Provider = result.Value.Options.Provider == null ? "" : await result.Value.Options.Provider.Ref.ConfigureAwait(false);
+                    response.Options.Version = result.Value.Options.Version;
+                    response.Options.PluginDownloadUrl = result.Value.Options.PluginDownloadURL ?? "";
+                }
+                return response;
+            });
+            return await callbacks.AllocateCallback(wrapper);
+        }
+
         static async Task<T> Resolve<T>(Input<T>? input, T whenUnknown)
         {
             return input == null

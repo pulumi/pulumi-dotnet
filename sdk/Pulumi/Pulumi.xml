@@ -1602,6 +1602,10 @@
         <member name="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)">
             <inheritdoc />
         </member>
+        <member name="M:Pulumi.DeploymentInstance.CallSingle``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)">
+            Same as <see cref="M:Pulumi.DeploymentInstance.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)"/> however the
+            return value is expected to have a single member which is extracted.
+        </member>
         <member name="M:Pulumi.DeploymentInstance.Call(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)">
             <inheritdoc />
         </member>

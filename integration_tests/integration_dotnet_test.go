@@ -675,7 +675,6 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 	return events, nil
 }
 
-//nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
@@ -734,6 +733,69 @@ outer:
 	cmd.Stdin = in
 	out, err := cmd.CombinedOutput()
 	require.NoError(t, err)
+	// Check that we get valid output from netcoredbg, so we know it was actually attached.
+	require.Contains(t, string(out), "1^done")
+
+	wg.Wait()
+}
+
+func TestPluginDebuggerAttachDotnet(t *testing.T) {
+	t.Parallel()
+
+	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
+	require.NoError(t, err)
+
+	e := newEnvironmentDotnet(t)
+	defer e.DeleteIfNotFailed()
+	e.ImportDirectory("debug-plugin")
+
+	err = prepareDotnetProjectAtCwd(filepath.Join(e.RootPath, "dotnet-plugin"))
+	require.NoError(t, err)
+
+	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
+
+	e.CWD = filepath.Join(e.RootPath, "program")
+	e.RunCommand("pulumi", "package", "add", "../dotnet-plugin")
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
+		e.RunCommand("pulumi", "stack", "init", "debugger-test")
+		e.RunCommand("pulumi", "stack", "select", "debugger-test")
+		stdout, _ := e.RunCommandExpectError("pulumi", "preview", "--attach-debugger=plugins",
+			"--event-log", filepath.Join(e.RootPath, "debugger.log"))
+		require.Contains(t, stdout, "error: The method 'Check' is not implemented")
+	}()
+
+	// Wait for the debugging event
+	wait := 20 * time.Millisecond
+	var debugEvent *apitype.StartDebuggingEvent
+outer:
+	for range 50 {
+		events, err := readUpdateEventLog(filepath.Join(e.RootPath, "debugger.log"))
+		require.NoError(t, err)
+		for _, event := range events {
+			if event.StartDebuggingEvent != nil {
+				debugEvent = event.StartDebuggingEvent
+				break outer
+			}
+		}
+		time.Sleep(wait)
+		wait *= 2
+	}
+	require.NotNil(t, debugEvent)
+
+	// We just need to send some command to netcoredbg that will make the program continue.
+	// We don't care about the actual command, and the `thread-info` command just works.
+	in := strings.NewReader("1-thread-info")
+
+	cmd := exec.Command( //nolint:gosec // This is a test
+		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
+	cmd.Stdin = in
+	out, err := cmd.CombinedOutput()
+	require.NoError(t, err, string(out))
 	// Check that we get valid output from netcoredbg, so we know it was actually attached.
 	require.Contains(t, string(out), "1^done")
 

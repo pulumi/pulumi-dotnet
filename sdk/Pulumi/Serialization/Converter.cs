@@ -201,7 +201,7 @@ namespace Pulumi.Serialization
 
             var constructorParameters = constructor.GetParameters();
             var arguments = new object?[constructorParameters.Length];
-            var warning = null;
+            string? warning = null;
 
             for (int i = 0, n = constructorParameters.Length; i < n; i++)
             {
@@ -219,7 +219,8 @@ namespace Pulumi.Serialization
                 // default value needed for the parameter type.
                 dictionary!.TryGetValue(parameterName, out var argValue);
 
-                if (argValue != null) {
+                if (argValue != null)
+                {
                     var actual = argValue.GetType();
                     var expected = parameter.ParameterType;
 

@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Pulumi
@@ -154,6 +156,49 @@ namespace Pulumi
             Resource? self = null,
             CallOptions? options = null)
             => _deployment.Call<T>(token, args, self, options, null);
+
+        /// Same as <see cref="Call{T}(string, CallArgs, Resource, CallOptions)"/> however the
+        /// return value is expected to have a single member which is extracted.
+        public Output<T> CallSingle<T>(
+            string token,
+            CallArgs args,
+            Resource? self = null,
+            CallOptions? options = null
+        )
+        {
+            Output<object> result = Call<object>(token, args, self, options);
+            return result.Apply(
+                (obj) =>
+                {
+                    Type type = obj.GetType();
+                    PropertyInfo[] properties = type.GetProperties(
+                        BindingFlags.Public | BindingFlags.Instance
+                    );
+
+                    if (properties.Length != 1)
+                    {
+                        throw new InvalidOperationException(
+                            "expected on object with a single member, but had " + properties.Length
+                        );
+                    }
+                    PropertyInfo singleProperty = properties[0];
+                    if (!singleProperty.CanRead)
+                    {
+                        throw new InvalidOperationException("expected property to be readable");
+                    }
+
+                    object? value = singleProperty.GetValue(obj, null);
+                    if (value is T typedValue)
+                    {
+                        return typedValue;
+                    }
+
+                    throw new InvalidOperationException(
+                        $"expected property to have type {typeof(T)}, but had {singleProperty.PropertyType}"
+                    );
+                }
+            );
+        }
 
         /// <inheritdoc />
         public void Call(

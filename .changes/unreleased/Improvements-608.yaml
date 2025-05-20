@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Add CallSingle to support scalar returns from Providers in SDK Gen
+time: 2025-05-20T20:54:21.292515+09:00
+custom:
+    PR: "608"

@@ -201,7 +201,7 @@ namespace Pulumi.Serialization
 
             var constructorParameters = constructor.GetParameters();
             var arguments = new object?[constructorParameters.Length];
-            var warning = "";
+            var warning = null;
 
             for (int i = 0, n = constructorParameters.Length; i < n; i++)
             {

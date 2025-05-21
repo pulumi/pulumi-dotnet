@@ -228,4 +228,16 @@ public class TestProvider : Provider
         };
         return Task.FromResult(response);
     }
+
+    public override Task<InvokeResponse> Invoke(InvokeRequest request, CancellationToken ct)
+    {
+        var response = new InvokeResponse();
+
+        if (request.Tok == "testprovider:index:returnArgs")
+        {
+            response.Return = request.Args;
+        }
+    
+        return Task.FromResult(response);
+    }
 }

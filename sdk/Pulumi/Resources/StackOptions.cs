@@ -34,5 +34,13 @@ namespace Pulumi
             get => _resourceTransforms ??= new List<ResourceTransform>();
             set => _resourceTransforms = value;
         }
+
+        private List<InvokeTransform>? _invokeTransforms;
+
+        public List<InvokeTransform> InvokeTransforms
+        {
+            get => _invokeTransforms ??= new List<InvokeTransform>();
+            set => _invokeTransforms = value;
+        }
     }
 }

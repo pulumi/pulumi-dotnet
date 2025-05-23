@@ -1242,7 +1242,9 @@ func (host *dotnetLanguageHost) GeneratePackage(
 		return nil, err
 	}
 
-	pkg, diags, err := schema.BindSpec(spec, loader, schema.ValidationOptions{})
+	pkg, diags, err := schema.BindSpec(spec, loader, schema.ValidationOptions{
+		AllowDanglingReferences: true,
+	})
 	if err != nil {
 		return nil, err
 	}

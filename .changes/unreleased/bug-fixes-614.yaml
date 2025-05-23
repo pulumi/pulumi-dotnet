@@ -1,0 +1,6 @@
+component: runtime
+kind: bug-fixes
+body: Fix gen-sdk fails if there are dangling references
+time: 2025-05-23T08:31:18.608662-04:00
+custom:
+    PR: "614"

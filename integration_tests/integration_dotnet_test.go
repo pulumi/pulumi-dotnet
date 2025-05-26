@@ -647,6 +647,15 @@ func TestProviderConstructUnknown(t *testing.T) {
 	})
 }
 
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
+func TestProviderConstructResourceRef(t *testing.T) {
+	const testDir = "provider_construct_resource_ref"
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:   filepath.Join(testDir, "dotnet"),
+		Quick: true,
+	})
+}
+
 func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 	events := make([]apitype.EngineEvent, 0)
 	eventsFile, err := os.Open(logfile)

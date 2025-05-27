@@ -2,7 +2,8 @@ using Pulumi;
 
 class EchoArgs : ResourceArgs
 {
-    [Input("value")] public Input<string> Value { get; set; } = null!;
+    [Input("value")]
+    public Input<string> Value { get; set; } = null!;
 }
 
 class Echo : CustomResource
@@ -15,7 +16,8 @@ class Echo : CustomResource
 
 class ComponentArgs : ResourceArgs
 {
-    [Input("inputResource")] public Input<Echo> InputResource { get; set; } = null!;
+    [Input("inputResource")]
+    public Input<Echo> InputResource { get; set; } = null!;
 }
 
 class Component : ComponentResource

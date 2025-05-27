@@ -21,7 +21,8 @@ class Program
             });
             return new Dictionary<string, object?>
             {
-                // disabled due to bug with deserialize resource refs
+                // disabled for now due to bug with deserialize resource refs
+                // see https://github.com/pulumi/pulumi-dotnet/issues/616
                 // {"referenceResourceUrn", component.OutputResource.Apply(u => u.Urn)}
             };
         });

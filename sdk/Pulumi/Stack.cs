@@ -58,7 +58,8 @@ namespace Pulumi
         {
             Deployment.InternalInstance.Stack = this;
 
-            if (options != null) {
+            if (options != null)
+            {
                 Deployment.Instance.RegisterInvokeTransforms(options.InvokeTransforms);
             }
         }

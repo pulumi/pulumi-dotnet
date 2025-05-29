@@ -70,7 +70,10 @@ namespace Pulumi.Tests.Provider
             Assert.True(configureResult.AcceptSecrets);
 
             // Now call check and make sure it returns the internal state
-            var checkResult = await provider.CheckAsync(new Pulumirpc.CheckRequest());
+            var checkResult = await provider.CheckAsync(new Pulumirpc.CheckRequest()
+            {
+                Urn = "urn:pulumi:stack::project::type::name",
+            });
 
             Assert.True(checkResult.Inputs.Fields.TryGetValue("output", out var outputValue));
             Assert.True(outputValue.KindCase == Google.Protobuf.WellKnownTypes.Value.KindOneofCase.StringValue);

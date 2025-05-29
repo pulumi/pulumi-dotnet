@@ -1,6 +1,7 @@
 // Copyright 2016-2019, Pulumi Corporation
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pulumi
 {
@@ -8,8 +9,75 @@ namespace Pulumi
     /// An automatically generated logical URN, used to stably identify resources. These are created
     /// automatically by Pulumi to identify resources.  They cannot be manually constructed.
     /// </summary>
-    public static class Urn
+    public readonly struct Urn : IEquatable<Urn>
     {
+        readonly string _value;
+
+        public Urn(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new ArgumentException("URN cannot be null or empty.", nameof(value));
+            }
+
+            _value = value;
+        }
+
+        /// <summary>
+        /// Implicitly converts a URN to a string.
+        /// </summary>
+        public static implicit operator string(Urn value) => value._value;
+
+        /// <summary>
+        /// Returns the string representation of this URN.
+        /// </summary>
+        override public string ToString() => _value;
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current URN.
+        /// </summary>
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            if (obj is Urn other)
+            {
+                return Equals(this, other);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether the specified URN is equal to the current URN.
+        /// </summary>
+        public bool Equals(Urn other)
+        {
+            return string.Equals(_value, other._value, StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Returns a hash code for this URN.
+        /// </summary>
+        override public int GetHashCode()
+        {
+            return _value.GetHashCode(StringComparison.Ordinal);
+        }
+
+
+        /// <summary>
+        /// Determines whether two URN values are equal.
+        /// </summary>
+        public static bool operator ==(Urn left, Urn right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Determines whether two URN values are not equal.
+        /// </summary>
+        public static bool operator !=(Urn left, Urn right)
+        {
+            return !(left == right);
+        }
+
         /// <summary>
         /// Computes a URN from the combination of a resource name, resource type, optional parent,
         /// optional project and optional stack.

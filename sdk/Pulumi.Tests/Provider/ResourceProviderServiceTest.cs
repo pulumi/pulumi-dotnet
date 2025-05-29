@@ -137,7 +137,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             failure.Property == ResourceProviderServiceTestProvider.CheckFailure.Property &&
             failure.Reason == ResourceProviderServiceTestProvider.CheckFailure.Reason);
         callResponse.ReturnDependencies.Should().Contain(kv => kv.Key == ResourceProviderServiceTestProvider.DependentFieldName).Subject.Value.Urns.Should()
-            .BeEquivalentTo(ResourceProviderServiceTestProvider.DependentUrns.Select(urn => urn.Value));
+            .BeEquivalentTo(ResourceProviderServiceTestProvider.DependentUrns.Select(urn => (string)urn));
     }
 
     public class TestBucketArgs : ResourceArgs
@@ -170,9 +170,9 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
 
         public const string DependentFieldName = "dependent";
 
-        public static readonly ImmutableHashSet<Pulumi.Experimental.Provider.Urn> DependentUrns = ImmutableHashSet.Create(
-            new Pulumi.Experimental.Provider.Urn("urn::some::resource"),
-            new Pulumi.Experimental.Provider.Urn("urn::another::resource"));
+        public static readonly ImmutableHashSet<Urn> DependentUrns = ImmutableHashSet.Create(
+            new Urn("urn::some::resource"),
+            new Urn("urn::another::resource"));
 
         public const string BucketType = "bucket";
         public const string VirtualMachineType = "vm";
@@ -201,7 +201,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
             };
 
             return AsTask(new CallResponse(response, new List<CheckFailure>() { CheckFailure },
-                new Dictionary<string, ISet<Pulumi.Experimental.Provider.Urn>>() { { DependentFieldName, DependentUrns } }));
+                new Dictionary<string, ISet<Urn>>() { { DependentFieldName, DependentUrns } }));
         }
 
         private async Task<T> AsTask<T>(T value)
@@ -230,7 +230,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
 
             var stateValue = await serializer.StateFromComponentResource(resource);
 
-            return new ConstructResponse(new Experimental.Provider.Urn(urn), stateValue, ImmutableDictionary<string, ISet<Experimental.Provider.Urn>>.Empty);
+            return new ConstructResponse(new Urn(urn), stateValue, ImmutableDictionary<string, ISet<Urn>>.Empty);
         }
     }
 }

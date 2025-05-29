@@ -266,27 +266,27 @@
             A fatal error indicating that the tool should stop processing subsequent resource operations.
             </summary>
         </member>
-        <member name="T:Pulumi.Experimental.Provider.LogMessage">
+        <member name="T:Pulumi.Experimental.Provider.LogRequest">
             <summary>
             A log message to be sent to the Pulumi engine.
             </summary>
         </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Severity">
+        <member name="P:Pulumi.Experimental.Provider.LogRequest.Severity">
             <summary>
             The logging level of this message.
             </summary>
         </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Message">
+        <member name="P:Pulumi.Experimental.Provider.LogRequest.Message">
             <summary>
             The contents of the logged message.
             </summary>
         </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Urn">
+        <member name="P:Pulumi.Experimental.Provider.LogRequest.Urn">
             <summary>
             The (optional) resource urn this log is associated with.
             </summary>
         </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.StreamId">
+        <member name="P:Pulumi.Experimental.Provider.LogRequest.StreamId">
             <summary>
             The (optional) stream id that a stream of log messages can be associated with. This allows
             clients to not have to buffer a large set of log messages that they all want to be
@@ -298,17 +298,17 @@
             0 means do not associate with any stream.
             </remarks>
         </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Ephemeral">
+        <member name="P:Pulumi.Experimental.Provider.LogRequest.Ephemeral">
             <summary>
             Optional value indicating whether this is a status message.
             </summary>
         </member>
-        <member name="T:Pulumi.Experimental.Provider.IHost">
+        <member name="T:Pulumi.Experimental.Provider.IEngine">
             <summary>
             An interface to the engine host running this plugin.
             </summary>
         </member>
-        <member name="M:Pulumi.Experimental.Provider.IHost.LogAsync(Pulumi.Experimental.Provider.LogMessage)">
+        <member name="M:Pulumi.Experimental.Provider.IEngine.LogAsync(Pulumi.Experimental.Provider.LogRequest)">
             <summary>
             Send a log message to the host.
             </summary>

@@ -41,104 +41,102 @@ namespace Pulumi
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.Invoke<T>(token, args, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.Invoke<T>(token, args, options, registerPackageRequest);
 
         /// <inheritdoc />
         public Output<T> Invoke<T>(
             string token,
             InvokeArgs args,
             InvokeOutputOptions options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.Invoke<T>(token, args, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.Invoke<T>(token, args, options, registerPackageRequest);
 
         /// <inheritdoc />
-        public Output<T> Invoke<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOptions? options = null)
-            => _deployment.Invoke<T>(token, args, options, null);
+        public Output<T> Invoke<T>(string token, InvokeArgs args, InvokeOptions? options = null) =>
+            _deployment.Invoke<T>(token, args, options, null);
 
         /// <inheritdoc />
-        public Output<T> Invoke<T>(
-            string token,
-            InvokeArgs args,
-            InvokeOutputOptions options)
-            => _deployment.Invoke<T>(token, args, options, null);
+        public Output<T> Invoke<T>(string token, InvokeArgs args, InvokeOutputOptions options) =>
+            _deployment.Invoke<T>(token, args, options, null);
 
         /// <inheritdoc />
         public Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.InvokeSingle<T>(token, args, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.InvokeSingle<T>(token, args, options, registerPackageRequest);
 
         /// <inheritdoc />
         public Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
             InvokeOutputOptions options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.InvokeSingle<T>(token, args, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.InvokeSingle<T>(token, args, options, registerPackageRequest);
 
         /// <inheritdoc />
         public Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null)
-            => _deployment.InvokeSingle<T>(token, args, options, null);
+            InvokeOptions? options = null
+        ) => _deployment.InvokeSingle<T>(token, args, options, null);
 
         /// <inheritdoc />
         public Output<T> InvokeSingle<T>(
             string token,
             InvokeArgs args,
-            InvokeOutputOptions options)
-            => _deployment.InvokeSingle<T>(token, args, options, null);
+            InvokeOutputOptions options
+        ) => _deployment.InvokeSingle<T>(token, args, options, null);
 
         /// <inheritdoc />
         public Task<T> InvokeAsync<T>(
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.InvokeAsync<T>(token, args, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.InvokeAsync<T>(token, args, options, registerPackageRequest);
 
         /// <inheritdoc />
         public Task<T> InvokeAsync<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null)
-            => _deployment.InvokeAsync<T>(token, args, options, null);
+            InvokeOptions? options = null
+        ) => _deployment.InvokeAsync<T>(token, args, options, null);
 
         /// <inheritdoc />
         public Task<T> InvokeSingleAsync<T>(
             string token,
             InvokeArgs args,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.InvokeSingleAsync<T>(token, args, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.InvokeSingleAsync<T>(token, args, options, registerPackageRequest);
 
         /// <inheritdoc />
         public Task<T> InvokeSingleAsync<T>(
             string token,
             InvokeArgs args,
-            InvokeOptions? options = null)
-            => _deployment.InvokeSingleAsync<T>(token, args, options, null);
+            InvokeOptions? options = null
+        ) => _deployment.InvokeSingleAsync<T>(token, args, options, null);
 
         /// <summary>
         /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
         /// return value is ignored.
         /// </summary>
-        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options, RegisterPackageRequest? registerPackageRequest)
-            => _deployment.InvokeAsync(token, args, options, registerPackageRequest);
+        public Task InvokeAsync(
+            string token,
+            InvokeArgs args,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.InvokeAsync(token, args, options, registerPackageRequest);
 
         /// <summary>
         /// Same as <see cref="InvokeAsync{T}(string, InvokeArgs, InvokeOptions, RegisterPackageRequest)"/>, however the
         /// return value is ignored.
         /// </summary>
-        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null)
-            => _deployment.InvokeAsync(token, args, options, null);
+        public Task InvokeAsync(string token, InvokeArgs args, InvokeOptions? options = null) =>
+            _deployment.InvokeAsync(token, args, options, null);
 
         /// <inheritdoc />
         public Output<T> Call<T>(
@@ -146,16 +144,16 @@ namespace Pulumi
             CallArgs args,
             Resource? self,
             CallOptions? options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.Call<T>(token, args, self, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.Call<T>(token, args, self, options, registerPackageRequest);
 
         /// <inheritdoc />
         public Output<T> Call<T>(
             string token,
             CallArgs args,
             Resource? self = null,
-            CallOptions? options = null)
-            => _deployment.Call<T>(token, args, self, options, null);
+            CallOptions? options = null
+        ) => _deployment.Call<T>(token, args, self, options, null);
 
         /// Same as <see cref="Call{T}(string, CallArgs, Resource, CallOptions)"/> however the
         /// return value is expected to have a single member which is extracted.
@@ -197,7 +195,30 @@ namespace Pulumi
                         // In the case that we deserealize a number from the
                         // wire format, cast it to the appropriate type of
                         // number.
-                        return (T)doubleValue;
+                        T returnValue;
+
+                        switch (returnValue)
+                        {
+                            case int intValue:
+                                return (int)value;
+                                break;
+
+                            case double doubleValue:
+                                return (double)value;
+                                break;
+
+                            case decimal decimalValue:
+                                return (decimal)value;
+                                break;
+
+                            case float floatValue:
+                                return (float)value;
+                                break;
+
+                            case long longValue:
+                                return (long)value;
+                                break;
+                        }
                     }
 
                     throw new InvalidOperationException(
@@ -213,16 +234,16 @@ namespace Pulumi
             CallArgs args,
             Resource? self,
             CallOptions? options,
-            RegisterPackageRequest? registerPackageRequest)
-            => _deployment.Call(token, args, self, options, registerPackageRequest);
+            RegisterPackageRequest? registerPackageRequest
+        ) => _deployment.Call(token, args, self, options, registerPackageRequest);
 
         /// <inheritdoc />
         public void Call(
             string token,
             CallArgs args,
             Resource? self = null,
-            CallOptions? options = null)
-            => _deployment.Call(token, args, self, options, null);
+            CallOptions? options = null
+        ) => _deployment.Call(token, args, self, options, null);
 
         internal IDeploymentInternal Internal => (IDeploymentInternal)_deployment;
     }

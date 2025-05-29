@@ -192,6 +192,13 @@ namespace Pulumi
                     {
                         return typedValue;
                     }
+                    else if (value is double doubleValue)
+                    {
+                        // In the case that we deserealize a number from the
+                        // wire format, cast it to the appropriate type of
+                        // number.
+                        return (T)doubleValue;
+                    }
 
                     throw new InvalidOperationException(
                         $"expected property to have type {typeof(T)}, but had {singleProperty.PropertyType}"

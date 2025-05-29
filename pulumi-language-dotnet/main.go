@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"io"
@@ -25,13 +26,16 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/blang/semver"
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version"
 	dotnetcodegen "github.com/pulumi/pulumi/pkg/v3/codegen/dotnet"
@@ -1107,6 +1111,9 @@ func (host *dotnetLanguageHost) RunPlugin(
 		cmd.Env = append(req.Env, "PULUMI_ATTACH_DEBUGGER=true")
 	}
 	cmd.Stdout, cmd.Stderr = stdout, stderr
+	// wait a second for the plugin to shutdown, dotnet doesn't seem to close of IO pipes so without WaitDelay
+	// set we'd block forever in Wait.
+	cmd.WaitDelay = time.Second
 	if err := cmd.Start(); err != nil {
 		return err
 	}
@@ -1379,4 +1386,156 @@ func (host *dotnetLanguageHost) GenerateProgram(
 		Source:      files,
 		Diagnostics: rpcDiagnostics,
 	}, nil
+}
+
+func extractNugetPackageNameAndVersion(nugetFilePath string) (string, string, bool) {
+	filename := filepath.Base(nugetFilePath)
+	parts := strings.Split(filename, ".")
+	if len(parts) >= 5 {
+		patch := parts[len(parts)-2]
+		minor := parts[len(parts)-3]
+		major := parts[len(parts)-4]
+		version := fmt.Sprintf("%s.%s.%s", major, minor, patch)
+		pkg := strings.TrimSuffix(filename, fmt.Sprintf(".%s.nupkg", version))
+		return pkg, version, true
+	}
+
+	return "", "", false
+}
+
+func (host *dotnetLanguageHost) Link(
+	ctx context.Context, req *pulumirpc.LinkRequest,
+) (*pulumirpc.LinkResponse, error) {
+	// Find all the local dependency folders
+	folders := mapset.NewSet[string]()
+	artifacts := map[string]struct {
+		name    string
+		version string
+	}{}
+	for _, dep := range req.LocalDependencies {
+		folders.Add(path.Dir(dep))
+		name, version, ok := extractNugetPackageNameAndVersion(dep)
+		if ok {
+			artifacts[dep] = struct {
+				name    string
+				version string
+			}{name: name, version: version}
+		} else {
+			logging.V(3).Infof("warning: could not extract package name and version from %s", dep)
+		}
+	}
+
+	restoreSources := folders.ToSlice()
+	sort.Strings(restoreSources)
+
+	// Look for a csproj file in the program directory
+	programDirectory := req.Info.ProgramDirectory
+	csprojFile := ""
+	err := filepath.Walk(programDirectory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && filepath.Ext(path) == ".csproj" {
+			csprojFile = path
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to find csproj file: %w", err)
+	}
+
+	stat, err := os.Stat(csprojFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to stat csproj file: %w", err)
+	}
+
+	csproj, err := os.Open(csprojFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open csproj file: %w", err)
+	}
+
+	// Edit the XML to add the restorsources
+	var buf bytes.Buffer
+	decoder := xml.NewDecoder(csproj)
+	encoder := xml.NewEncoder(&buf)
+
+	restoreWritten := false
+	for {
+		token, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("error reading csproj token: %w", err)
+		}
+
+		inPropertyGroup := false
+		switch v := token.(type) {
+		case xml.StartElement:
+			if v.Name.Local == "PropertyGroup" {
+				inPropertyGroup = true
+			}
+			if v.Name.Local == "PackageReference" {
+				// If this is a package reference, check if it matches any of the local dependencies
+				attrs := make(map[string]string)
+				for _, attr := range v.Attr {
+					attrs[attr.Name.Local] = attr.Value
+				}
+				name := attrs["Include"]
+
+				// Reset the version to the local one
+				version := attrs["Version"]
+				for _, artifact := range artifacts {
+					if artifact.name == name {
+						version = artifact.version
+						break
+					}
+				}
+				attrs["Version"] = version
+
+				// Rebuild the start element with the updated attributes
+				v.Attr = make([]xml.Attr, 0, len(attrs))
+				for k, val := range attrs {
+					v.Attr = append(v.Attr, xml.Attr{
+						Name:  xml.Name{Local: k},
+						Value: val,
+					})
+				}
+				token = v
+			}
+		}
+
+		if err := encoder.EncodeToken(xml.CopyToken(token)); err != nil {
+			return nil, fmt.Errorf("error encoding element: %w", err)
+		}
+
+		// Once we've found the first PropertyGroup, we can add the RestoreSources element
+		if inPropertyGroup && !restoreWritten {
+			err = encoder.EncodeElement(
+				strings.Join(restoreSources, ";")+";$(RestoreSources)",
+				xml.StartElement{
+					Name: xml.Name{Local: "RestoreSources"},
+				},
+			)
+			if err != nil {
+				return nil, fmt.Errorf("error writing RestoreSources element: %w", err)
+			}
+			restoreWritten = true
+		}
+	}
+
+	// must call flush, otherwise some elements will be missing
+	if err := encoder.Flush(); err != nil {
+		return nil, fmt.Errorf("error flushing encoder: %w", err)
+	}
+
+	// Write the modified XML back to the csproj file
+	if err := csproj.Close(); err != nil {
+		logging.V(3).Infof("error closing csproj file: %v\n", err)
+	}
+	if err := os.WriteFile(csprojFile, buf.Bytes(), stat.Mode()); err != nil {
+		return nil, fmt.Errorf("failed to write csproj file: %w", err)
+	}
+
+	return &pulumirpc.LinkResponse{}, nil
 }

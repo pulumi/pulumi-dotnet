@@ -22,7 +22,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"sync"
 	"testing"
 
@@ -221,6 +220,13 @@ var programOverrides = map[string]*testingrpc.PrepareLanguageTestsRequest_Progra
 
 func TestLanguage(t *testing.T) {
 	t.Parallel()
+
+	// We need nuget caches cleared when running these tests otherwise nuget won't pick up the newly built
+	// SDKs that were building as part of testing.
+	cmd := exec.Command("dotnet", "nuget", "locals", "all", "--clear")
+	output, err := cmd.CombinedOutput()
+	require.NoError(t, err, "failed to clear nuget caches: %s", output)
+
 	engineAddress, engine := runTestingHost(t)
 
 	tests, err := engine.GetLanguageTests(context.Background(), &testingrpc.GetLanguageTestsRequest{})
@@ -251,6 +257,7 @@ func TestLanguage(t *testing.T) {
 		TemporaryDirectory:   rootDir,
 		SnapshotDirectory:    snapshotDir,
 		CoreSdkDirectory:     "../sdk/Pulumi",
+		PolicyPackDirectory:  "testdata/policies",
 		SnapshotEdits: []*testingrpc.PrepareLanguageTestsRequest_Replacement{
 			{
 				Pattern:     rootDir + "/artifacts",
@@ -267,9 +274,6 @@ func TestLanguage(t *testing.T) {
 			t.Parallel()
 			if expected, ok := expectedFailures[tt]; ok {
 				t.Skipf("test %s is expected to fail: %s", tt, expected)
-			}
-			if strings.HasPrefix(tt, "policy-") {
-				t.Skipf("dotnet doesn't support policy tests yet: %s", tt)
 			}
 
 			result, err := engine.RunLanguageTest(context.Background(), &testingrpc.RunLanguageTestRequest{

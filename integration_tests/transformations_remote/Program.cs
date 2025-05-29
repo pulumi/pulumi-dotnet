@@ -158,9 +158,9 @@ class TransformsStack : Stack
             Provider = provider
         });
 
-        // Scenario #9 - TODO
-        var res9 = new Random("res9", new RandomArgs { Length = Output.CreateSecret(11) });
-        var args = Random.MyInvokeArgs.Empty;
+        // Scenario #9 - Invoke transform
+        var res9 = new MyInvoke();
+        var args = MyInvoke.MyInvokeArgs.Empty;
         args.Prefix = "hello";
         args.Length = 135;
         res9.Invoke(args);

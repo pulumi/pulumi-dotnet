@@ -33,7 +33,7 @@ namespace Pulumi.Experimental.Provider
     /// <summary>
     /// A log message to be sent to the Pulumi engine.
     /// </summary>
-    public sealed class LogMessage
+    public sealed class LogRequest
     {
         /// <summary>
         /// The logging level of this message.
@@ -67,7 +67,7 @@ namespace Pulumi.Experimental.Provider
         /// </summary>
         public bool Ephemeral { get; }
 
-        public LogMessage(LogSeverity severity, string message, Urn? urn = null, int streamId = 0, bool ephemeral = false)
+        public LogRequest(LogSeverity severity, string message, Urn? urn = null, int streamId = 0, bool ephemeral = false)
         {
             Severity = severity;
             Message = message;
@@ -80,15 +80,15 @@ namespace Pulumi.Experimental.Provider
     /// <summary>
     /// An interface to the engine host running this plugin.
     /// </summary>
-    public interface IHost
+    public interface IEngine
     {
         /// <summary>
         /// Send a log message to the host.
         /// </summary>
-        public Task LogAsync(LogMessage message);
+        public Task LogAsync(LogRequest message);
     }
 
-    internal class GrpcHost : IHost
+    internal class GrpcEngine : IEngine
     {
         // TODO: We've got a few instances of channel sharing code, can they all be combined into one helper class?
 
@@ -97,7 +97,7 @@ namespace Pulumi.Experimental.Provider
         // According to the docs (https://docs.microsoft.com/en-us/aspnet/core/grpc/performance?view=aspnetcore-6.0#reuse-grpc-channels), creating GrpcChannels is expensive so we keep track of a bunch of them here
         private static readonly ConcurrentDictionary<string, GrpcChannel> _engineChannels = new ConcurrentDictionary<string, GrpcChannel>();
         private static readonly object _channelsLock = new object();
-        public GrpcHost(string engineAddress)
+        public GrpcEngine(string engineAddress)
         {
             // maxRpcMessageSize raises the gRPC Max Message size from `4194304` (4mb) to `419430400` (400mb)
             const int maxRpcMessageSize = 400 * 1024 * 1024;
@@ -132,9 +132,9 @@ namespace Pulumi.Experimental.Provider
             }
         }
 
-        public async Task LogAsync(LogMessage message)
+        public async Task LogAsync(LogRequest message)
         {
-            var request = new LogRequest();
+            var request = new Pulumirpc.LogRequest();
             request.Message = message.Message;
             request.Ephemeral = message.Ephemeral;
             request.Urn = message.Urn;

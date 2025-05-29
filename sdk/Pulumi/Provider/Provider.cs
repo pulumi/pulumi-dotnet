@@ -1187,14 +1187,14 @@ namespace Pulumi.Experimental.Provider
         private static Pulumirpc.ConstructResponse.Types.PropertyDependencies BuildPropertyDependencies(ISet<Urn> dependencies)
         {
             var propertyDependencies = new Pulumirpc.ConstructResponse.Types.PropertyDependencies();
-            propertyDependencies.Urns.AddRange(dependencies.Select(urn => urn.Value));
+            propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));
             return propertyDependencies;
         }
 
         private static Pulumirpc.CallResponse.Types.ReturnDependencies BuildReturnDependencies(ISet<Urn> dependencies)
         {
             var propertyDependencies = new Pulumirpc.CallResponse.Types.ReturnDependencies();
-            propertyDependencies.Urns.AddRange(dependencies.Select(urn => urn.Value));
+            propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));
             return propertyDependencies;
         }
     }

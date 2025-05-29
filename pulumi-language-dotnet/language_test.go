@@ -178,7 +178,6 @@ var expectedFailures = map[string]string{
 	"l1-keyword-overlap":       "#493 update to pulumi 1.50 conformance failure",
 	"l1-proxy-index":           "dotnet build failed",
 	"l2-component-call-simple": "#491 update to pulumi 1.50 conformance failure",
-	"l2-component-call-simple-liftedreturn": "PR #608 pending for CallSingle method in DeploymentInstance",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config": "sdk packing for config: build error before pack",

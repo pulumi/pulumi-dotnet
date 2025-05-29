@@ -20,7 +20,7 @@ class MyComponent : ComponentResource
 
 class TransformsStack : Stack
 {
-    public TransformsStack() : base(new StackOptions { ResourceTransforms = {Scenario3} })
+    public TransformsStack() : base(new StackOptions { ResourceTransforms = {Scenario3}, InvokeTransforms = {Scenario9} })
     {
         // Scenario #1 - apply a transformation to a CustomResource
         var res1 = new Random("res1", new RandomArgs { Length = 5 }, new CustomResourceOptions
@@ -157,6 +157,13 @@ class TransformsStack : Stack
             },
             Provider = provider
         });
+
+        // Scenario #9 - Invoke transform
+        var res9 = new MyInvoke();
+        var args = MyInvoke.MyInvokeArgs.Empty;
+        args.Prefix = "hello";
+        args.Length = 135;
+        res9.Invoke(args);
     }
 
     // Scenario #3 - apply a transformation to the Stack to transform all (future) resources in the stack
@@ -178,6 +185,16 @@ class TransformsStack : Stack
         }
 
         return null;
+    }
+
+    private static async Task<InvokeTransformResult?> Scenario9(InvokeTransformArgs args, CancellationToken ct)
+    {
+        Pulumi.Log.Debug("Running invoke transform");
+
+        var invokeArgs = args.Args;
+        invokeArgs = invokeArgs.SetItem("length", 11);
+
+        return new Pulumi.InvokeTransformResult(invokeArgs, args.Options);
     }
 }
 

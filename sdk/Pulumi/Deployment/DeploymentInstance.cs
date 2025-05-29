@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -188,42 +189,47 @@ namespace Pulumi
                     object? value = singleProperty.GetValue(obj, null);
                     if (value is T typedValue)
                     {
-                        return typedValue;
+                        return Task.FromResult(typedValue);
                     }
-                    else if (value is double doubleValue)
+                    else if (value is double wireDoubleValue)
                     {
-                        // In the case that we deserealize a number from the
+                        // In the case that we deserialize a number from the
                         // wire format, cast it to the appropriate type of
                         // number.
-                        T returnValue;
+                        Type targetType = typeof(T);
 
-                        switch (returnValue)
+                        if (targetType == typeof(int))
                         {
-                            case int intValue:
-                                return (int)value;
-                                break;
-
-                            case double doubleValue:
-                                return (double)value;
-                                break;
-
-                            case decimal decimalValue:
-                                return (decimal)value;
-                                break;
-
-                            case float floatValue:
-                                return (float)value;
-                                break;
-
-                            case long longValue:
-                                return (long)value;
-                                break;
+                            return Task.FromResult((T)(object)(int)wireDoubleValue);
+                        }
+                        else if (targetType == typeof(double))
+                        {
+                            return Task.FromResult((T)(object)wireDoubleValue);
+                        }
+                        else if (targetType == typeof(decimal))
+                        {
+                            return Task.FromResult((T)(object)(decimal)wireDoubleValue);
+                        }
+                        else if (targetType == typeof(float))
+                        {
+                            return Task.FromResult((T)(object)(float)wireDoubleValue);
+                        }
+                        else if (targetType == typeof(long))
+                        {
+                            return Task.FromResult((T)(object)(long)wireDoubleValue);
+                        }
+                        else if (targetType.IsEnum)
+                        {
+                            // Convert to the underlying type and construct the enum
+                            Type underlyingType = Enum.GetUnderlyingType(targetType);
+                            object underlyingValue = Convert.ChangeType(wireDoubleValue, underlyingType, CultureInfo.InvariantCulture);
+                            return Task.FromResult((T)Enum.ToObject(targetType, underlyingValue));
                         }
                     }
 
-                    throw new InvalidOperationException(
+                    return Task.FromException<T>(new InvalidOperationException(
                         $"expected property to have type {typeof(T)}, but had {singleProperty.PropertyType}"
-                    );
+                    ));
                 }
             );
         }

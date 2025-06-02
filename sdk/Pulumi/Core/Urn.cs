@@ -11,7 +11,7 @@ namespace Pulumi
     /// </summary>
     public readonly struct Urn : IEquatable<Urn>
     {
-        readonly string _value;
+        private readonly string _value;
 
         public Urn(string value)
         {
@@ -31,52 +31,38 @@ namespace Pulumi
         /// <summary>
         /// Returns the string representation of this URN.
         /// </summary>
-        override public string ToString() => _value;
+        public override string ToString() => _value;
 
         /// <summary>
         /// Determines whether the specified object is equal to the current URN.
         /// </summary>
         public override bool Equals([NotNullWhen(true)] object? obj)
-        {
-            if (obj is Urn other)
-            {
-                return Equals(this, other);
-            }
-            return false;
-        }
+            => obj is Urn other && Equals(other);
 
         /// <summary>
         /// Determines whether the specified URN is equal to the current URN.
         /// </summary>
         public bool Equals(Urn other)
-        {
-            return string.Equals(_value, other._value, StringComparison.Ordinal);
-        }
+            => string.Equals(_value, other._value, StringComparison.Ordinal);
 
         /// <summary>
         /// Returns a hash code for this URN.
         /// </summary>
-        override public int GetHashCode()
-        {
-            return _value.GetHashCode(StringComparison.Ordinal);
-        }
+        public override int GetHashCode()
+            => _value.GetHashCode(StringComparison.Ordinal);
 
 
         /// <summary>
         /// Determines whether two URN values are equal.
         /// </summary>
         public static bool operator ==(Urn left, Urn right)
-        {
-            return left.Equals(right);
-        }
+            => left.Equals(right);
 
         /// <summary>
         /// Determines whether two URN values are not equal.
         /// </summary>
         public static bool operator !=(Urn left, Urn right)
-        {
-            return !(left == right);
-        }
+            => !(left == right);
 
         /// <summary>
         /// Computes a URN from the combination of a resource name, resource type, optional parent,

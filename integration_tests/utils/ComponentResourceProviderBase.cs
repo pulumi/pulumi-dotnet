@@ -24,7 +24,7 @@ public class ComponentResourceProviderBase : Provider
         var checkResult = await OutputUtilities.GetValueAsync(check(request.Self, args));
         if (!checkResult.IsValid)
         {
-            return new CallResponse(null, checkResult.Failures, ImmutableDictionary<string, ISet<Experimental.Provider.Urn>>.Empty);
+            return new CallResponse(null, checkResult.Failures, ImmutableDictionary<string, ISet<Urn>>.Empty);
         }
 
         var result = await OutputUtilities.GetValueAsync(factory(request.Self, args));
@@ -36,7 +36,7 @@ public class ComponentResourceProviderBase : Provider
             throw new InvalidOperationException("Expected result to be an object");
         }
 
-        return new CallResponse(resultObject, new List<CheckFailure>(), ImmutableDictionary<string, ISet<Experimental.Provider.Urn>>.Empty);
+        return new CallResponse(resultObject, new List<CheckFailure>(), ImmutableDictionary<string, ISet<Urn>>.Empty);
     }
 
     protected async Task<ConstructResponse> Construct<TArgs, TResource>(
@@ -59,7 +59,7 @@ public class ComponentResourceProviderBase : Provider
 
         var stateValue = await serializer.StateFromComponentResource(resource);
 
-        return new ConstructResponse(new Experimental.Provider.Urn(urn), stateValue, ImmutableDictionary<string, ISet<Experimental.Provider.Urn>>.Empty);
+        return new ConstructResponse(new Urn(urn), stateValue, ImmutableDictionary<string, ISet<Urn>>.Empty);
     }
 
     public override Task<ConfigureResponse> Configure(ConfigureRequest request, CancellationToken ct)

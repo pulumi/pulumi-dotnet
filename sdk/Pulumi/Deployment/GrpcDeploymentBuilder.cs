@@ -8,7 +8,7 @@ internal class GrpcDeploymentBuilder : IDeploymentBuilder
     {
     }
 
-    public IEngine BuildEngine(string engineAddress)
+    public Experimental.IEngine BuildEngine(string engineAddress)
     {
         return new GrpcEngine(engineAddress);
     }

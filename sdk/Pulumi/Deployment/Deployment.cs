@@ -93,7 +93,7 @@ namespace Pulumi
         private readonly IEngineLogger _logger;
         private readonly IRunner _runner;
 
-        internal IEngine Engine { get; }
+        internal Experimental.IEngine Engine { get; }
         internal IMonitor Monitor { get; }
 
         internal Stack? _stack;
@@ -155,7 +155,7 @@ namespace Pulumi
         /// This constructor is also used in deployment tests in order to
         /// instantiate mock deployments.
         /// </summary>
-        internal Deployment(IEngine engine, IMonitor monitor, TestOptions? options)
+        internal Deployment(Experimental.IEngine engine, IMonitor monitor, TestOptions? options)
         {
             var deploymentLogger = CreateDefaultLogger();
             _isDryRun = options?.IsPreview ?? true;

@@ -15,14 +15,14 @@ namespace Pulumi
             private readonly object _logGate = new object();
             private readonly IDeploymentInternal _deployment;
             private readonly ILogger _deploymentLogger;
-            private readonly IEngine _engine;
+            private readonly Experimental.IEngine _engine;
 
             // We serialize all logging tasks so that the engine doesn't hear about them out of order.
             // This is necessary for streaming logs to be maintained in the right order.
             private Task _lastLogTask = Task.CompletedTask;
             private int _errorCount;
 
-            public EngineLogger(IDeploymentInternal deployment, ILogger deploymentLogger, IEngine engine)
+            public EngineLogger(IDeploymentInternal deployment, ILogger deploymentLogger, Experimental.IEngine engine)
             {
                 _deployment = deployment;
                 _deploymentLogger = deploymentLogger;
@@ -48,7 +48,7 @@ namespace Pulumi
 #pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogDebug(message);
 #pragma warning restore CA2254 // Template should be a static expression
-                return LogImplAsync(LogSeverity.Debug, message, resource, streamId, ephemeral);
+                return LogImplAsync(Experimental.LogSeverity.Debug, message, resource, streamId, ephemeral);
             }
 
             /// <summary>
@@ -60,7 +60,7 @@ namespace Pulumi
 #pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogInformation(message);
 #pragma warning restore CA2254 // Template should be a static expression
-                return LogImplAsync(LogSeverity.Info, message, resource, streamId, ephemeral);
+                return LogImplAsync(Experimental.LogSeverity.Info, message, resource, streamId, ephemeral);
             }
 
             /// <summary>
@@ -71,7 +71,7 @@ namespace Pulumi
 #pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogWarning(message);
 #pragma warning restore CA2254 // Template should be a static expression
-                return LogImplAsync(LogSeverity.Warning, message, resource, streamId, ephemeral);
+                return LogImplAsync(Experimental.LogSeverity.Warning, message, resource, streamId, ephemeral);
             }
 
             /// <summary>
@@ -86,16 +86,16 @@ namespace Pulumi
 #pragma warning disable CA2254 // Template should be a static expression
                 _deploymentLogger.LogError(message);
 #pragma warning restore CA2254 // Template should be a static expression
-                return LogImplAsync(LogSeverity.Error, message, resource, streamId, ephemeral);
+                return LogImplAsync(Experimental.LogSeverity.Error, message, resource, streamId, ephemeral);
             }
 
-            private Task LogImplAsync(LogSeverity severity, string message, Resource? resource, int? streamId, bool? ephemeral)
+            private Task LogImplAsync(Experimental.LogSeverity severity, string message, Resource? resource, int? streamId, bool? ephemeral)
             {
                 // Serialize our logging tasks so that streaming logs appear in order.
                 Task task;
                 lock (_logGate)
                 {
-                    if (severity == LogSeverity.Error)
+                    if (severity == Experimental.LogSeverity.Error)
                         _errorCount++;
 
                     // Use a Task.Run here so that we don't end up aggressively running the actual
@@ -108,20 +108,18 @@ namespace Pulumi
                 return task;
             }
 
-            private async Task LogAsync(LogSeverity severity, string message, Resource? resource, int? streamId, bool? ephemeral)
+            private async Task LogAsync(Experimental.LogSeverity severity, string message, Resource? resource, int? streamId, bool? ephemeral)
             {
                 try
                 {
-                    var urn = await TryGetResourceUrnAsync(resource).ConfigureAwait(false);
-
-                    await _engine.LogAsync(new LogRequest
+                    var urnValue = await TryGetResourceUrnAsync(resource).ConfigureAwait(false);
+                    Urn? urn = null;
+                    if (!string.IsNullOrEmpty(urnValue))
                     {
-                        Severity = severity,
-                        Message = message,
-                        Urn = urn,
-                        StreamId = streamId ?? 0,
-                        Ephemeral = ephemeral ?? false,
-                    }).ConfigureAwait(false);
+                        urn = new Urn(urnValue);
+                    }
+
+                    await _engine.LogAsync(new Experimental.LogRequest(severity, message, urn, streamId ?? 0, ephemeral ?? false)).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {

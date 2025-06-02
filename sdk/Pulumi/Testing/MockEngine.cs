@@ -7,13 +7,13 @@ using Pulumirpc;
 
 namespace Pulumi.Testing
 {
-    internal class MockEngine : IEngine
+    internal class MockEngine : Experimental.IEngine
     {
         public readonly List<string> Errors = new List<string>();
 
-        public Task LogAsync(LogRequest request)
+        public Task LogAsync(Experimental.LogRequest request)
         {
-            if (request.Severity == LogSeverity.Error)
+            if (request.Severity == Experimental.LogSeverity.Error)
             {
                 lock (this.Errors)
                 {

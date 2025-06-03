@@ -170,6 +170,78 @@
             ConfigMissingException is used when a configuration value is completely missing.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.LogSeverity">
+            <summary>
+            LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Debug">
+            <summary>
+            A debug-level message not displayed to end-users (the default).
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Info">
+            <summary>
+            An informational message printed to output during resource operations.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Warning">
+            <summary>
+            A warning to indicate that something went wrong.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Error">
+            <summary>
+            A fatal error indicating that the tool should stop processing subsequent resource operations.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.LogRequest">
+            <summary>
+            A log message to be sent to the Pulumi engine.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Severity">
+            <summary>
+            The logging level of this message.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Message">
+            <summary>
+            The contents of the logged message.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Urn">
+            <summary>
+            The (optional) resource urn this log is associated with.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.StreamId">
+            <summary>
+            The (optional) stream id that a stream of log messages can be associated with. This allows
+            clients to not have to buffer a large set of log messages that they all want to be
+            conceptually connected.  Instead the messages can be sent as chunks (with the same stream id)
+            and the end display can show the messages as they arrive, while still stitching them together
+            into one total log message.
+            </summary>
+            <remarks>
+            0 means do not associate with any stream.
+            </remarks>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Ephemeral">
+            <summary>
+            Optional value indicating whether this is a status message.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.IEngine">
+            <summary>
+            An interface to the engine host running this plugin.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.IEngine.LogAsync(Pulumi.Experimental.LogRequest)">
+            <summary>
+            Send a log message to the host.
+            </summary>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.ComponentAnalyzer">
             <summary>
             Analyzes component resource types and generates a package schema.
@@ -240,78 +312,6 @@
             <param name="args">The command-line arguments</param>
             <param name="componentAssembly">The assembly containing component types</param>
             <param name="packageName">Optional package name (defaults to assembly name)</param>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.LogSeverity">
-            <summary>
-            LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Debug">
-            <summary>
-            A debug-level message not displayed to end-users (the default).
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Info">
-            <summary>
-            An informational message printed to output during resource operations.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Warning">
-            <summary>
-            A warning to indicate that something went wrong.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Error">
-            <summary>
-            A fatal error indicating that the tool should stop processing subsequent resource operations.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.LogMessage">
-            <summary>
-            A log message to be sent to the Pulumi engine.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Severity">
-            <summary>
-            The logging level of this message.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Message">
-            <summary>
-            The contents of the logged message.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Urn">
-            <summary>
-            The (optional) resource urn this log is associated with.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.StreamId">
-            <summary>
-            The (optional) stream id that a stream of log messages can be associated with. This allows
-            clients to not have to buffer a large set of log messages that they all want to be
-            conceptually connected.  Instead the messages can be sent as chunks (with the same stream id)
-            and the end display can show the messages as they arrive, while still stitching them together
-            into one total log message.
-            </summary>
-            <remarks>
-            0 means do not associate with any stream.
-            </remarks>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Ephemeral">
-            <summary>
-            Optional value indicating whether this is a status message.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.IHost">
-            <summary>
-            An interface to the engine host running this plugin.
-            </summary>
-        </member>
-        <member name="M:Pulumi.Experimental.Provider.IHost.LogAsync(Pulumi.Experimental.Provider.LogMessage)">
-            <summary>
-            Send a log message to the host.
-            </summary>
         </member>
         <member name="T:Pulumi.Experimental.Provider.PropertyValueType">
             <summary>
@@ -1166,7 +1166,7 @@
             passed to <see cref="M:Pulumi.Deployment.RunAsync(System.Action)"/> (or its overloads).
             </summary>
         </member>
-        <member name="M:Pulumi.Deployment.#ctor(Pulumi.IEngine,Pulumi.IMonitor,Pulumi.Testing.TestOptions)">
+        <member name="M:Pulumi.Deployment.#ctor(Pulumi.Experimental.IEngine,Pulumi.IMonitor,Pulumi.Testing.TestOptions)">
             <summary>
             This constructor is called from <see cref="M:Pulumi.Deployment.TestAsync(Pulumi.Testing.IMocks,System.Func{Pulumi.IRunner,System.Threading.Tasks.Task{System.Int32}},Pulumi.Testing.TestOptions)"/>
             with a mocked monitor and dummy values for project and stack.

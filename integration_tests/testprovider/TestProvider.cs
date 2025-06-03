@@ -9,11 +9,11 @@ using Pulumi.Experimental.Provider;
 
 public class TestProvider : Provider
 {
-    readonly IHost host;
+    readonly Pulumi.Experimental.IEngine host;
     int id = 0;
     string parameter;
 
-    public TestProvider(IHost host)
+    public TestProvider(Pulumi.Experimental.IEngine host)
     {
         this.host = host;
         this.parameter = "testprovider";

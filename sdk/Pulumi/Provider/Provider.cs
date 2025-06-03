@@ -502,7 +502,7 @@ namespace Pulumi.Experimental.Provider
             throw new NotImplementedException($"The method '{nameof(Call)}' is not implemented ");
         }
 
-        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        public static async Task Serve(string[] args, string? version, Func<Experimental.IEngine, Provider> factory, System.Threading.CancellationToken cancellationToken)
         {
             var value = System.Environment.GetEnvironmentVariable("PULUMI_ATTACH_DEBUGGER");
             if (value != null && value == "true")
@@ -543,7 +543,7 @@ namespace Pulumi.Experimental.Provider
             string[] args,
             string? version,
             IDeploymentBuilder deploymentBuilder,
-            Func<IHost, Provider> factory,
+            Func<Experimental.IEngine, Provider> factory,
             Action<IWebHostBuilder>? configuration = default)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
@@ -648,7 +648,7 @@ namespace Pulumi.Experimental.Provider
 
     class ResourceProviderService : ResourceProvider.ResourceProviderBase, IDisposable
     {
-        private readonly Func<IHost, Provider> factory;
+        private readonly Func<Experimental.IEngine, Provider> factory;
         private readonly IDeploymentBuilder deploymentBuilder;
         private readonly ILogger? logger;
         private readonly CancellationTokenSource rootCTS;
@@ -672,12 +672,12 @@ namespace Pulumi.Experimental.Provider
 
         private void CreateProvider(string address)
         {
-            var host = new GrpcHost(address);
+            var host = new GrpcEngine(address);
             implementation = factory(host);
             engineAddress = address;
         }
 
-        public ResourceProviderService(Func<IHost, Provider> factory,
+        public ResourceProviderService(Func<Experimental.IEngine, Provider> factory,
             IDeploymentBuilder deploymentBuilder,
             IConfiguration configuration,
             ILogger<ResourceProviderService>? logger)

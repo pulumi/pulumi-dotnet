@@ -182,9 +182,9 @@ namespace Pulumi
             return _deployment.MonitorSupportsInvokeTransforms();
         }
 
-        public void RegisterInvokeTransforms(List<InvokeTransform> transforms)
+        public void RegisterInvokeTransform(InvokeTransform transform)
         {
-            _deployment.RegisterInvokeTransforms(transforms);
+            _deployment.RegisterInvokeTransform(transform);
         }
 
         internal IDeploymentInternal Internal => (IDeploymentInternal)_deployment;

@@ -291,6 +291,10 @@ namespace Pulumi
         /// Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
         /// </summary>
         Task<bool> MonitorSupportsInvokeTransforms();
-        void RegisterInvokeTransforms(List<InvokeTransform> transforms);
+
+        /// <summary>
+        /// Register an invoke transform to run when invoke calls are made.
+        /// </summary>
+        void RegisterInvokeTransform(InvokeTransform transform);
     }
 }

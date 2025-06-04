@@ -20,7 +20,7 @@ class MyComponent : ComponentResource
 
 class TransformsStack : Stack
 {
-    public TransformsStack() : base(new StackOptions { ResourceTransforms = {Scenario3}, InvokeTransforms = {Scenario9} })
+    public TransformsStack() : base(new StackOptions { ResourceTransforms = {Scenario3} })
     {
         // Scenario #1 - apply a transformation to a CustomResource
         var res1 = new Random("res1", new RandomArgs { Length = 5 }, new CustomResourceOptions
@@ -159,6 +159,8 @@ class TransformsStack : Stack
         });
 
         // Scenario #9 - Invoke transform
+        global::Pulumi.Deployment.Instance.RegisterInvokeTransform(Scenario9);
+
         var res9 = new MyInvoke();
         var args = MyInvoke.MyInvokeArgs.Empty;
         args.Prefix = "hello";

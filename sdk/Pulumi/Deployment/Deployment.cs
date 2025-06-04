@@ -281,24 +281,18 @@ namespace Pulumi
             return MonitorSupportsFeature("invokeTransforms");
         }
 
-        public void RegisterInvokeTransforms(List<InvokeTransform> transforms)
+        public void RegisterInvokeTransform(InvokeTransform transform)
         {
-            if (transforms.Count > 0)
+            var monitorSupportsInvokeTransforms = MonitorSupportsInvokeTransforms().Result;
+            if (!monitorSupportsInvokeTransforms)
             {
-                var monitorSupportsInvokeTransforms = MonitorSupportsInvokeTransforms().Result;
-                if (!monitorSupportsInvokeTransforms)
-                {
-                    throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
-                }
-
-                var callbacks = GetCallbacksAsync(CancellationToken.None).Result;
-
-                foreach (var t in transforms)
-                {
-                    var callback = AllocateInvokeTransform(callbacks.Callbacks, t).Result;
-                    Monitor.RegisterStackInvokeTransform(callback).Wait();
-                }
+                throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
             }
+
+            var callbacks = GetCallbacksAsync(CancellationToken.None).Result;
+            var callback = AllocateInvokeTransform(callbacks.Callbacks, transform).Result;
+
+            Monitor.RegisterStackInvokeTransform(callback).Wait();
         }
 
         // Because the secrets feature predates the Pulumi .NET SDK, we assume

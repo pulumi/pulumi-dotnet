@@ -45,22 +45,11 @@ let getDevVersion() =
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
 let cleanSdk() =
-    let cmd = Cli.Wrap("dotnet").WithArguments("clean").WithWorkingDirectory(sdk)
+    printfn "Deprecated: calling `make clean` instead"
+    let cmd = Cli.Wrap("make").WithArguments("clean").WithWorkingDirectory(repositoryRoot)
     let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith "Clean failed"
-
-    let projects = [
-        pulumiSdk
-        pulumiSdkTests
-        pulumiAutomationSdk
-        pulumiAutomationSdkTests
-        pulumiFSharp
-    ]
-
-    for project in projects do
-        Shell.deleteDir (Path.Combine(project, "bin"))
-        Shell.deleteDir (Path.Combine(project, "obj"))
 
 /// Runs `dotnet restore` against the solution file without using cache
 let restoreSdk() =

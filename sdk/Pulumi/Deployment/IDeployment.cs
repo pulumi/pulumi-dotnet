@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace Pulumi
 {
@@ -295,6 +296,6 @@ namespace Pulumi
         /// <summary>
         /// Register an invoke transform to run when invoke calls are made.
         /// </summary>
-        void RegisterInvokeTransform(InvokeTransform transform);
+        Task RegisterInvokeTransform(InvokeTransform transform);
     }
 }

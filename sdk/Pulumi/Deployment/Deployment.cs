@@ -281,16 +281,16 @@ namespace Pulumi
             return MonitorSupportsFeature("invokeTransforms");
         }
 
-        public void RegisterInvokeTransform(InvokeTransform transform)
+        public async Task RegisterInvokeTransform(InvokeTransform transform)
         {
-            var monitorSupportsInvokeTransforms = MonitorSupportsInvokeTransforms().Result;
+            var monitorSupportsInvokeTransforms = await MonitorSupportsInvokeTransforms().ConfigureAwait(false);
             if (!monitorSupportsInvokeTransforms)
             {
                 throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
             }
 
-            var callbacks = GetCallbacksAsync(CancellationToken.None).Result;
-            var callback = AllocateInvokeTransform(callbacks.Callbacks, transform).Result;
+            var callbacks = await GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
+            var callback = await AllocateInvokeTransform(callbacks.Callbacks, transform).ConfigureAwait(false);
 
             Monitor.RegisterStackInvokeTransform(callback).Wait();
         }

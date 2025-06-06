@@ -1,3 +1,8 @@
+# Clean all generated SDK files
+clean::
+	cd sdk && dotnet clean
+	rm -rf sdk/*/{bin,obj}
+
 GO := go
 
 # Try to get the dev version using changie, otherwise fall back

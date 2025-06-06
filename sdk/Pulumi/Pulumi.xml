@@ -1251,6 +1251,16 @@
             remove this function.
             </summary>
         </member>
+        <member name="F:Pulumi.Deployment._registrationsComplete">
+            <summary>
+            A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Deployment.DeclareRegistrationsComplete">
+            <summary>
+            All invoke transforms have been registered, and now we can unblock invokes.
+            </summary>
+        </member>
         <member name="M:Pulumi.Deployment.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
             <summary>
             <see cref="M:Pulumi.Deployment.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)"/> makes a copy of the aliases array, and add to it any
@@ -1840,6 +1850,12 @@
             Register an invoke transform to run when invoke calls are made.
             </summary>
         </member>
+        <member name="M:Pulumi.IDeploymentInternal.DeclareRegistrationsComplete">
+            <summary>
+            We want to make sure all invoke transforms have been registered before running any invokes. So, we block invokes until this method is called.
+            TODO: resource transforms should also work this way.
+            </summary>
+        </member>
         <member name="T:Pulumi.InvokeOptions">
             <summary>
             Options to help control the behavior of <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>.
@@ -2292,11 +2308,11 @@
         </member>
         <member name="T:Pulumi.InvokeTransform">
             <summary>
-            TODO
+            The type of an invoke transform.
             </summary>
-            <returns>
-              TODO
-            </returns>
+            <param name="args"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
         </member>
         <member name="P:Pulumi.InvokeTransformArgs.Token">
             <summary>

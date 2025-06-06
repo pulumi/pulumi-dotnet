@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Pulumi
 {
+    /// <summary>
+    /// The type of an invoke transform.
+    /// </summary>
+    /// <param name="args"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public delegate Task<InvokeTransformResult?> InvokeTransform(InvokeTransformArgs args, CancellationToken cancellationToken = default);
 
     public readonly struct InvokeTransformArgs

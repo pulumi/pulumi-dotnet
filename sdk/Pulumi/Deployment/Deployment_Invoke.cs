@@ -307,6 +307,8 @@ namespace Pulumi
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest = null)
         {
+            await AwaitPendingRegistrations();
+
             var keepResources = await this.MonitorSupportsResourceReferences().ConfigureAwait(false);
             var argsSerializationRawResult = await SerializeInvokeArgs(token, args, keepResources);
             var argsSerializationResult = argsSerializationRawResult.ToSerializationResult();

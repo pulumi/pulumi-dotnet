@@ -1125,6 +1125,11 @@
              program ending early before all resources are properly registered.
              </summary>
         </member>
+        <member name="F:Pulumi.Deployment._registrationsComplete">
+            <summary>
+            A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
+            </summary>
+        </member>
         <member name="P:Pulumi.Deployment.Instance">
             <summary>
             The current running deployment instance. This is only available from inside the function
@@ -1249,16 +1254,6 @@
             so we can be compatible with older versions of our packages. Once we stop supporting
             older packages, we can change the language host to not add this :config: thing and
             remove this function.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Deployment._registrationsComplete">
-            <summary>
-            A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
-            </summary>
-        </member>
-        <member name="M:Pulumi.Deployment.DeclareRegistrationsComplete">
-            <summary>
-            All invoke transforms have been registered, and now we can unblock invokes.
             </summary>
         </member>
         <member name="M:Pulumi.Deployment.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
@@ -1848,12 +1843,6 @@
         <member name="M:Pulumi.IDeployment.RegisterInvokeTransform(Pulumi.InvokeTransform)">
             <summary>
             Register an invoke transform to run when invoke calls are made.
-            </summary>
-        </member>
-        <member name="M:Pulumi.IDeploymentInternal.DeclareRegistrationsComplete">
-            <summary>
-            We want to make sure all invoke transforms have been registered before running any invokes. So, we block invokes until this method is called.
-            TODO: resource transforms should also work this way.
             </summary>
         </member>
         <member name="T:Pulumi.InvokeOptions">

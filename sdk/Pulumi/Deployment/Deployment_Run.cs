@@ -38,7 +38,6 @@ namespace Pulumi
             => RunAsync(async () =>
             {
                 await func().ConfigureAwait(false);
-                Deployment.Instance.Internal.DeclareRegistrationsComplete();
                 return ImmutableDictionary<string, object?>.Empty;
             });
 

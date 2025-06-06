@@ -47,6 +47,12 @@ namespace Pulumi
         private static readonly AsyncLocal<DeploymentInstance?> _instance = new AsyncLocal<DeploymentInstance?>();
 
         /// <summary>
+        /// A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
+        /// </summary>
+        private TaskCompletionSource<bool> _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _pendingRegistrations;
+
+        /// <summary>
         /// The current running deployment instance. This is only available from inside the function
         /// passed to <see cref="Deployment.RunAsync(Action)"/> (or its overloads).
         /// </summary>
@@ -289,10 +295,44 @@ namespace Pulumi
                 throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
             }
 
+            lock (_registrationsComplete)
+            {
+                _pendingRegistrations++;
+            }
+
             var callbacks = await GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
             var callback = await AllocateInvokeTransform(callbacks.Callbacks, transform).ConfigureAwait(false);
 
-            Monitor.RegisterStackInvokeTransform(callback).Wait();
+            await Monitor.RegisterStackInvokeTransform(callback).ConfigureAwait(false);
+            int updated;
+
+            lock (_registrationsComplete)
+            {
+                updated = --_pendingRegistrations;
+            }
+
+            if (updated == 0)
+            {
+                var current = _registrationsComplete;
+
+                _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                current.TrySetResult(true);
+            }
+        }
+
+        public async Task AwaitPendingRegistrations()
+        {
+            var awaitingPendingRegistrations = false;
+
+            lock (_registrationsComplete)
+            {
+                awaitingPendingRegistrations = _pendingRegistrations > 0;
+            }
+
+            if (awaitingPendingRegistrations)
+            {
+                await _registrationsComplete.Task;
+            }
         }
 
         // Because the secrets feature predates the Pulumi .NET SDK, we assume

@@ -20,11 +20,5 @@ namespace Pulumi
             ResourceOptions opts,
             RegisterPackageRequest? registerPackageRequest = null);
         void RegisterResourceOutputs(Resource resource, Output<IDictionary<string, object?>> outputs);
-
-        /// <summary>
-        /// We want to make sure all invoke transforms have been registered before running any invokes. So, we block invokes until this method is called.
-        /// TODO: resource transforms should also work this way.
-        /// </summary>
-        void DeclareRegistrationsComplete();
     }
 }

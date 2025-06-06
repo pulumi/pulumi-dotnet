@@ -13,19 +13,6 @@ namespace Pulumi
 {
     public sealed partial class Deployment
     {
-        /// <summary>
-        /// A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
-        /// </summary>
-        private TaskCompletionSource<bool> _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        /// <summary>
-        /// All invoke transforms have been registered, and now we can unblock invokes.
-        /// </summary>
-        public void DeclareRegistrationsComplete()
-        {
-            _registrationsComplete.TrySetResult(true);
-        }
-
         Task IDeployment.InvokeAsync(string token, InvokeArgs args, InvokeOptions? options, RegisterPackageRequest? registerPackageRequest)
             => InvokeAsync<object>(token, args, options, convertResult: false);
 
@@ -320,7 +307,7 @@ namespace Pulumi
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest = null)
         {
-            await _registrationsComplete.Task;
+            await AwaitPendingRegistrations();
 
             var keepResources = await this.MonitorSupportsResourceReferences().ConfigureAwait(false);
             var argsSerializationRawResult = await SerializeInvokeArgs(token, args, keepResources);

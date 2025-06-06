@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Improvements
+body: Move PropertyValue out of the Provider namespace
+time: 2025-06-06T12:04:13.506183+01:00
+custom:
+    PR: "623"

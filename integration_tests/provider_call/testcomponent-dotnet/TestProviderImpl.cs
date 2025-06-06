@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 using Pulumi.IntegrationTests.Utils;
 

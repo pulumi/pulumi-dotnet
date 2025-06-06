@@ -1,6 +1,6 @@
 // Copyright 2016-2023, Pulumi Corporation
 
-using Grpc.Net.Client;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 using System;
 using System.Collections.Generic;

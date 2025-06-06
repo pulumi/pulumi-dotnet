@@ -1,10 +1,11 @@
-// Copyright 2022-2023, Pulumi Corporation.  All rights reserved.
+// Copyright 2022-2025, Pulumi Corporation.  All rights reserved.
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 
 public class TestProvider : Provider

@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
-namespace Pulumi.Experimental.Provider
+namespace Pulumi.Experimental
 {
     /// <summary>
     /// Property values will be one of these types.

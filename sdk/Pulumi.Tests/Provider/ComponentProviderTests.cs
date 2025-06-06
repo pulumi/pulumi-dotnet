@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 
 namespace Pulumi.Tests.Provider

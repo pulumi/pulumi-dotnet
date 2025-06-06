@@ -1,8 +1,7 @@
+namespace Pulumi.Tests.Cores;
+
 using Pulumi.Tests.Serialization;
-
-namespace Pulumi.Tests.Provider;
-
-using Pulumi.Experimental.Provider;
+using Pulumi.Experimental;
 using Pulumi.Utilities;
 using System;
 using System.Collections.Generic;

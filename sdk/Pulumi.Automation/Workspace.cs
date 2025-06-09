@@ -415,6 +415,14 @@ namespace Pulumi.Automation
         /// <returns></returns>
         public abstract Task InstallAsync(InstallOptions? options = null, CancellationToken cancellationToken = default);
 
+        // Config options overloads
+        public abstract Task<ConfigValue> GetConfigWithOptionsAsync(string stackName, string key, ConfigOptions? options = null, CancellationToken cancellationToken = default);
+        public abstract Task SetConfigWithOptionsAsync(string stackName, string key, ConfigValue value, ConfigOptions? options = null, CancellationToken cancellationToken = default);
+        public abstract Task RemoveConfigWithOptionsAsync(string stackName, string key, ConfigOptions? options = null, CancellationToken cancellationToken = default);
+        public abstract Task<ImmutableDictionary<string, ConfigValue>> GetAllConfigWithOptionsAsync(string stackName, GetAllConfigOptions? options = null, CancellationToken cancellationToken = default);
+        public abstract Task SetAllConfigWithOptionsAsync(string stackName, IDictionary<string, ConfigValue> configMap, ConfigOptions? options = null, CancellationToken cancellationToken = default);
+        public abstract Task RemoveAllConfigWithOptionsAsync(string stackName, IEnumerable<string> keys, ConfigOptions? options = null, CancellationToken cancellationToken = default);
+
         internal async Task<CommandResult> RunStackCommandAsync(
             string stackName,
             IList<string> args,

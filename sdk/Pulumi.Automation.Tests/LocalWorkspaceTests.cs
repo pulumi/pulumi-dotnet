@@ -2513,5 +2513,152 @@ namespace Pulumi.Automation.Tests
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await workspace.InstallAsync(installOptions));
         }
+
+        [Fact]
+        public async Task ConfigOptions_PathOption_Works()
+        {
+            var projectName = "config_options_path_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+            var stackName = $"{RandomStackName()}";
+            var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+            try
+            {
+                var options = new ConfigOptions(path: true);
+                await stack.SetConfigWithOptionsAsync("foo.bar", new ConfigValue("baz"), options);
+                var value = await stack.GetConfigWithOptionsAsync("foo.bar", options);
+                Assert.Equal("baz", value.Value);
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+            }
+        }
+
+        [Fact]
+        public async Task ConfigOptions_ConfigFileOption_Works()
+        {
+            var projectName = "config_options_configfile_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+            var configFile = Path.Combine(Path.GetTempPath(), $"Pulumi.{Guid.NewGuid()}.yaml");
+            File.WriteAllText(configFile, "config: { test:key: value }\n");
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+            var stackName = $"{RandomStackName()}";
+            var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+            try
+            {
+                var options = new ConfigOptions(configFile: configFile);
+                var value = await stack.GetConfigWithOptionsAsync("test:key", options);
+                Assert.Equal("value", value.Value);
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+                File.Delete(configFile);
+            }
+        }
+
+        [Fact]
+        public async Task ConfigOptions_ShowSecretsOption_Works()
+        {
+            var projectName = "config_options_secrets_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+            var stackName = $"{RandomStackName()}";
+            var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+            try
+            {
+                var config = new Dictionary<string, ConfigValue>
+                {
+                    ["secret"] = new ConfigValue("supersecret", isSecret: true),
+                };
+                await stack.SetAllConfigAsync(config);
+                var options = new GetAllConfigOptions(showSecrets: true);
+                var values = await stack.GetAllConfigWithOptionsAsync(options);
+                Assert.True(values.TryGetValue($"{projectName}:secret", out var secretValue));
+                Assert.Equal("supersecret", secretValue!.Value);
+                Assert.True(secretValue.IsSecret);
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+            }
+        }
+
+        [Fact]
+        public async Task ConfigOptions_MultipleOptions_Works()
+        {
+            var projectName = "config_options_multi_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+            var stackName = $"{RandomStackName()}";
+            var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+            try
+            {
+                var options = new ConfigOptions(path: true, showSecrets: true);
+                await stack.SetConfigWithOptionsAsync("foo.bar", new ConfigValue("baz", isSecret: true), options);
+                var value = await stack.GetConfigWithOptionsAsync("foo.bar", options);
+                Assert.Equal("baz", value.Value);
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+            }
+        }
+
+        [Fact]
+        public async Task ConfigOptions_InvalidConfigFile_Throws()
+        {
+            var projectName = "config_options_invalidfile_test";
+            var projectSettings = new ProjectSettings(projectName, ProjectRuntimeName.NodeJS);
+            var invalidConfigFile = Path.Combine(Path.GetTempPath(), $"Pulumi.invalid.{Guid.NewGuid()}.yaml");
+            using var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                ProjectSettings = projectSettings,
+                EnvironmentVariables = new Dictionary<string, string?>
+                {
+                    ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                }
+            });
+            var stackName = $"{RandomStackName()}";
+            var stack = await WorkspaceStack.CreateAsync(stackName, workspace);
+            try
+            {
+                var options = new ConfigOptions(configFile: invalidConfigFile);
+                await Assert.ThrowsAsync<CommandException>(() => stack.GetConfigWithOptionsAsync("foo", options));
+            }
+            finally
+            {
+                await workspace.RemoveStackAsync(stackName);
+            }
+        }
     }
 }

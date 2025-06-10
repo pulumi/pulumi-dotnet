@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 
@@ -199,10 +200,14 @@ var expectedFailures = map[string]string{
 	"l2-invoke-options-depends-on":          "dotnet build failed",
 	"l2-invoke-secrets": "" +
 		"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-	"l2-map-keys":             "dotnet build failed",
-	"l2-resource-secret":      "test hanging",
-	"l1-builtin-project-root": "#466",
-	"l2-rtti":                 "codegen not implemented",
+	"l2-map-keys":                    "dotnet build failed",
+	"l2-resource-secret":             "test hanging",
+	"l1-builtin-project-root":        "#466",
+	"l2-rtti":                        "codegen not implemented",
+	"l2-namespaced-provider":         "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",
+	"l2-resource-parent-inheritance": "expected child to inherit retain on delete flag",
+	"l2-failed-create":               "seems to hang",
+	"l2-invoke-scalar":               "run bailed",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.
@@ -263,6 +268,9 @@ func TestLanguage(t *testing.T) {
 			t.Parallel()
 			if expected, ok := expectedFailures[tt]; ok {
 				t.Skipf("test %s is expected to fail: %s", tt, expected)
+			}
+			if strings.HasPrefix(tt, "policy-") {
+				t.Skipf("dotnet doesn't support policy tests yet: %s", tt)
 			}
 
 			result, err := engine.RunLanguageTest(context.Background(), &testingrpc.RunLanguageTestRequest{

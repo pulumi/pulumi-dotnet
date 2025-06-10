@@ -33,7 +33,7 @@ namespace Parameterized.Tests
     public class UnitTest
     {
         [TestMethod]
-        public async void TestParamaterized()
+        public async void TestParameterized()
         {
             var resources = await Deployment.TestAsync<MyStack>(
                 new MyMocks(),

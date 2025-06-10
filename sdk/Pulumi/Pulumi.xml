@@ -170,6 +170,11 @@
             ConfigMissingException is used when a configuration value is completely missing.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.PropertyValueType">
+            <summary>
+            Property values will be one of these types.
+            </summary>
+        </member>
         <member name="T:Pulumi.Experimental.LogSeverity">
             <summary>
             LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
@@ -312,11 +317,6 @@
             <param name="args">The command-line arguments</param>
             <param name="componentAssembly">The assembly containing component types</param>
             <param name="packageName">Optional package name (defaults to assembly name)</param>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.PropertyValueType">
-            <summary>
-            Property values will be one of these types.
-            </summary>
         </member>
         <member name="T:Pulumi.Experimental.Provider.ParametersArgs">
             <summary>

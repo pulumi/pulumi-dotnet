@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Divergic.Logging.Xunit;
 using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 using Pulumi.Utilities;
 using Xunit;

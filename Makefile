@@ -34,4 +34,20 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# Test the Automation SDK
+test-automation-sdk::
+	@echo "Testing Pulumi Automation SDK"
+	$(MAKE) clean-sdk
+	cd sdk && dotnet restore --no-cache
+	$(eval SDK_VERSION := $(shell cd pulumi-language-dotnet && grep -oP 'github.com/pulumi/pulumi/sdk/v3 v\K[0-9.]+' go.mod))
+	cd sdk/Pulumi.Automation.Tests && dotnet test --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION)
+
+# Test the Automation SDK with coverage
+test-automation-sdk-coverage::
+	@echo "Testing Pulumi Automation SDK with coverage"
+	$(MAKE) clean-sdk
+	cd sdk && dotnet restore --no-cache
+	$(eval SDK_VERSION := $(shell cd pulumi-language-dotnet && grep -oP 'github.com/pulumi/pulumi/sdk/v3 v\K[0-9.]+' go.mod))
+	cd sdk/Pulumi.Automation.Tests && dotnet test --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../coverage/coverage.pulumi.automation.xml
+
 .PHONY: install build

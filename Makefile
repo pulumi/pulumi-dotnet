@@ -34,4 +34,10 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# Test the language plugin
+test-language-plugin::
+	@echo "Testing pulumi-language-dotnet Plugin"
+	rm -f pulumi-language-dotnet/pulumi-language-dotnet
+	cd pulumi-language-dotnet && ${GO} test
+
 .PHONY: install build

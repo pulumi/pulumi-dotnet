@@ -34,4 +34,23 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# Publish SDKs to NuGet
+publish-sdks::
+	@echo "Publishing Pulumi SDKs to NuGet"
+	@if [ -z "$$NUGET_PUBLISH_KEY" ]; then echo "Missing NUGET_PUBLISH_KEY" && exit 1; fi
+	@if [ -z "$$PULUMI_VERSION" ]; then echo "Missing PULUMI_VERSION" && exit 1; fi
+	$(eval SDK_VERSION := $(shell cd pulumi-language-dotnet && grep -oP 'github.com/pulumi/pulumi/sdk/v3 v\K[0-9.]+' go.mod))
+	for project in Pulumi Pulumi.Automation Pulumi.FSharp; do \
+	  PKG_EXISTS=$$(curl -s "https://api.nuget.org/v3-flatcontainer/$$project/index.json" | jq -e ".versions | index(\"$$PULUMI_VERSION\")" > /dev/null 2>&1 && echo yes || echo no); \
+	  if [ "$$PKG_EXISTS" = "yes" ]; then \
+	    echo "$$project $$PULUMI_VERSION already published, skipping"; \
+	  else \
+	    echo "Publishing $$project $$PULUMI_VERSION"; \
+	    cd sdk/$$project && dotnet build --configuration Release -p:Version=$$PULUMI_VERSION -p:PulumiSdkVersion=$(SDK_VERSION); \
+	    PKG_FILE=$$(ls bin/Release/*.nupkg | head -n1); \
+	    dotnet nuget push $$PKG_FILE -s https://api.nuget.org/v3/index.json -k $$NUGET_PUBLISH_KEY; \
+	    cd -; \
+	  fi; \
+	done
+
 .PHONY: install build

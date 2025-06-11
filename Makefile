@@ -34,4 +34,9 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# List integration tests
+list-integration-tests::
+	@echo "Listing integration tests"
+	cd integration_tests && go test -list=. | grep '^Test'
+
 .PHONY: install build

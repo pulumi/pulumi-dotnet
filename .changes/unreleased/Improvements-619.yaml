@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Move `URN` from the experimental providers namespace, to the core namespace
-time: 2025-05-29T16:53:32.940226252+01:00
-custom:
-    PR: "619"

@@ -42,7 +42,7 @@ clean::
 # Build the SDK
 build-sdk::
 	@echo "Building Pulumi SDK"
-	$(MAKE) clean-sdk
+	$(MAKE) clean
 	cd sdk && dotnet restore --no-cache
 	$(eval SDK_VERSION := $(shell cd pulumi-language-dotnet && grep -oP 'github.com/pulumi/pulumi/sdk/v3 v\K[0-9.]+' go.mod))
 	cd sdk && dotnet build --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION)

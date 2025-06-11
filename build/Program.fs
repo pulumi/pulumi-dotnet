@@ -79,8 +79,12 @@ let integrationTestNames() =
     |> Array.filter (fun line -> line.StartsWith "Test")
 
 let listIntegrationTests() =
-    for testName in integrationTestNames() do
-        printfn $"{testName}"
+    printfn "Deprecated: calling `make list-integration-tests` instead"
+    let cmd = Cli.Wrap("make").WithArguments("list-integration-tests").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "list-integration-tests failed"
+    printfn "%s" output.StandardOutput
 
 let buildSdk() =
     printfn "Deprecated: calling `make build_sdk` instead"

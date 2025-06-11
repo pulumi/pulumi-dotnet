@@ -34,4 +34,18 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# Test the SDK
+test-sdk::
+	@echo "Testing Pulumi SDK"
+	$(MAKE) clean-sdk
+	cd sdk && dotnet restore --no-cache
+	cd sdk/Pulumi.Tests && dotnet test --configuration Release
+
+# Test the SDK with coverage
+test-sdk-coverage::
+	@echo "Testing Pulumi SDK with coverage"
+	$(MAKE) clean-sdk
+	cd sdk && dotnet restore --no-cache
+	cd sdk/Pulumi.Tests && dotnet test --configuration Release -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../coverage/coverage.pulumi.xml
+
 .PHONY: install build

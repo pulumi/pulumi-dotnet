@@ -90,37 +90,11 @@ let buildSdk() =
 /// When publishing, we check whether the package we are about to publish already exists on Nuget
 /// and if that is the case, we skip it.
 let publishSdks() =
-    // prepare
-    cleanSdk()
-    restoreSdk()
-    let projectDirs = [
-        pulumiSdk;
-        pulumiAutomationSdk;
-        pulumiFSharp;
-    ]
-    // perform the publishing (idempotent)
-    let publishResults = publishSdks projectDirs pulumiLanguageDotnet
-
-    match publishResults with
-    | Error errorMsg -> printfn $"{errorMsg}"
-    | Ok results ->
-        for result in results do
-            match result with
-            | PublishResult.Ok project ->
-                printfn $"Project '{projectName project}' has been published"
-            | PublishResult.Failed(project, error) ->
-                printfn $"Project '{projectName project}' failed to publish the nuget package: {error}"
-            | PublishResult.AlreadyPublished project ->
-                printfn $"Project '{projectName project}' has already been published"
-
-        let anyProjectFailed = results |> List.exists (fun result -> result.HasErrored())
-        if anyProjectFailed then
-            let failedProjectsAtPublishing =
-                results
-                |> List.where (fun result -> result.HasErrored())
-                |> List.map (fun result -> result.ProjectName())
-
-            failwith $"Some nuget packages were not published: {failedProjectsAtPublishing}"
+    printfn "Deprecated: calling `make publish-sdks` instead"
+    let cmd = Cli.Wrap("make").WithArguments("publish-sdks").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "publish-sdks failed"
 
 let cleanLanguagePlugin() =
     let plugin = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")

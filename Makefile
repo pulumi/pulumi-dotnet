@@ -34,4 +34,17 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# Clean all generated SDK files
+clean::
+	cd sdk && dotnet clean
+	rm -rf sdk/*/{bin,obj}
+
+# Build the SDK
+build-sdk::
+	@echo "Building Pulumi SDK"
+	$(MAKE) clean-sdk
+	cd sdk && dotnet restore --no-cache
+	$(eval SDK_VERSION := $(shell cd pulumi-language-dotnet && grep -oP 'github.com/pulumi/pulumi/sdk/v3 v\K[0-9.]+' go.mod))
+	cd sdk && dotnet build --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION)
+
 .PHONY: install build

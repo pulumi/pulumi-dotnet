@@ -92,15 +92,11 @@ let listIntegrationTests() =
         printfn $"{testName}"
 
 let buildSdk() =
-    cleanSdk()
-    restoreSdk()
-    match findGoSDKVersion(pulumiLanguageDotnet) with
-    | None -> failwith "Could not find the Pulumi SDK version in go.mod"
-    | Some(version) ->
-        printfn "Building Pulumi SDK"
-        if Shell.Exec("dotnet", "build --configuration Release -p:PulumiSdkVersion=" + version, sdk) <> 0
-
-        then failwith "build failed"
+    printfn "Deprecated: calling `make build-sdk` instead"
+    let cmd = Cli.Wrap("make").WithArguments("build-sdk").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "Build failed"
 
 /// Publishes packages for Pulumi, Pulumi.Automation and Pulumi.FSharp to nuget.
 /// Requires NUGET_PUBLISH_KEY and PULUMI_VERSION environment variables.

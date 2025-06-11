@@ -63,4 +63,4 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
-          args: --clean --release-notes=${{ env.RELEASE_NOTES_PATH }} --verbose --skip-validate
+          args: --clean --release-notes=${{ env.RELEASE_NOTES_PATH }} --verbose --skip=validate

@@ -34,4 +34,11 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# Run integration tests
+integration-test::
+	@echo "Running integration tests"
+	$(MAKE) build-language-plugin
+	$(MAKE) clean-sdk
+	cd integration_tests && go test -run=^$(if $(TEST),$(TEST),.*)$$
+
 .PHONY: install build

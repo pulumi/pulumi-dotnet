@@ -193,6 +193,14 @@ let runAllIntegrationTests() =
         if Shell.Exec("go", $"test -run=^{testName}$", Path.Combine(repositoryRoot, "integration_tests")) <> 0
         then failwith $"Integration test '{testName}' failed"
 
+let integrationTest (testName: string) =
+    let args = [| "integration-test"; "TEST=" + testName |]
+    runMake args
+
+let allIntegrationTests () =
+    let args = [| "integration-test" |]
+    runMake args
+
 [<EntryPoint>]
 let main(args: string[]) : int =
     match args with
@@ -208,8 +216,8 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
     | [| "list-integration-tests" |] -> listIntegrationTests()
-    | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
-    | [| "all-integration-tests" |] -> runAllIntegrationTests()
+    | [| "integration"; "test"; testName |] -> integrationTest testName
+    | [| "all-integration-tests" |] -> allIntegrationTests()
 
     | otherwise -> printfn $"Unknown build arguments provided %A{otherwise}"
 

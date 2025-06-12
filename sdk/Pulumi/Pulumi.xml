@@ -5853,7 +5853,8 @@
         </member>
         <member name="P:Pulumirpc.RunRequest.ConfigPropertyMap">
             <summary>
-            Configuration variables to apply before running the program.
+            This is deprecated, runtimes should look at the string based config as that maintains the full textual data from
+            the users config file.
             </summary>
         </member>
         <member name="F:Pulumirpc.RunRequest.InfoFieldNumber">
@@ -6512,6 +6513,36 @@
             `LanguageHandshakeResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Handshake) call.
             </summary>
         </member>
+        <member name="T:Pulumirpc.LinkRequest">
+            <summary>
+            `LinkRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.Link) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkRequest.Info">
+            <summary>
+            The program to use.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.LocalDependenciesFieldNumber">
+            <summary>Field number for the "local_dependencies" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkRequest.LocalDependencies">
+            <summary>
+            Local dependencies that the program should reference explicitly, instead of e.g. using the language's
+            package system. This is a map of package names to local paths of language-specific artifacts that
+            should be used. For instance, in the case of a NodeJS package, this might be a map of NPM package names
+            to local paths to be used, such as `{ "@pulumi/aws": "/some/path/to/aws.tgz" }` if a local tarball is
+            to be used instead of the published `@pulumi/aws` package.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.LinkResponse">
+            <summary>
+            `LinkResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Link) call.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.LanguageRuntime">
             <summary>
             The LanguageRuntime service defines a standard interface for [language hosts/runtimes](languages). At a high level, a
@@ -6676,6 +6707,14 @@
             a `.tgz` file might be produced from a list of `.js` sources; and so on. Presently, `Pack` is primarily used in
             [language conformance tests](language-conformance-tests), though it is intended to be used more widely in future
             to standardise e.g. provider publishing workflows.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Link(Pulumirpc.LinkRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            `Link` links a local dependency into a project.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -7314,6 +7353,42 @@
             a `.tgz` file might be produced from a list of `.js` sources; and so on. Presently, `Pack` is primarily used in
             [language conformance tests](language-conformance-tests), though it is intended to be used more widely in future
             to standardise e.g. provider publishing workflows.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Link` links a local dependency into a project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>

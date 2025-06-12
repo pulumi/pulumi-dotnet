@@ -543,7 +543,7 @@ func RunDotnetCommand(
 	}
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
-	cmd := exec.Command(dotnetExec, args...) //nolint:gas // intentionally running dynamic program name.
+	cmd := exec.CommandContext(ctx, dotnetExec, args...) //nolint:gas // intentionally running dynamic program name.
 	cmd.Stdout = infoWriter
 	cmd.Stderr = errorWriter
 	cmd.Dir = programDirectory
@@ -615,7 +615,7 @@ func (w *logWriter) LogToUser(val string) (int, error) {
 
 // When debugging, we need to build the project, as the debugger does not support running using `dotnet run`.
 // This function will build the project and return the path to the built DLL.
-func buildDebuggingDLL(dotnetExec, programDirectory, entryPoint string) (string, error) {
+func buildDebuggingDLL(ctx context.Context, dotnetExec, programDirectory, entryPoint string) (string, error) {
 	// If we are running from source, we need to build the project.
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
@@ -626,7 +626,7 @@ func buildDebuggingDLL(dotnetExec, programDirectory, entryPoint string) (string,
 	}
 	args = append(args, filepath.Join(programDirectory, entryPoint))
 
-	cmd := exec.Command(dotnetExec, args...)
+	cmd := exec.CommandContext(ctx, dotnetExec, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to build project: %v, output: %v", err, string(out))
@@ -675,7 +675,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 
 	if req.GetAttachDebugger() && opts.binary == "" {
 		var err error
-		binaryPath, err = buildDebuggingDLL(
+		binaryPath, err = buildDebuggingDLL(ctx,
 			opts.dotnetExec, req.GetInfo().GetProgramDirectory(), req.GetInfo().GetEntryPoint())
 		if err != nil {
 			return nil, err
@@ -722,7 +722,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		logging.V(5).Infoln("Language host launching process: ", opts.dotnetExec, commandStr)
 	}
 
-	cmd := exec.Command(executable, args...) //nolint:gas // intentionally running dynamic program name.
+	cmd := exec.CommandContext(ctx, executable, args...) //nolint:gas // intentionally running dynamic program name.
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
 	var errResult string
@@ -888,7 +888,7 @@ func (host *dotnetLanguageHost) InstallDependencies(
 		return err
 	}
 
-	cmd := exec.Command(dotnetbin, "build")
+	cmd := exec.CommandContext(server.Context(), dotnetbin, "build")
 	cmd.Dir = req.Info.ProgramDirectory
 	cmd.Stdout, cmd.Stderr = stdout, stderr
 
@@ -918,7 +918,7 @@ func (host *dotnetLanguageHost) About(
 		if err != nil {
 			return "", "", fmt.Errorf("could not find executable '%s': %w", execString, err)
 		}
-		cmd := exec.Command(ex, args...)
+		cmd := exec.CommandContext(ctx, ex, args...)
 		var out []byte
 		if out, err = cmd.Output(); err != nil {
 			cmd := ex
@@ -964,7 +964,7 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 	if req.TransitiveDependencies {
 		cmdArgs = append(cmdArgs, "--include-transitive")
 	}
-	cmd := exec.Command(ex, cmdArgs...)
+	cmd := exec.CommandContext(ctx, ex, cmdArgs...)
 	cmd.Dir = req.Info.ProgramDirectory
 	if out, err = cmd.Output(); err != nil {
 		return nil, fmt.Errorf("failed to call \"%s\": %w", ex, err)
@@ -1024,7 +1024,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 	binaryPath := opts.binary
 	if req.GetAttachDebugger() && opts.binary == "" {
 		var err error
-		binaryPath, err = buildDebuggingDLL(
+		binaryPath, err = buildDebuggingDLL(server.Context(),
 			opts.dotnetExec, req.GetInfo().GetRootDirectory(), req.GetInfo().GetEntryPoint())
 		if err != nil {
 			return err
@@ -1061,7 +1061,8 @@ func (host *dotnetLanguageHost) RunPlugin(
 			logging.V(5).Infoln("Language host launching process: ", executable, " ", commandStr)
 		}
 
-		cmd := exec.Command(executable, buildArgs...) //nolint:gas // intentionally running dynamic program name.
+		cmd := exec.CommandContext(
+			server.Context(), executable, buildArgs...) //nolint:gas // intentionally running dynamic program name.
 		cmd.Dir = req.Pwd
 		cmd.Env = req.Env
 		var buildOutput bytes.Buffer
@@ -1097,7 +1098,8 @@ func (host *dotnetLanguageHost) RunPlugin(
 	}
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
-	cmd := exec.Command(executable, args...) //nolint:gas // intentionally running dynamic program name.
+	cmd := exec.CommandContext(
+		server.Context(), executable, args...) //nolint:gas // intentionally running dynamic program name.
 	cmd.Dir = req.Pwd
 
 	cmd.Env = req.Env
@@ -1188,7 +1190,8 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 			return nil, err
 		}
 
-		cmd := exec.Command( //nolint:gosec // intentionally running dynamic program name.
+		cmd := exec.CommandContext( //nolint:gosec // intentionally running dynamic program name.
+			ctx,
 			opts.dotnetExec, "build", "-c", "Release")
 		cmd.Dir = req.PackageDirectory
 		return cmd.CombinedOutput()
@@ -1200,7 +1203,8 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	destination := filepath.Join(req.DestinationDirectory, filepath.Base(projectFile))
 
-	cmd := exec.Command( //nolint:gosec // intentionally running dynamic program name.
+	cmd := exec.CommandContext( //nolint:gosec // intentionally running dynamic program name.
+		ctx,
 		opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
 	cmd.Dir = req.PackageDirectory
 

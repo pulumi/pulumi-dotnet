@@ -206,7 +206,6 @@ var expectedFailures = map[string]string{
 	"l2-rtti":                        "codegen not implemented",
 	"l2-namespaced-provider":         "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",
 	"l2-resource-parent-inheritance": "expected child to inherit retain on delete flag",
-	"l2-failed-create":               "seems to hang",
 	"l2-invoke-scalar":               "run bailed",
 }
 

@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Respect grpc cancellation to stop running subcommands when the engine has requested it
-time: 2025-06-12T07:35:27.338245+01:00
-custom:
-    PR: "642"

@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Fix release process
-time: 2025-06-12T10:48:17.376712484+02:00
-custom:
-    PR: "643"

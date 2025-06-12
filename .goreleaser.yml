@@ -1,3 +1,4 @@
+version: 2
 builds:
 
 - binary: pulumi-language-dotnet
@@ -29,4 +30,4 @@ checksum:
   name_template: 'checksums.txt'
 
 changelog:
-  skip: false
+  disable: false

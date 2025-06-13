@@ -1,8 +1,3 @@
-# Clean all generated SDK files
-clean::
-	cd sdk && dotnet clean
-	rm -rf sdk/*/{bin,obj}
-
 GO := go
 
 # Try to get the dev version using changie, otherwise fall back
@@ -19,6 +14,10 @@ build::
 
 changelog::
 	changie new
+
+clean:
+	cd sdk && dotnet clean
+	rm -rf {bin,obj} sdk/*/{bin,obj}
 
 test_integration:: build
 	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
@@ -39,4 +38,4 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
-.PHONY: install build
+.PHONY: install build clean

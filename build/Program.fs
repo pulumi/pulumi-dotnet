@@ -47,7 +47,7 @@ let getDevVersion() =
 let cleanSdk() =
     printfn "Deprecated: calling `make clean` instead"
     let cmd = Cli.Wrap("make").WithArguments("clean").WithWorkingDirectory(repositoryRoot)
-    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith "Clean failed"
 

@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -43,6 +45,13 @@ namespace Pulumi
     {
         private static readonly object _instanceLock = new object();
         private static readonly AsyncLocal<DeploymentInstance?> _instance = new AsyncLocal<DeploymentInstance?>();
+
+        /// <summary>
+        /// A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
+        /// </summary>
+        private TaskCompletionSource<bool> _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _pendingRegistrations;
+        private static readonly object _registrationLock = new object();
 
         /// <summary>
         /// The current running deployment instance. This is only available from inside the function
@@ -269,6 +278,72 @@ namespace Pulumi
         internal Task<bool> MonitorSupportsTransforms()
         {
             return MonitorSupportsFeature("transforms");
+        }
+
+        /// <summary>
+        /// Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
+        /// </summary>
+        public Task<bool> MonitorSupportsInvokeTransforms()
+        {
+            return MonitorSupportsFeature("invokeTransforms");
+        }
+
+        public void RegisterInvokeTransform(InvokeTransform transform)
+        {
+            lock (_registrationLock)
+            {
+                _pendingRegistrations++;
+            }
+
+            // Because of the lock, we don't need to wait for this to finish.
+
+            _ = RegisterInvokeTransformAsync(transform);
+            return;
+        }
+
+        internal async Task RegisterInvokeTransformAsync(InvokeTransform transform)
+        {
+            var monitorSupportsInvokeTransforms = await MonitorSupportsInvokeTransforms().ConfigureAwait(false);
+            if (!monitorSupportsInvokeTransforms)
+            {
+                throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
+            }
+
+            var callbacks = await GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
+            var callback = await AllocateInvokeTransform(callbacks.Callbacks, transform).ConfigureAwait(false);
+
+            await Monitor.RegisterStackInvokeTransform(callback).ConfigureAwait(false);
+
+            TaskCompletionSource<bool>? flushed = null;
+            lock (_registrationLock)
+            {
+                _pendingRegistrations--;
+
+                if (_pendingRegistrations == 0)
+                {
+                    flushed = _registrationsComplete;
+                    _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                }
+            }
+
+            flushed?.TrySetResult(true);
+        }
+
+        public async Task AwaitPendingRegistrations()
+        {
+            Task? task = null;
+            lock (_registrationLock)
+            {
+                if (_pendingRegistrations > 0)
+                {
+                    task = _registrationsComplete.Task;
+                }
+            }
+
+            if (task != null)
+            {
+                await task;
+            }
         }
 
         // Because the secrets feature predates the Pulumi .NET SDK, we assume

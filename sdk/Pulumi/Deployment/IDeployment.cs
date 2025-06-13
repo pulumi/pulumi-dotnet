@@ -1,6 +1,8 @@
 // Copyright 2016-2019, Pulumi Corporation
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace Pulumi
 {
@@ -285,5 +287,15 @@ namespace Pulumi
             Resource? self,
             CallOptions? options,
             RegisterPackageRequest? registerPackageRequest);
+
+        /// <summary>
+        /// Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
+        /// </summary>
+        Task<bool> MonitorSupportsInvokeTransforms();
+
+        /// <summary>
+        /// Register an invoke transform to run when invoke calls are made.
+        /// </summary>
+        void RegisterInvokeTransform(InvokeTransform transform);
     }
 }

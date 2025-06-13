@@ -34,4 +34,14 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
+# Format the SDK
+format-sdk::
+	@echo "Formatting Pulumi SDK packages"
+	cd sdk && dotnet format
+
+# Verify formatting of the SDK
+format-sdk-verify::
+	@echo "Verifying formatting of Pulumi SDK packages"
+	cd sdk && dotnet format --verify-no-changes
+
 .PHONY: install build

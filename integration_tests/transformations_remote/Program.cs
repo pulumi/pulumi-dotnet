@@ -159,7 +159,7 @@ class TransformsStack : Stack
         });
 
         // Scenario #9 - Invoke transform
-        global::Pulumi.Deployment.Instance.RegisterInvokeTransform(Scenario9).Wait();
+        global::Pulumi.Deployment.Instance.RegisterInvokeTransform(Scenario9);
 
         var res9 = new MyInvoke();
         var args = MyInvoke.MyInvokeArgs.Empty;

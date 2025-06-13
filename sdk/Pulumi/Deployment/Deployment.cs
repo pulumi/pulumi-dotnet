@@ -288,7 +288,20 @@ namespace Pulumi
             return MonitorSupportsFeature("invokeTransforms");
         }
 
-        public async Task RegisterInvokeTransform(InvokeTransform transform)
+        public void RegisterInvokeTransform(InvokeTransform transform)
+        {
+            lock (_registrationLock)
+            {
+                _pendingRegistrations++;
+            }
+
+            // Because of the lock, we don't need to wait for this to finish.
+
+            _ = RegisterInvokeTransformAsync(transform);
+            return;
+        }
+
+        internal async Task RegisterInvokeTransformAsync(InvokeTransform transform)
         {
             var monitorSupportsInvokeTransforms = await MonitorSupportsInvokeTransforms().ConfigureAwait(false);
             if (!monitorSupportsInvokeTransforms)
@@ -296,49 +309,40 @@ namespace Pulumi
                 throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
             }
 
-            lock (_registrationLock)
-            {
-                _pendingRegistrations++;
-            }
-
             var callbacks = await GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
             var callback = await AllocateInvokeTransform(callbacks.Callbacks, transform).ConfigureAwait(false);
 
             await Monitor.RegisterStackInvokeTransform(callback).ConfigureAwait(false);
-            int updated;
 
-            var current = _registrationsComplete;
-            var shouldFlushBuffer = false;
-
+            TaskCompletionSource<bool>? flushed = null;
             lock (_registrationLock)
             {
-                updated = --_pendingRegistrations;
+                _pendingRegistrations--;
 
-                if (updated == 0)
+                if (_pendingRegistrations == 0)
                 {
-                    shouldFlushBuffer = true;
+                    flushed = _registrationsComplete;
                     _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
                 }
             }
 
-            if (shouldFlushBuffer)
-            {
-                current.TrySetResult(true);
-            }
+            flushed?.TrySetResult(true);
         }
 
         public async Task AwaitPendingRegistrations()
         {
-            var awaitingPendingRegistrations = false;
-
+            Task? task = null;
             lock (_registrationLock)
             {
-                awaitingPendingRegistrations = _pendingRegistrations > 0;
+                if (_pendingRegistrations > 0)
+                {
+                    task = _registrationsComplete.Task;
+                }
             }
 
-            if (awaitingPendingRegistrations)
+            if (task != null)
             {
-                await _registrationsComplete.Task;
+                await task;
             }
         }
 

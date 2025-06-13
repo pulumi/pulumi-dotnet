@@ -296,6 +296,6 @@ namespace Pulumi
         /// <summary>
         /// Register an invoke transform to run when invoke calls are made.
         /// </summary>
-        Task RegisterInvokeTransform(InvokeTransform transform);
+        void RegisterInvokeTransform(InvokeTransform transform);
     }
 }

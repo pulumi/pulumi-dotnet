@@ -17,6 +17,7 @@ components:
  - sdk
  - sdk/auto
  - sdk/provider
+ - sdk/policy
  - sdk/converter
  - runtime
 changeFormat: '- [{{.Component}}] {{.Body}} [#{{.Custom.PR}}](https://github.com/pulumi/pulumi-dotnet/pull/{{.Custom.PR}})'

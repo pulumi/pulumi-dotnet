@@ -51,6 +51,7 @@ namespace Pulumi
         /// </summary>
         private TaskCompletionSource<bool> _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int _pendingRegistrations;
+        private static readonly object _registrationLock = new object();
 
         /// <summary>
         /// The current running deployment instance. This is only available from inside the function
@@ -295,7 +296,7 @@ namespace Pulumi
                 throw new InvalidOperationException("The Pulumi CLI does not support invoke transforms. Please update the Pulumi CLI.");
             }
 
-            lock (_registrationsComplete)
+            lock (_registrationLock)
             {
                 _pendingRegistrations++;
             }
@@ -306,16 +307,22 @@ namespace Pulumi
             await Monitor.RegisterStackInvokeTransform(callback).ConfigureAwait(false);
             int updated;
 
-            lock (_registrationsComplete)
+            var current = _registrationsComplete;
+            var shouldFlushBuffer = false;
+
+            lock (_registrationLock)
             {
                 updated = --_pendingRegistrations;
+
+                if (updated == 0)
+                {
+                    shouldFlushBuffer = true;
+                    _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                }
             }
 
-            if (updated == 0)
+            if (shouldFlushBuffer)
             {
-                var current = _registrationsComplete;
-
-                _registrationsComplete = new(TaskCreationOptions.RunContinuationsAsynchronously);
                 current.TrySetResult(true);
             }
         }
@@ -324,7 +331,7 @@ namespace Pulumi
         {
             var awaitingPendingRegistrations = false;
 
-            lock (_registrationsComplete)
+            lock (_registrationLock)
             {
                 awaitingPendingRegistrations = _pendingRegistrations > 0;
             }

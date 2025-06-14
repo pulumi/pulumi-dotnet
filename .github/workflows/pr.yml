@@ -138,7 +138,7 @@ jobs:
         with:
           pulumi-version: dev
       - name: Build Pulumi SDK
-        run: dotnet run build-sdk
+        run: make build_sdk
       - name: Workspace clean (are xml doc file updates committed?)
         uses: pulumi/git-status-check-action@v1
         with:

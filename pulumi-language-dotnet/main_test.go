@@ -253,7 +253,7 @@ func TestBuildDll(t *testing.T) {
 				c.ExtraSetup(t, e)
 			}
 
-			binaryPath, err := buildDebuggingDLL("dotnet", e.RootPath, c.EntryPoint)
+			binaryPath, err := buildDebuggingDLL(t.Context(), "dotnet", e.RootPath, c.EntryPoint)
 
 			if c.ExpectedErrorContains != "" {
 				assert.ErrorContains(t, err, c.ExpectedErrorContains)

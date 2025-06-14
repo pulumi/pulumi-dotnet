@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Fail_on_create;ROOT/artifacts/Pulumi.Simple;$(RestoreSources)</RestoreSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Pulumi.Fail_on_create" Version="4.0.0" />
+		<PackageReference Include="Pulumi" Version="1.0.0" />
+		<PackageReference Include="Pulumi.Simple" Version="2.0.0" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4F-00C04F79EFBC}") = "Parameterized", "Parameterized.csproj", "{D5A8B1D4-5C5B-4B5C-8D3C-5D1D4B1D4B5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4F-00C04F79EFBC}") = "Parameterized.Tests", "tests\Parameterized.Tests.csproj", "{A1B2C3D4-E5F6-7A8B-9C0D-E1F2A3B4C5D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D5A8B1D4-5C5B-4B5C-8D3C-5D1D4B1D4B5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5A8B1D4-5C5B-4B5C-8D3C-5D1D4B1D4B5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5A8B1D4-5C5B-4B5C-8D3C-5D1D4B1D4B5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5A8B1D4-5C5B-4B5C-8D3C-5D1D4B1D4B5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7A8B-9C0D-E1F2A3B4C5D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7A8B-9C0D-E1F2A3B4C5D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7A8B-9C0D-E1F2A3B4C5D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7A8B-9C0D-E1F2A3B4C5D6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

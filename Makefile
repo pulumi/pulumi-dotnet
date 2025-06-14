@@ -15,6 +15,10 @@ build::
 changelog::
 	changie new
 
+clean:
+	cd sdk && dotnet clean
+	rm -rf {bin,obj} sdk/*/{bin,obj}
+
 test_integration:: build
 	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
 
@@ -34,17 +38,12 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
-# Clean all generated SDK files
-clean::
-	cd sdk && dotnet clean
-	rm -rf sdk/*/{bin,obj}
-
 # Build the SDK
-build-sdk::
+build_sdk::
 	@echo "Building Pulumi SDK"
 	$(MAKE) clean
 	cd sdk && dotnet restore --no-cache
 	$(eval SDK_VERSION := $(shell cd pulumi-language-dotnet && grep -oP 'github.com/pulumi/pulumi/sdk/v3 v\K[0-9.]+' go.mod))
 	cd sdk && dotnet build --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION)
 
-.PHONY: install build
+.PHONY: install build build_sdk clean

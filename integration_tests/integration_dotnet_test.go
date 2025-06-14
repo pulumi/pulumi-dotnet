@@ -816,5 +816,12 @@ func TestParameterized(t *testing.T) {
 			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "pkg", "--language", "dotnet")
 			return nil
 		},
+		PostPrepareProject: func(info *engine.Projinfo) error {
+			// Run the unit test to check mocks work
+			e := newEnvironmentDotnet(t)
+			e.CWD = info.Root
+			e.RunCommand("dotnet", "test")
+			return nil
+		},
 	})
 }

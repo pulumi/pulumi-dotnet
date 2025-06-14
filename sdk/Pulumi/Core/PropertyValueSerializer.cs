@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Experimental.Provider
+namespace Pulumi.Experimental
 {
     [Obsolete("PropertyValueSerializer is highly experimental, and the shape of the API may be removed or changed at any time. Use at your own risk")]
     public class PropertyValueSerializer

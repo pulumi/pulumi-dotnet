@@ -81,8 +81,8 @@ let listIntegrationTests() =
         printfn $"{testName}"
 
 let buildSdk() =
-    printfn "Deprecated: calling `make build-sdk` instead"
-    let cmd = Cli.Wrap("make").WithArguments("build-sdk").WithWorkingDirectory(repositoryRoot)
+    printfn "Deprecated: calling `make build_sdk` instead"
+    let cmd = Cli.Wrap("make").WithArguments("build_sdk").WithWorkingDirectory(repositoryRoot)
     let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith "Build failed"

@@ -1618,11 +1618,6 @@
         <member name="M:Pulumi.DeploymentInstance.Call(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions)">
             <inheritdoc />
         </member>
-        <member name="M:Pulumi.DeploymentInstance.MonitorSupportsInvokeTransforms">
-            <summary>
-            Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
-            </summary>
-        </member>
         <member name="P:Pulumi.IDeployment.StackName">
             <summary>
             Returns the current stack name.
@@ -1833,11 +1828,6 @@
         <member name="M:Pulumi.IDeployment.Call(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)">
             <summary>
             Same as <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/>, however the return value is ignored.
-            </summary>
-        </member>
-        <member name="M:Pulumi.IDeployment.MonitorSupportsInvokeTransforms">
-            <summary>
-            Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
             </summary>
         </member>
         <member name="M:Pulumi.IDeployment.RegisterInvokeTransform(Pulumi.InvokeTransform)">

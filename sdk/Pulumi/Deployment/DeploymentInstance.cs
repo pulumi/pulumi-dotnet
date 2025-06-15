@@ -174,14 +174,6 @@ namespace Pulumi
             CallOptions? options = null)
             => _deployment.Call(token, args, self, options, null);
 
-        /// <summary>
-        /// Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
-        /// </summary>
-        public Task<bool> MonitorSupportsInvokeTransforms()
-        {
-            return _deployment.MonitorSupportsInvokeTransforms();
-        }
-
         public void RegisterInvokeTransform(InvokeTransform transform)
         {
             _deployment.RegisterInvokeTransform(transform);

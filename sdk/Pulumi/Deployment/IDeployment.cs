@@ -1,6 +1,8 @@
 // Copyright 2016-2019, Pulumi Corporation
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace Pulumi
 {
@@ -285,5 +287,10 @@ namespace Pulumi
             Resource? self,
             CallOptions? options,
             RegisterPackageRequest? registerPackageRequest);
+
+        /// <summary>
+        /// Register an invoke transform to run when invoke calls are made.
+        /// </summary>
+        void RegisterInvokeTransform(InvokeTransform transform);
     }
 }

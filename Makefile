@@ -12,7 +12,6 @@ install::
 build: build_sdk build_language_host
 
 build_sdk:
-	cd sdk && dotnet restore --no-cache
 	cd sdk && dotnet build --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION)
 
 build_language_host:

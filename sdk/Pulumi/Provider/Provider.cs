@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using System.Reflection.Metadata;
 using System.Globalization;
 
 namespace Pulumi.Experimental.Provider
@@ -151,18 +150,21 @@ namespace Pulumi.Experimental.Provider
         public ImmutableDictionary<string, PropertyValue> OldState { get; }
         public ImmutableDictionary<string, PropertyValue> NewInputs { get; }
         public ImmutableArray<string> IgnoreChanges { get; }
+        public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
 
         public DiffRequest(Urn urn,
             string id,
             ImmutableDictionary<string, PropertyValue> oldState,
             ImmutableDictionary<string, PropertyValue> newInputs,
-            ImmutableArray<string> ignoreChanges)
+            ImmutableArray<string> ignoreChanges,
+            ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
             OldState = oldState;
             NewInputs = newInputs;
             IgnoreChanges = ignoreChanges;
+            OldInputs = oldInputs;
         }
     }
 
@@ -239,16 +241,22 @@ namespace Pulumi.Experimental.Provider
         public ImmutableDictionary<string, PropertyValue> Args { get; }
         public bool AcceptSecrets { get; }
         public bool AcceptResources { get; }
+        public bool SendsOldInputs { get; }
+        public bool SendsOldInputsToDelete { get; }
 
         public ConfigureRequest(ImmutableDictionary<string, string> variables,
             ImmutableDictionary<string, PropertyValue> args,
             bool acceptSecrets,
-            bool acceptResources)
+            bool acceptResources,
+            bool sendsOldInputs,
+            bool sendsOldInputsToDelete)
         {
             Variables = variables;
             Args = args;
             AcceptSecrets = acceptSecrets;
             AcceptResources = acceptResources;
+            SendsOldInputs = sendsOldInputs;
+            SendsOldInputsToDelete = sendsOldInputsToDelete;
         }
     }
 
@@ -320,6 +328,7 @@ namespace Pulumi.Experimental.Provider
         public TimeSpan Timeout { get; }
         public ImmutableArray<string> IgnoreChanges { get; }
         public bool Preview { get; }
+        public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
 
         public UpdateRequest(Urn urn,
             string id,
@@ -327,7 +336,8 @@ namespace Pulumi.Experimental.Provider
             ImmutableDictionary<string, PropertyValue> news,
             TimeSpan timeout,
             ImmutableArray<string> ignoreChanges,
-            bool preview)
+            bool preview,
+            ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
@@ -336,6 +346,7 @@ namespace Pulumi.Experimental.Provider
             Timeout = timeout;
             IgnoreChanges = ignoreChanges;
             Preview = preview;
+            OldInputs = oldInputs;
         }
     }
 
@@ -353,12 +364,19 @@ namespace Pulumi.Experimental.Provider
         public ImmutableDictionary<string, PropertyValue> Properties { get; }
         public TimeSpan Timeout { get; }
 
-        public DeleteRequest(Urn urn, string id, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout)
+        public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
+
+        public DeleteRequest(Urn urn,
+            string id,
+            ImmutableDictionary<string, PropertyValue> properties,
+            TimeSpan timeout,
+            ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
             Properties = properties;
             Timeout = timeout;
+            OldInputs = oldInputs;
         }
     }
 
@@ -835,7 +853,7 @@ namespace Pulumi.Experimental.Provider
             return WrapProviderCall(async () =>
             {
                 var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
-                    request.IgnoreChanges.ToImmutableArray());
+                    request.IgnoreChanges.ToImmutableArray(), Unmarshal(request.OldInputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -921,7 +939,7 @@ namespace Pulumi.Experimental.Provider
             return WrapProviderCall(async () =>
                 {
                     var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Unmarshal(request.Args), request.AcceptSecrets,
-                    request.AcceptResources);
+                    request.AcceptResources, request.SendsOldInputs, request.SendsOldInputsToDelete);
                     using var cts = GetToken(context);
                     var domResponse = await Implementation.Configure(domRequest, cts.Token);
                     var grpcResponse = new Pulumirpc.ConfigureResponse();
@@ -1000,7 +1018,7 @@ namespace Pulumi.Experimental.Provider
             return WrapProviderCall(async () =>
             {
                 var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
-                    request.IgnoreChanges.ToImmutableArray());
+                    request.IgnoreChanges.ToImmutableArray(), Unmarshal(request.OldInputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Diff(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -1043,7 +1061,7 @@ namespace Pulumi.Experimental.Provider
             {
                 var domRequest = new UpdateRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
                     TimeSpan.FromSeconds(request.Timeout),
-                    request.IgnoreChanges.ToImmutableArray(), request.Preview);
+                    request.IgnoreChanges.ToImmutableArray(), request.Preview, Unmarshal(request.OldInputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Update(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.UpdateResponse();
@@ -1057,7 +1075,8 @@ namespace Pulumi.Experimental.Provider
         {
             return WrapProviderCall(async () =>
                 {
-                    var domRequest = new DeleteRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
+                    var domRequest = new DeleteRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Properties),
+                        TimeSpan.FromSeconds(request.Timeout), Unmarshal(request.OldInputs));
                     using var cts = GetToken(context);
                     await Implementation.Delete(domRequest, cts.Token);
                     return new Empty();

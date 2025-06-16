@@ -152,7 +152,7 @@ namespace Pulumi
             // `CompletionSources`. This needs to happen before
             // partially initialized `this` is exposed to other
             // threads via `parentResource.ChildResources`.
-            CompletionSources = OutputCompletionSource.InitializeOutputs(this);
+            CompletionSources = OutputCompletionSource.InitializeOutputs(this, options.Urn != null || remote);
 
             Resource? parent = null;
             if (type != Stack._rootPulumiStackTypeName)

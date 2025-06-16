@@ -18,6 +18,8 @@ namespace Pulumi.Automation
 
         public List<string>? Target { get; set; }
 
+        public List<string>? Exclude { get; set; }
+
         public List<string>? PolicyPacks { get; set; }
 
         public List<string>? PolicyPackConfigs { get; set; }
@@ -71,5 +73,10 @@ namespace Pulumi.Automation
         /// Format standard output as JSON not text.
         /// </summary>
         public bool? Json { get; set; }
+
+        /// <summary>
+        /// Path to a YAML file containing stack configuration values.
+        /// </summary>
+        public string? ConfigFile { get; set; }
     }
 }

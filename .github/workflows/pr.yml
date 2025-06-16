@@ -1,17 +1,22 @@
+permissions: write-all # Equivalent to default permissions plus id-token: write
 name: Build and test
 
 on:
-  merge_group:
-  pull_request:
+  merge_group: null
+  pull_request: null
   push:
     branches:
       - main
 
 env:
-  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN_PRODUCTION }}
   AWS_REGION: us-west-2
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   PULUMI_TEST_OWNER: "moolumi"
+  ESC_ACTION_OIDC_AUTH: true
+  ESC_ACTION_OIDC_ORGANIZATION: pulumi
+  ESC_ACTION_OIDC_REQUESTED_TOKEN_TYPE: urn:pulumi:token-type:access_token:organization
+  ESC_ACTION_ENVIRONMENT: github-secrets/pulumi-pulumi-dotnet
+  ESC_ACTION_EXPORT_ENVIRONMENT_VARIABLES: PULUMI_ACCESS_TOKEN=PULUMI_ACCESS_TOKEN_PRODUCTION
 
 jobs:
   setup_matrix:
@@ -19,6 +24,9 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - id: set-matrix
         run: |
           os="${{ contains(github.event.pull_request.labels.*.name, 'ci/test') && 'ubuntu-latest macos-latest windows-latest' || 'ubuntu-latest' }}"
@@ -27,6 +35,9 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -45,19 +56,16 @@ jobs:
     name: Lint Go
     runs-on: ubuntu-22.04
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - uses: actions/checkout@v4
       - name: Set up Go 1.24.x
         uses: actions/setup-go@v5
         with:
           go-version: 1.24.x
-
-      # We leverage the golangci-lint action to install
-      # and maintain the cache,
-      # but we want to run the command ourselves.
-      # The action doesn't have an install-only mode,
-      # so we'll ask it to print its help output instead.
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v8
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
           args: --help
@@ -65,7 +73,30 @@ jobs:
       - name: Run golangci-lint
         # Print GitHub Actions-friendly output so that errors get marked
         # in the pull request.
-        run: make lint GOLANGCI_LINT_ARGS=--out-format=colored-line-number
+        run: make lint GOLANGCI_LINT_ARGS=--output.text.path=stdout
+
+  lint-changelog:
+    name: Lint Changelog
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
+      - uses: actions/checkout@v4
+      - name: Check if folder is empty
+        id: folder_check
+        run: |
+          if [ -z "$(ls .changes/unreleased)" ]; then
+            echo "empty=true" >> $GITHUB_OUTPUT
+          else
+            echo "empty=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Check the changelog is batchable
+        # There are changes so check changie will batch them
+        if: steps.folder_check.outputs.empty == 'false'
+        uses: miniscruff/changie-action@v2
+        with:
+          args: batch auto --dry-run
 
   build:
     needs: setup_matrix
@@ -76,6 +107,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -100,11 +134,11 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@9519177da243fd32cab35cdbf19cce1ab7472fcc # v6
+        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
         with:
-          pulumi-version: latest
+          pulumi-version: dev
       - name: Build Pulumi SDK
-        run: dotnet run build-sdk
+        run: make build_sdk
       - name: Workspace clean (are xml doc file updates committed?)
         uses: pulumi/git-status-check-action@v1
         with:
@@ -120,7 +154,7 @@ jobs:
           files: "*"
           fail_ci_if_error: false
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ steps.esc-secrets.outputs.CODECOV_TOKEN }}
   integration-tests:
     strategy:
       fail-fast: false
@@ -129,6 +163,9 @@ jobs:
         dotnet-version: [8.0.x, 9.0.x]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Set TARGET_FRAMEWORK
         shell: bash
         run: |
@@ -161,11 +198,11 @@ jobs:
         with:
           go-version: 1.24.x
       - name: Install Pulumi CLI
-        uses: pulumi/actions@9519177da243fd32cab35cdbf19cce1ab7472fcc # v6
+        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
         with:
-          pulumi-version: latest
+          pulumi-version: dev
       - name: Install gotestsum
-        uses: jaxxstorm/action-install-gh-release@v2.0.0
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -208,6 +245,9 @@ jobs:
         dotnet-version: [8.0.x]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Set TARGET_FRAMEWORK
         shell: bash
         run: |
@@ -240,11 +280,11 @@ jobs:
         with:
           go-version: 1.24.x
       - name: Install Pulumi CLI
-        uses: pulumi/actions@9519177da243fd32cab35cdbf19cce1ab7472fcc # v6
+        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
         with:
-          pulumi-version: latest
+          pulumi-version: dev
       - name: Install gotestsum
-        uses: jaxxstorm/action-install-gh-release@v2.0.0
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -260,6 +300,9 @@ jobs:
     outputs:
       version: "${{ steps.version.outputs.version }}"
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Get the latest version
@@ -298,6 +341,9 @@ jobs:
     runs-on: ubuntu-latest
     if: always() # always report a status
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Build failed
         if: ${{ needs.build.result != 'success' }}
         run: exit 1

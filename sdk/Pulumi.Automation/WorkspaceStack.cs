@@ -359,6 +359,9 @@ namespace Pulumi.Automation
                     }
                 }
 
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
+
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
 
@@ -479,6 +482,9 @@ namespace Pulumi.Automation
                         args.Add(item);
                     }
                 }
+
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
 
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
@@ -603,6 +609,18 @@ namespace Pulumi.Automation
                     }
                 }
 
+                if (options.RunProgram is not null)
+                {
+                    if (options.RunProgram is true)
+                    {
+                        args.Add("--run-program=true");
+                    }
+                    else
+                    {
+                        args.Add("--run-program=false");
+                    }
+                }
+
                 ApplyUpdateOptions(options, args);
             }
 
@@ -646,6 +664,9 @@ namespace Pulumi.Automation
 
             if (options != null)
             {
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
+
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
 
@@ -654,6 +675,18 @@ namespace Pulumi.Automation
 
                 if (options.Refresh is true)
                     args.Add("--refresh");
+
+                if (options.RunProgram is not null)
+                {
+                    if (options.RunProgram is true)
+                    {
+                        args.Add("--run-program=true");
+                    }
+                    else
+                    {
+                        args.Add("--run-program=false");
+                    }
+                }
 
                 ApplyUpdateOptions(options, args);
             }
@@ -1015,6 +1048,15 @@ namespace Pulumi.Automation
                 args.Add(options.Message);
             }
 
+            if (options.Exclude?.Any() == true)
+            {
+                foreach (var item in options.Exclude)
+                {
+                    args.Add("--exclude");
+                    args.Add(item);
+                }
+            }
+
             if (options.Target?.Any() == true)
             {
                 foreach (var item in options.Target)
@@ -1078,6 +1120,12 @@ namespace Pulumi.Automation
             if (options.Json is true)
             {
                 args.Add("--json");
+            }
+
+            if (!string.IsNullOrWhiteSpace(options.ConfigFile))
+            {
+                args.Add("--config-file");
+                args.Add(options.ConfigFile);
             }
         }
 

@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Experimental.Provider
+namespace Pulumi.Experimental
 {
     [Obsolete("PropertyValueSerializer is highly experimental, and the shape of the API may be removed or changed at any time. Use at your own risk")]
     public class PropertyValueSerializer
@@ -303,7 +303,7 @@ namespace Pulumi.Experimental.Provider
             {
                 var data = await output.GetDataAsync().ConfigureAwait(false);
 
-                PropertyValue? element = null;
+                PropertyValue element = PropertyValue.Computed;
                 if (data.IsKnown)
                 {
                     element = await Serialize(data.Value);
@@ -330,17 +330,10 @@ namespace Pulumi.Experimental.Provider
                 }
                 else
                 {
-                    outputValue = new PropertyValue(new OutputReference(
-                        value: element,
-                        dependencies: dependantResources.ToImmutable()));
+                    outputValue = element.WithDependencies(dependantResources.ToImmutable());
                 }
 
-                if (data.IsSecret)
-                {
-                    return new PropertyValue(outputValue);
-                }
-
-                return outputValue;
+                return outputValue.WithSecret(data.IsSecret);
             }
 
             if (value is IInput input)
@@ -469,16 +462,21 @@ namespace Pulumi.Experimental.Provider
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(InputMap<>))
             {
-                // change InputMap<T> to Output<ImmutableDictionary<string, T>> and deserialize
+                // change InputMap<T> to Input<ImmutableDictionary<string, Input<T>>> and deserialize
                 var valueType = targetType.GetGenericArguments()[0];
+                valueType = typeof(Input<>).MakeGenericType(valueType);
                 var dictionaryType = typeof(ImmutableDictionary<,>).MakeGenericType(typeof(string), valueType);
-                var outputMapType = typeof(Output<>).MakeGenericType(dictionaryType);
-                var outputDictionary = DeserializeValue(value, outputMapType, path);
-                var fromOutputMap = targetType.GetMethod(
-                    "op_Implicit",
-                    types: new[] { outputMapType })!;
+                var inputDictionaryType = typeof(Input<>).MakeGenericType(dictionaryType);
+                var inputDictionary = DeserializeValue(value, inputDictionaryType, path);
 
-                return fromOutputMap.Invoke(null, new[] { outputDictionary });
+                var ctor = targetType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, new Type[] { inputDictionaryType });
+                if (ctor == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Could not find constructor for type {targetType}");
+                }
+
+                return ctor.Invoke(new[] { inputDictionary });
             }
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Output<>))
@@ -554,17 +552,6 @@ namespace Pulumi.Experimental.Provider
                     return newInputCtor.Invoke(new[] { outputValue });
                 }
 
-                if (value.IsComputed)
-                {
-                    return CreateInput(CreateOutput(createOutputData.Invoke(new object?[]
-                    {
-                        ImmutableHashSet<Resource>.Empty, // resources
-                        null, // value
-                        false, // isKnown
-                        false // isSecret
-                    })));
-                }
-
                 var inputToOutputCast =
                     targetType
                         .GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -575,9 +562,31 @@ namespace Pulumi.Experimental.Provider
 
                         });
 
-                if (value.TryGetSecret(out var secretValue))
+                if (!value.Dependencies.IsEmpty)
                 {
-                    var inner = DeserializeValue(secretValue, targetType, path);
+                    var dependencies = ImmutableHashSet.CreateBuilder<Resource>();
+                    foreach (var urn in value.Dependencies)
+                    {
+                        dependencies.Add(new DependencyResource(urn));
+                    }
+                    var immutableDependencies = dependencies.ToImmutable();
+
+                    // The inner value could be a Secret, deserialise _that_ into an Input<T> recursively then
+                    // bind it with the data at this level, adding the extra dependencies.
+                    var inner = DeserializeValue(value.WithDependencies(ImmutableHashSet<Urn>.Empty), targetType, path);
+                    var withDependencies = outputType.GetMethod(
+                        "WithDependencies", BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+                    var outputWithDependencies = withDependencies.Invoke(
+                        inputToOutputCast.Invoke(null, new[] { inner }),
+                        new object[] { immutableDependencies });
+
+                    return CreateInput(outputWithDependencies);
+                }
+
+                if (value.IsSecret)
+                {
+                    var inner = DeserializeValue(value.WithSecret(false), targetType, path);
                     // Combine the inner result (which we _know_ will be an Input<T>) with the secret flag.
 
                     var createSecret =
@@ -598,46 +607,13 @@ namespace Pulumi.Experimental.Provider
                     return CreateInput(secretOutput);
                 }
 
-                if (value.TryGetOutput(out var outputValue))
-                {
-                    var dependencies = ImmutableHashSet.CreateBuilder<Resource>();
-                    foreach (var urn in outputValue.Dependencies)
-                    {
-                        dependencies.Add(new DependencyResource(urn));
-                    }
-                    var immutableDependencies = dependencies.ToImmutable();
+                var deserialized = value.IsComputed ? null : DeserializeValue(value, elementType, path);
 
-                    if (outputValue.Value == null)
-                    {
-                        // If the inner value is null this is simply an unknown output, we just need to track in the dependencies from this level.
-                        return CreateInput(CreateOutput(createOutputData.Invoke(new object?[]
-                        {
-                            immutableDependencies, // resources
-                            null, // value
-                            false, // isKnown
-                            false // isSecret
-                        })));
-                    }
-
-                    // The inner value could be a Secret or a nested OutputReference, deserialise _that_ into
-                    // an Input<T> recursively then bind it with the data at this level, adding the extra dependencies.
-                    var inner = DeserializeValue(outputValue.Value, targetType, path);
-                    var withDependencies = outputType.GetMethod(
-                        "WithDependencies", BindingFlags.NonPublic | BindingFlags.Instance)!;
-
-                    var outputWithDependencies = withDependencies.Invoke(
-                        inputToOutputCast.Invoke(null, new[] { inner }),
-                        new object[] { immutableDependencies });
-
-                    return CreateInput(outputWithDependencies);
-                }
-
-                var deserialized = DeserializeValue(value, elementType, path);
                 var outputDataValue = createOutputData.Invoke(new object?[]
                 {
                     ImmutableHashSet<Resource>.Empty,
                     deserialized,
-                    true,
+                    !value.IsComputed,
                     false
                 });
 
@@ -906,7 +882,7 @@ namespace Pulumi.Experimental.Provider
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
-                if (value.TryGetObject(out var values))
+                if (value.TryGetMap(out var values))
                 {
                     var dictionary = Activator.CreateInstance(targetType);
                     var addMethod =
@@ -927,7 +903,7 @@ namespace Pulumi.Experimental.Provider
                     return dictionary;
                 }
 
-                ThrowTypeMismatchError(PropertyValueType.Object);
+                ThrowTypeMismatchError(PropertyValueType.Map);
             }
 
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(ImmutableDictionary<,>))
@@ -948,7 +924,7 @@ namespace Pulumi.Experimental.Provider
                     .GetMethod(nameof(ImmutableDictionary<int, int>.Builder.ToImmutable))!;
                 var valueType = targetType.GenericTypeArguments[1];
 
-                if (value.TryGetObject(out var values))
+                if (value.TryGetMap(out var values))
                 {
                     foreach (var pair in values)
                     {
@@ -962,12 +938,12 @@ namespace Pulumi.Experimental.Provider
                     return builderToImmutable.Invoke(builder, Array.Empty<object>());
                 }
 
-                ThrowTypeMismatchError(PropertyValueType.Object);
+                ThrowTypeMismatchError(PropertyValueType.Map);
             }
 
             if (targetType.IsClass || targetType.IsValueType)
             {
-                if (value.TryGetObject(out var objectProperties))
+                if (value.TryGetMap(out var objectProperties))
                 {
                     return DeserializeObject(objectProperties, targetType, path);
                 }

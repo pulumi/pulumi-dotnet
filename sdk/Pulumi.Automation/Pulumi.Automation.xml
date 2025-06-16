@@ -80,6 +80,26 @@
             Refresh the state of the stack's resources before this destroy.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.DestroyOptions.RunProgram">
+            <summary>
+            Runs the program in the workspace to perform the destroy.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.DockerImageCredentials">
+            <summary>
+            Credentials for the remote execution Docker image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.DockerImageCredentials.Username">
+            <summary>
+            The username for the image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.DockerImageCredentials.Password">
+            <summary>
+            The password for the image.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Events.CancelEvent">
             <summary>
             <see cref="T:Pulumi.Automation.Events.CancelEvent"/> is emitted when the user initiates a cancellation of the update in progress, or
@@ -369,6 +389,21 @@
              settings file found on disk.
             
              </summary>
+        </member>
+        <member name="T:Pulumi.Automation.ExecutorImage">
+            <summary>
+            Information about the remote execution image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.ExecutorImage.Image">
+            <summary>
+            The Docker image to use.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.ExecutorImage.Credentials">
+            <summary>
+            Credentials for the remote execution Docker image.
+            </summary>
         </member>
         <member name="T:Pulumi.Automation.HistoryOptions">
             <summary>
@@ -884,6 +919,11 @@
             An optional list of arbitrary commands to run before a remote Pulumi operation is invoked.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.LocalWorkspaceOptions.RemoteExecutorImage">
+            <summary>
+            Optional information about a remote execution image.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.LocalWorkspaceOptions.RemoteSkipInstallDependencies">
             <summary>
             Whether to skip the default dependency installation step.
@@ -1122,6 +1162,11 @@
             <see cref="T:Pulumi.Automation.PendingCreateValue"/> values to import into the stack
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.RefreshOptions.RunProgram">
+            <summary>
+            Runs the program in the workspace to perform the refresh.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.RemoteDestroyOptions">
             <summary>
             Options controlling the behavior of an <see cref="M:Pulumi.Automation.RemoteWorkspaceStack.DestroyAsync(Pulumi.Automation.RemoteDestroyOptions,System.Threading.CancellationToken)"/> operation.
@@ -1314,6 +1359,11 @@
             Whether to skip the default dependency installation step.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.RemoteWorkspaceOptions.ExecutorImage">
+            <summary>
+            Information about a remote execution image.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.RemoteWorkspaceStack.Name">
             <summary>
             The name identifying the Stack.
@@ -1501,6 +1551,11 @@
         <member name="P:Pulumi.Automation.UpdateOptions.Json">
             <summary>
             Format standard output as JSON not text.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.UpdateOptions.ConfigFile">
+            <summary>
+            Path to a YAML file containing stack configuration values.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.UpOptions">

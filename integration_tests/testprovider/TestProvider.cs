@@ -1,19 +1,20 @@
-// Copyright 2022-2023, Pulumi Corporation.  All rights reserved.
+// Copyright 2022-2025, Pulumi Corporation.  All rights reserved.
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 
 public class TestProvider : Provider
 {
-    readonly IHost host;
+    readonly Pulumi.Experimental.IEngine host;
     int id = 0;
     string parameter;
 
-    public TestProvider(IHost host)
+    public TestProvider(Pulumi.Experimental.IEngine host)
     {
         this.host = host;
         this.parameter = "testprovider";
@@ -232,6 +233,18 @@ public class TestProvider : Provider
             Id = request.Id,
             Properties = request.Properties,
         };
+        return Task.FromResult(response);
+    }
+
+    public override Task<InvokeResponse> Invoke(InvokeRequest request, CancellationToken ct)
+    {
+        var response = new InvokeResponse();
+
+        if (request.Tok == "testprovider:index:returnArgs")
+        {
+            response.Return = request.Args;
+        }
+    
         return Task.FromResult(response);
     }
 }

@@ -157,6 +157,15 @@ class TransformsStack : Stack
             },
             Provider = provider
         });
+
+        // Scenario #9 - Invoke transform
+        global::Pulumi.Deployment.Instance.RegisterInvokeTransform(Scenario9);
+
+        var res9 = new MyInvoke();
+        var args = MyInvoke.MyInvokeArgs.Empty;
+        args.Prefix = "hello";
+        args.Length = 135;
+        res9.Invoke(args);
     }
 
     // Scenario #3 - apply a transformation to the Stack to transform all (future) resources in the stack
@@ -178,6 +187,16 @@ class TransformsStack : Stack
         }
 
         return null;
+    }
+
+    private static async Task<InvokeTransformResult?> Scenario9(InvokeTransformArgs args, CancellationToken ct)
+    {
+        Pulumi.Log.Debug("Running invoke transform");
+
+        var invokeArgs = args.Args;
+        invokeArgs = invokeArgs.SetItem("length", 11);
+
+        return new Pulumi.InvokeTransformResult(invokeArgs, args.Options);
     }
 }
 

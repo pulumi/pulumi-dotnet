@@ -170,6 +170,83 @@
             ConfigMissingException is used when a configuration value is completely missing.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.PropertyValueType">
+            <summary>
+            Property values will be one of these types.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.LogSeverity">
+            <summary>
+            LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Debug">
+            <summary>
+            A debug-level message not displayed to end-users (the default).
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Info">
+            <summary>
+            An informational message printed to output during resource operations.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Warning">
+            <summary>
+            A warning to indicate that something went wrong.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.LogSeverity.Error">
+            <summary>
+            A fatal error indicating that the tool should stop processing subsequent resource operations.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.LogRequest">
+            <summary>
+            A log message to be sent to the Pulumi engine.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Severity">
+            <summary>
+            The logging level of this message.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Message">
+            <summary>
+            The contents of the logged message.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Urn">
+            <summary>
+            The (optional) resource urn this log is associated with.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.StreamId">
+            <summary>
+            The (optional) stream id that a stream of log messages can be associated with. This allows
+            clients to not have to buffer a large set of log messages that they all want to be
+            conceptually connected.  Instead the messages can be sent as chunks (with the same stream id)
+            and the end display can show the messages as they arrive, while still stitching them together
+            into one total log message.
+            </summary>
+            <remarks>
+            0 means do not associate with any stream.
+            </remarks>
+        </member>
+        <member name="P:Pulumi.Experimental.LogRequest.Ephemeral">
+            <summary>
+            Optional value indicating whether this is a status message.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.IEngine">
+            <summary>
+            An interface to the engine host running this plugin.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.IEngine.LogAsync(Pulumi.Experimental.LogRequest)">
+            <summary>
+            Send a log message to the host.
+            </summary>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.ComponentAnalyzer">
             <summary>
             Analyzes component resource types and generates a package schema.
@@ -240,89 +317,6 @@
             <param name="args">The command-line arguments</param>
             <param name="componentAssembly">The assembly containing component types</param>
             <param name="packageName">Optional package name (defaults to assembly name)</param>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.LogSeverity">
-            <summary>
-            LogSeverity is the severity level of a log message.  Errors are fatal; all others are informational.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Debug">
-            <summary>
-            A debug-level message not displayed to end-users (the default).
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Info">
-            <summary>
-            An informational message printed to output during resource operations.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Warning">
-            <summary>
-            A warning to indicate that something went wrong.
-            </summary>
-        </member>
-        <member name="F:Pulumi.Experimental.Provider.LogSeverity.Error">
-            <summary>
-            A fatal error indicating that the tool should stop processing subsequent resource operations.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.LogMessage">
-            <summary>
-            A log message to be sent to the Pulumi engine.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Severity">
-            <summary>
-            The logging level of this message.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Message">
-            <summary>
-            The contents of the logged message.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Urn">
-            <summary>
-            The (optional) resource urn this log is associated with.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.StreamId">
-            <summary>
-            The (optional) stream id that a stream of log messages can be associated with. This allows
-            clients to not have to buffer a large set of log messages that they all want to be
-            conceptually connected.  Instead the messages can be sent as chunks (with the same stream id)
-            and the end display can show the messages as they arrive, while still stitching them together
-            into one total log message.
-            </summary>
-            <remarks>
-            0 means do not associate with any stream.
-            </remarks>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.LogMessage.Ephemeral">
-            <summary>
-            Optional value indicating whether this is a status message.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.IHost">
-            <summary>
-            An interface to the engine host running this plugin.
-            </summary>
-        </member>
-        <member name="M:Pulumi.Experimental.Provider.IHost.LogAsync(Pulumi.Experimental.Provider.LogMessage)">
-            <summary>
-            Send a log message to the host.
-            </summary>
-        </member>
-        <member name="T:Pulumi.Experimental.Provider.PropertyValueType">
-            <summary>
-            Property values will be one of these types.
-            </summary>
-        </member>
-        <member name="P:Pulumi.Experimental.Provider.OutputReference.Value">
-            <summary>
-            The value of the output, if it is known. This will never be a `Computed` value as that's
-            equivilent to unknown and thus null.
-            </summary>
         </member>
         <member name="T:Pulumi.Experimental.Provider.ParametersArgs">
             <summary>
@@ -1046,6 +1040,41 @@
             automatically by Pulumi to identify resources.  They cannot be manually constructed.
             </summary>
         </member>
+        <member name="M:Pulumi.Urn.op_Implicit(Pulumi.Urn)~System.String">
+            <summary>
+            Implicitly converts a URN to a string.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Urn.ToString">
+            <summary>
+            Returns the string representation of this URN.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Urn.Equals(System.Object)">
+            <summary>
+            Determines whether the specified object is equal to the current URN.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Urn.Equals(Pulumi.Urn)">
+            <summary>
+            Determines whether the specified URN is equal to the current URN.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Urn.GetHashCode">
+            <summary>
+            Returns a hash code for this URN.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Urn.op_Equality(Pulumi.Urn,Pulumi.Urn)">
+            <summary>
+            Determines whether two URN values are equal.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Urn.op_Inequality(Pulumi.Urn,Pulumi.Urn)">
+            <summary>
+            Determines whether two URN values are not equal.
+            </summary>
+        </member>
         <member name="M:Pulumi.Urn.Create(Pulumi.Input{System.String},Pulumi.Input{System.String},Pulumi.Resource,Pulumi.Input{System.String},Pulumi.Input{System.String},Pulumi.Input{System.String})">
             <summary>
             Computes a URN from the combination of a resource name, resource type, optional parent,
@@ -1131,13 +1160,18 @@
              program ending early before all resources are properly registered.
              </summary>
         </member>
+        <member name="F:Pulumi.Deployment._registrationsComplete">
+            <summary>
+            A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
+            </summary>
+        </member>
         <member name="P:Pulumi.Deployment.Instance">
             <summary>
             The current running deployment instance. This is only available from inside the function
             passed to <see cref="M:Pulumi.Deployment.RunAsync(System.Action)"/> (or its overloads).
             </summary>
         </member>
-        <member name="M:Pulumi.Deployment.#ctor(Pulumi.IEngine,Pulumi.IMonitor,Pulumi.Testing.TestOptions)">
+        <member name="M:Pulumi.Deployment.#ctor(Pulumi.Experimental.IEngine,Pulumi.IMonitor,Pulumi.Testing.TestOptions)">
             <summary>
             This constructor is called from <see cref="M:Pulumi.Deployment.TestAsync(Pulumi.Testing.IMocks,System.Func{Pulumi.IRunner,System.Threading.Tasks.Task{System.Int32}},Pulumi.Testing.TestOptions)"/>
             with a mocked monitor and dummy values for project and stack.
@@ -1160,6 +1194,11 @@
         <member name="M:Pulumi.Deployment.MonitorSupportsTransforms">
             <summary>
             Returns whether the resource monitor we are connected to supports the "transforms" feature across the RPC interface.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Deployment.MonitorSupportsInvokeTransforms">
+            <summary>
+            Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
             </summary>
         </member>
         <member name="M:Pulumi.Deployment.EngineLogger.Pulumi#IEngineLogger#DebugAsync(System.String,Pulumi.Resource,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
@@ -1826,6 +1865,11 @@
             Same as <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/>, however the return value is ignored.
             </summary>
         </member>
+        <member name="M:Pulumi.IDeployment.RegisterInvokeTransform(Pulumi.InvokeTransform)">
+            <summary>
+            Register an invoke transform to run when invoke calls are made.
+            </summary>
+        </member>
         <member name="T:Pulumi.InvokeOptions">
             <summary>
             Options to help control the behavior of <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>.
@@ -2274,6 +2318,29 @@
         <member name="T:Pulumi.InvokeArgs">
             <summary>
             Base type for all invoke argument classes.
+            </summary>
+        </member>
+        <member name="T:Pulumi.InvokeTransform">
+            <summary>
+            The type of an invoke transform.
+            </summary>
+            <param name="args"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Pulumi.InvokeTransformArgs.Token">
+            <summary>
+            The token of the invoke.
+            </summary>
+        </member>
+        <member name="P:Pulumi.InvokeTransformArgs.Args">
+            <summary>
+            The original properties passed to the Resource constructor.
+            </summary>
+        </member>
+        <member name="P:Pulumi.InvokeTransformArgs.Options">
+            <summary>
+            The original resource options passed to the Resource constructor.
             </summary>
         </member>
         <member name="T:Pulumi.ProviderResource">
@@ -3338,6 +3405,116 @@
             Remediated policies actually fixes problems instead of issuing diagnostics.
             </summary>
         </member>
+        <member name="T:Pulumirpc.AnalyzerStackConfigureRequest">
+            <summary>
+            `AnalyzerStackConfigureRequest` is the message for the stack configuration of the stack being analyzed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.StackFieldNumber">
+            <summary>Field number for the "stack" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Stack">
+            <summary>
+            The stack name being analyzed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.ProjectFieldNumber">
+            <summary>Field number for the "project" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Project">
+            <summary>
+            The project name of the stack being analyzed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.OrganizationFieldNumber">
+            <summary>Field number for the "organization" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Organization">
+            <summary>
+            The organization name of the stack being analyzed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.DryRunFieldNumber">
+            <summary>Field number for the "dry_run" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.DryRun">
+            <summary>
+            True if this is a preview/dry run.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.ConfigSecretKeysFieldNumber">
+            <summary>Field number for the "config_secret_keys" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.ConfigSecretKeys">
+            <summary>
+            A list of configuration keys whose values should be treated as secrets.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.ConfigFieldNumber">
+            <summary>Field number for the "config" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Config">
+            <summary>
+            The configuration of the stack being analyzed.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.AnalyzerStackConfigureResponse">
+            <summary>
+            `AnalyzerStackConfigureResponse` is the type of responses sent by a [](pulumirpc.Analyzer.ConfigureStack) call.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.AnalyzerHandshakeRequest">
+            <summary>
+            `AnalyzerHandshakeRequest` is the type of requests sent as part of a [](pulumirpc.Analyzer.Handshake) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerHandshakeRequest.EngineAddressFieldNumber">
+            <summary>Field number for the "engine_address" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerHandshakeRequest.EngineAddress">
+            <summary>
+            The gRPC address of the engine handshaking with the analyzer. At a minimum, this address will expose an instance
+            of the [](pulumirpc.Engine) service.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerHandshakeRequest.RootDirectoryFieldNumber">
+            <summary>Field number for the "root_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerHandshakeRequest.RootDirectory">
+            <summary>
+            A *root directory* where the analyzer's binary, `PulumiPolicy.yaml`, or other identifying source code is located.
+            In the event that the analyzer is *not* being booted by the engine (e.g. in the case that the engine has been
+            asked to attach to an existing running analyzer instance via a host/port number), this field will be empty.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerHandshakeRequest.HasRootDirectory">
+            <summary>Gets whether the "root_directory" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.AnalyzerHandshakeRequest.ClearRootDirectory">
+            <summary>Clears the value of the "root_directory" field</summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerHandshakeRequest.ProgramDirectoryFieldNumber">
+            <summary>Field number for the "program_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerHandshakeRequest.ProgramDirectory">
+            <summary>
+            A *program directory* in which the analyzer should execute. This is generally a subdirectory of the root
+            directory, though this is not required. In the event that the analyzer is *not* being booted by the engine (e.g.
+            in the case that the engine has been asked to attach to an existing running analyzer instance via a host/port
+            number), this field will be empty.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerHandshakeRequest.HasProgramDirectory">
+            <summary>Gets whether the "program_directory" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.AnalyzerHandshakeRequest.ClearProgramDirectory">
+            <summary>Clears the value of the "program_directory" field</summary>
+        </member>
+        <member name="T:Pulumirpc.AnalyzerHandshakeResponse">
+            <summary>
+            `AnalyzerHandshakeResponse` is the type of responses sent by a [](pulumirpc.Analyzer.Handshake) call.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.AnalyzeRequest.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>
         </member>
@@ -3667,14 +3844,6 @@
             Message to display on policy violation, e.g., remediation steps.
             </summary>
         </member>
-        <member name="F:Pulumirpc.AnalyzeDiagnostic.TagsFieldNumber">
-            <summary>Field number for the "tags" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.AnalyzeDiagnostic.Tags">
-            <summary>
-            Keywords/terms to associate with a policy, e.g., "cost".
-            </summary>
-        </member>
         <member name="F:Pulumirpc.AnalyzeDiagnostic.EnforcementLevelFieldNumber">
             <summary>Field number for the "enforcementLevel" field.</summary>
         </member>
@@ -3984,6 +4153,26 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerBase.Handshake(Pulumirpc.AnalyzerHandshakeRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            `Handshake` is the first call made by the engine to an analyzer. It is used to pass the engine's address to the
+            analyzer so that it may establish its own connections back, and to establish protocol configuration that will be
+            used to communicate between the two parties.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerBase.ConfigureStack(Pulumirpc.AnalyzerStackConfigureRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
+            This method is not always called, for example if the engine is just booting the analyzer up to call
+            GetAnalyzerInfo.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="T:Pulumirpc.Analyzer.AnalyzerClient">
             <summary>Client for Analyzer</summary>
         </member>
@@ -4229,6 +4418,94 @@
         <member name="M:Pulumirpc.Analyzer.AnalyzerClient.ConfigureAsync(Pulumirpc.ConfigureAnalyzerRequest,Grpc.Core.CallOptions)">
             <summary>
             Configure configures the analyzer, passing configuration properties for each policy.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Handshake(Pulumirpc.AnalyzerHandshakeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Handshake` is the first call made by the engine to an analyzer. It is used to pass the engine's address to the
+            analyzer so that it may establish its own connections back, and to establish protocol configuration that will be
+            used to communicate between the two parties.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Handshake(Pulumirpc.AnalyzerHandshakeRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Handshake` is the first call made by the engine to an analyzer. It is used to pass the engine's address to the
+            analyzer so that it may establish its own connections back, and to establish protocol configuration that will be
+            used to communicate between the two parties.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.HandshakeAsync(Pulumirpc.AnalyzerHandshakeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Handshake` is the first call made by the engine to an analyzer. It is used to pass the engine's address to the
+            analyzer so that it may establish its own connections back, and to establish protocol configuration that will be
+            used to communicate between the two parties.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.HandshakeAsync(Pulumirpc.AnalyzerHandshakeRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Handshake` is the first call made by the engine to an analyzer. It is used to pass the engine's address to the
+            analyzer so that it may establish its own connections back, and to establish protocol configuration that will be
+            used to communicate between the two parties.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.ConfigureStack(Pulumirpc.AnalyzerStackConfigureRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
+            This method is not always called, for example if the engine is just booting the analyzer up to call
+            GetAnalyzerInfo.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.ConfigureStack(Pulumirpc.AnalyzerStackConfigureRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
+            This method is not always called, for example if the engine is just booting the analyzer up to call
+            GetAnalyzerInfo.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.ConfigureStackAsync(Pulumirpc.AnalyzerStackConfigureRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
+            This method is not always called, for example if the engine is just booting the analyzer up to call
+            GetAnalyzerInfo.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.ConfigureStackAsync(Pulumirpc.AnalyzerStackConfigureRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
+            This method is not always called, for example if the engine is just booting the analyzer up to call
+            GetAnalyzerInfo.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -4659,6 +4936,17 @@
         <member name="P:Pulumirpc.ConvertProgramRequest.Args">
             <summary>
             the args passed to `pulumi convert` for this conversion. Normally used to specifiy a root file, or conversion options.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertProgramRequest.GeneratedProjectDirectoryFieldNumber">
+            <summary>Field number for the "generated_project_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertProgramRequest.GeneratedProjectDirectory">
+            <summary>
+            the directory where the final generated project for the eventual destination language will be written.
+            use to determine relative paths of any asset that will be copied over.
+            Do not write files to this directory as these files might be overwritten in 
+            the project generation process.
             </summary>
         </member>
         <member name="F:Pulumirpc.ConvertProgramResponse.DiagnosticsFieldNumber">
@@ -5579,7 +5867,7 @@
         </member>
         <member name="P:Pulumirpc.RunRequest.QueryMode">
             <summary>
-            True if and only if we are only performing a query.
+            This is deprecated, query mode is no longer a supported feature. 
             </summary>
         </member>
         <member name="F:Pulumirpc.RunRequest.ConfigSecretKeysFieldNumber">
@@ -5603,7 +5891,8 @@
         </member>
         <member name="P:Pulumirpc.RunRequest.ConfigPropertyMap">
             <summary>
-            Configuration variables to apply before running the program.
+            This is deprecated, runtimes should look at the string based config as that maintains the full textual data from
+            the users config file.
             </summary>
         </member>
         <member name="F:Pulumirpc.RunRequest.InfoFieldNumber">
@@ -5696,6 +5985,14 @@
             <summary>
             True if the host should use language-specific version managers, such as `pyenv` or `nvm`, to set up the version
             of the language toolchain used.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.InstallDependenciesRequest.IsPluginFieldNumber">
+            <summary>Field number for the "is_plugin" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InstallDependenciesRequest.IsPlugin">
+            <summary>
+            True if this install is for a plugin, as opposed to a top level Pulumi program.
             </summary>
         </member>
         <member name="T:Pulumirpc.InstallDependenciesResponse">
@@ -5897,6 +6194,30 @@
         <member name="P:Pulumirpc.RunPluginRequest.Info">
             <summary>
             The [plugin program](pulumirpc.ProgramInfo) to use.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunPluginRequest.KindFieldNumber">
+            <summary>Field number for the "kind" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPluginRequest.Kind">
+            <summary>
+            The kind of plugin to run (resource/analyzer/etc).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunPluginRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPluginRequest.Name">
+            <summary>
+            The name of the plugin (for display purposes)
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunPluginRequest.AttachDebuggerFieldNumber">
+            <summary>Field number for the "attach_debugger" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPluginRequest.AttachDebugger">
+            <summary>
+            True if a plugin should be started under a debugger.
             </summary>
         </member>
         <member name="T:Pulumirpc.RunPluginResponse">
@@ -6230,6 +6551,36 @@
             `LanguageHandshakeResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Handshake) call.
             </summary>
         </member>
+        <member name="T:Pulumirpc.LinkRequest">
+            <summary>
+            `LinkRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.Link) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkRequest.Info">
+            <summary>
+            The program to use.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.LocalDependenciesFieldNumber">
+            <summary>Field number for the "local_dependencies" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkRequest.LocalDependencies">
+            <summary>
+            Local dependencies that the program should reference explicitly, instead of e.g. using the language's
+            package system. This is a map of package names to local paths of language-specific artifacts that
+            should be used. For instance, in the case of a NodeJS package, this might be a map of NPM package names
+            to local paths to be used, such as `{ "@pulumi/aws": "/some/path/to/aws.tgz" }` if a local tarball is
+            to be used instead of the published `@pulumi/aws` package.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.LinkResponse">
+            <summary>
+            `LinkResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Link) call.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.LanguageRuntime">
             <summary>
             The LanguageRuntime service defines a standard interface for [language hosts/runtimes](languages). At a high level, a
@@ -6394,6 +6745,14 @@
             a `.tgz` file might be produced from a list of `.js` sources; and so on. Presently, `Pack` is primarily used in
             [language conformance tests](language-conformance-tests), though it is intended to be used more widely in future
             to standardise e.g. provider publishing workflows.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Link(Pulumirpc.LinkRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            `Link` links a local dependency into a project.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -7037,6 +7396,42 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
         </member>
@@ -7269,6 +7664,23 @@
         <member name="P:Pulumirpc.ProviderHandshakeRequest.ConfigureWithUrn">
             <summary>
             If true the engine will send URN, Name, Type, and ID to the provider as part of the configuration.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.SupportsViewsFieldNumber">
+            <summary>Field number for the "supports_views" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.SupportsViews">
+            <summary>
+            If true the engine supports views and can send the address of a [](pulumirpc.ResourceStatus) service which can be
+            used to e.g. create or update view resources.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.SupportsRefreshBeforeUpdateFieldNumber">
+            <summary>Field number for the "supports_refresh_before_update" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.SupportsRefreshBeforeUpdate">
+            <summary>
+            If true the engine supports letting the provider mark resource states as requiring refresh before update.
             </summary>
         </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
@@ -8361,6 +8773,22 @@
             that providers do not have to implement URN parsing in order to extract the type of the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.CreateRequest.ResourceStatusAddressFieldNumber">
+            <summary>Field number for the "resource_status_address" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CreateRequest.ResourceStatusAddress">
+            <summary>
+            The address of a [](pulumirpc.ResourceStatus) service which can be used to e.g. create or update view resources.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CreateRequest.ResourceStatusTokenFieldNumber">
+            <summary>Field number for the "resource_status_token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CreateRequest.ResourceStatusToken">
+            <summary>
+            The [](pulumirpc.ResourceStatus) service context token to pass when calling methods on the service.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.CreateResponse">
             <summary>
             `CreateResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Create) call. A `CreateResponse`
@@ -8382,6 +8810,14 @@
             <summary>
             The resource's output properties. Typically this will be a union of the resource's input properties and any
             additional values that were computed or made available during creation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CreateResponse.RefreshBeforeUpdateFieldNumber">
+            <summary>Field number for the "refresh_before_update" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CreateResponse.RefreshBeforeUpdate">
+            <summary>
+            Indicates that this resource should always be refreshed prior to updates.
             </summary>
         </member>
         <member name="T:Pulumirpc.ReadRequest">
@@ -8440,6 +8876,31 @@
             providers do not have to implement URN parsing in order to extract the type of the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ReadRequest.ResourceStatusAddressFieldNumber">
+            <summary>Field number for the "resource_status_address" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadRequest.ResourceStatusAddress">
+            <summary>
+            The address of a [](pulumirpc.ResourceStatus) service which can be used to e.g. create or update view resources.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadRequest.ResourceStatusTokenFieldNumber">
+            <summary>Field number for the "resource_status_token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadRequest.ResourceStatusToken">
+            <summary>
+            The [](pulumirpc.ResourceStatus) service context token to pass when calling methods on the service.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadRequest.OldViewsFieldNumber">
+            <summary>Field number for the "old_views" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadRequest.OldViews">
+            <summary>
+            The old views for the resource being read. These will only be populated when the
+            [](pulumirpc.ResourceProvider.Read) call is being made as part of a refresh operation.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ReadResponse">
             <summary>
             `ReadResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Read) call. A `ReadResponse` contains
@@ -8469,6 +8930,14 @@
             <summary>
             Output-derived input properties for the resource. These are returned as they would be returned from a
             [](pulumirpc.ResourceProvider.Check) call with the same values.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadResponse.RefreshBeforeUpdateFieldNumber">
+            <summary>Field number for the "refresh_before_update" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResponse.RefreshBeforeUpdate">
+            <summary>
+            Indicates that this resource should always be refreshed prior to updates.
             </summary>
         </member>
         <member name="T:Pulumirpc.UpdateRequest">
@@ -8560,6 +9029,30 @@
             that providers do not have to implement URN parsing in order to extract the type of the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.UpdateRequest.ResourceStatusAddressFieldNumber">
+            <summary>Field number for the "resource_status_address" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.UpdateRequest.ResourceStatusAddress">
+            <summary>
+            The address of a [](pulumirpc.ResourceStatus) service which can be used to e.g. create or update view resources.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.UpdateRequest.ResourceStatusTokenFieldNumber">
+            <summary>Field number for the "resource_status_token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.UpdateRequest.ResourceStatusToken">
+            <summary>
+            The [](pulumirpc.ResourceStatus) service context token to pass when calling methods on the service.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.UpdateRequest.OldViewsFieldNumber">
+            <summary>Field number for the "old_views" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.UpdateRequest.OldViews">
+            <summary>
+            The old views for the resource being updated.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.UpdateResponse">
             <summary>
             `UpdateResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Update) call.
@@ -8572,6 +9065,14 @@
             <summary>
             An updated set of resource output properties. Typically this will be a union of the resource's inputs and any
             additional values that were computed or made available during the update.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.UpdateResponse.RefreshBeforeUpdateFieldNumber">
+            <summary>Field number for the "refresh_before_update" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.UpdateResponse.RefreshBeforeUpdate">
+            <summary>
+            Indicates that this resource should always be refreshed prior to updates.
             </summary>
         </member>
         <member name="T:Pulumirpc.DeleteRequest">
@@ -8635,6 +9136,30 @@
             <summary>
             The type of the resource being deleted. This must match the type specified by the `urn` field, and is passed so
             that providers do not have to implement URN parsing in order to extract the type of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeleteRequest.ResourceStatusAddressFieldNumber">
+            <summary>Field number for the "resource_status_address" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeleteRequest.ResourceStatusAddress">
+            <summary>
+            The address of a [](pulumirpc.ResourceStatus) service which can be used to e.g. create or update view resources.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeleteRequest.ResourceStatusTokenFieldNumber">
+            <summary>Field number for the "resource_status_token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeleteRequest.ResourceStatusToken">
+            <summary>
+            The [](pulumirpc.ResourceStatus) service context token to pass when calling methods on the service.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeleteRequest.OldViewsFieldNumber">
+            <summary>Field number for the "old_views" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeleteRequest.OldViews">
+            <summary>
+            The old views for the resource being read.
             </summary>
         </member>
         <member name="T:Pulumirpc.ConstructRequest">
@@ -9099,6 +9624,59 @@
             `terraform-template` would return `["template"]` for this.
             </summary>
         </member>
+        <member name="T:Pulumirpc.View">
+            <summary>
+            `View` represents the state of a view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.View.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.View.Type">
+            <summary>
+            The type of the view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.View.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.View.Name">
+            <summary>
+            The name of the view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.View.ParentTypeFieldNumber">
+            <summary>Field number for the "parent_type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.View.ParentType">
+            <summary>
+            An optional type of the parent view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.View.ParentNameFieldNumber">
+            <summary>Field number for the "parent_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.View.ParentName">
+            <summary>
+            An optional name of the parent view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.View.InputsFieldNumber">
+            <summary>Field number for the "inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.View.Inputs">
+            <summary>
+            The view resource's inputs.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.View.OutputsFieldNumber">
+            <summary>Field number for the "outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.View.Outputs">
+            <summary>
+            The view resource's outputs.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceProvider">
             <summary>
             The ResourceProvider service defines a standard interface for [resource providers](providers). A resource provider
@@ -9250,16 +9828,6 @@
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
-        </member>
-        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.StreamInvoke(Pulumirpc.InvokeRequest,Grpc.Core.IServerStreamWriter{Pulumirpc.InvokeResponse},Grpc.Core.ServerCallContext)">
-            <summary>
-            StreamInvoke dynamically executes a built-in function in the provider, which returns a stream
-            of responses.
-            </summary>
-            <param name="request">The request received from the client.</param>
-            <param name="responseStream">Used for sending responses back to the client.</param>
-            <param name="context">The context of the server-side call handler being invoked.</param>
-            <returns>A task indicating completion of the handler.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.Call(Pulumirpc.CallRequest,Grpc.Core.ServerCallContext)">
             <summary>
@@ -10025,26 +10593,6 @@
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.InvokeAsync(Pulumirpc.InvokeRequest,Grpc.Core.CallOptions)">
             <summary>
             Invoke dynamically executes a built-in function in the provider.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The call object.</returns>
-        </member>
-        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.StreamInvoke(Pulumirpc.InvokeRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            StreamInvoke dynamically executes a built-in function in the provider, which returns a stream
-            of responses.
-            </summary>
-            <param name="request">The request to send to the server.</param>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The call object.</returns>
-        </member>
-        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.StreamInvoke(Pulumirpc.InvokeRequest,Grpc.Core.CallOptions)">
-            <summary>
-            StreamInvoke dynamically executes a built-in function in the provider, which returns a stream
-            of responses.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -12016,6 +12564,399 @@
             <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
             <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
+        <member name="T:Pulumirpc.ResourceStatusReflection">
+            <summary>Holder for reflection information generated from pulumi/resource_status.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceStatusReflection.Descriptor">
+            <summary>File descriptor for pulumi/resource_status.proto</summary>
+        </member>
+        <member name="T:Pulumirpc.PublishViewStepsRequest">
+            <summary>
+            `PublishViewStepsRequest` is the type of requests sent as part of a
+            [](pulumirpc.ResourceStatus.PublishViewSteps) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PublishViewStepsRequest.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PublishViewStepsRequest.Token">
+            <summary>
+            The service context token.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PublishViewStepsRequest.StepsFieldNumber">
+            <summary>Field number for the "steps" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PublishViewStepsRequest.Steps">
+            <summary>
+            The steps to publish.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.PublishViewStepsResponse">
+            <summary>
+            `PublishViewStepsResponse` is the type of responses sent as part of a
+            [](pulumirpc.ResourceStatus.PublishViewSteps) call.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ViewStep">
+            <summary>
+            `ViewStep` represents a deployment operation step for a view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.StatusFieldNumber">
+            <summary>Field number for the "status" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Status">
+            <summary>
+            The status of the operation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.ErrorFieldNumber">
+            <summary>Field number for the "error" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Error">
+            <summary>
+            An optional error message indicating the operation failed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.OpFieldNumber">
+            <summary>Field number for the "op" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Op">
+            <summary>
+            The operation being performed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Type">
+            <summary>
+            The type of the view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Name">
+            <summary>
+            The name of the view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.OldFieldNumber">
+            <summary>Field number for the "old" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Old">
+            <summary>
+            The state of the view resource before performing the step.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.NewFieldNumber">
+            <summary>Field number for the "new" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.New">
+            <summary>
+            The state of the view resource after performing the step.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.KeysFieldNumber">
+            <summary>Field number for the "keys" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Keys">
+            <summary>
+            The keys causing a replacement (only applicable for "create" and "replace" ops).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.DiffsFieldNumber">
+            <summary>Field number for the "diffs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.Diffs">
+            <summary>
+            The keys that changed with this step.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.DetailedDiffFieldNumber">
+            <summary>Field number for the "detailed_diff" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.DetailedDiff">
+            <summary>
+            A detailed diff is a map from [property paths](property-paths) to [](pulumirpc.PropertyDiff)s,
+            which describe the kind of change that occurred to the property located at that path.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.HasDetailedDiffFieldNumber">
+            <summary>Field number for the "has_detailed_diff" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStep.HasDetailedDiff">
+            <summary>
+            Whether the detailed diff is present.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ViewStep.Types">
+            <summary>Container for nested types declared in the ViewStep message type.</summary>
+        </member>
+        <member name="T:Pulumirpc.ViewStep.Types.Op">
+            <summary>
+            Represents the kind of operation performed by a step.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Unspecified">
+            <summary>
+            An unspecified operation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Same">
+            <summary>
+            Nothing to do.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Create">
+            <summary>
+            Creating a new resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Update">
+            <summary>
+            Updating an existing resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Delete">
+            <summary>
+            Deleting an existing resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Replace">
+            <summary>
+            Replacing a resource with a new one.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.CreateReplacement">
+            <summary>
+            Creating a new resource for a replacement.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.DeleteReplaced">
+            <summary>
+            Deleting an existing resource after replacement.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Read">
+            <summary>
+            Reading an existing resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.ReadReplacement">
+            <summary>
+            Reading an existing resource for a replacement.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Refresh">
+            <summary>
+            Refreshing an existing resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.ReadDiscard">
+            <summary>
+            Removing a resource that was read.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.DiscardReplaced">
+            <summary>
+            Discarding a read resource that was replaced.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.RemovePendingReplace">
+            <summary>
+            Removing a pending replace resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.Import">
+            <summary>
+            Import an existing resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStep.Types.Op.ImportReplacement">
+            <summary>
+            Replace an existing resource.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ViewStep.Types.Status">
+            <summary>
+            Status is returned when an error has occurred during a resource provider operation.
+            It indicates whether the operation could be rolled back cleanly (OK). If not, it
+            means the resource was left in an indeterminate state.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ViewStepState">
+            <summary>
+            `ViewStepState` represents the state of a view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStepState.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStepState.Type">
+            <summary>
+            The type of the view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStepState.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStepState.Name">
+            <summary>
+            The name of the view resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStepState.ParentTypeFieldNumber">
+            <summary>Field number for the "parent_type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStepState.ParentType">
+            <summary>
+            An optional type of the parent view resource. By default, a view resource will
+            be a child of the owning resource, but views can be nested within other views,
+            as long as they're all under the same owner. Both parent_type and parent_name
+            must be set together.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStepState.ParentNameFieldNumber">
+            <summary>Field number for the "parent_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStepState.ParentName">
+            <summary>
+            An optional name of the parent view resource. By default, a view resource will
+            be a child of the owning resource, but views can be nested within other views,
+            as long as they're all under the same owner. Both parent_type and parent_name
+            must be set together.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStepState.InputsFieldNumber">
+            <summary>Field number for the "inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStepState.Inputs">
+            <summary>
+            The view resource's inputs.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ViewStepState.OutputsFieldNumber">
+            <summary>Field number for the "outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ViewStepState.Outputs">
+            <summary>
+            The view resource's outputs.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceStatus">
+            <summary>
+            ResourceStatus is an interface that can be called from a resource provider to update status about a resource.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceStatus.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceStatus.ResourceStatusBase">
+            <summary>Base class for server-side implementations of ResourceStatus</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusBase.PublishViewSteps(Pulumirpc.PublishViewStepsRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            `PublishViewSteps` is used to publish a series of steps for a view resource.
+            Views can be materialized via create and update steps, and more complex
+            changes, such as replacements, can be modeled as a series of steps.
+            The engine does not actually apply these steps, but rather flows them through
+            the engine such that the view resources are written to state and the view
+            resources are displayed in the UI.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Pulumirpc.ResourceStatus.ResourceStatusClient">
+            <summary>Client for ResourceStatus</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for ResourceStatus</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for ResourceStatus that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.PublishViewSteps(Pulumirpc.PublishViewStepsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `PublishViewSteps` is used to publish a series of steps for a view resource.
+            Views can be materialized via create and update steps, and more complex
+            changes, such as replacements, can be modeled as a series of steps.
+            The engine does not actually apply these steps, but rather flows them through
+            the engine such that the view resources are written to state and the view
+            resources are displayed in the UI.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.PublishViewSteps(Pulumirpc.PublishViewStepsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `PublishViewSteps` is used to publish a series of steps for a view resource.
+            Views can be materialized via create and update steps, and more complex
+            changes, such as replacements, can be modeled as a series of steps.
+            The engine does not actually apply these steps, but rather flows them through
+            the engine such that the view resources are written to state and the view
+            resources are displayed in the UI.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.PublishViewStepsAsync(Pulumirpc.PublishViewStepsRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `PublishViewSteps` is used to publish a series of steps for a view resource.
+            Views can be materialized via create and update steps, and more complex
+            changes, such as replacements, can be modeled as a series of steps.
+            The engine does not actually apply these steps, but rather flows them through
+            the engine such that the view resources are written to state and the view
+            resources are displayed in the UI.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.PublishViewStepsAsync(Pulumirpc.PublishViewStepsRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `PublishViewSteps` is used to publish a series of steps for a view resource.
+            Views can be materialized via create and update steps, and more complex
+            changes, such as replacements, can be modeled as a series of steps.
+            The engine does not actually apply these steps, but rather flows them through
+            the engine such that the view resources are written to state and the view
+            resources are displayed in the UI.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.ResourceStatusClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.BindService(Pulumirpc.ResourceStatus.ResourceStatusBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceStatus.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.ResourceStatus.ResourceStatusBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
         <member name="T:Pulumirpc.SourceReflection">
             <summary>Holder for reflection information generated from pulumi/source.proto</summary>
         </member>
@@ -12101,6 +13042,15 @@
             pass. This is useful in cases where e.g. a language's code SDK is relatively feature complete (and thus it's
             desirable to test that feature set) but where program code generation is not yet complete enough to support
             generating programs which exercise that functionality.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.PolicyPackDirectoryFieldNumber">
+            <summary>Field number for the "policy_pack_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.PolicyPackDirectory">
+            <summary>
+            A folder pointing to policy packs to use for the tests. This is used to test the language plugin's policy pack
+            support. These must be manually written.
             </summary>
         </member>
         <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">

@@ -502,8 +502,17 @@ namespace Pulumi.Experimental.Provider
             throw new NotImplementedException($"The method '{nameof(Call)}' is not implemented ");
         }
 
-        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        public static async Task Serve(string[] args, string? version, Func<Experimental.IEngine, Provider> factory, System.Threading.CancellationToken cancellationToken)
         {
+            var value = System.Environment.GetEnvironmentVariable("PULUMI_ATTACH_DEBUGGER");
+            if (value != null && value == "true")
+            {
+                while (!System.Diagnostics.Debugger.IsAttached)
+                {
+                    // keep waiting until the debugger is attached
+                    System.Threading.Thread.Sleep(1);
+                }
+            }
             using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
 
             // before starting the host, set up this callback to tell us what port was selected
@@ -534,7 +543,7 @@ namespace Pulumi.Experimental.Provider
             string[] args,
             string? version,
             IDeploymentBuilder deploymentBuilder,
-            Func<IHost, Provider> factory,
+            Func<Experimental.IEngine, Provider> factory,
             Action<IWebHostBuilder>? configuration = default)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
@@ -639,7 +648,7 @@ namespace Pulumi.Experimental.Provider
 
     class ResourceProviderService : ResourceProvider.ResourceProviderBase, IDisposable
     {
-        private readonly Func<IHost, Provider> factory;
+        private readonly Func<Experimental.IEngine, Provider> factory;
         private readonly IDeploymentBuilder deploymentBuilder;
         private readonly ILogger? logger;
         private readonly CancellationTokenSource rootCTS;
@@ -663,12 +672,12 @@ namespace Pulumi.Experimental.Provider
 
         private void CreateProvider(string address)
         {
-            var host = new GrpcHost(address);
+            var host = new GrpcEngine(address);
             implementation = factory(host);
             engineAddress = address;
         }
 
-        public ResourceProviderService(Func<IHost, Provider> factory,
+        public ResourceProviderService(Func<Experimental.IEngine, Provider> factory,
             IDeploymentBuilder deploymentBuilder,
             IConfiguration configuration,
             ILogger<ResourceProviderService>? logger)
@@ -1167,9 +1176,8 @@ namespace Pulumi.Experimental.Provider
 
                 if (domArgs.TryGetValue(argDependency.Key, out var currentValue))
                 {
-                    domArgs = domArgs.SetItem(argDependency.Key,
-                        new PropertyValue(new OutputReference(currentValue,
-                            argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableHashSet())));
+                    domArgs = domArgs.SetItem(argDependency.Key, currentValue.WithDependencies(
+                        argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableHashSet()));
                 }
             }
 
@@ -1179,14 +1187,14 @@ namespace Pulumi.Experimental.Provider
         private static Pulumirpc.ConstructResponse.Types.PropertyDependencies BuildPropertyDependencies(ISet<Urn> dependencies)
         {
             var propertyDependencies = new Pulumirpc.ConstructResponse.Types.PropertyDependencies();
-            propertyDependencies.Urns.AddRange(dependencies.Select(urn => urn.Value));
+            propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));
             return propertyDependencies;
         }
 
         private static Pulumirpc.CallResponse.Types.ReturnDependencies BuildReturnDependencies(ISet<Urn> dependencies)
         {
             var propertyDependencies = new Pulumirpc.CallResponse.Types.ReturnDependencies();
-            propertyDependencies.Urns.AddRange(dependencies.Select(urn => urn.Value));
+            propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));
             return propertyDependencies;
         }
     }

@@ -45,22 +45,11 @@ let getDevVersion() =
 /// Runs `dotnet clean` command against the solution file,
 /// then proceeds to delete the `bin` and `obj` directory of each project in the solution
 let cleanSdk() =
-    let cmd = Cli.Wrap("dotnet").WithArguments("clean").WithWorkingDirectory(sdk)
-    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    printfn "Deprecated: calling `make clean` instead"
+    let cmd = Cli.Wrap("make").WithArguments("clean").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith "Clean failed"
-
-    let projects = [
-        pulumiSdk
-        pulumiSdkTests
-        pulumiAutomationSdk
-        pulumiAutomationSdkTests
-        pulumiFSharp
-    ]
-
-    for project in projects do
-        Shell.deleteDir (Path.Combine(project, "bin"))
-        Shell.deleteDir (Path.Combine(project, "obj"))
 
 /// Runs `dotnet restore` against the solution file without using cache
 let restoreSdk() =
@@ -92,15 +81,11 @@ let listIntegrationTests() =
         printfn $"{testName}"
 
 let buildSdk() =
-    cleanSdk()
-    restoreSdk()
-    match findGoSDKVersion(pulumiLanguageDotnet) with
-    | None -> failwith "Could not find the Pulumi SDK version in go.mod"
-    | Some(version) ->
-        printfn "Building Pulumi SDK"
-        if Shell.Exec("dotnet", "build --configuration Release -p:PulumiSdkVersion=" + version, sdk) <> 0
-
-        then failwith "build failed"
+    printfn "Deprecated: calling `make build_sdk` instead"
+    let cmd = Cli.Wrap("make").WithArguments("build_sdk").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "Build failed"
 
 /// Publishes packages for Pulumi, Pulumi.Automation and Pulumi.FSharp to nuget.
 /// Requires NUGET_PUBLISH_KEY and PULUMI_VERSION environment variables.
@@ -147,7 +132,7 @@ let buildLanguagePlugin() =
     cleanLanguagePlugin()
     let devVersion = getDevVersion()
     printfn $"Building pulumi-language-dotnet Plugin {devVersion}"
-    let ldflags = $"-ldflags \"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/version.Version={devVersion}\""
+    let ldflags = $"-ldflags \"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version={devVersion}\""
     if Shell.Exec("go", $"build {ldflags}", pulumiLanguageDotnet) <> 0
     then failwith "Building pulumi-language-dotnet failed"
     let output = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")

@@ -8,7 +8,7 @@ using Pulumirpc;
 
 namespace Pulumi
 {
-    internal class GrpcEngine : IEngine
+    internal class GrpcEngine : Experimental.IEngine
     {
         private readonly Engine.EngineClient _engine;
         // Using a static dictionary to keep track of and re-use gRPC channels
@@ -50,7 +50,15 @@ namespace Pulumi
             }
         }
 
-        public async Task LogAsync(LogRequest request)
-            => await this._engine.LogAsync(request);
+        public async Task LogAsync(Experimental.LogRequest request)
+        {
+            var rpcRequest = new Pulumirpc.LogRequest();
+            rpcRequest.Message = request.Message;
+            rpcRequest.Ephemeral = request.Ephemeral;
+            rpcRequest.Urn = request.Urn == null ? "" : request.Urn;
+            rpcRequest.Severity = (Pulumirpc.LogSeverity)request.Severity;
+            rpcRequest.StreamId = request.StreamId;
+            await this._engine.LogAsync(rpcRequest);
+        }
     }
 }

@@ -4,6 +4,7 @@ permissions:
   # To create a PR
   contents: write
   pull-requests: write
+  id-token: write
 
 on:
   workflow_call:
@@ -28,16 +29,22 @@ on:
 env:
   PULUMI_VERSION: ${{ inputs.version }}
   GITHUB_REF: ${{ inputs.ref }}
-  NUGET_PUBLISH_KEY: ${{ secrets.NUGET_PUBLISH_KEY }}
-  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN_PRODUCTION }}
   AWS_REGION: us-west-2
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ESC_ACTION_OIDC_AUTH: true
+  ESC_ACTION_OIDC_ORGANIZATION: pulumi
+  ESC_ACTION_OIDC_REQUESTED_TOKEN_TYPE: urn:pulumi:token-type:access_token:organization
+  ESC_ACTION_ENVIRONMENT: github-secrets/pulumi-pulumi-dotnet
+  ESC_ACTION_EXPORT_ENVIRONMENT_VARIABLES: NUGET_PUBLISH_KEY,PULUMI_ACCESS_TOKEN=PULUMI_ACCESS_TOKEN_PRODUCTION
 
 jobs:
   publish-dotnet-sdk:
     name: Publish dotnet SDK
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch secrets from ESC
+        id: esc-secrets
+        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
@@ -57,11 +64,11 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@9519177da243fd32cab35cdbf19cce1ab7472fcc # v6
+        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
         with:
-          pulumi-version: latest
+          pulumi-version: dev
       - name: Build Pulumi SDK
-        run: dotnet run build-sdk
+        run: make build_sdk
       - name: Test Pulumi SDK
         run: dotnet run test-sdk
       - name: Test Pulumi Automation SDK

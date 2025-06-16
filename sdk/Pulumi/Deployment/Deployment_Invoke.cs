@@ -233,7 +233,7 @@ namespace Pulumi
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest = null)
         {
-
+            await AwaitPendingRegistrations();
             var serialized = argsSerializationResult.Serialized;
 
             Log.Debug($"Invoke RPC prepared: token={token}" +

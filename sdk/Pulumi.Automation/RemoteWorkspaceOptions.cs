@@ -34,5 +34,10 @@ namespace Pulumi.Automation
         /// Whether to skip the default dependency installation step.
         /// </summary>
         public bool SkipInstallDependencies { get; set; }
+
+        /// <summary>
+        /// Information about a remote execution image.
+        /// </summary>
+        public ExecutorImage? ExecutorImage { get; set; }
     }
 }

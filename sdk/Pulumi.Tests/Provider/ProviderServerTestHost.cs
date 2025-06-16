@@ -51,7 +51,7 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
         });
     }
 
-    protected abstract Experimental.Provider.Provider BuildProvider(Experimental.Provider.IHost runner);
+    protected abstract Experimental.Provider.Provider BuildProvider(Experimental.IEngine runner);
 
     public async Task DisposeAsync()
     {
@@ -85,7 +85,7 @@ public abstract class ProviderServerTestHost : IAsyncLifetime
 
 public class ProviderServerTestHost<TProvider> : ProviderServerTestHost where TProvider : Experimental.Provider.Provider
 {
-    protected override Experimental.Provider.Provider BuildProvider(Experimental.Provider.IHost runner)
+    protected override Experimental.Provider.Provider BuildProvider(Experimental.IEngine runner)
     {
         return Activator.CreateInstance<TProvider>() ??
                throw new InvalidOperationException($"Unable to create instance of type '{typeof(TProvider).Name}'.");

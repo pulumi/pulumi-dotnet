@@ -1160,6 +1160,11 @@
              program ending early before all resources are properly registered.
              </summary>
         </member>
+        <member name="F:Pulumi.Deployment._registrationsComplete">
+            <summary>
+            A gate to tell us when the registrations have been completed, and thus that we can unblock invokes.
+            </summary>
+        </member>
         <member name="P:Pulumi.Deployment.Instance">
             <summary>
             The current running deployment instance. This is only available from inside the function
@@ -1189,6 +1194,11 @@
         <member name="M:Pulumi.Deployment.MonitorSupportsTransforms">
             <summary>
             Returns whether the resource monitor we are connected to supports the "transforms" feature across the RPC interface.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Deployment.MonitorSupportsInvokeTransforms">
+            <summary>
+            Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
             </summary>
         </member>
         <member name="M:Pulumi.Deployment.EngineLogger.Pulumi#IEngineLogger#DebugAsync(System.String,Pulumi.Resource,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
@@ -1855,6 +1865,11 @@
             Same as <see cref="M:Pulumi.IDeployment.Call``1(System.String,Pulumi.CallArgs,Pulumi.Resource,Pulumi.CallOptions,Pulumi.RegisterPackageRequest)"/>, however the return value is ignored.
             </summary>
         </member>
+        <member name="M:Pulumi.IDeployment.RegisterInvokeTransform(Pulumi.InvokeTransform)">
+            <summary>
+            Register an invoke transform to run when invoke calls are made.
+            </summary>
+        </member>
         <member name="T:Pulumi.InvokeOptions">
             <summary>
             Options to help control the behavior of <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>.
@@ -2303,6 +2318,29 @@
         <member name="T:Pulumi.InvokeArgs">
             <summary>
             Base type for all invoke argument classes.
+            </summary>
+        </member>
+        <member name="T:Pulumi.InvokeTransform">
+            <summary>
+            The type of an invoke transform.
+            </summary>
+            <param name="args"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Pulumi.InvokeTransformArgs.Token">
+            <summary>
+            The token of the invoke.
+            </summary>
+        </member>
+        <member name="P:Pulumi.InvokeTransformArgs.Args">
+            <summary>
+            The original properties passed to the Resource constructor.
+            </summary>
+        </member>
+        <member name="P:Pulumi.InvokeTransformArgs.Options">
+            <summary>
+            The original resource options passed to the Resource constructor.
             </summary>
         </member>
         <member name="T:Pulumi.ProviderResource">

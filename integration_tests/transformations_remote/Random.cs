@@ -2,6 +2,7 @@
 
 // Exposes the Random resource from the testprovider.
 
+using System;
 using Pulumi;
 
 public partial class Random : Pulumi.CustomResource

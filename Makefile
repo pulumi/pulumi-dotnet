@@ -9,7 +9,7 @@ install::
 	cd pulumi-language-dotnet && ${GO} install \
 		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" ./...
 
-build: clean build_sdk build_language_host
+build: build_sdk build_language_host
 
 build_sdk:
 	cd sdk && dotnet restore --no-cache

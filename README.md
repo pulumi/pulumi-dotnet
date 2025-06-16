@@ -76,7 +76,7 @@ Then you can run one of the following commands:
 
 ```bash
 # Build the Pulumi SDK
-dotnet run build-sdk
+make build_sdk
 
 # Running tests for the Pulumi SDK
 dotnet run test-sdk
@@ -89,7 +89,7 @@ make install
 
 # Building the language plugin. A binary will be built into the pulumi-language-dotnet folder.
 # this is the binary that will be used by the integration tests.
-make build
+make build_language_host
 
 # Testing the language plugin
 dotnet run test-language-plugin

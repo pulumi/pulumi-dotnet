@@ -26,6 +26,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - id: set-matrix
         run: |
@@ -37,6 +38,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,6 +60,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - uses: actions/checkout@v4
       - name: Set up Go 1.24.x
@@ -81,6 +84,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - uses: actions/checkout@v4
       - name: Check if folder is empty
@@ -109,6 +113,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
         uses: actions/checkout@v4
@@ -165,6 +170,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Set TARGET_FRAMEWORK
         shell: bash
@@ -247,6 +253,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Set TARGET_FRAMEWORK
         shell: bash
@@ -302,6 +309,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
         uses: actions/checkout@v4
@@ -343,6 +351,7 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
+        continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Build failed
         if: ${{ needs.build.result != 'success' }}

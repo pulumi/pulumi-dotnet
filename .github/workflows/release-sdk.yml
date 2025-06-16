@@ -68,7 +68,7 @@ jobs:
         with:
           pulumi-version: dev
       - name: Build Pulumi SDK
-        run: dotnet run build-sdk
+        run: make build_sdk
       - name: Test Pulumi SDK
         run: dotnet run test-sdk
       - name: Test Pulumi Automation SDK

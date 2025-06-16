@@ -117,7 +117,7 @@ public class TestProvider : Provider
         {
             AcceptOutputs = true,
             AcceptResources = true,
-            AcceptSecrets = true,
+            AcceptSecrets = false,
             SupportsPreview = true
         });
     }
@@ -244,7 +244,7 @@ public class TestProvider : Provider
         {
             response.Return = request.Args;
         }
-    
+
         return Task.FromResult(response);
     }
 }

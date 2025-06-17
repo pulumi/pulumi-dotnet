@@ -761,6 +761,14 @@ namespace Pulumi.Automation.Tests
                 });
                 Assert.Equal(UpdateKind.Update, destroyResult.Summary.Kind);
                 Assert.Equal(UpdateState.Succeeded, destroyResult.Summary.Result);
+
+                // there seems to be a difference in the behaviour of the service backend vs the file backend
+                // the file backend does not allow to delete a stack without prior destroy of the stack resource
+                // so destroy the stack afterward if running against file backend
+                if (temporaryDirectory != null)
+                {
+                    await stack.DestroyAsync();
+                }
             }
             finally
             {

@@ -113,13 +113,7 @@ public class TestProvider : Provider
 
     public override Task<ConfigureResponse> Configure(ConfigureRequest request, CancellationToken ct)
     {
-        return Task.FromResult(new ConfigureResponse()
-        {
-            AcceptOutputs = true,
-            AcceptResources = true,
-            AcceptSecrets = false,
-            SupportsPreview = true
-        });
+        return Task.FromResult(new ConfigureResponse());
     }
 
     public override Task<CheckResponse> Check(CheckRequest request, CancellationToken ct)
@@ -244,7 +238,7 @@ public class TestProvider : Provider
         {
             response.Return = request.Args;
         }
-
+    
         return Task.FromResult(response);
     }
 }

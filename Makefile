@@ -46,7 +46,7 @@ format_sdk_fix:
 
 .PHONY: format_language_host
 format_language_host:
-	@problems=$(gofmt -l pulumi-language-dotnet); \
+	@problems=$(gofumpt -l pulumi-language-dotnet); \
 	if [ -n "$$problems" ]; then \
 		echo "$$problems"; \
 		exit 1; \
@@ -54,11 +54,11 @@ format_language_host:
 
 .PHONY: format_language_host_fix
 format_language_host_fix:
-	cd pulumi-language-dotnet && go fmt ./...
+	gofumpt -w pulumi-language-dotnet
 
 .PHONY: format_integration_tests
 format_integration_tests:
-	@problems=$$(gofmt -l integration_tests); \
+	@problems=$$(gofumpt -l integration_tests); \
 	if [ -n "$$problems" ]; then \
 		echo "$$problems"; \
 		exit 1; \
@@ -66,7 +66,7 @@ format_integration_tests:
 
 .PHONY: format_integration_tests_fix
 format_integration_tests_fix:
-	cd integration_tests && go fmt ./...
+	gofumpt -w integration_tests
 
 test_integration:: build
 	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...

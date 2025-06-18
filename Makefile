@@ -28,7 +28,7 @@ changelog::
 .PHONY: clean
 clean:
 	cd sdk && dotnet clean
-	rm -rf {bin,obj} sdk/*/{bin,obj}
+	rm -rf sdk/*/{bin,obj}
 
 .PHONY: format
 format: format_sdk format_language_host format_integration_tests

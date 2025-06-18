@@ -59,8 +59,8 @@ let restoreSdk() =
 
 /// Runs `dotnet format` against the solution file
 let formatSdk verify =
-    printfn "Deprecated: calling `make format-sdk%s` instead" (if verify then "-verify" else "")
-    let target = if verify then "format-sdk-verify" else "format-sdk"
+    printfn "Deprecated: calling `make format_sdk%s` instead" (if verify then "" else "_fix")
+    let target = if verify then "format_sdk" else "format_sdk_fix"
     let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
     let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then

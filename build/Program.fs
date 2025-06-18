@@ -59,10 +59,12 @@ let restoreSdk() =
 
 /// Runs `dotnet format` against the solution file
 let formatSdk verify =
-    printfn "Formatting Pulumi SDK packages"
-    let args = "format" + if verify then " --verify-no-changes" else ""
-    if Shell.Exec("dotnet", args, sdk) <> 0
-    then failwith "format failed"
+    printfn "Deprecated: calling `make format_sdk%s` instead" (if verify then "" else "_fix")
+    let target = if verify then "format_sdk" else "format_sdk_fix"
+    let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "Format failed"
 
 /// Returns an array of names of go tests inside ./integration_tests
 /// You can use this to see which tests are available,

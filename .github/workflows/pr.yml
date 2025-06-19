@@ -335,7 +335,7 @@ jobs:
 
   release-dev-sdk:
     name: release-dev-sdk
-    needs: [build, integration-tests, info]
+    needs: [build, integration-tests, conformance-tests, info]
     uses: ./.github/workflows/release-sdk.yml
     if: ${{ github.event_name == 'merge_group' }}
     with:

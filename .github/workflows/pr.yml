@@ -51,7 +51,7 @@ jobs:
         with:
           # Install 8.0 for Build.fsproj
           dotnet-version: 8.0.x
-      - name: Format Pulumi SDK
+      - name: Run `make format_check`
         run: make format_check
 
   lint:
@@ -72,8 +72,13 @@ jobs:
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
           args: --help
+      - name: Setup dotnet SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          # Install 8.0 for Build.fsproj
+          dotnet-version: 8.0.x
 
-      - name: Run golangci-lint
+      - name: Run `make lint`
         # Print GitHub Actions-friendly output so that errors get marked
         # in the pull request.
         run: make lint GOLANGCI_LINT_ARGS=--output.text.path=stdout

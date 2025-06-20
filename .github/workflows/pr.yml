@@ -52,7 +52,7 @@ jobs:
           # Install 8.0 for Build.fsproj
           dotnet-version: 8.0.x
       - name: Format Pulumi SDK
-        run: make format
+        run: make format_check
 
   lint:
     name: Lint Go

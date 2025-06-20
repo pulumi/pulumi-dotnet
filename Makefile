@@ -87,12 +87,4 @@ lint::
 			--path-prefix $(pkg)) \
 		&&) true
 
-# Build the language plugin
-build-language-plugin::
-	@echo "Building pulumi-language-dotnet Plugin"
-	rm -f pulumi-language-dotnet/pulumi-language-dotnet
-	$(eval DEV_VERSION := $(shell if command -v changie > /dev/null; then changie next patch -p dev.0; else echo "3.0.0-dev.0"; fi))
-	cd pulumi-language-dotnet && ${GO} build -ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" .
-	@echo "Built binary pulumi-language-dotnet/pulumi-language-dotnet"
-
 .PHONY: install build

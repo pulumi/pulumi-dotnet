@@ -131,9 +131,9 @@ let cleanLanguagePlugin() =
     if File.Exists plugin then File.Delete plugin
 
 let buildLanguagePlugin() =
-    printfn "Deprecated: calling `make build-language-plugin` instead"
-    let cmd = Cli.Wrap("make").WithArguments("build-language-plugin").WithWorkingDirectory(repositoryRoot)
-    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    printfn "Deprecated: calling `make build_language_host` instead"
+    let cmd = Cli.Wrap("make").WithArguments("build_language_host").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith "Building pulumi-language-dotnet failed"
 

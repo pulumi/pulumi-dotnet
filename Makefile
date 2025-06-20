@@ -86,5 +86,3 @@ lint::
 			--timeout 5m \
 			--path-prefix $(pkg)) \
 		&&) true
-
-.PHONY: install build

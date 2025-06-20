@@ -1,9 +1,11 @@
 GO := go
 
-# Try to get the dev version using changie, otherwise fall back
 FALLBACK_DEV_VERSION := 3.0.0-dev.0
 DEV_VERSION := $(shell if command -v changie > /dev/null; then changie next patch -p dev.0; else echo "$(FALLBACK_DEV_VERSION)"; fi)
 SDK_VERSION := $(shell cd pulumi-language-dotnet && sed -n 's/^.*github\.com\/pulumi\/pulumi\/sdk\/v3 v//p' go.mod)
+
+GO_TEST_FILTER_FLAG := $(if $(TEST_FILTER),-run $(TEST_FILTER))
+DOTNET_TEST_FILTER_FLAG := $(if $(TEST_FILTER),--filter $(TEST_FILTER))
 
 .PHONY: install
 install:
@@ -68,11 +70,29 @@ format_integration_tests:
 format_integration_tests_fix:
 	gofumpt -w integration_tests
 
-test_integration:: build
-	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
+.PHONY: test
+test: test_conformance test_integration test_sdk
 
-test_conformance:: build
-	cd pulumi-language-dotnet && gotestsum -- --timeout 60m ./...
+.PHONY: test_conformance
+test_conformance: build clean
+	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m ./...
+
+.PHONY: test_integration
+test_integration: build clean
+	cd integration_tests && gotestsum -- $(GO_TEST_FILTER_FLAG) --parallel 1 --timeout 60m ./...
+
+.PHONY: test_sdk
+test_sdk: build clean
+	cd sdk && dotnet restore --no-cache
+	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG)
+
+.PHONY: test_coverage
+test_coverage: test_sdk_coverage
+
+.PHONY: test_sdk_coverage
+test_sdk_coverage: clean
+	cd sdk && dotnet restore --no-cache
+	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../coverage/coverage.pulumi.xml
 
 # Relative paths to directories with go.mod files that should be linted.
 LINT_GOLANG_PKGS := pulumi-language-dotnet integration_tests

@@ -149,7 +149,7 @@ jobs:
         with:
           allowed-changes: ./global.json
       - name: Test Pulumi SDK
-        run: dotnet run test-sdk coverage
+        run: dotnet run test_sdk_coverage
       - name: Test Pulumi Automation SDK
         run: dotnet run test-automation-sdk coverage
       - name: Upload coverage data

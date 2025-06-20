@@ -79,7 +79,7 @@ Then you can run one of the following commands:
 make build_sdk
 
 # Running tests for the Pulumi SDK
-dotnet run test-sdk
+make test_sdk
 
 # Running tests for the Pulumi Automation SDK
 dotnet run test-automation-sdk
@@ -97,11 +97,8 @@ dotnet run test-language-plugin
 # List all integration tests
 dotnet run list-integration-tests
 
-# Run a specific integration test
-dotnet run integration test <testName>
-
-# Run all integration tests
-dotnet run all-integration-tests
+# Run all integration tests [or a specific test]
+make test_integration [TEST_FILTER=testName]
 
 # Format the code
 make format_fix
@@ -113,7 +110,7 @@ make format
 
 When running integration tests via an IDE like Goland or VSCode, you want the Pulumi CLI to use the `pulumi-language-dotnet` plugin from this repository, not the one that comes bundled with your Pulumi CLI. To do this, in your terminal `dotnet run build-language-plugin` or simply `cd pulumi-language-dotnet && go build`.
 
-Alternatively, you can run `dotnet run integration test <testName>` or `dotnet run all-integration-tests` which will build the language plugin for you just before running the tests.
+Alternatively, you can run `make test_integration [TEST_FILTER=testName]` which will build the language plugin for you just before running the tests.
 
 ## Public API Changes
 

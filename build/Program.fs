@@ -66,22 +66,6 @@ let formatSdk verify =
     if output.ExitCode <> 0 then
         failwith "Format failed"
 
-/// Returns an array of names of go tests inside ./integration_tests
-/// You can use this to see which tests are available,
-/// then run individual tests using `dotnet run integration test <testName>`
-let integrationTestNames() =
-    let cmd = Cli.Wrap("go").WithArguments("test -list=.").WithWorkingDirectory(integrationTests)
-    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
-    if output.ExitCode <> 0 then
-        failwith $"Failed to list go tests from {integrationTests}"
-
-    output.StandardOutput.Split("\n")
-    |> Array.filter (fun line -> line.StartsWith "Test")
-
-let listIntegrationTests() =
-    for testName in integrationTestNames() do
-        printfn $"{testName}"
-
 let buildSdk() =
     printfn "Deprecated: calling `make build_sdk` instead"
     let cmd = Cli.Wrap("make").WithArguments("build_sdk").WithWorkingDirectory(repositoryRoot)
@@ -194,7 +178,6 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk false
     | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
-    | [| "list-integration-tests" |] -> listIntegrationTests()
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()
 

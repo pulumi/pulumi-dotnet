@@ -72,16 +72,12 @@ jobs:
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
           args: --help
-      - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          # Install 8.0 for Build.fsproj
-          dotnet-version: 8.0.x
 
-      - name: Run `make lint`
-        # Print GitHub Actions-friendly output so that errors get marked
-        # in the pull request.
-        run: make lint GOLANGCI_LINT_ARGS=--output.text.path=stdout
+      - name: Run `make lint_language_host`
+        run: make lint_language_host GOLANGCI_LINT_ARGS=--output.text.path=stdout
+
+      - name: Run `make lint_integration_tests`
+        run: make lint_integration_tests GOLANGCI_LINT_ARGS=--output.text.path=stdout
 
   lint-changelog:
     name: Lint Changelog

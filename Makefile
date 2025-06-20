@@ -84,19 +84,19 @@ lint_sdk_fix: format_sdk
 
 .PHONY: lint_language_host
 lint_language_host: format_language_host_check
-	cd pulumi-language-dotnet && golangci-lint run --config ../.golangci.yml --timeout 5m --path-prefix pulumi-language-dotnet
+	cd pulumi-language-dotnet && golangci-lint run $(GOLANGCI_LINT_ARGS) --config ../.golangci.yml --timeout 5m --path-prefix pulumi-language-dotnet
 
 .PHONY: lint_language_host_fix
 lint_language_host_fix: format_language_host
-	cd pulumi-language-dotnet && golangci-lint run --fix --config ../.golangci.yml --timeout 5m --path-prefix pulumi-language-dotnet
+	cd pulumi-language-dotnet && golangci-lint run $(GOLANGCI_LINT_ARGS) --fix --config ../.golangci.yml --timeout 5m --path-prefix pulumi-language-dotnet
 
 .PHONY: lint_integration_tests
 lint_integration_tests: format_integration_tests_check
-	cd integration_tests && golangci-lint run --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
+	cd integration_tests && golangci-lint run $(GOLANGCI_LINT_ARGS) --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
 
 .PHONY: lint_integration_tests_fix
 lint_integration_tests_fix: format_integration_tests
-	cd integration_tests && golangci-lint run --fix --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
+	cd integration_tests && golangci-lint run $(GOLANGCI_LINT_ARGS) --fix --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
 
 test_integration:: build
 	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...

@@ -30,59 +30,76 @@ clean:
 	cd sdk && dotnet clean
 	rm -rf sdk/*/{bin,obj}
 
+.PHONY: format_check
+format_check: format_sdk_check format_language_host_check format_integration_tests_check
+
 .PHONY: format
 format: format_sdk format_language_host format_integration_tests
 
-.PHONY: format_fix
-format_fix: format_sdk_fix format_language_host_fix format_integration_tests_fix
+.PHONY: format_sdk_check
+format_sdk_check:
+	cd sdk && dotnet format --verify-no-changes
 
 .PHONY: format_sdk
 format_sdk:
-	cd sdk && dotnet format --verify-no-changes
-
-.PHONY: format_sdk_fix
-format_sdk_fix:
 	cd sdk && dotnet format
 
-.PHONY: format_language_host
-format_language_host:
+.PHONY: format_language_host_check
+format_language_host_check:
 	@problems=$(gofumpt -l pulumi-language-dotnet); \
 	if [ -n "$$problems" ]; then \
 		echo "$$problems"; \
 		exit 1; \
 	fi
 
-.PHONY: format_language_host_fix
-format_language_host_fix:
+.PHONY: format_language_host
+format_language_host:
 	gofumpt -w pulumi-language-dotnet
 
-.PHONY: format_integration_tests
-format_integration_tests:
+.PHONY: format_integration_tests_check
+format_integration_tests_check:
 	@problems=$$(gofumpt -l integration_tests); \
 	if [ -n "$$problems" ]; then \
 		echo "$$problems"; \
 		exit 1; \
 	fi
 
-.PHONY: format_integration_tests_fix
-format_integration_tests_fix:
+.PHONY: format_integration_tests
+format_integration_tests:
 	gofumpt -w integration_tests
+
+###
+
+.PHONY: lint
+lint: lint_sdk lint_language_host lint_integration_tests
+
+.PHONY: lint_fix
+lint_fix: lint_sdk_fix lint_language_host_fix lint_integration_tests_fix
+
+.PHONY: lint_sdk
+lint_sdk: format_sdk_check
+
+.PHONY: lint_sdk_fix
+lint_sdk_fix: format_sdk
+
+.PHONY: lint_language_host
+lint_language_host: format_language_host_check
+	cd pulumi-language-dotnet && golangci-lint run --config ../.golangci.yml --timeout 5m --path-prefix pulumi-language-dotnet
+
+.PHONY: lint_language_host_fix
+lint_language_host_fix: format_language_host
+	cd pulumi-language-dotnet && golangci-lint run --fix --config ../.golangci.yml --timeout 5m --path-prefix pulumi-language-dotnet
+
+.PHONY: lint_integration_tests
+lint_integration_tests: format_integration_tests_check
+	cd integration_tests && golangci-lint run --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
+
+.PHONY: lint_integration_tests_fix
+lint_integration_tests_fix: format_integration_tests
+	cd integration_tests && golangci-lint run --fix --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
 
 test_integration:: build
 	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
 
 test_conformance:: build
 	cd pulumi-language-dotnet && gotestsum -- --timeout 60m ./...
-
-# Relative paths to directories with go.mod files that should be linted.
-LINT_GOLANG_PKGS := pulumi-language-dotnet integration_tests
-
-lint::
-	$(eval GOLANGCI_LINT_CONFIG = $(shell pwd)/.golangci.yml)
-	@$(foreach pkg,$(LINT_GOLANG_PKGS),(cd $(pkg) && \
-		echo "[golangci-lint] Linting $(pkg)..." && \
-		golangci-lint run $(GOLANGCI_LINT_ARGS) \
-			--config $(GOLANGCI_LINT_CONFIG) \
-			--timeout 5m \
-			--path-prefix $(pkg)) \
-		&&) true

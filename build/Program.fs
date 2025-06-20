@@ -78,10 +78,6 @@ let integrationTestNames() =
     output.StandardOutput.Split("\n")
     |> Array.filter (fun line -> line.StartsWith "Test")
 
-let listIntegrationTests() =
-    for testName in integrationTestNames() do
-        printfn $"{testName}"
-
 let buildSdk() =
     printfn "Deprecated: calling `make build_sdk` instead"
     let cmd = Cli.Wrap("make").WithArguments("build_sdk").WithWorkingDirectory(repositoryRoot)
@@ -191,7 +187,6 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk false
     | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
-    | [| "list-integration-tests" |] -> listIntegrationTests()
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()
 

@@ -21,7 +21,9 @@ namespace Pulumi.Automation.Tests
         }
 
         public static string GetTestOrg()
-            => Environment.GetEnvironmentVariable("PULUMI_TEST_ORG") ?? "pulumi-test";
+            => Environment.GetEnvironmentVariable("PULUMI_TEST_OWNER")
+            ?? Environment.GetEnvironmentVariable("PULUMI_TEST_ORG")
+            ?? "pulumi-test";
 
         public static string FullyQualifiedStackName(string org, string project, string stack)
             => $"{org}/{project}/{stack}";

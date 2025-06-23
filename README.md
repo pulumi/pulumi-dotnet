@@ -103,8 +103,11 @@ dotnet run integration test <testName>
 # Run all integration tests
 dotnet run all-integration-tests
 
-# Format the code (or verify it's formatted correctly)
-dotnet run format-sdk [verify]
+# Format the code
+make format_fix
+
+# Check the code formatting
+make format
 ```
 # Running integration tests
 

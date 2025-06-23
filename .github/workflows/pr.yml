@@ -52,7 +52,7 @@ jobs:
           # Install 8.0 for Build.fsproj
           dotnet-version: 8.0.x
       - name: Format Pulumi SDK
-        run: dotnet run format-sdk verify
+        run: make format
 
   lint:
     name: Lint Go
@@ -335,7 +335,7 @@ jobs:
 
   release-dev-sdk:
     name: release-dev-sdk
-    needs: [build, integration-tests, info]
+    needs: [build, integration-tests, conformance-tests, info]
     uses: ./.github/workflows/release-sdk.yml
     if: ${{ github.event_name == 'merge_group' }}
     with:

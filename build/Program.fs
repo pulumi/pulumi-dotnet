@@ -59,10 +59,12 @@ let restoreSdk() =
 
 /// Runs `dotnet format` against the solution file
 let formatSdk verify =
-    printfn "Formatting Pulumi SDK packages"
-    let args = "format" + if verify then " --verify-no-changes" else ""
-    if Shell.Exec("dotnet", args, sdk) <> 0
-    then failwith "format failed"
+    printfn "Deprecated: calling `make format_sdk%s` instead" (if verify then "" else "_fix")
+    let target = if verify then "format_sdk" else "format_sdk_fix"
+    let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "Format failed"
 
 /// Returns an array of names of go tests inside ./integration_tests
 /// You can use this to see which tests are available,
@@ -129,14 +131,11 @@ let cleanLanguagePlugin() =
     if File.Exists plugin then File.Delete plugin
 
 let buildLanguagePlugin() =
-    cleanLanguagePlugin()
-    let devVersion = getDevVersion()
-    printfn $"Building pulumi-language-dotnet Plugin {devVersion}"
-    let ldflags = $"-ldflags \"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version={devVersion}\""
-    if Shell.Exec("go", $"build {ldflags}", pulumiLanguageDotnet) <> 0
-    then failwith "Building pulumi-language-dotnet failed"
-    let output = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")
-    printfn $"Built binary {output}"
+    printfn "Deprecated: calling `make build_language_host` instead"
+    let cmd = Cli.Wrap("make").WithArguments("build_language_host").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "Building pulumi-language-dotnet failed"
 
 let testLanguagePlugin() =
     cleanLanguagePlugin()

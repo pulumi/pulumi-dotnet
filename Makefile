@@ -117,7 +117,9 @@ test_sdk: build clean
 .PHONY: test_sdk_automation
 test_sdk_automation: clean
 	cd sdk && dotnet restore --no-cache
-	cd sdk/Pulumi.Automation.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:PulumiSdkVersion=$(SDK_VERSION)
+	cd sdk/Pulumi.Automation.Tests && \
+		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
+			-p:PulumiSdkVersion=$(SDK_VERSION)
 
 .PHONY: test_coverage
 test_coverage: test_sdk_coverage test_sdk_automation_coverage
@@ -125,8 +127,15 @@ test_coverage: test_sdk_coverage test_sdk_automation_coverage
 .PHONY: test_sdk_coverage
 test_sdk_coverage: clean
 	cd sdk && dotnet restore --no-cache
-	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=./coverage/coverage.pulumi.xml
+	cd sdk/Pulumi.Tests && \
+		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=./coverage/coverage.pulumi.xml
 
 .PHONY: test_sdk_automation_coverage
 test_sdk_automation_coverage: clean
-	cd sdk/Pulumi.Automation.Tests && dotnet test --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=./coverage/coverage.pulumi.automation.xml
+	cd sdk && dotnet restore --no-cache
+	cd sdk/Pulumi.Automation.Tests && \
+		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
+			-p:PulumiSdkVersion=$(SDK_VERSION) \
+			-p:CollectCoverage=true \
+			-p:CoverletOutputFormat=cobertura \
+			-p:CoverletOutput=./coverage/coverage.pulumi.automation.xml

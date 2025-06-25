@@ -98,12 +98,6 @@ lint_integration_tests: format_integration_tests_check
 lint_integration_tests_fix: format_integration_tests
 	cd integration_tests && golangci-lint run $(GOLANGCI_LINT_ARGS) --fix --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
 
-test_integration:: build
-	cd integration_tests && gotestsum -- --parallel 1 --timeout 60m ./...
-
-test_conformance:: build
-	cd pulumi-language-dotnet && gotestsum -- --timeout 60m ./...
-
 .PHONY: test
 test: test_conformance test_integration test_sdk
 

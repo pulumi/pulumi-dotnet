@@ -75,11 +75,14 @@ And finally, `pulumi preview` and `pulumi up` as you would any other Pulumi proj
 Then you can run one of the following commands:
 
 ```bash
+# Run all tests
+make test [TEST_FILTER=testName]
+
 # Build the Pulumi SDK
 make build_sdk
 
-# Running tests for the Pulumi SDK
-make test_sdk
+# Running tests for the Pulumi SDK [or a specific test]
+make test_sdk [TEST_FILTER=testName]
 
 # Running tests for the Pulumi Automation SDK
 dotnet run test-automation-sdk

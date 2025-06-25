@@ -148,16 +148,12 @@ let testPulumiSdk coverage =
         failwith "tests failed"
 
 let testPulumiAutomationSdk coverage =
-    cleanSdk()
-    restoreSdk()
-    match findGoSDKVersion(pulumiLanguageDotnet) with
-    | None -> failwith "Could not find the Pulumi SDK version in go.mod"
-    | Some(version) ->
-        printfn "Testing Pulumi Automation SDK"
-        let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.automation.xml" else ""
-        if Shell.Exec("dotnet", $"test --configuration Release -p:PulumiSdkVersion={version} {coverageArgs}", pulumiAutomationSdkTests) <> 0
-
-        then failwith "automation tests failed"
+    printfn "Deprecated: calling `make test-automation-sdk%s` instead" (if coverage then "-coverage" else "")
+    let target = if coverage then "test-automation-sdk-coverage" else "test-automation-sdk"
+    let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "automation tests failed"
 
 let runSpecificIntegrationTest(testName: string) =
     buildLanguagePlugin()

@@ -99,7 +99,7 @@ lint_integration_tests_fix: format_integration_tests
 	cd integration_tests && golangci-lint run $(GOLANGCI_LINT_ARGS) --fix --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
 
 .PHONY: test
-test: test_conformance test_integration test_sdk
+test: test_conformance test_integration test_sdk test_sdk_automation
 
 .PHONY: test_conformance
 test_conformance: build clean
@@ -114,10 +114,19 @@ test_sdk: build clean
 	cd sdk && dotnet restore --no-cache
 	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG)
 
+.PHONY: test_sdk_automation
+test_sdk_automation: clean
+	cd sdk && dotnet restore --no-cache
+	cd sdk/Pulumi.Automation.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:PulumiSdkVersion=$(SDK_VERSION)
+
 .PHONY: test_coverage
-test_coverage: test_sdk_coverage
+test_coverage: test_sdk_coverage test_sdk_automation_coverage
 
 .PHONY: test_sdk_coverage
 test_sdk_coverage: clean
 	cd sdk && dotnet restore --no-cache
 	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../coverage/coverage.pulumi.xml
+
+.PHONY: test_sdk_automation_coverage
+test_sdk_automation_coverage: clean
+	cd sdk/Pulumi.Automation.Tests && dotnet test --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../coverage/coverage.pulumi.automation.xml

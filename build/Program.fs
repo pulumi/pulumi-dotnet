@@ -148,8 +148,8 @@ let testPulumiSdk coverage =
         failwith "tests failed"
 
 let testPulumiAutomationSdk coverage =
-    printfn "Deprecated: calling `make test-automation-sdk%s` instead" (if coverage then "-coverage" else "")
-    let target = if coverage then "test-automation-sdk-coverage" else "test-automation-sdk"
+    printfn "Deprecated: calling `make test_sdk_automation%s` instead" (if coverage then "_coverage" else "")
+    let target = if coverage then "test_sdk_automation_coverage" else "test_sdk_automation"
     let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
     let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then

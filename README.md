@@ -98,7 +98,7 @@ make build_language_host
 dotnet run test-language-plugin
 
 # List all integration tests
-dotnet run list-integration-tests
+go test -C integration_tests -list=. | grep ^Test
 
 # Run all integration tests [or a specific test]
 make test_integration [TEST_FILTER=testName]

@@ -78,10 +78,6 @@ let integrationTestNames() =
     output.StandardOutput.Split("\n")
     |> Array.filter (fun line -> line.StartsWith "Test")
 
-let listIntegrationTests() =
-    for testName in integrationTestNames() do
-        printfn $"{testName}"
-
 let buildSdk() =
     printfn "Deprecated: calling `make build_sdk` instead"
     let cmd = Cli.Wrap("make").WithArguments("build_sdk").WithWorkingDirectory(repositoryRoot)
@@ -131,14 +127,11 @@ let cleanLanguagePlugin() =
     if File.Exists plugin then File.Delete plugin
 
 let buildLanguagePlugin() =
-    cleanLanguagePlugin()
-    let devVersion = getDevVersion()
-    printfn $"Building pulumi-language-dotnet Plugin {devVersion}"
-    let ldflags = $"-ldflags \"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version={devVersion}\""
-    if Shell.Exec("go", $"build {ldflags}", pulumiLanguageDotnet) <> 0
-    then failwith "Building pulumi-language-dotnet failed"
-    let output = Path.Combine(pulumiLanguageDotnet, "pulumi-language-dotnet")
-    printfn $"Built binary {output}"
+    printfn "Deprecated: calling `make build_language_host` instead"
+    let cmd = Cli.Wrap("make").WithArguments("build_language_host").WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "Building pulumi-language-dotnet failed"
 
 let testLanguagePlugin() =
     cleanLanguagePlugin()
@@ -194,7 +187,6 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk false
     | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
-    | [| "list-integration-tests" |] -> listIntegrationTests()
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()
 

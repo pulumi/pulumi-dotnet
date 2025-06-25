@@ -140,12 +140,12 @@ let testLanguagePlugin() =
     then failwith "Testing pulumi-language-dotnet failed"
 
 let testPulumiSdk coverage =
-    cleanSdk()
-    restoreSdk()
-    printfn "Testing Pulumi SDK"
-    let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.xml" else ""
-    if Shell.Exec("dotnet", "test --configuration Release" + coverageArgs, pulumiSdkTests) <> 0
-    then failwith "tests failed"
+    printfn "Deprecated: calling `make test_sdk%s` instead" (if coverage then "_coverage" else "")
+    let target = if coverage then "test_sdk_coverage" else "test_sdk"
+    let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "tests failed"
 
 let testPulumiAutomationSdk coverage =
     cleanSdk()

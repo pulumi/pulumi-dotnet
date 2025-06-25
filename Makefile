@@ -68,8 +68,6 @@ format_integration_tests_check:
 format_integration_tests:
 	gofumpt -w integration_tests
 
-###
-
 .PHONY: lint
 lint: lint_sdk lint_language_host lint_integration_tests
 

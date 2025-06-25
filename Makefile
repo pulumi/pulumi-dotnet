@@ -46,7 +46,7 @@ format_sdk:
 
 .PHONY: format_language_host_check
 format_language_host_check:
-	@problems=$(gofumpt -l pulumi-language-dotnet); \
+	@problems=$$(gofumpt -l pulumi-language-dotnet || exit 1); \
 	if [ -n "$$problems" ]; then \
 		echo "$$problems"; \
 		exit 1; \
@@ -58,7 +58,7 @@ format_language_host:
 
 .PHONY: format_integration_tests_check
 format_integration_tests_check:
-	@problems=$$(gofumpt -l integration_tests); \
+	@problems=$$(gofumpt -l integration_tests || exit 1); \
 	if [ -n "$$problems" ]; then \
 		echo "$$problems"; \
 		exit 1; \

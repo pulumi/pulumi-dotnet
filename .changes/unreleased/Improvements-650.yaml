@@ -1,0 +1,6 @@
+component: sdk/provider
+kind: Improvements
+body: Send old inputs to diff and update and delete
+time: 2025-06-16T23:08:31.2314849+02:00
+custom:
+    PR: "650"

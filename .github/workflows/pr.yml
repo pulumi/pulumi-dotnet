@@ -160,7 +160,7 @@ jobs:
       - name: Test Pulumi SDK
         run: dotnet run test_sdk_coverage
       - name: Test Pulumi Automation SDK
-        run: dotnet run test-automation-sdk coverage
+        run: make test_sdk_automation_coverage
       - name: Upload coverage data
         uses: codecov/codecov-action@v4
         with:

@@ -6,6 +6,8 @@ SDK_VERSION := $(shell cd pulumi-language-dotnet && sed -n 's/^.*github\.com\/pu
 
 GO_TEST_FILTER_FLAG := $(if $(TEST_FILTER),-run $(TEST_FILTER))
 DOTNET_TEST_FILTER_FLAG := $(if $(TEST_FILTER),--filter $(TEST_FILTER))
+RELEASE_VERSION_FLAG := $(if $(PULUMI_VERSION),-p:Version=$(PULUMI_VERSION))
+
 
 .PHONY: install
 install:
@@ -17,7 +19,7 @@ build: build_sdk build_language_host
 
 .PHONY: build_sdk
 build_sdk:
-	cd sdk && dotnet build --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION)
+	cd sdk && dotnet build --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION) $(RELEASE_VERSION_FLAG)
 
 .PHONY: build_language_host
 build_language_host:
@@ -98,6 +100,25 @@ lint_integration_tests: format_integration_tests_check
 lint_integration_tests_fix: format_integration_tests
 	cd integration_tests && golangci-lint run $(GOLANGCI_LINT_ARGS) --fix --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
 
+.PHONY: publish
+publish: check_publish_credentials build
+	$(MAKE) publish_package PACKAGE=Pulumi
+	$(MAKE) publish_package PACKAGE=Pulumi.Automation
+	$(MAKE) publish_package PACKAGE=Pulumi.FSharp
+
+.PHONY: publish_package
+publish_package: check_publish_credentials build
+	if nuget list $(PACKAGE) -AllVersions | grep -q '^$(PACKAGE) $(PULUMI_VERSION)$$'; then \
+		echo "$(PACKAGE) $(PULUMI_VERSION) already published, skipping..."; \
+		exit 0; \
+	else \
+		cd sdk/$(PACKAGE); \
+		PKG_FILE=$$(ls bin/Release/*.nupkg | head -n1); \
+		dotnet nuget push $$PKG_FILE \
+			-s https://api.nuget.org/v3/index.json \
+			-k $(NUGET_PUBLISH_KEY); \
+	fi
+
 .PHONY: test
 test: test_conformance test_integration test_sdk test_sdk_automation
 
@@ -139,3 +160,13 @@ test_sdk_automation_coverage: clean
 			-p:CollectCoverage=true \
 			-p:CoverletOutputFormat=cobertura \
 			-p:CoverletOutput=./coverage/coverage.pulumi.automation.xml
+
+.PHONY: check_publish_credentials
+check_publish_credentials:
+	if [ -z "$$NUGET_PUBLISH_KEY" ]; then \
+		echo "Missing NUGET_PUBLISH_KEY" && exit 1; \
+	fi
+	if [ -z "$$PULUMI_VERSION" ]; then \
+		echo "Missing PULUMI_VERSION" && exit 1; \
+	fi
+

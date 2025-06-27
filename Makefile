@@ -24,7 +24,8 @@ build_language_host:
 	cd pulumi-language-dotnet && ${GO} build \
 		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" .
 
-changelog::
+.PHONY: changelog
+changelog:
 	changie new
 
 .PHONY: clean
@@ -101,6 +102,9 @@ lint_integration_tests_fix: format_integration_tests
 .PHONY: test
 test: test_conformance test_integration test_sdk test_sdk_automation
 
+.PHONY: test_fast
+test_fast: test_sdk test_sdk_automation
+
 .PHONY: test_conformance
 test_conformance: build clean
 	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m ./...
@@ -111,12 +115,10 @@ test_integration: build clean
 
 .PHONY: test_sdk
 test_sdk: build clean
-	cd sdk && dotnet restore --no-cache
 	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG)
 
 .PHONY: test_sdk_automation
 test_sdk_automation: clean
-	cd sdk && dotnet restore --no-cache
 	cd sdk/Pulumi.Automation.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
 			-p:PulumiSdkVersion=$(SDK_VERSION)
@@ -126,16 +128,50 @@ test_coverage: test_sdk_coverage test_sdk_automation_coverage
 
 .PHONY: test_sdk_coverage
 test_sdk_coverage: clean
-	cd sdk && dotnet restore --no-cache
 	cd sdk/Pulumi.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=./coverage/coverage.pulumi.xml
 
 .PHONY: test_sdk_automation_coverage
 test_sdk_automation_coverage: clean
-	cd sdk && dotnet restore --no-cache
 	cd sdk/Pulumi.Automation.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
 			-p:PulumiSdkVersion=$(SDK_VERSION) \
 			-p:CollectCoverage=true \
 			-p:CoverletOutputFormat=cobertura \
 			-p:CoverletOutput=./coverage/coverage.pulumi.automation.xml
+
+.PHONY: help
+help:
+	@echo "Available make targets:"
+	@echo " install                           Install dependencies"
+	@echo " build                             Build all packages"
+	@echo "  build_sdk"
+	@echo "  build_language_host"
+	@echo " changelog                         Create a new changelog entry"
+	@echo " clean                             Remove build artefacts"
+	@echo " format                            Run the formatters for all projects, writing changes to disk"
+	@echo "  format_integration_tests"
+	@echo "  format_language_host"
+	@echo "  format_sdk"
+	@echo " format_check                      Run the formatters for all projects, reporting any errors"
+	@echo "  format_integration_tests_check"
+	@echo "  format_language_host_check"
+	@echo "  format_sdk_check"
+	@echo " lint                              Run the linters for all projects, reporting any errors"
+	@echo "  lint_sdk"
+	@echo "  lint_language_host"
+	@echo "  lint_integration_tests"
+	@echo " lint_fix                          Run the linters for all projects, writing changes to disk"
+	@echo "  lint_sdk_fix"
+	@echo "  lint_language_host_fix"
+	@echo "  lint_integration_tests_fix"
+	@echo " test                              Run all the tests for all projects"
+	@echo "  test_conformance"
+	@echo "  test_integration"
+	@echo "  test_sdk"
+	@echo "  test_sdk_automation"
+	@echo " test_fast                         Run the SDK and automation tests"
+	@echo " test_coverage                     Run all the tests for all projects with code coverage output"
+	@echo "  test_sdk_coverage"
+	@echo "  test_sdk_automation_coverage"
+	@echo " help                              Show this help message"

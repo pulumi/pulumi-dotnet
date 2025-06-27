@@ -7,10 +7,8 @@ SDK_VERSION := $(shell cd pulumi-language-dotnet && sed -n 's/^.*github\.com\/pu
 GO_TEST_FILTER_FLAG := $(if $(TEST_FILTER),-run $(TEST_FILTER))
 DOTNET_TEST_FILTER_FLAG := $(if $(TEST_FILTER),--filter $(TEST_FILTER))
 
-.PHONY: install
-install:
-	cd pulumi-language-dotnet && ${GO} install \
-		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" ./...
+.PHONY: all
+all: build
 
 .PHONY: build
 build: build_sdk build_language_host
@@ -70,6 +68,11 @@ format_integration_tests_check:
 .PHONY: format_integration_tests
 format_integration_tests:
 	gofumpt -w integration_tests
+
+.PHONY: install
+install:
+	cd pulumi-language-dotnet && ${GO} install \
+		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" ./...
 
 .PHONY: lint
 lint: lint_sdk lint_language_host lint_integration_tests

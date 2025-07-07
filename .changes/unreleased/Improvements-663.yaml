@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Implement resource hooks in the .Net SDK
+time: 2025-07-09T12:10:43.244718251+01:00
+custom:
+    PR: "663"

@@ -26,6 +26,7 @@ namespace Pulumi
                 RetainOnDelete = options.RetainOnDelete,
                 DeletedWith = options.DeletedWith,
                 ResourceTransforms = options.ResourceTransforms.ToList(),
+                Hooks = options.Hooks.Clone(),
             };
 
         internal static CustomResourceOptions CreateCustomResourceOptionsCopy(ResourceOptions? options)

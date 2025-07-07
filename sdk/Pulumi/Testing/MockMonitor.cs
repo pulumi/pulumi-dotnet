@@ -229,5 +229,15 @@ namespace Pulumi.Testing
         {
             throw new NotImplementedException();
         }
+
+        public Task RegisterResourceHookAsync(RegisterResourceHookRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SignalAndWaitForShutdownAsync()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

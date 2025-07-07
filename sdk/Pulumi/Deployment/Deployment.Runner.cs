@@ -144,9 +144,25 @@ namespace Pulumi
                     return await HandleExceptionsAsync(errs).ConfigureAwait(false);
                 }
 
-                // there were no more tasks we were waiting on.  Quit out, reporting if we had any
-                // errors or not.
-                return _deployment.Logger.LoggedErrors ? 1 : 0;
+                // If we encountered errors elsewhere, quit out now with an appropriate exit code.
+                if (_deployment.Logger.LoggedErrors)
+                {
+                    return 1;
+                }
+
+                // If there were no errors, we'll now wait for the deployment before exiting so that e.g. it has access
+                // to callbacks until it is done.
+                try
+                {
+                    await _deployment.SignalAndWaitForShutdownAsync();
+                }
+                catch (Exception ex)
+                {
+                    // If we got an exception while waiting for shutdown, we handle it as a special case.
+                    return await HandleExceptionAsync(ex).ConfigureAwait(false);
+                }
+
+                return 0;
             }
 
             private Task<int> HandleExceptionAsync(Exception exception)

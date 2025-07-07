@@ -142,5 +142,17 @@ namespace Pulumi
         /// if specified resource is being deleted as well.
         /// </summary>
         public Resource? DeletedWith { get; set; }
+
+        private ResourceHookBinding? _hooks;
+
+        /// <summary>
+        /// Optional resource hooks to bind to this resource. The hooks will be invoked during the lifecycle of
+        /// the resource.
+        /// </summary>
+        public ResourceHookBinding Hooks
+        {
+            get => _hooks ??= new();
+            set => _hooks = value;
+        }
     }
 }

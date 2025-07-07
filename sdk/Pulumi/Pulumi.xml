@@ -318,6 +318,43 @@
             <param name="componentAssembly">The assembly containing component types</param>
             <param name="packageName">Optional package name (defaults to assembly name)</param>
         </member>
+        <member name="T:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder">
+            <summary>
+            NonSignallingDeploymentBuilder decorates an existing <see cref="T:Pulumi.IDeploymentBuilder"/> to create an <see
+            cref="T:Pulumi.IMonitor"/> that does not signal the engine for shutdown. This is useful in scenarios where we want to
+            kick off a deployment in tandem with another that is already responsible for managing the engine's lifecycle,
+            such as when a provider <c>Construct</c>s a component resource. In such cases, we do not want to signal shutdown
+            at the end of the <c>Construct</c> operation, as the engine is still in use by the program that created the
+            component.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder.DeploymentBuilder">
+            <summary>
+            The <see cref="T:Pulumi.IDeploymentBuilder"/> that this instance decorates.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder.#ctor(Pulumi.IDeploymentBuilder)">
+            <summary>
+            Initializes a new <see cref="T:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder"/>.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.NonSignallingMonitor">
+            <summary>
+            NonSignallingMonitor decorates an existing <see cref="T:Pulumi.IMonitor"/> to not signal the engine for shutdown. This
+            is useful in scenarios where we know that another monitor is responsible for managing the engine's
+            lifecycle, such as when a provider <c>Construct</c>s a component resource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.Provider.NonSignallingMonitor.Monitor">
+            <summary>
+            The <see cref="T:Pulumi.IMonitor"/> that this instance decorates.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.NonSignallingMonitor.#ctor(Pulumi.IMonitor)">
+            <summary>
+            Initializes a new <see cref="T:Pulumi.Experimental.Provider.NonSignallingMonitor"/>.
+            </summary>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.ParametersArgs">
             <summary>
             A parameter value, represented as an array of strings, as might be provided by a command-line invocation, such as
@@ -1201,6 +1238,12 @@
             Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
             </summary>
         </member>
+        <member name="M:Pulumi.Deployment.MonitorSupportsResourceHooks">
+            <summary>
+            Returns whether the resource monitor we are connected to supports the "resourceHooks" feature across the RPC
+            interface. Resource hooks support running arbitrary code at various points in the resource lifecycle.
+            </summary>
+        </member>
         <member name="M:Pulumi.Deployment.EngineLogger.Pulumi#IEngineLogger#DebugAsync(System.String,Pulumi.Resource,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
             <summary>
             Logs a debug-level message that is generally hidden from end-users.
@@ -1289,6 +1332,12 @@
             so we can be compatible with older versions of our packages. Once we stop supporting
             older packages, we can change the language host to not add this :config: thing and
             remove this function.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Deployment.PrepareHooks(Pulumi.Callbacks,Pulumi.ResourceHookBinding)">
+            <summary>
+            Prepares a set of <see cref="T:Pulumi.ResourceHookBinding"/>s for transmission as part of a resource registration by
+            serializing their names into a <see cref="T:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding"/>.
             </summary>
         </member>
         <member name="M:Pulumi.Deployment.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
@@ -1868,6 +1917,32 @@
         <member name="M:Pulumi.IDeployment.RegisterInvokeTransform(Pulumi.InvokeTransform)">
             <summary>
             Register an invoke transform to run when invoke calls are made.
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeploymentInternal.RegisterResourceHook(Pulumi.ResourceHook)">
+            <summary>
+            Registers a resource hook against the deployment, returning a task that completes when the registration
+            has finished.
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeploymentInternal.SignalAndWaitForShutdownAsync">
+            <summary>
+            Signals to the deployment that no more resources will be registered and that the program has no more work to
+            do. This method should not return until the deployment is finished and it is safe for the program to exit
+            (e.g. the engine does not need anything more from the program, such as resource hook implementations).
+            </summary>
+        </member>
+        <member name="M:Pulumi.IMonitor.RegisterResourceHookAsync(Pulumirpc.RegisterResourceHookRequest)">
+            <summary>
+            Registers a resource hook against the deployment, returning a task that completes when the registration
+            has finished.
+            </summary>
+        </member>
+        <member name="M:Pulumi.IMonitor.SignalAndWaitForShutdownAsync">
+            <summary>
+            Signals to the monitor that no more resources will be registered and that the program has no more work to
+            do. This method should not return until the deployment is finished and it is safe for the program to exit
+            (e.g. the engine does not need anything more from the program, such as resource hook implementations).
             </summary>
         </member>
         <member name="T:Pulumi.InvokeOptions">
@@ -2535,6 +2610,172 @@
             Base type for all resource argument classes.
             </summary>
         </member>
+        <member name="T:Pulumi.ResourceHook">
+            <summary>
+            A resource hook is a callback that can be registered to run at specific points in the resource lifecycle.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHook.Name">
+            <summary>
+            The name of the resource hook. This must be unique within a program.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHook.Callback">
+            <summary>
+            The callback to invoke when the resource hook is triggered.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHook.Options">
+            <summary>
+            Options for the resource hook, such as whether it should run during a dry-run operation
+            (e.g. <c>preview</c>).
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHook.#ctor(System.String,Pulumi.ResourceHookCallback,Pulumi.ResourceHookOptions)">
+            <summary>
+            Creates a new <see cref="T:Pulumi.ResourceHook"/> with the specified name, callback, and options.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHook.#ctor(System.String,Pulumi.ResourceHookCallback,Pulumi.ResourceHookOptions,System.Threading.Tasks.Task)">
+            <summary>
+            Creates a new <see cref="T:Pulumi.ResourceHook"/> with the specified name, callback, and options. The task
+            determining whether or not the hook has been registered must also be provided. Typically this will be a
+            registration task attached to the current deployment, but subclasses may use this constructor to
+            initialize hooks with custom registration logic.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookCallback">
+            <summary>
+            ResourceHookCallback is a delegate that defines the signature of <see cref="T:Pulumi.ResourceHook"/> callback functions.
+            Callbacks take a set of <see cref="T:Pulumi.ResourceHookArgs"/> and an optional <see cref="T:System.Threading.CancellationToken"/>.
+            Callbacks may raise an error by throwing an exception, which will be propagated to the resource operation that
+            triggered the hook.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookOptions">
+            <summary>
+            Options for registering a <see cref="T:Pulumi.ResourceHook"/>.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookOptions.OnDryRun">
+            <summary>
+            Run the hook during dry-run (<c>preview</c>) operations. Defaults to false.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookArgs">
+            <summary>
+            <para>
+            ResourceHookArgs represents the arguments passed to a resource hook. Depending on the hook type, only some of
+            the new/old inputs/outputs are set.
+            </para>
+            <code>
+            | Hook Type     | old_inputs | new_inputs | old_outputs | new_outputs |
+            | ------------- | ---------- | ---------- | ----------- | ----------- |
+            | before_create |            | ✓          |             |             |
+            | after_create  |            | ✓          |             | ✓           |
+            | before_update | ✓          | ✓          | ✓           |             |
+            | after_update  | ✓          | ✓          | ✓           | ✓           |
+            | before_delete | ✓          |            | ✓           |             |
+            | after_delete  | ✓          |            | ✓           |             |
+            </code>
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.Urn">
+            <summary>
+            The URN of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.Id">
+            <summary>
+            The ID of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.NewInputs">
+            <summary>
+            The new inputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.OldInputs">
+            <summary>
+            The old inputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.NewOutputs">
+            <summary>
+            The new outputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.OldOutputs">
+            <summary>
+            The old outputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookArgs.#ctor(System.String,System.String,System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object})">
+            <summary>
+            Creates a new set of <see cref="T:Pulumi.ResourceHookArgs"/>.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookBinding">
+            <summary>
+            <para>
+            Binds <see cref="T:Pulumi.ResourceHook"/>s to a resource. The resource hooks will be invoked at specific points in the
+            lifecycle of the resource.
+            </para>
+            <para>
+            <c>Before*</c> hooks that raise an exception will cause the resource operation to fail. <c>After*</c> hooks that
+            raise an exception will log a warning, but do not cause the action or the deployment to fail.
+            </para>
+            <para>
+            When running <c>pulumi destroy</c>, <c>BeforeDelete</c> and <c>AfterDelete</c> resource hooks require the
+            operation to run with <c>--run-program</c>, to ensure that the program which defines the hooks is available.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.BeforeCreate">
+            <summary>
+            Hooks to be invoked before the resource is created.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.AfterCreate">
+            <summary>
+            Hooks to be invoked after the resource is created.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.BeforeUpdate">
+            <summary>
+            Hooks to be invoked before the resource is updated.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.AfterUpdate">
+            <summary>
+            Hooks to be invoked after the resource is updated.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.BeforeDelete">
+            <summary>
+            Hooks to be invoked before the resource is deleted.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.AfterDelete">
+            <summary>
+            Hooks to be invoked after the resource is deleted.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.IsEmpty">
+            <summary>
+            IsEmpty is true if and only if no hooks have been bound to any of the lifecycle events.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookBinding.Clone">
+            <summary>
+            Creates a deep copy of this <see cref="T:Pulumi.ResourceHookBinding"/> instance.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookBinding.Concat(Pulumi.ResourceHookBinding)">
+            <summary>
+            Concatenates this <see cref="T:Pulumi.ResourceHookBinding"/> with another , merging their hooks.
+            </summary>
+        </member>
         <member name="T:Pulumi.ResourceOptions">
             <summary>
             ResourceOptions is a bag of optional settings that control a resource's behavior.
@@ -2635,6 +2876,12 @@
             <summary>
             If set, the providers Delete method will not be called for this resource
             if specified resource is being deleted as well.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceOptions.Hooks">
+            <summary>
+            Optional resource hooks to bind to this resource. The hooks will be invoked during the lifecycle of
+            the resource.
             </summary>
         </member>
         <member name="T:Pulumi.ResourceTransform">
@@ -4173,6 +4420,17 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerBase.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="T:Pulumirpc.Analyzer.AnalyzerClient">
             <summary>Client for Analyzer</summary>
         </member>
@@ -4506,6 +4764,54 @@
             `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
             This method is not always called, for example if the engine is just booting the analyzer up to call
             GetAnalyzerInfo.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -9405,6 +9711,9 @@
             [](pulumirpc.ConstructResponse)'s `stateDependencies` field.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConstructRequest.ResourceHooksFieldNumber">
+            <summary>Field number for the "resource_hooks" field.</summary>
+        </member>
         <member name="T:Pulumirpc.ConstructRequest.Types">
             <summary>Container for nested types declared in the ConstructRequest message type.</summary>
         </member>
@@ -9462,6 +9771,24 @@
             How long a caller is prepared to wait for a nested resource's [](pulumirpc.ResourceProvider.Delete) operation
             to complete.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.BeforeCreateFieldNumber">
+            <summary>Field number for the "before_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.AfterCreateFieldNumber">
+            <summary>Field number for the "after_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.BeforeUpdateFieldNumber">
+            <summary>Field number for the "before_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.AfterUpdateFieldNumber">
+            <summary>Field number for the "after_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.BeforeDeleteFieldNumber">
+            <summary>Field number for the "before_delete" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.AfterDeleteFieldNumber">
+            <summary>Field number for the "after_delete" field.</summary>
         </member>
         <member name="T:Pulumirpc.ConstructResponse">
             <summary>
@@ -9546,6 +9873,14 @@
         <member name="P:Pulumirpc.ErrorResourceInitFailed.Inputs">
             <summary>
             the current inputs to this resource (only applicable for Read)
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorResourceInitFailed.RefreshBeforeUpdateFieldNumber">
+            <summary>Field number for the "refresh_before_update" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorResourceInitFailed.RefreshBeforeUpdate">
+            <summary>
+            Indicates that this resource should always be refreshed prior to updates.
             </summary>
         </member>
         <member name="T:Pulumirpc.GetMappingRequest">
@@ -11808,6 +12143,14 @@
             a reference from RegisterPackageRequest.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.HooksFieldNumber">
+            <summary>Field number for the "hooks" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.Hooks">
+            <summary>
+            The resource hooks that should run at certain points in the resource's lifecycle.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -11852,6 +12195,24 @@
             <summary>
             The delete resource timeout represented as a string e.g. 5m.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.BeforeCreateFieldNumber">
+            <summary>Field number for the "before_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.AfterCreateFieldNumber">
+            <summary>Field number for the "after_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.BeforeUpdateFieldNumber">
+            <summary>Field number for the "before_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.AfterUpdateFieldNumber">
+            <summary>Field number for the "after_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.BeforeDeleteFieldNumber">
+            <summary>Field number for the "before_delete" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.AfterDeleteFieldNumber">
+            <summary>Field number for the "after_delete" field.</summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceResponse">
             <summary>
@@ -12311,6 +12672,88 @@
         <member name="F:Pulumirpc.TransformInvokeOptions.PluginChecksumsFieldNumber">
             <summary>Field number for the "plugin_checksums" field.</summary>
         </member>
+        <member name="T:Pulumirpc.ResourceHookRequest">
+            <summary>
+            ResourceHookRequest is the request object for resource hook callbacks in CallbackInvokeRequest.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.UrnFieldNumber">
+            <summary>Field number for the "urn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Urn">
+            <summary>
+            the urn of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.IdFieldNumber">
+            <summary>Field number for the "id" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Id">
+            <summary>
+            the optional urn of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Name">
+            <summary>
+            the name of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Type">
+            <summary>
+            the type of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.NewInputsFieldNumber">
+            <summary>Field number for the "new_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.NewInputs">
+            <summary>
+            the optional checked new inputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.OldInputsFieldNumber">
+            <summary>Field number for the "old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.OldInputs">
+            <summary>
+            the optional checked old inputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.NewOutputsFieldNumber">
+            <summary>Field number for the "new_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.NewOutputs">
+            <summary>
+            the optional new outputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.OldOutputsFieldNumber">
+            <summary>Field number for the "old_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.OldOutputs">
+            <summary>
+            the optional old outputs of the resource.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceHookResponse">
+            <summary>
+            ResourceHookResponse is the response object for resource hook callbacks in CallbackInvokeResponse.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookResponse.ErrorFieldNumber">
+            <summary>Field number for the "error" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookResponse.Error">
+            <summary>
+            an optional error message to return from the hook.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.RegisterPackageRequest.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>
@@ -12385,6 +12828,31 @@
             the parameter value for the parameterized package.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceHookRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceHookRequest.Name">
+            <summary>
+            The name of the hook. Must be unique within a program, registering the
+            same name twice is an error.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceHookRequest.CallbackFieldNumber">
+            <summary>Field number for the "callback" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceHookRequest.Callback">
+            <summary>
+            the callback that the engine can call to run the hook.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceHookRequest.OnDryRunFieldNumber">
+            <summary>Field number for the "on_dry_run" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceHookRequest.OnDryRun">
+            <summary>
+            whether to run the hook on dry runs.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceMonitor">
             <summary>
             ResourceMonitor is the interface a source uses to talk back to the planning monitor orchestrating the execution.
@@ -12412,10 +12880,32 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterResourceHook(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterPackage(Pulumirpc.RegisterPackageRequest,Grpc.Core.ServerCallContext)">
             <summary>
             Registers a package and allocates a packageRef. The same package can be registered multiple times in Pulumi.
             Multiple requests are idempotent and guaranteed to return the same result.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.SignalAndWaitForShutdown(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -12511,6 +13001,46 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHook(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHook(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHookAsync(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHookAsync(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterPackage(Pulumirpc.RegisterPackageRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
             Registers a package and allocates a packageRef. The same package can be registered multiple times in Pulumi.
@@ -12546,6 +13076,62 @@
             <summary>
             Registers a package and allocates a packageRef. The same package can be registered multiple times in Pulumi.
             Multiple requests are idempotent and guaranteed to return the same result.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdown(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdown(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdownAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdownAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>

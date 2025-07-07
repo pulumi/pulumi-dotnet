@@ -109,19 +109,19 @@ test: test_conformance test_integration test_sdk test_sdk_automation
 test_fast: test_sdk test_sdk_automation
 
 .PHONY: test_conformance
-test_conformance: build clean
+test_conformance: build
 	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m ./...
 
 .PHONY: test_integration
-test_integration: build clean
+test_integration: build
 	cd integration_tests && gotestsum -- $(GO_TEST_FILTER_FLAG) --parallel 1 --timeout 60m ./...
 
 .PHONY: test_sdk
-test_sdk: build clean
+test_sdk: build
 	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG)
 
 .PHONY: test_sdk_automation
-test_sdk_automation: clean
+test_sdk_automation:
 	cd sdk/Pulumi.Automation.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
 			-p:PulumiSdkVersion=$(SDK_VERSION)
@@ -130,12 +130,12 @@ test_sdk_automation: clean
 test_coverage: test_sdk_coverage test_sdk_automation_coverage
 
 .PHONY: test_sdk_coverage
-test_sdk_coverage: clean
+test_sdk_coverage:
 	cd sdk/Pulumi.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=./coverage/coverage.pulumi.xml
 
 .PHONY: test_sdk_automation_coverage
-test_sdk_automation_coverage: clean
+test_sdk_automation_coverage:
 	cd sdk/Pulumi.Automation.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
 			-p:PulumiSdkVersion=$(SDK_VERSION) \

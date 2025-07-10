@@ -32,6 +32,7 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -831,6 +832,40 @@ func TestParameterized(t *testing.T) {
 			e.CWD = info.Root
 			e.RunCommand("dotnet", "test")
 			return nil
+		},
+	})
+}
+
+// This test ensures that we do not proceed to deletions if a program throws an error.
+//
+//nolint:paralleltest // ProgramTest calls t.Parallel()
+func TestProgramErrorPython(t *testing.T) {
+	d := "program_error"
+
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(d, "step1"),
+		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
+		Quick:          true,
+		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+			require.Len(t, stack.Deployment.Resources, 4)
+			require.Equal(t, stack.Deployment.Resources[0].Type, tokens.Type("pulumi:pulumi:Stack"))
+			require.Equal(t, stack.Deployment.Resources[1].Type, tokens.Type("pulumi:providers:testprovider"))
+			require.Equal(t, stack.Deployment.Resources[2].Type, tokens.Type("testprovider:index:Random"))
+			require.Equal(t, stack.Deployment.Resources[3].Type, tokens.Type("testprovider:index:Random"))
+		},
+		EditDirs: []integration.EditDir{
+			{
+				Dir:           filepath.Join(d, "step2"),
+				Additive:      true,
+				ExpectFailure: true,
+				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+					require.Len(t, stack.Deployment.Resources, 4)
+					require.Equal(t, stack.Deployment.Resources[0].Type, tokens.Type("pulumi:pulumi:Stack"))
+					require.Equal(t, stack.Deployment.Resources[1].Type, tokens.Type("pulumi:providers:testprovider"))
+					require.Equal(t, stack.Deployment.Resources[2].Type, tokens.Type("testprovider:index:Random"))
+					require.Equal(t, stack.Deployment.Resources[3].Type, tokens.Type("testprovider:index:Random"))
+				},
+			},
 		},
 	})
 }

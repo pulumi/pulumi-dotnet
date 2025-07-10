@@ -53,6 +53,9 @@ namespace Pulumi
         private int _pendingRegistrations;
         private static readonly object _registrationLock = new object();
 
+        private static readonly object _signalLock = new object();
+        private bool _hasSignaled;
+
         /// <summary>
         /// The current running deployment instance. This is only available from inside the function
         /// passed to <see cref="Deployment.RunAsync(Action)"/> (or its overloads).
@@ -286,6 +289,15 @@ namespace Pulumi
         public Task<bool> MonitorSupportsInvokeTransforms()
         {
             return MonitorSupportsFeature("invokeTransforms");
+        }
+
+        /// <summary>
+        /// Returns whether the resource monitor we are connected to supports the "resourceHooks" feature across the RPC
+        /// interface. Resource hooks support running arbitrary code at various points in the resource lifecycle.
+        /// </summary>
+        public Task<bool> MonitorSupportsResourceHooks()
+        {
+            return MonitorSupportsFeature("resourceHooks");
         }
 
         public void RegisterInvokeTransform(InvokeTransform transform)

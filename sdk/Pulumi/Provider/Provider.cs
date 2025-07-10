@@ -531,7 +531,15 @@ namespace Pulumi.Experimental.Provider
                     System.Threading.Thread.Sleep(1);
                 }
             }
-            using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
+
+            // Construct the host. As part of this, we'll ensure that any deployment we run (e.g. as part of a Construct
+            // call) is "non-signalling" -- that is, it will not be responsible for telling the engine managing the
+            // overall deployment when the program is ready to shut down. This is because any deployment we run will be
+            // part of a larger calling program (e.g. the one that instantiated the component), and it is this program
+            // that will signal to the engine when it is ready to shut down.
+            using var host = BuildHost(args, version,
+                new NonSignallingDeploymentBuilder(GrpcDeploymentBuilder.Instance),
+                factory);
 
             // before starting the host, set up this callback to tell us what port was selected
             await host.StartAsync(cancellationToken);
@@ -1100,6 +1108,17 @@ namespace Pulumi.Experimental.Provider
                     .Select(reference => new DependencyProviderResource(reference))
                     .ToList<ProviderResource>();
 
+                var hooks = new ResourceHookBinding();
+                if (request.ResourceHooks != null)
+                {
+                    hooks.BeforeCreate.AddRange(request.ResourceHooks.BeforeCreate.Select(name => new StubResourceHook(name)));
+                    hooks.AfterCreate.AddRange(request.ResourceHooks.AfterCreate.Select(name => new StubResourceHook(name)));
+                    hooks.BeforeUpdate.AddRange(request.ResourceHooks.BeforeUpdate.Select(name => new StubResourceHook(name)));
+                    hooks.AfterUpdate.AddRange(request.ResourceHooks.AfterUpdate.Select(name => new StubResourceHook(name)));
+                    hooks.BeforeDelete.AddRange(request.ResourceHooks.BeforeDelete.Select(name => new StubResourceHook(name)));
+                    hooks.AfterDelete.AddRange(request.ResourceHooks.AfterDelete.Select(name => new StubResourceHook(name)));
+                }
+
                 var opts = new ComponentResourceOptions()
                 {
                     Aliases = aliases,
@@ -1118,6 +1137,7 @@ namespace Pulumi.Experimental.Provider
                     ResourceTransforms =
                     {
                     },
+                    Hooks = hooks,
                 };
 
                 var domRequest = new ConstructRequest(request.Type, request.Name,
@@ -1215,6 +1235,18 @@ namespace Pulumi.Experimental.Provider
             var propertyDependencies = new Pulumirpc.CallResponse.Types.ReturnDependencies();
             propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));
             return propertyDependencies;
+        }
+    }
+
+    class StubResourceHook : ResourceHook
+    {
+        private static readonly ResourceHookCallback _doNothing = (args, cancellationToken) => Task.CompletedTask;
+
+        private static readonly ResourceHookOptions _noOptions = new();
+
+        public StubResourceHook(string name)
+          : base(name, _doNothing, _noOptions, Task.CompletedTask)
+        {
         }
     }
 }

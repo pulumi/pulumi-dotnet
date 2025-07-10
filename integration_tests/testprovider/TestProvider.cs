@@ -120,7 +120,8 @@ public class TestProvider : Provider
     {
         if (request.Type == parameter + ":index:Echo" ||
             request.Type == parameter + ":index:Random" ||
-            request.Type == parameter + ":index:FailsOnDelete")
+            request.Type == parameter + ":index:FailsOnDelete" ||
+            request.Type == parameter + ":index:Updatable")
         {
             return Task.FromResult(new CheckResponse() { Inputs = request.NewInputs });
         }
@@ -149,6 +150,13 @@ public class TestProvider : Provider
         {
             return Task.FromResult(new DiffResponse() {
                 Changes = false,
+            });
+        }
+        else if (request.Type == parameter + ":index:Updatable")
+        {
+            var changes = !request.OldState["value"].Equals(request.NewInputs["value"]);
+            return Task.FromResult(new DiffResponse() {
+                Changes = changes,
             });
         }
 
@@ -207,6 +215,32 @@ public class TestProvider : Provider
                 Id = this.id.ToString(),
             });
         }
+        else if (request.Type == parameter + ":index:Updatable")
+        {
+            var outputs = new Dictionary<string, PropertyValue>();
+            outputs.Add("value", request.Properties["value"]);
+
+            ++this.id;
+            return Task.FromResult(new CreateResponse() {
+                Id = this.id.ToString(),
+                Properties = outputs,
+            });
+        }
+
+        throw new Exception($"Unknown resource type '{request.Type}'");
+    }
+
+    public override Task<UpdateResponse> Update(UpdateRequest request, CancellationToken ct)
+    {
+        if (request.Type == parameter + ":index:Updatable")
+        {
+            var outputs = new Dictionary<string, PropertyValue>();
+            outputs.Add("value", request.News["value"]);
+
+            return Task.FromResult(new UpdateResponse() {
+                Properties = outputs,
+            });
+        }
 
         throw new Exception($"Unknown resource type '{request.Type}'");
     }
@@ -238,7 +272,7 @@ public class TestProvider : Provider
         {
             response.Return = request.Args;
         }
-    
+
         return Task.FromResult(response);
     }
 }

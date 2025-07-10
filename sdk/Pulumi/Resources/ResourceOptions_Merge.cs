@@ -23,6 +23,8 @@ namespace Pulumi
             options1.ReplaceOnChanges.AddRange(options2.ReplaceOnChanges);
 
             options1.DependsOn = options1.DependsOn.Concat(options2.DependsOn);
+
+            options1.Hooks = options1.Hooks.Concat(options2.Hooks);
         }
     }
 }

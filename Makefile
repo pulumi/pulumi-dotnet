@@ -7,10 +7,8 @@ SDK_VERSION := $(shell cd pulumi-language-dotnet && sed -n 's/^.*github\.com\/pu
 GO_TEST_FILTER_FLAG := $(if $(TEST_FILTER),-run $(TEST_FILTER))
 DOTNET_TEST_FILTER_FLAG := $(if $(TEST_FILTER),--filter $(TEST_FILTER))
 
-.PHONY: install
-install:
-	cd pulumi-language-dotnet && ${GO} install \
-		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" ./...
+.PHONY: all
+all: build
 
 .PHONY: build
 build: build_sdk build_language_host
@@ -24,7 +22,8 @@ build_language_host:
 	cd pulumi-language-dotnet && ${GO} build \
 		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" .
 
-changelog::
+.PHONY: changelog
+changelog:
 	changie new
 
 .PHONY: clean
@@ -70,6 +69,11 @@ format_integration_tests_check:
 format_integration_tests:
 	gofumpt -w integration_tests
 
+.PHONY: install
+install:
+	cd pulumi-language-dotnet && ${GO} install \
+		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" ./...
+
 .PHONY: lint
 lint: lint_sdk lint_language_host lint_integration_tests
 
@@ -101,22 +105,23 @@ lint_integration_tests_fix: format_integration_tests
 .PHONY: test
 test: test_conformance test_integration test_sdk test_sdk_automation
 
+.PHONY: test_fast
+test_fast: test_sdk test_sdk_automation
+
 .PHONY: test_conformance
-test_conformance: build clean
+test_conformance: build
 	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m ./...
 
 .PHONY: test_integration
-test_integration: build clean
+test_integration: build
 	cd integration_tests && gotestsum -- $(GO_TEST_FILTER_FLAG) --parallel 1 --timeout 60m ./...
 
 .PHONY: test_sdk
-test_sdk: build clean
-	cd sdk && dotnet restore --no-cache
+test_sdk: build
 	cd sdk/Pulumi.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG)
 
 .PHONY: test_sdk_automation
-test_sdk_automation: clean
-	cd sdk && dotnet restore --no-cache
+test_sdk_automation:
 	cd sdk/Pulumi.Automation.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
 			-p:PulumiSdkVersion=$(SDK_VERSION)
@@ -125,17 +130,21 @@ test_sdk_automation: clean
 test_coverage: test_sdk_coverage test_sdk_automation_coverage
 
 .PHONY: test_sdk_coverage
-test_sdk_coverage: clean
-	cd sdk && dotnet restore --no-cache
+test_sdk_coverage:
 	cd sdk/Pulumi.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=./coverage/coverage.pulumi.xml
 
 .PHONY: test_sdk_automation_coverage
-test_sdk_automation_coverage: clean
-	cd sdk && dotnet restore --no-cache
+test_sdk_automation_coverage:
 	cd sdk/Pulumi.Automation.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
 			-p:PulumiSdkVersion=$(SDK_VERSION) \
 			-p:CollectCoverage=true \
 			-p:CoverletOutputFormat=cobertura \
 			-p:CoverletOutput=./coverage/coverage.pulumi.automation.xml
+
+.PHONY: help
+help:
+	@awk 'BEGIN { print "Available targets:" } \
+		/^##/ { help=$$0; next } \
+		/^[a-zA-Z0-9_-]+:/ { sub(/:.*/, "", $$1); printf "  %-20s %s\n", $$1, help; help="" }' $(MAKEFILE_LIST)

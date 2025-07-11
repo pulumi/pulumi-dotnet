@@ -247,6 +247,51 @@
             Send a log message to the host.
             </summary>
         </member>
+        <member name="T:Pulumi.Experimental.Policy.IPolicyManager">
+            <summary>
+            An interface into the policy system for reporting policy violations.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Policy.IPolicyManager.ReportViolation(System.String,System.String)">
+            <summary>
+            ReportViolation reports a policy violation with the given message and optional URN (it can be left null or empty).
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Policy.EnforcementLevel">
+            <summary>
+            Defines the enforcement level of a policy.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Policy.EnforcementLevel.Advisory">
+            <summary>
+            Displayed to users, but does not block deployment.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Policy.EnforcementLevel.Mandatory">
+            <summary>
+            Stops deployment, cannot be overridden.
+            </summary>
+        </member>
+        <member name="F:Pulumi.Experimental.Policy.EnforcementLevel.Disabled">
+            <summary>
+            Disabled policies do not run during a deployment.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Policy.PolicyConfigSchema">
+            <summary>
+            Represents the configuration schema for a policy.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.Policy.PolicyConfigSchema.Properties">
+            <summary>
+            The policy's configuration properties.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.Policy.PolicyConfigSchema.Required">
+            <summary>
+            The configuration properties that are required.
+            </summary>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.ComponentAnalyzer">
             <summary>
             Analyzes component resource types and generates a package schema.

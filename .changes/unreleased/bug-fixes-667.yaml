@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Pick versioned artifacts when publishing
+time: 2025-07-11T11:59:03.640419499+01:00
+custom:
+    PR: "667"

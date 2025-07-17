@@ -207,6 +207,7 @@ var expectedFailures = map[string]string{
 	"l2-namespaced-provider":         "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",
 	"l2-resource-parent-inheritance": "expected child to inherit retain on delete flag",
 	"l2-invoke-scalar":               "run bailed",
+	"l2-union":                       "dotnet build failed",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

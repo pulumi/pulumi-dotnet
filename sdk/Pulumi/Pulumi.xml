@@ -12541,6 +12541,9 @@
         <member name="F:Pulumirpc.TransformResourceOptions.PluginChecksumsFieldNumber">
             <summary>Field number for the "plugin_checksums" field.</summary>
         </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.HooksFieldNumber">
+            <summary>Field number for the "hooks" field.</summary>
+        </member>
         <member name="F:Pulumirpc.TransformRequest.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>
         </member>

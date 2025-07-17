@@ -2776,6 +2776,39 @@
             Concatenates this <see cref="T:Pulumi.ResourceHookBinding"/> with another , merging their hooks.
             </summary>
         </member>
+        <member name="T:Pulumi.ResourceHookUtilities">
+            <summary>
+            Utilities for working with resource hooks, particularly for converting
+            between protobuf representations and .NET ResourceHook objects.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookUtilities.ResourceHookBindingFromProto(Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding)">
+            <summary>
+            Converts a protobuf ResourceHooksBinding from
+            RegisterResourceRequest to a .NET ResourceHookBinding using
+            StubResourceHook instances. This is used when receiving hooks from
+            transforms that need to be reconstructed as .NET objects.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookUtilities.ResourceHookBindingFromProto(Pulumirpc.ConstructRequest.Types.ResourceHooksBinding)">
+            <summary>
+            Converts a protobuf ResourceHooksBinding from ConstructRequest to a
+            .NET ResourceHookBinding using StubResourceHook instances. This is
+            used when receiving hooks from remote components that need to be
+            reconstructed as .NET objects.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookUtilities.StubResourceHook">
+             <summary>
+             StubResourceHook is a resource hook that does nothing.
+            
+             We need to reconstruct ResourceHook instances when receiving hooks
+             from transforms or remote components, but we only have the name
+             available. We know these hooks have already been registered, so we
+             can construct dummy hooks here that will be serialized back into a
+             list of hook names.
+             </summary>
+        </member>
         <member name="T:Pulumi.ResourceOptions">
             <summary>
             ResourceOptions is a bag of optional settings that control a resource's behavior.

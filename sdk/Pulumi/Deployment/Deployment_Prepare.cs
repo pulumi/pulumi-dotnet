@@ -261,6 +261,7 @@ namespace Pulumi
                 opts.ReplaceOnChanges = request.Options.ReplaceOnChanges.ToList();
                 opts.RetainOnDelete = request.Options.RetainOnDelete ? request.Options.RetainOnDelete : null;
                 opts.Version = request.Options.Version;
+                opts.Hooks = ResourceHookUtilities.ResourceHookBindingFromProto(request.Options.Hooks) ?? new ResourceHookBinding();
 
                 var args = new ResourceTransformArgs(
                     request.Name,
@@ -341,6 +342,10 @@ namespace Pulumi
                         {
                             response.Options.Providers.Add(provider.Package, await provider.Ref.ConfigureAwait(false));
                         }
+                    }
+                    if (!result.Value.Options.Hooks.IsEmpty)
+                    {
+                        response.Options.Hooks = await PrepareHooks(callbacks, result.Value.Options.Hooks).ConfigureAwait(false);
                     }
                 }
                 return response;

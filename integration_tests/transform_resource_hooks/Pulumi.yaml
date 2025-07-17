@@ -1,0 +1,3 @@
+name: transform_resource_hooks
+description: A program with resource hooks set by transforms
+runtime: dotnet

@@ -148,7 +148,7 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
+        uses: pulumi/actions@cc7494be991dba0978f7ffafaf995b0449a0998e # v6
         with:
           pulumi-version: dev
       - name: Build Pulumi SDK
@@ -213,7 +213,7 @@ jobs:
         with:
           go-version: 1.24.x
       - name: Install Pulumi CLI
-        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
+        uses: pulumi/actions@cc7494be991dba0978f7ffafaf995b0449a0998e # v6
         with:
           pulumi-version: dev
       - name: Install gotestsum
@@ -296,7 +296,7 @@ jobs:
         with:
           go-version: 1.24.x
       - name: Install Pulumi CLI
-        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
+        uses: pulumi/actions@cc7494be991dba0978f7ffafaf995b0449a0998e # v6
         with:
           pulumi-version: dev
       - name: Install gotestsum

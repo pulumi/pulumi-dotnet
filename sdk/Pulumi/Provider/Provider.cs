@@ -1108,16 +1108,7 @@ namespace Pulumi.Experimental.Provider
                     .Select(reference => new DependencyProviderResource(reference))
                     .ToList<ProviderResource>();
 
-                var hooks = new ResourceHookBinding();
-                if (request.ResourceHooks != null)
-                {
-                    hooks.BeforeCreate.AddRange(request.ResourceHooks.BeforeCreate.Select(name => new StubResourceHook(name)));
-                    hooks.AfterCreate.AddRange(request.ResourceHooks.AfterCreate.Select(name => new StubResourceHook(name)));
-                    hooks.BeforeUpdate.AddRange(request.ResourceHooks.BeforeUpdate.Select(name => new StubResourceHook(name)));
-                    hooks.AfterUpdate.AddRange(request.ResourceHooks.AfterUpdate.Select(name => new StubResourceHook(name)));
-                    hooks.BeforeDelete.AddRange(request.ResourceHooks.BeforeDelete.Select(name => new StubResourceHook(name)));
-                    hooks.AfterDelete.AddRange(request.ResourceHooks.AfterDelete.Select(name => new StubResourceHook(name)));
-                }
+                var hooks = ResourceHookUtilities.ResourceHookBindingFromProto(request.ResourceHooks) ?? new ResourceHookBinding();
 
                 var opts = new ComponentResourceOptions()
                 {
@@ -1238,15 +1229,5 @@ namespace Pulumi.Experimental.Provider
         }
     }
 
-    class StubResourceHook : ResourceHook
-    {
-        private static readonly ResourceHookCallback _doNothing = (args, cancellationToken) => Task.CompletedTask;
 
-        private static readonly ResourceHookOptions _noOptions = new();
-
-        public StubResourceHook(string name)
-          : base(name, _doNothing, _noOptions, Task.CompletedTask)
-        {
-        }
-    }
 }

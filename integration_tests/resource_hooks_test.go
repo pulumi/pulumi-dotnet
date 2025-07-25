@@ -226,3 +226,24 @@ func requireNoResourceWithName(t *testing.T, stack integration.RuntimeValidation
 		}
 	}
 }
+
+// Tests that a transform can modify resource hooks in .NET.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
+func TestDotnetTransformResourceHooks(t *testing.T) {
+	testDir := "transform_resource_hooks"
+
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		LocalProviders: []integration.LocalDependency{
+			{
+				Package: "testprovider",
+				Path:    "testprovider",
+			},
+		},
+		Quick: true,
+		Dir:   testDir,
+		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+			requirePrinted(t, stack, "info", "Hook was called with length = 10")
+		},
+	})
+}

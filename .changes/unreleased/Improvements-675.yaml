@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Allow setting resource hooks in transforms
-time: 2025-07-17T13:33:15.911937+02:00
-custom:
-    PR: "675"

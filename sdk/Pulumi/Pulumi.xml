@@ -1634,7 +1634,7 @@
         </member>
         <member name="P:Pulumi.DeploymentInstance.RootDirectory">
             <summary>
-            Root directory. Defaults to <b>"rootDirectory"</b> if not specified.
+            Root directory, that is the location of the Pulumi.yaml file.
             </summary>
         </member>
         <member name="P:Pulumi.DeploymentInstance.OrganizationName">

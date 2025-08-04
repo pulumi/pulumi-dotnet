@@ -1632,6 +1632,11 @@
             Returns the current project name.
             </summary>
         </member>
+        <member name="P:Pulumi.DeploymentInstance.RootDirectory">
+            <summary>
+            Root directory, that is the location of the Pulumi.yaml file.
+            </summary>
+        </member>
         <member name="P:Pulumi.DeploymentInstance.OrganizationName">
             <summary>
             Returns the current organization name.
@@ -1710,6 +1715,11 @@
         <member name="P:Pulumi.IDeployment.ProjectName">
             <summary>
             Returns the current project name.
+            </summary>
+        </member>
+        <member name="P:Pulumi.IDeployment.RootDirectory">
+            <summary>
+            Returns the project root. The location of Pulumi.yaml.
             </summary>
         </member>
         <member name="P:Pulumi.IDeployment.OrganizationName">
@@ -3444,6 +3454,11 @@
         <member name="P:Pulumi.Testing.TestOptions.ProjectName">
             <summary>
             Project name. Defaults to <b>"project"</b> if not specified.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Testing.TestOptions.RootDirectory">
+            <summary>
+            Root directory. Defaults to <b>"rootDirectory"</b> if not specified.
             </summary>
         </member>
         <member name="P:Pulumi.Testing.TestOptions.StackName">

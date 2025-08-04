@@ -93,7 +93,7 @@ namespace Pulumi.Automation.Commands
                 .ExecuteBufferedAsync(cancellationToken);
             if (result.ExitCode != 0)
             {
-                throw new Exception($"failed to get pulumi version: {result.StandardOutput ?? ""}");
+                throw new InvalidOperationException($"failed to get pulumi version: {result.StandardOutput ?? ""}");
             }
             var version = result.StandardOutput.Trim().TrimStart('v');
             return ParseAndValidatePulumiVersion(minimumVersion, version, optOut);
@@ -171,7 +171,7 @@ namespace Pulumi.Automation.Commands
                     .ExecuteBufferedAsync(cancellationToken);
                 if (result.ExitCode != 0)
                 {
-                    throw new Exception($"Failed to install Pulumi {version} in {root}: {result.StandardError}");
+                    throw new InvalidOperationException($"Failed to install Pulumi {version} in {root}: {result.StandardError}");
                 }
             }
             finally
@@ -191,7 +191,7 @@ namespace Pulumi.Automation.Commands
                     .ExecuteBufferedAsync(cancellationToken);
                 if (result.ExitCode != 0)
                 {
-                    throw new Exception($"Failed to install Pulumi ${version} in ${root}: ${result.StandardError}");
+                    throw new InvalidOperationException($"Failed to install Pulumi ${version} in ${root}: ${result.StandardError}");
                 }
             }
             finally
@@ -202,19 +202,19 @@ namespace Pulumi.Automation.Commands
 
         private static async Task<string> DownloadToTmpFileAsync(string url, string extension, CancellationToken cancellationToken)
         {
-            var response = await new HttpClient().GetAsync(url);
+            var response = await new HttpClient().GetAsync(url, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to download {url}");
+                throw new InvalidOperationException($"Failed to download {url}");
             }
-            var scriptData = await response.Content.ReadAsByteArrayAsync();
+            var scriptData = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             string tempFile = Path.GetTempFileName();
             string tempFileWithExtension = Path.ChangeExtension(tempFile, extension);
             File.Move(tempFile, tempFileWithExtension);
             try
             {
 
-                await File.WriteAllBytesAsync(tempFileWithExtension, scriptData);
+                await File.WriteAllBytesAsync(tempFileWithExtension, scriptData, cancellationToken);
 
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
@@ -226,7 +226,7 @@ namespace Pulumi.Automation.Commands
                         .ExecuteAsync(cancellationToken);
                     if (result.ExitCode != 0)
                     {
-                        throw new Exception($"Failed to chmod u+x {tempFileWithExtension}");
+                        throw new InvalidOperationException($"Failed to chmod u+x {tempFileWithExtension}");
                     }
                 }
 

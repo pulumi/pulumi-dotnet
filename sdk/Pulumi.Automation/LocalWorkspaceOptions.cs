@@ -92,6 +92,11 @@ namespace Pulumi.Automation
         internal IList<string>? RemotePreRunCommands { get; set; }
 
         /// <summary>
+        /// Optional information about a remote execution image.
+        /// </summary>
+        internal ExecutorImage? RemoteExecutorImage { get; set; }
+
+        /// <summary>
         /// Whether to skip the default dependency installation step.
         /// </summary>
         internal bool RemoteSkipInstallDependencies { get; set; }

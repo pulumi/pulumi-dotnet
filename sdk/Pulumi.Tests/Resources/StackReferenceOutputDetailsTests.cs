@@ -11,7 +11,7 @@ namespace Pulumi.Tests.Resources
     public class StackReferenceOutputDetailsTests
     {
         [Fact]
-        public async void SupportsStackReferenceRequiredOutputs()
+        public async Task SupportsStackReferenceRequiredOutputs()
         {
             var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
             var options = new TestOptions();
@@ -35,7 +35,7 @@ namespace Pulumi.Tests.Resources
         }
 
         [Fact]
-        public async void SupportsPlainText()
+        public async Task SupportsPlainText()
         {
             var mocks = new FakeStackOutputMocks("bucket", "my-bucket");
             var options = new TestOptions();
@@ -57,7 +57,7 @@ namespace Pulumi.Tests.Resources
         }
 
         [Fact]
-        public async void SupportsSecrets()
+        public async Task SupportsSecrets()
         {
             var mocks = new FakeStackOutputMocks("secret", Output.CreateSecret("my-bucket"));
             var options = new TestOptions();
@@ -79,7 +79,7 @@ namespace Pulumi.Tests.Resources
         }
 
         [Fact]
-        public async void Unknowns()
+        public async Task Unknowns()
         {
             var mocks = new FakeStackOutputMocks("something", "foo");
             var options = new TestOptions();

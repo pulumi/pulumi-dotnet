@@ -66,7 +66,7 @@ namespace Pulumi
                 }
 
                 return RunAsync(() => serviceProvider.GetService(typeof(TStack)) as TStack
-                    ?? throw new ApplicationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
+                    ?? throw new InvalidOperationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));
             }
 
             public async Task<T> RunAsync<T>(Func<Task<T>> func)
@@ -104,7 +104,7 @@ namespace Pulumi
 
             public void RegisterTask(string description, Task task)
             {
-                _deploymentLogger.LogDebug($"Registering task: {description}");
+                _deploymentLogger.LogDebug("Registering task: {Description}", description);
                 _inFlightTasks.AddTask(task);
 
                 // Ensure completion message is logged at most once when the task finishes.
@@ -122,7 +122,7 @@ namespace Pulumi
                     {
                         task.ContinueWith(task =>
                         {
-                            _deploymentLogger.LogDebug($"Completed task: {description}");
+                            _deploymentLogger.LogDebug("Completed task: {Description}", description);
                             _descriptions.TryRemove(key, out _);
                         });
                     }
@@ -144,9 +144,25 @@ namespace Pulumi
                     return await HandleExceptionsAsync(errs).ConfigureAwait(false);
                 }
 
-                // there were no more tasks we were waiting on.  Quit out, reporting if we had any
-                // errors or not.
-                return _deployment.Logger.LoggedErrors ? 1 : 0;
+                // If we encountered errors elsewhere, quit out now with an appropriate exit code.
+                if (_deployment.Logger.LoggedErrors)
+                {
+                    return 1;
+                }
+
+                // If there were no errors, we'll now wait for the deployment before exiting so that e.g. it has access
+                // to callbacks until it is done.
+                try
+                {
+                    await _deployment.SignalAndWaitForShutdownAsync();
+                }
+                catch (Exception ex)
+                {
+                    // If we got an exception while waiting for shutdown, we handle it as a special case.
+                    return await HandleExceptionAsync(ex).ConfigureAwait(false);
+                }
+
+                return 0;
             }
 
             private Task<int> HandleExceptionAsync(Exception exception)

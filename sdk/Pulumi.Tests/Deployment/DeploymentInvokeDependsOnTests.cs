@@ -81,7 +81,7 @@ namespace Pulumi.Tests
             if (outputs["functionResult"] is Output<FunctionResult> functionResult)
             {
 
-                var dataTask = await functionResult.DataTask.ConfigureAwait(false);
+                var dataTask = await functionResult.DataTask;
                 Assert.False(dataTask.IsKnown);
             }
             else
@@ -116,7 +116,7 @@ namespace Pulumi.Tests
             if (outputs["functionResult"] is Output<FunctionResult> functionResult)
             {
 
-                var dataTask = await functionResult.DataTask.ConfigureAwait(false);
+                var dataTask = await functionResult.DataTask;
                 Assert.False(dataTask.IsKnown);
             }
             else

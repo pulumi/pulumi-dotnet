@@ -1,0 +1,3 @@
+name: resource_hooks_dotnet
+description: A simple .NET program that uses resource hooks.
+runtime: dotnet

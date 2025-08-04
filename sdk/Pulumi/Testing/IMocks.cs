@@ -93,12 +93,16 @@ namespace Pulumi.Testing
         /// <summary>
         /// The URN of the resource of which the outputs are being registered
         /// </summary>
+#pragma warning disable CA1051 // Do not declare visible instance fields
         public readonly string Urn;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         /// <summary>
         /// The outputs which have been registered by the resource
         /// </summary>
+#pragma warning disable CA1051 // Do not declare visible instance fields
         public readonly ImmutableDictionary<string, Output<object?>> Outputs;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public MockRegisterResourceOutputsRequest(
             string urn,

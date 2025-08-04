@@ -1,19 +1,20 @@
-// Copyright 2022-2023, Pulumi Corporation.  All rights reserved.
+// Copyright 2022-2025, Pulumi Corporation.  All rights reserved.
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Pulumi;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 
 public class TestProvider : Provider
 {
-    readonly IHost host;
+    readonly Pulumi.Experimental.IEngine host;
     int id = 0;
     string parameter;
 
-    public TestProvider(IHost host)
+    public TestProvider(Pulumi.Experimental.IEngine host)
     {
         this.host = host;
         this.parameter = "testprovider";
@@ -50,6 +51,9 @@ public class TestProvider : Provider
 {
     ""name"": ""NAME"",
     ""version"": ""1.0.0"",
+    ""meta"": {
+        ""supportPack"": true
+    },
     ""resources"": {
         ""NAME:index:Echo"": {
             ""description"": ""A test resource that echoes its input."",
@@ -81,7 +85,10 @@ public class TestProvider : Provider
     }
 ";
 
-
+        if (parameter == "testprovider")
+        {
+            parameterization = "";
+        }
 
         // Very hacky schema build just to test out that parameterization calls are made
         parameterization = parameterization.Replace("UTFBYTES", Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(parameter)));
@@ -113,7 +120,8 @@ public class TestProvider : Provider
     {
         if (request.Type == parameter + ":index:Echo" ||
             request.Type == parameter + ":index:Random" ||
-            request.Type == parameter + ":index:FailsOnDelete")
+            request.Type == parameter + ":index:FailsOnDelete" ||
+            request.Type == parameter + ":index:Updatable")
         {
             return Task.FromResult(new CheckResponse() { Inputs = request.NewInputs });
         }
@@ -142,6 +150,13 @@ public class TestProvider : Provider
         {
             return Task.FromResult(new DiffResponse() {
                 Changes = false,
+            });
+        }
+        else if (request.Type == parameter + ":index:Updatable")
+        {
+            var changes = !request.OldState["value"].Equals(request.NewInputs["value"]);
+            return Task.FromResult(new DiffResponse() {
+                Changes = changes,
             });
         }
 
@@ -200,6 +215,32 @@ public class TestProvider : Provider
                 Id = this.id.ToString(),
             });
         }
+        else if (request.Type == parameter + ":index:Updatable")
+        {
+            var outputs = new Dictionary<string, PropertyValue>();
+            outputs.Add("value", request.Properties["value"]);
+
+            ++this.id;
+            return Task.FromResult(new CreateResponse() {
+                Id = this.id.ToString(),
+                Properties = outputs,
+            });
+        }
+
+        throw new Exception($"Unknown resource type '{request.Type}'");
+    }
+
+    public override Task<UpdateResponse> Update(UpdateRequest request, CancellationToken ct)
+    {
+        if (request.Type == parameter + ":index:Updatable")
+        {
+            var outputs = new Dictionary<string, PropertyValue>();
+            outputs.Add("value", request.News["value"]);
+
+            return Task.FromResult(new UpdateResponse() {
+                Properties = outputs,
+            });
+        }
 
         throw new Exception($"Unknown resource type '{request.Type}'");
     }
@@ -220,6 +261,18 @@ public class TestProvider : Provider
             Id = request.Id,
             Properties = request.Properties,
         };
+        return Task.FromResult(response);
+    }
+
+    public override Task<InvokeResponse> Invoke(InvokeRequest request, CancellationToken ct)
+    {
+        var response = new InvokeResponse();
+
+        if (request.Tok == "testprovider:index:returnArgs")
+        {
+            response.Return = request.Args;
+        }
+
         return Task.FromResult(response);
     }
 }

@@ -7,12 +7,19 @@ namespace Pulumi.Automation
     /// </summary>
     public sealed class DestroyOptions : UpdateOptions
     {
+        public bool? ExcludeDependents { get; set; }
+
         public bool? TargetDependents { get; set; }
 
         /// <summary>
         /// Show config secrets when they appear.
         /// </summary>
         public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// Only show a preview of the destroy, but don't perform the destroy itself.
+        /// </summary>
+        public bool? PreviewOnly { get; set; }
 
         /// <summary>
         /// Continue to perform the destroy operation despite the occurrence of errors.
@@ -23,5 +30,10 @@ namespace Pulumi.Automation
         /// Refresh the state of the stack's resources before this destroy.
         /// </summary>
         public bool? Refresh { get; set; }
+
+        /// <summary>
+        /// Runs the program in the workspace to perform the destroy.
+        /// </summary>
+        public bool? RunProgram { get; set; }
     }
 }

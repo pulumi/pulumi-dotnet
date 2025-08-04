@@ -17,8 +17,8 @@ namespace Pulumi.Codegen
     public sealed class Range
     {
         public string? Filename { get; set; }
-        public Position? Start { get; set; } = null;
-        public Position? End { get; set; } = null;
+        public Position? Start { get; set; }
+        public Position? End { get; set; }
     }
 
     public sealed class Diagnostic

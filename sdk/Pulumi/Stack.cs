@@ -13,7 +13,9 @@ namespace Pulumi
     /// Stack is the root resource for a Pulumi stack. Derive from this class to create your
     /// stack definitions.
     /// </summary>
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
     public class Stack : ComponentResource
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
         /// <summary>
         /// Constant to represent the 'root stack' resource for a Pulumi application.  The purpose
@@ -30,7 +32,7 @@ namespace Pulumi
         /// may look a bit confusing and may incorrectly look like something that could be removed
         /// without changing semantics.
         /// </summary>
-        internal static Resource? Root { get; } = null;
+        internal static Resource? Root { get; }
 
         /// <summary>
         /// <see cref="_rootPulumiStackTypeName"/> is the type name that should be used to construct

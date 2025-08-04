@@ -34,6 +34,7 @@ return await Deployment.RunAsync(() =>
     }, new CustomResourceOptions
     {
         Protect = true,
+        RetainOnDelete = true,
     });
 
     var child2 = new Simple.Resource("child2", new()
@@ -42,6 +43,16 @@ return await Deployment.RunAsync(() =>
     }, new CustomResourceOptions
     {
         Parent = parent2,
+    });
+
+    var child3 = new Simple.Resource("child3", new()
+    {
+        Value = true,
+    }, new CustomResourceOptions
+    {
+        Parent = parent2,
+        Protect = false,
+        RetainOnDelete = false,
     });
 
     var orphan2 = new Simple.Resource("orphan2", new()

@@ -41,8 +41,11 @@ namespace Pulumi
         private Union(OneOf<T0, T1> data)
             => _data = data;
 
+        // These have already shipped as static and we're not planning to make a breaking change here.
+#pragma warning disable CA1000 // Do not declare static members on generic types
         public static Union<T0, T1> FromT0(T0 input) => From(OneOf<T0, T1>.FromT0(input));
         public static Union<T0, T1> FromT1(T1 input) => From(OneOf<T0, T1>.FromT1(input));
+#pragma warning restore CA1000 // Do not declare static members on generic types
 
         private static Union<X, Y> From<X, Y>(OneOf<X, Y> input) => new Union<X, Y>(input);
 
@@ -50,7 +53,7 @@ namespace Pulumi
         public override int GetHashCode() => _data.GetHashCode();
         public override string ToString() => _data.ToString();
 
-        public bool Equals(Union<T0, T1> union) => _data.Equals(union._data);
+        public bool Equals(Union<T0, T1> other) => _data.Equals(other._data);
 
         public Union<TResult, T1> MapT0<TResult>(Func<T0, TResult> mapFunc) => From(_data.MapT0(mapFunc));
         public Union<T0, TResult> MapT1<TResult>(Func<T1, TResult> mapFunc) => From(_data.MapT1(mapFunc));

@@ -75,11 +75,14 @@ And finally, `pulumi preview` and `pulumi up` as you would any other Pulumi proj
 Then you can run one of the following commands:
 
 ```bash
-# Build the Pulumi SDK
-dotnet run build-sdk
+# Run all tests
+make test [TEST_FILTER=testName]
 
-# Running tests for the Pulumi SDK
-dotnet run test-sdk
+# Build the Pulumi SDK
+make build_sdk
+
+# Running tests for the Pulumi SDK [or a specific test]
+make test_sdk [TEST_FILTER=testName]
 
 # Running tests for the Pulumi Automation SDK
 dotnet run test-automation-sdk
@@ -89,31 +92,28 @@ make install
 
 # Building the language plugin. A binary will be built into the pulumi-language-dotnet folder.
 # this is the binary that will be used by the integration tests.
-make build
+make build_language_host
 
 # Testing the language plugin
 dotnet run test-language-plugin
 
-# Sync proto files from pulumi/pulumi
-dotnet run sync-proto-files
-
 # List all integration tests
-dotnet run list-integration-tests
+go test -C integration_tests -list=. | grep ^Test
 
-# Run a specific integration test
-dotnet run integration test <testName>
+# Run all integration tests [or a specific test]
+make test_integration [TEST_FILTER=testName]
 
-# Run all integration tests
-dotnet run all-integration-tests
+# Format the code
+make format_fix
 
-# Format the code (or verify it's formatted correctly)
-dotnet run format-sdk [verify]
+# Check the code formatting
+make format
 ```
 # Running integration tests
 
 When running integration tests via an IDE like Goland or VSCode, you want the Pulumi CLI to use the `pulumi-language-dotnet` plugin from this repository, not the one that comes bundled with your Pulumi CLI. To do this, in your terminal `dotnet run build-language-plugin` or simply `cd pulumi-language-dotnet && go build`.
 
-Alternatively, you can run `dotnet run integration test <testName>` or `dotnet run all-integration-tests` which will build the language plugin for you just before running the tests.
+Alternatively, you can run `make test_integration [TEST_FILTER=testName]` which will build the language plugin for you just before running the tests.
 
 ## Public API Changes
 

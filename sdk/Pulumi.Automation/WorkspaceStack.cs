@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -40,7 +41,9 @@ namespace Pulumi.Automation
     /// <para/>
     /// Will dispose the <see cref="Workspace"/> on <see cref="Dispose"/>.
     /// </summary>
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
     public sealed class WorkspaceStack : IDisposable
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
         private readonly Task _readyTask;
 
@@ -138,7 +141,7 @@ namespace Pulumi.Automation
                     {
                         await workspace.CreateStackAsync(name, cancellationToken).ConfigureAwait(false);
                     }
-                }),
+                }, cancellationToken),
                 _ => throw new InvalidOperationException($"Unexpected Stack creation mode: {mode}")
             };
         }
@@ -332,6 +335,12 @@ namespace Pulumi.Automation
                 if (options.ExpectNoChanges is true)
                     args.Add("--expect-no-changes");
 
+                if (options.ShowReads.HasValue)
+                {
+                    var showReads = options.ShowReads.Value ? "true" : "false";
+                    args.Add($"--show-reads={showReads}");
+                }
+
                 if (options.Diff is true)
                     args.Add("--diff");
 
@@ -349,6 +358,9 @@ namespace Pulumi.Automation
                         args.Add(item);
                     }
                 }
+
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
 
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
@@ -402,7 +414,7 @@ namespace Pulumi.Automation
                 // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
                 // load the project file.
                 var showSecrets = Remote ? false : options?.ShowSecrets;
-                var summary = await this.GetInfoAsync(cancellationToken, showSecrets).ConfigureAwait(false);
+                var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
                 return new UpResult(
                     upResult.StandardOutput,
                     upResult.StandardError,
@@ -447,6 +459,12 @@ namespace Pulumi.Automation
                 if (options.ExpectNoChanges is true)
                     args.Add("--expect-no-changes");
 
+                if (options.ShowReads.HasValue)
+                {
+                    var showReads = options.ShowReads.Value ? "true" : "false";
+                    args.Add($"--show-reads={showReads}");
+                }
+
                 if (options.Diff is true)
                     args.Add("--diff");
 
@@ -464,6 +482,9 @@ namespace Pulumi.Automation
                         args.Add(item);
                     }
                 }
+
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
 
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
@@ -588,6 +609,18 @@ namespace Pulumi.Automation
                     }
                 }
 
+                if (options.RunProgram is not null)
+                {
+                    if (options.RunProgram is true)
+                    {
+                        args.Add("--run-program=true");
+                    }
+                    else
+                    {
+                        args.Add("--run-program=false");
+                    }
+                }
+
                 ApplyUpdateOptions(options, args);
             }
 
@@ -599,7 +632,7 @@ namespace Pulumi.Automation
             // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
             // load the project file.
             var showSecrets = Remote ? false : options?.ShowSecrets;
-            var summary = await this.GetInfoAsync(cancellationToken, showSecrets).ConfigureAwait(false);
+            var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
             return new UpdateResult(
                 result.StandardOutput,
                 result.StandardError,
@@ -615,17 +648,25 @@ namespace Pulumi.Automation
             DestroyOptions? options = null,
             CancellationToken cancellationToken = default)
         {
-            var args = new List<string>
+            var args = new List<string> { "destroy" };
+
+            if (options != null && options.PreviewOnly is true)
             {
-                "destroy",
-                "--yes",
-                "--skip-preview",
-            };
+                args.Add("--preview-only");
+            }
+            else
+            {
+                args.Add("--yes");
+                args.Add("--skip-preview");
+            }
 
             args.AddRange(GetRemoteArgs());
 
             if (options != null)
             {
+                if (options.ExcludeDependents is true)
+                    args.Add("--exclude-dependents");
+
                 if (options.TargetDependents is true)
                     args.Add("--target-dependents");
 
@@ -634,6 +675,18 @@ namespace Pulumi.Automation
 
                 if (options.Refresh is true)
                     args.Add("--refresh");
+
+                if (options.RunProgram is not null)
+                {
+                    if (options.RunProgram is true)
+                    {
+                        args.Add("--run-program=true");
+                    }
+                    else
+                    {
+                        args.Add("--run-program=false");
+                    }
+                }
 
                 ApplyUpdateOptions(options, args);
             }
@@ -646,7 +699,7 @@ namespace Pulumi.Automation
             // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
             // load the project file.
             var showSecrets = Remote ? false : options?.ShowSecrets;
-            var summary = await this.GetInfoAsync(cancellationToken, showSecrets).ConfigureAwait(false);
+            var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
             return new UpdateResult(
                 result.StandardOutput,
                 result.StandardError,
@@ -731,7 +784,7 @@ namespace Pulumi.Automation
                 }
 
                 var result = await this.RunCommandAsync(args, options.OnStandardOutput, options.OnStandardError, null, cancellationToken).ConfigureAwait(false);
-                var summary = await this.GetInfoAsync(cancellationToken, options.ShowSecrets).ConfigureAwait(false);
+                var summary = await this.GetInfoAsync(options.ShowSecrets, cancellationToken).ConfigureAwait(false);
                 var generatedCode =
                     options.GenerateCode is not false
                         ? await File.ReadAllTextAsync(generatedCodeOutputPath, cancellationToken).ConfigureAwait(false)
@@ -783,16 +836,16 @@ namespace Pulumi.Automation
             if (options?.PageSize.HasValue == true)
             {
                 if (options.PageSize!.Value < 1)
-                    throw new ArgumentException($"{nameof(options.PageSize)} must be greater than or equal to 1.", nameof(options.PageSize));
+                    throw new ArgumentException($"{nameof(options.PageSize)} must be greater than or equal to 1.", nameof(options));
 
                 var page = !options.Page.HasValue ? 1
                     : options.Page.Value < 1 ? 1
                     : options.Page.Value;
 
                 args.Add("--page-size");
-                args.Add(options.PageSize.Value.ToString());
+                args.Add(options.PageSize.Value.ToString(CultureInfo.InvariantCulture));
                 args.Add("--page");
-                args.Add(page.ToString());
+                args.Add(page.ToString(CultureInfo.InvariantCulture));
             }
 
             var result = await this.RunCommandAsync(args, null, null, null, cancellationToken).ConfigureAwait(false);
@@ -824,10 +877,10 @@ namespace Pulumi.Automation
 
         public async Task<UpdateSummary?> GetInfoAsync(CancellationToken cancellationToken = default)
         {
-            return await GetInfoAsync(cancellationToken, true);
+            return await GetInfoAsync(true, cancellationToken);
         }
 
-        private async Task<UpdateSummary?> GetInfoAsync(CancellationToken cancellationToken = default, bool? showSecrets = default)
+        private async Task<UpdateSummary?> GetInfoAsync(bool? showSecrets = default, CancellationToken cancellationToken = default)
         {
             var history = await this.GetHistoryAsync(
                 new HistoryOptions
@@ -986,13 +1039,22 @@ namespace Pulumi.Automation
             if (options.Parallel.HasValue)
             {
                 args.Add("--parallel");
-                args.Add(options.Parallel.Value.ToString());
+                args.Add(options.Parallel.Value.ToString(CultureInfo.InvariantCulture));
             }
 
             if (!string.IsNullOrWhiteSpace(options.Message))
             {
                 args.Add("--message");
                 args.Add(options.Message);
+            }
+
+            if (options.Exclude?.Any() == true)
+            {
+                foreach (var item in options.Exclude)
+                {
+                    args.Add("--exclude");
+                    args.Add(item);
+                }
             }
 
             if (options.Target?.Any() == true)
@@ -1036,7 +1098,7 @@ namespace Pulumi.Automation
             if (options.LogVerbosity.HasValue)
             {
                 args.Add("--verbose");
-                args.Add(options.LogVerbosity.Value.ToString());
+                args.Add(options.LogVerbosity.Value.ToString(CultureInfo.InvariantCulture));
             }
 
             if (options.LogToStdErr is true)
@@ -1058,6 +1120,12 @@ namespace Pulumi.Automation
             if (options.Json is true)
             {
                 args.Add("--json");
+            }
+
+            if (!string.IsNullOrWhiteSpace(options.ConfigFile))
+            {
+                args.Add("--config-file");
+                args.Add(options.ConfigFile);
             }
         }
 

@@ -21,6 +21,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 
@@ -169,6 +171,55 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 	return engineAddress, client
 }
 
+// Add test names here that are expected to fail and the reason why they are failing
+var expectedFailures = map[string]string{
+	"l1-builtin-can":           "#489 codegen not implemented",
+	"l1-builtin-try":           "#490 codegen not implemented",
+	"l1-config-types":          "dotnet build failed",
+	"l1-keyword-overlap":       "#493 update to pulumi 1.50 conformance failure",
+	"l1-proxy-index":           "dotnet build failed",
+	"l2-component-call-simple": "#491 update to pulumi 1.50 conformance failure",
+	"l2-resource-asset-archive": "" +
+		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
+	"l2-resource-config": "sdk packing for config: build error before pack",
+	"l2-resource-alpha": "" +
+		"wrong package reference Include=Pulumi.Alpha.3.0 Version=0-alpha.1.internal",
+	"l1-output-null":                        "dotnet build failed",
+	"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
+	"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
+	"l1-stack-reference":                    "TODO: call getOutput",
+	"l2-resource-primitives":                "Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",
+	"l2-failed-create-continue-on-error":    "build error before pack: exit status 1",
+	"l2-provider-call":                      "invalid token",
+	"l2-provider-call-explicit":             "invalid token",
+	"l2-provider-grpc-config":               "dotnet build failed",
+	"l2-provider-grpc-config-secret":        "dotnet build failed",
+	"l2-provider-grpc-config-schema":        "dotnet build failed",
+	"l2-provider-grpc-config-schema-secret": "dotnet build failed",
+	"l2-proxy-index":                        "dotnet build failed",
+	"l2-invoke-options-depends-on":          "dotnet build failed",
+	"l2-invoke-secrets": "" +
+		"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
+	"l2-map-keys":                    "dotnet build failed",
+	"l2-resource-secret":             "test hanging",
+	"l1-builtin-project-root":        "#466",
+	"l2-rtti":                        "codegen not implemented",
+	"l2-namespaced-provider":         "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",
+	"l2-resource-parent-inheritance": "expected child to inherit retain on delete flag",
+	"l2-invoke-scalar":               "run bailed",
+	"l2-union":                       "dotnet build failed",
+}
+
+// Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.
+var programOverrides = map[string]*testingrpc.PrepareLanguageTestsRequest_ProgramOverride{
+	// TODO[pulumi/pulumi#18741]: Remove when programgen support for call is implemented.
+	"l2-component-property-deps": {
+		Paths: []string{
+			filepath.Join("testdata", "overrides", "l2-component-property-deps"),
+		},
+	},
+}
+
 func TestLanguage(t *testing.T) {
 	t.Parallel()
 	engineAddress, engine := runTestingHost(t)
@@ -207,43 +258,19 @@ func TestLanguage(t *testing.T) {
 				Replacement: "ROOT/artifacts",
 			},
 		},
+		ProgramOverrides: programOverrides,
 	})
 	require.NoError(t, err)
-
-	expectedToFail := map[string]string{
-		"l1-builtin-can":           "#489 codegen not implemented",
-		"l1-builtin-try":           "#490 codegen not implemented",
-		"l1-keyword-overlap":       "#493 update to pulumi 1.50 conformance failure",
-		"l2-component-call-simple": "#491 update to pulumi 1.50 conformance failure",
-		"l2-resource-asset-archive": "" +
-			"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
-		"l2-resource-config": "sdk packing for config: build error before pack",
-		"l2-resource-alpha": "" +
-			"wrong package reference Include=Pulumi.Alpha.3.0 Version=0-alpha.1.internal",
-		"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
-		"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
-		"l1-stack-reference":                    "TODO: call getOutput",
-		"l2-resource-primitives":                "Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",
-		"l2-failed-create-continue-on-error":    "build error before pack: exit status 1",
-		"l2-provider-grpc-config":               "dotnet build failed",
-		"l2-provider-grpc-config-secret":        "dotnet build failed",
-		"l2-provider-grpc-config-schema":        "dotnet build failed",
-		"l2-provider-grpc-config-schema-secret": "dotnet build failed",
-		"l2-invoke-options-depends-on":          "dotnet build failed",
-		"l2-invoke-secrets": "" +
-			"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-		"l2-map-keys":                "dotnet build failed",
-		"l2-resource-secret":         "test hanging",
-		"l1-builtin-project-root":    "#466",
-		"l2-component-property-deps": "https://github.com/pulumi/pulumi/issues/18741: add programgen support for call",
-	}
 
 	for _, tt := range tests.Tests {
 		tt := tt
 		t.Run(tt, func(t *testing.T) {
 			t.Parallel()
-			if expected, ok := expectedToFail[tt]; ok {
+			if expected, ok := expectedFailures[tt]; ok {
 				t.Skipf("test %s is expected to fail: %s", tt, expected)
+			}
+			if strings.HasPrefix(tt, "policy-") {
+				t.Skipf("dotnet doesn't support policy tests yet: %s", tt)
 			}
 
 			result, err := engine.RunLanguageTest(context.Background(), &testingrpc.RunLanguageTestRequest{

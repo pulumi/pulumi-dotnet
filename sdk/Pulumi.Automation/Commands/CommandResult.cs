@@ -1,5 +1,6 @@
 // Copyright 2016-2021, Pulumi Corporation
 
+using System.Globalization;
 using System.Text;
 
 namespace Pulumi.Automation.Commands
@@ -25,9 +26,9 @@ namespace Pulumi.Automation.Commands
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"code: {this.Code}");
-            sb.AppendLine($"stdout: {this.StandardOutput}");
-            sb.AppendLine($"stderr: {this.StandardError}");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"code: {Code}");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"stdout: {StandardOutput}");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"stderr: {StandardError}");
 
             return sb.ToString();
         }

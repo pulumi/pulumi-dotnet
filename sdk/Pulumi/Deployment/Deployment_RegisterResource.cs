@@ -25,7 +25,7 @@ namespace Pulumi
 
             if (options.DeletedWith != null && !(await MonitorSupportsDeletedWith().ConfigureAwait(false)))
             {
-                throw new Exception("The Pulumi CLI does not support the DeletedWith option. Please update the Pulumi CLI.");
+                throw new InvalidOperationException("The Pulumi CLI does not support the DeletedWith option. Please update the Pulumi CLI.");
             }
 
             var request = await CreateRegisterResourceRequest(type, name, custom, remote, options);
@@ -77,6 +77,8 @@ namespace Pulumi
             request.Transforms.AddRange(prepareResult.Transforms);
             request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
 
+            request.Hooks = prepareResult.Hooks;
+
             foreach (var (key, resourceUrns) in prepareResult.PropertyToDirectDependencyUrns)
             {
                 var deps = new RegisterResourceRequest.Types.PropertyDependencies();
@@ -101,20 +103,30 @@ namespace Pulumi
                 Type = type,
                 Name = name,
                 Custom = custom,
-                Protect = options.Protect ?? false,
                 Version = options.Version ?? "",
                 PluginDownloadURL = options.PluginDownloadURL ?? "",
                 ImportId = customOpts?.ImportId ?? "",
                 AcceptSecrets = true,
                 AcceptResources = !_disableResourceReferences,
-                DeleteBeforeReplace = deleteBeforeReplace ?? false,
                 DeleteBeforeReplaceDefined = deleteBeforeReplace != null,
                 CustomTimeouts = options.CustomTimeouts?.Serialize(),
                 Remote = remote,
-                RetainOnDelete = options.RetainOnDelete ?? false,
                 DeletedWith = deletedWith,
                 SupportsResultReporting = true,
             };
+
+            if (deleteBeforeReplace != null)
+            {
+                request.DeleteBeforeReplace = deleteBeforeReplace.Value;
+            }
+            if (options.Protect != null)
+            {
+                request.Protect = options.Protect.Value;
+            }
+            if (options.RetainOnDelete != null)
+            {
+                request.RetainOnDelete = options.RetainOnDelete.Value;
+            }
 
             if (customOpts != null)
             {

@@ -49,27 +49,27 @@ namespace Pulumi
     public static class InputExtensions
     {
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}?})"/> for more details.
         /// </summary>
-        public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, U> func)
+        public static Output<TResult> Apply<T, TResult>(this Input<T>? input, Func<T, TResult> func)
             => input.ToOutput().Apply(func);
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}?})"/> for more details.
         /// </summary>
-        public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, Task<U>> func)
+        public static Output<TResult> Apply<T, TResult>(this Input<T>? input, Func<T, Task<TResult>> func)
             => input.ToOutput().Apply(func);
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}?})"/> for more details.
         /// </summary>
-        public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, Input<U>?> func)
+        public static Output<TResult> Apply<T, TResult>(this Input<T>? input, Func<T, Input<TResult>?> func)
             => input.ToOutput().Apply(func);
 
         /// <summary>
-        /// <see cref="Output{T}.Apply{U}(Func{T, Output{U}?})"/> for more details.
+        /// <see cref="Output{T}.Apply{TResult}(Func{T, Output{TResult}?})"/> for more details.
         /// </summary>
-        public static Output<U> Apply<T, U>(this Input<T>? input, Func<T, Output<U>?> func)
+        public static Output<TResult> Apply<T, TResult>(this Input<T>? input, Func<T, Output<TResult>?> func)
             => input.ToOutput().Apply(func);
 
         public static Output<T> ToOutput<T>(this Input<T>? input)
@@ -78,19 +78,19 @@ namespace Pulumi
 
     public static class InputListExtensions
     {
-        public static void Add<T, U>(this InputList<Union<T, U>> list, Input<T> value)
-            => list.Add(value.ToOutput().Apply(v => (Union<T, U>)v));
+        public static void Add<T0, T1>(this InputList<Union<T0, T1>> list, Input<T0> value)
+            => list.Add(value.ToOutput().Apply(v => (Union<T0, T1>)v));
 
-        public static void Add<T, U>(this InputList<Union<T, U>> list, Input<U> value)
-            => list.Add(value.ToOutput().Apply(v => (Union<T, U>)v));
+        public static void Add<T0, T1>(this InputList<Union<T0, T1>> list, Input<T1> value)
+            => list.Add(value.ToOutput().Apply(v => (Union<T0, T1>)v));
     }
 
     public static class InputMapExtensions
     {
-        public static void Add<T, U>(this InputMap<Union<T, U>> map, string key, Input<T> value)
-            => map.Add(key, value.ToOutput().Apply(v => (Union<T, U>)v));
+        public static void Add<T0, T1>(this InputMap<Union<T0, T1>> map, string key, Input<T0> value)
+            => map.Add(key, value.ToOutput().Apply(v => (Union<T0, T1>)v));
 
-        public static void Add<T, U>(this InputMap<Union<T, U>> map, string key, Input<U> value)
-            => map.Add(key, value.ToOutput().Apply(v => (Union<T, U>)v));
+        public static void Add<T0, T1>(this InputMap<Union<T0, T1>> map, string key, Input<T1> value)
+            => map.Add(key, value.ToOutput().Apply(v => (Union<T0, T1>)v));
     }
 }

@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using System.Reflection.Metadata;
+using System.Globalization;
 
 namespace Pulumi.Experimental.Provider
 {
@@ -31,7 +31,7 @@ namespace Pulumi.Experimental.Provider
     /// </summary>
     public sealed class ParametersArgs : Parameters
     {
-        public readonly ImmutableArray<string> Args;
+        public ImmutableArray<string> Args { get; }
 
         public ParametersArgs(ImmutableArray<string> args)
         {
@@ -48,15 +48,15 @@ namespace Pulumi.Experimental.Provider
         /// <summary>
         /// The sub-package name for this sub-schema parameterization.
         /// </summary>
-        public readonly string Name;
+        public string Name { get; }
         /// <summary>
         /// The sub-package version for this sub-schema parameterization.
         /// </summary>
-        public readonly string Version;
+        public string Version { get; }
         /// <summary>
         /// The embedded value from the sub-package.
         /// </summary>
-        public readonly ImmutableArray<byte> Value;
+        public ImmutableArray<byte> Value { get; }
 
         public ParametersValue(string name, string version, ImmutableArray<byte> value)
         {
@@ -68,7 +68,7 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class ParameterizeRequest
     {
-        public readonly Parameters Parameters;
+        public Parameters Parameters { get; }
 
         public ParameterizeRequest(Parameters parameters)
         {
@@ -81,11 +81,11 @@ namespace Pulumi.Experimental.Provider
         /// <summary>
         /// The name of the sub-package parameterized.
         /// </summary>
-        public readonly string Name;
+        public string Name { get; }
         /// <summary>
         /// The version of the sub-package parameterized.
         /// </summary>
-        public readonly string Version;
+        public string Version { get; }
 
         public ParameterizeResponse(string name, string version)
         {
@@ -96,7 +96,7 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class CheckRequest
     {
-        public readonly Urn Urn;
+        public Urn Urn { get; }
 
         // Note the Go SDK directly exposes resource.URN and so providers can work with it directly. I've
         // decided _not_ to copy that to the dotnet SDK on the basis that long term I'd like URNs to be opaque
@@ -106,9 +106,9 @@ namespace Pulumi.Experimental.Provider
         // directly, but by parsing the single URN sent from the engine.
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public readonly ImmutableDictionary<string, PropertyValue> OldInputs;
-        public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
-        public readonly ImmutableArray<byte> RandomSeed;
+        public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
+        public ImmutableDictionary<string, PropertyValue> NewInputs { get; }
+        public ImmutableArray<byte> RandomSeed { get; }
 
         public CheckRequest(Urn urn,
             ImmutableDictionary<string, PropertyValue> oldInputs,
@@ -143,25 +143,28 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class DiffRequest
     {
-        public readonly Urn Urn;
+        public Urn Urn { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public readonly string Id;
-        public readonly ImmutableDictionary<string, PropertyValue> OldState;
-        public readonly ImmutableDictionary<string, PropertyValue> NewInputs;
-        public readonly ImmutableArray<string> IgnoreChanges;
+        public string Id { get; }
+        public ImmutableDictionary<string, PropertyValue> OldState { get; }
+        public ImmutableDictionary<string, PropertyValue> NewInputs { get; }
+        public ImmutableArray<string> IgnoreChanges { get; }
+        public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
 
         public DiffRequest(Urn urn,
             string id,
             ImmutableDictionary<string, PropertyValue> oldState,
             ImmutableDictionary<string, PropertyValue> newInputs,
-            ImmutableArray<string> ignoreChanges)
+            ImmutableArray<string> ignoreChanges,
+            ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
             OldState = oldState;
             NewInputs = newInputs;
             IgnoreChanges = ignoreChanges;
+            OldInputs = oldInputs;
         }
     }
 
@@ -197,8 +200,8 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class InvokeRequest
     {
-        public readonly string Tok;
-        public readonly ImmutableDictionary<string, PropertyValue> Args;
+        public string Tok { get; }
+        public ImmutableDictionary<string, PropertyValue> Args { get; }
 
         public InvokeRequest(string tok, ImmutableDictionary<string, PropertyValue> args)
         {
@@ -215,9 +218,9 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class GetSchemaRequest
     {
-        public readonly int Version;
-        public readonly string? SubpackageName;
-        public readonly string? SubpackageVersion;
+        public int Version { get; }
+        public string? SubpackageName { get; }
+        public string? SubpackageVersion { get; }
 
         public GetSchemaRequest(int version, string? subpackageName, string? subpackageVersion)
         {
@@ -234,20 +237,26 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class ConfigureRequest
     {
-        public readonly ImmutableDictionary<string, string> Variables;
-        public readonly ImmutableDictionary<string, PropertyValue> Args;
-        public readonly bool AcceptSecrets;
-        public readonly bool AcceptResources;
+        public ImmutableDictionary<string, string> Variables { get; }
+        public ImmutableDictionary<string, PropertyValue> Args { get; }
+        public bool AcceptSecrets { get; }
+        public bool AcceptResources { get; }
+        public bool SendsOldInputs { get; }
+        public bool SendsOldInputsToDelete { get; }
 
         public ConfigureRequest(ImmutableDictionary<string, string> variables,
             ImmutableDictionary<string, PropertyValue> args,
             bool acceptSecrets,
-            bool acceptResources)
+            bool acceptResources,
+            bool sendsOldInputs,
+            bool sendsOldInputsToDelete)
         {
             Variables = variables;
             Args = args;
             AcceptSecrets = acceptSecrets;
             AcceptResources = acceptResources;
+            SendsOldInputs = sendsOldInputs;
+            SendsOldInputsToDelete = sendsOldInputsToDelete;
         }
     }
 
@@ -261,12 +270,12 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class CreateRequest
     {
-        public readonly Urn Urn;
+        public Urn Urn { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public readonly ImmutableDictionary<string, PropertyValue> Properties;
-        public readonly TimeSpan Timeout;
-        public readonly bool Preview;
+        public ImmutableDictionary<string, PropertyValue> Properties { get; }
+        public TimeSpan Timeout { get; }
+        public bool Preview { get; }
 
         public CreateRequest(Urn urn, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout, bool preview)
         {
@@ -285,12 +294,12 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class ReadRequest
     {
-        public readonly Urn Urn;
-        public readonly string Id;
+        public Urn Urn { get; }
+        public string Id { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public readonly ImmutableDictionary<string, PropertyValue> Properties;
-        public readonly ImmutableDictionary<string, PropertyValue> Inputs;
+        public ImmutableDictionary<string, PropertyValue> Properties { get; }
+        public ImmutableDictionary<string, PropertyValue> Inputs { get; }
 
         public ReadRequest(Urn urn, string id, ImmutableDictionary<string, PropertyValue> properties, ImmutableDictionary<string, PropertyValue> inputs)
         {
@@ -310,15 +319,16 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class UpdateRequest
     {
-        public readonly Urn Urn;
-        public readonly string Id;
+        public Urn Urn { get; }
+        public string Id { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public readonly ImmutableDictionary<string, PropertyValue> Olds;
-        public readonly ImmutableDictionary<string, PropertyValue> News;
-        public readonly TimeSpan Timeout;
-        public readonly ImmutableArray<string> IgnoreChanges;
-        public readonly bool Preview;
+        public ImmutableDictionary<string, PropertyValue> Olds { get; }
+        public ImmutableDictionary<string, PropertyValue> News { get; }
+        public TimeSpan Timeout { get; }
+        public ImmutableArray<string> IgnoreChanges { get; }
+        public bool Preview { get; }
+        public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
 
         public UpdateRequest(Urn urn,
             string id,
@@ -326,7 +336,8 @@ namespace Pulumi.Experimental.Provider
             ImmutableDictionary<string, PropertyValue> news,
             TimeSpan timeout,
             ImmutableArray<string> ignoreChanges,
-            bool preview)
+            bool preview,
+            ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
@@ -335,6 +346,7 @@ namespace Pulumi.Experimental.Provider
             Timeout = timeout;
             IgnoreChanges = ignoreChanges;
             Preview = preview;
+            OldInputs = oldInputs;
         }
     }
 
@@ -345,19 +357,26 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class DeleteRequest
     {
-        public readonly Urn Urn;
-        public readonly string Id;
+        public Urn Urn { get; }
+        public string Id { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public readonly ImmutableDictionary<string, PropertyValue> Properties;
-        public readonly TimeSpan Timeout;
+        public ImmutableDictionary<string, PropertyValue> Properties { get; }
+        public TimeSpan Timeout { get; }
 
-        public DeleteRequest(Urn urn, string id, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout)
+        public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
+
+        public DeleteRequest(Urn urn,
+            string id,
+            ImmutableDictionary<string, PropertyValue> properties,
+            TimeSpan timeout,
+            ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
             Properties = properties;
             Timeout = timeout;
+            OldInputs = oldInputs;
         }
     }
 
@@ -494,19 +513,33 @@ namespace Pulumi.Experimental.Provider
             throw new NotImplementedException($"The method '{nameof(Construct)}' is not implemented ");
         }
 
+#pragma warning disable CA1716 // Identifiers should not match keywords
         public virtual Task<CallResponse> Call(CallRequest request, CancellationToken ct)
+#pragma warning restore CA1716 // Identifiers should not match keywords
         {
             throw new NotImplementedException($"The method '{nameof(Call)}' is not implemented ");
         }
 
-        public static Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken)
+        public static async Task Serve(string[] args, string? version, Func<Experimental.IEngine, Provider> factory, System.Threading.CancellationToken cancellationToken)
         {
-            return Serve(args, version, factory, cancellationToken, System.Console.Out);
-        }
+            var value = System.Environment.GetEnvironmentVariable("PULUMI_ATTACH_DEBUGGER");
+            if (value != null && value == "true")
+            {
+                while (!System.Diagnostics.Debugger.IsAttached)
+                {
+                    // keep waiting until the debugger is attached
+                    System.Threading.Thread.Sleep(1);
+                }
+            }
 
-        public static async Task Serve(string[] args, string? version, Func<IHost, Provider> factory, System.Threading.CancellationToken cancellationToken, System.IO.TextWriter stdout)
-        {
-            using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
+            // Construct the host. As part of this, we'll ensure that any deployment we run (e.g. as part of a Construct
+            // call) is "non-signalling" -- that is, it will not be responsible for telling the engine managing the
+            // overall deployment when the program is ready to shut down. This is because any deployment we run will be
+            // part of a larger calling program (e.g. the one that instantiated the component), and it is this program
+            // that will signal to the engine when it is ready to shut down.
+            using var host = BuildHost(args, version,
+                new NonSignallingDeploymentBuilder(GrpcDeploymentBuilder.Instance),
+                factory);
 
             // before starting the host, set up this callback to tell us what port was selected
             await host.StartAsync(cancellationToken);
@@ -516,7 +549,7 @@ namespace Pulumi.Experimental.Provider
             // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
             // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
             // we work around this here so that old engines can use dotnet providers as well.
-            stdout.Write(port.ToString() + "\n");
+            Console.Write(port.ToString(CultureInfo.InvariantCulture) + "\n");
 
             await host.WaitForShutdownAsync(cancellationToken);
         }
@@ -536,11 +569,13 @@ namespace Pulumi.Experimental.Provider
             string[] args,
             string? version,
             IDeploymentBuilder deploymentBuilder,
-            Func<IHost, Provider> factory,
+            Func<Experimental.IEngine, Provider> factory,
             Action<IWebHostBuilder>? configuration = default)
         {
             // maxRpcMessageSize raises the gRPC Max message size from `4194304` (4mb) to `419430400` (400mb)
             var maxRpcMessageSize = 400 * 1024 * 1024;
+
+            var engineAddress = GetEngineAddress(args);
 
             return Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -560,9 +595,9 @@ namespace Pulumi.Experimental.Provider
                             config.Sources.Clear();
 
                             var memConfig = new Dictionary<string, string?>();
-                            if (args.Length > 0)
+                            if (engineAddress != null)
                             {
-                                memConfig.Add("Host", args[0]);
+                                memConfig.Add("Host", engineAddress);
                             }
                             if (version != null)
                             {
@@ -600,11 +635,46 @@ namespace Pulumi.Experimental.Provider
                 })
                 .Build();
         }
+
+        private static string? GetEngineAddress(string[] args)
+        {
+            var cleanArgs = new List<string>();
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                var arg = args[i];
+
+                // Skip logging-related arguments
+                if (arg == "--logtostderr") continue;
+                if (arg.StartsWith("-v", StringComparison.Ordinal)) continue;
+                if (arg == "--logflow") continue;
+                if (arg == "--tracing")
+                {
+                    i++; // Skip the tracing value
+                    continue;
+                }
+
+                cleanArgs.Add(arg);
+            }
+
+            if (cleanArgs.Count == 0)
+            {
+                return null;
+            }
+
+            if (cleanArgs.Count > 1)
+            {
+                throw new ArgumentException(
+                    $"Expected at most one engine address argument, but got {cleanArgs.Count} non-logging arguments");
+            }
+
+            return cleanArgs[0];
+        }
     }
 
     class ResourceProviderService : ResourceProvider.ResourceProviderBase, IDisposable
     {
-        private readonly Func<IHost, Provider> factory;
+        private readonly Func<Experimental.IEngine, Provider> factory;
         private readonly IDeploymentBuilder deploymentBuilder;
         private readonly ILogger? logger;
         private readonly CancellationTokenSource rootCTS;
@@ -628,12 +698,12 @@ namespace Pulumi.Experimental.Provider
 
         private void CreateProvider(string address)
         {
-            var host = new GrpcHost(address);
+            var host = new GrpcEngine(address);
             implementation = factory(host);
             engineAddress = address;
         }
 
-        public ResourceProviderService(Func<IHost, Provider> factory,
+        public ResourceProviderService(Func<Experimental.IEngine, Provider> factory,
             IDeploymentBuilder deploymentBuilder,
             IConfiguration configuration,
             ILogger<ResourceProviderService>? logger)
@@ -660,11 +730,11 @@ namespace Pulumi.Experimental.Provider
                 {
                     // Pulumi expects semver style versions, so we convert from the .NET version format by
                     // dropping the revision component.
-                    version = string.Format("{0}.{1}.{2}", assemblyVersion.Major, assemblyVersion.Minor, assemblyVersion.Build);
+                    version = string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", assemblyVersion.Major, assemblyVersion.Minor, assemblyVersion.Build);
                 }
                 else
                 {
-                    throw new Exception("Provider.Serve must be called with a version, or an assembly version must be set.");
+                    throw new InvalidOperationException("Provider.Serve must be called with a version, or an assembly version must be set.");
                 }
             }
             this.version = version;
@@ -718,7 +788,7 @@ namespace Pulumi.Experimental.Provider
 
         // Helper to deal with the fact that at the GRPC layer any Struct property might be null. For those we just want to return empty dictionaries at this level.
         // This keeps the PropertyValue. Unmarshal clean in terms of not handling nulls.
-        private ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
+        private static ImmutableDictionary<string, PropertyValue> Unmarshal(Struct? properties)
         {
             if (properties == null)
             {
@@ -728,7 +798,7 @@ namespace Pulumi.Experimental.Provider
         }
 
         // Helper to marshal CheckFailures from the domain to the GRPC layer.
-        private IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
+        private static IEnumerable<Pulumirpc.CheckFailure> MapFailures(IEnumerable<CheckFailure>? failures)
         {
             if (failures != null)
             {
@@ -760,7 +830,7 @@ namespace Pulumi.Experimental.Provider
                         domRequest = new ParameterizeRequest(value);
                         break;
                     default:
-                        throw new Exception("Parameterize called without any parameter");
+                        throw new InvalidOperationException("Parameterize called without any parameter");
                 }
 
                 using var cts = GetToken(context);
@@ -791,7 +861,7 @@ namespace Pulumi.Experimental.Provider
             return WrapProviderCall(async () =>
             {
                 var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
-                    request.IgnoreChanges.ToImmutableArray());
+                    request.IgnoreChanges.ToImmutableArray(), Unmarshal(request.OldInputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.DiffConfig(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -877,7 +947,7 @@ namespace Pulumi.Experimental.Provider
             return WrapProviderCall(async () =>
                 {
                     var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Unmarshal(request.Args), request.AcceptSecrets,
-                    request.AcceptResources);
+                    request.AcceptResources, request.SendsOldInputs, request.SendsOldInputsToDelete);
                     using var cts = GetToken(context);
                     var domResponse = await Implementation.Configure(domRequest, cts.Token);
                     var grpcResponse = new Pulumirpc.ConfigureResponse();
@@ -956,7 +1026,7 @@ namespace Pulumi.Experimental.Provider
             return WrapProviderCall(async () =>
             {
                 var domRequest = new DiffRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
-                    request.IgnoreChanges.ToImmutableArray());
+                    request.IgnoreChanges.ToImmutableArray(), Unmarshal(request.OldInputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Diff(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.DiffResponse();
@@ -999,7 +1069,7 @@ namespace Pulumi.Experimental.Provider
             {
                 var domRequest = new UpdateRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Olds), Unmarshal(request.News),
                     TimeSpan.FromSeconds(request.Timeout),
-                    request.IgnoreChanges.ToImmutableArray(), request.Preview);
+                    request.IgnoreChanges.ToImmutableArray(), request.Preview, Unmarshal(request.OldInputs));
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Update(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.UpdateResponse();
@@ -1013,7 +1083,8 @@ namespace Pulumi.Experimental.Provider
         {
             return WrapProviderCall(async () =>
                 {
-                    var domRequest = new DeleteRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Properties), TimeSpan.FromSeconds(request.Timeout));
+                    var domRequest = new DeleteRequest(new Urn(request.Urn), request.Id, Unmarshal(request.Properties),
+                        TimeSpan.FromSeconds(request.Timeout), Unmarshal(request.OldInputs));
                     using var cts = GetToken(context);
                     await Implementation.Delete(domRequest, cts.Token);
                     return new Empty();
@@ -1037,6 +1108,8 @@ namespace Pulumi.Experimental.Provider
                     .Select(reference => new DependencyProviderResource(reference))
                     .ToList<ProviderResource>();
 
+                var hooks = ResourceHookUtilities.ResourceHookBindingFromProto(request.ResourceHooks) ?? new ResourceHookBinding();
+
                 var opts = new ComponentResourceOptions()
                 {
                     Aliases = aliases,
@@ -1055,6 +1128,7 @@ namespace Pulumi.Experimental.Provider
                     ResourceTransforms =
                     {
                     },
+                    Hooks = hooks,
                 };
 
                 var domRequest = new ConstructRequest(request.Type, request.Name,
@@ -1132,9 +1206,8 @@ namespace Pulumi.Experimental.Provider
 
                 if (domArgs.TryGetValue(argDependency.Key, out var currentValue))
                 {
-                    domArgs = domArgs.SetItem(argDependency.Key,
-                        new PropertyValue(new OutputReference(currentValue,
-                            argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableHashSet())));
+                    domArgs = domArgs.SetItem(argDependency.Key, currentValue.WithDependencies(
+                        argDependency.Value.Urns.Select(urn => new Urn(urn)).ToImmutableHashSet()));
                 }
             }
 
@@ -1144,15 +1217,17 @@ namespace Pulumi.Experimental.Provider
         private static Pulumirpc.ConstructResponse.Types.PropertyDependencies BuildPropertyDependencies(ISet<Urn> dependencies)
         {
             var propertyDependencies = new Pulumirpc.ConstructResponse.Types.PropertyDependencies();
-            propertyDependencies.Urns.AddRange(dependencies.Select(urn => urn.Value));
+            propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));
             return propertyDependencies;
         }
 
         private static Pulumirpc.CallResponse.Types.ReturnDependencies BuildReturnDependencies(ISet<Urn> dependencies)
         {
             var propertyDependencies = new Pulumirpc.CallResponse.Types.ReturnDependencies();
-            propertyDependencies.Urns.AddRange(dependencies.Select(urn => urn.Value));
+            propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));
             return propertyDependencies;
         }
     }
+
+
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pulumi
@@ -176,6 +178,11 @@ namespace Pulumi
             Resource? self = null,
             CallOptions? options = null)
             => _deployment.Call(token, args, self, options, null);
+
+        public void RegisterInvokeTransform(InvokeTransform transform)
+        {
+            _deployment.RegisterInvokeTransform(transform);
+        }
 
         internal IDeploymentInternal Internal => (IDeploymentInternal)_deployment;
     }

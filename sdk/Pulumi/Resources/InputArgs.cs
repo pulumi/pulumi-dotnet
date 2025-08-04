@@ -72,7 +72,7 @@ namespace Pulumi
             return Task.FromResult(builder.ToImmutable());
         }
 
-        private Input<string>? ConvertToJson(string context, object? input)
+        private static Input<string>? ConvertToJson(string context, object? input)
         {
             if (input == null)
                 return null;

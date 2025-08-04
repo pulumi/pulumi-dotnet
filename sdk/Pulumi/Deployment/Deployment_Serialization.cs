@@ -11,7 +11,8 @@ namespace Pulumi
 {
     public partial class Deployment
     {
-        internal static bool _excessiveDebugOutput = false;
+        // Set to true to enable excessive debug output. This is useful for debugging.
+        internal static bool _excessiveDebugOutput;
 
         /// <summary>
         /// <see cref="SerializeResourcePropertiesAsync"/> walks the props object passed in,
@@ -20,20 +21,22 @@ namespace Pulumi
         /// to registerResource.
         /// </summary>
         private static Task<SerializationResult> SerializeResourcePropertiesAsync(
-            string label, IDictionary<string, object?> args, bool keepResources, bool keepOutputValues)
+            string label, IDictionary<string, object?> args, bool keepResources, bool keepOutputValues,
+            bool excludeResourceReferencesFromDependencies = false)
         {
             return SerializeFilteredPropertiesAsync(
                 label, args,
                 key => key != Constants.IdPropertyName && key != Constants.UrnPropertyName,
-                keepResources, keepOutputValues: keepOutputValues);
+                keepResources, keepOutputValues, excludeResourceReferencesFromDependencies);
         }
 
         private static async Task<Struct> SerializeAllPropertiesAsync(
-            string label, IDictionary<string, object?> args, bool keepResources, bool keepOutputValues = false)
+            string label, IDictionary<string, object?> args, bool keepResources, bool keepOutputValues = false,
+            bool excludeResourceReferencesFromDependencies = false)
         {
             var result = await SerializeFilteredPropertiesAsync(
                 label, args, _ => true,
-                keepResources, keepOutputValues).ConfigureAwait(false);
+                keepResources, keepOutputValues, excludeResourceReferencesFromDependencies).ConfigureAwait(false);
             return result.Serialized;
         }
 
@@ -52,10 +55,18 @@ namespace Pulumi
         /// responsibility to ensure that the monitor supports the OutputValues
         /// feature.
         /// </param>
+        /// <param name="excludeResourceReferencesFromDependencies">
+        /// Specifies if we should exclude resource references from the resulting
+        /// <see cref="SerializationResult.PropertyToDependentResources"/>. This is useful for remote
+        /// components (i.e. multi-lang components, or MLCs) where we want property dependencies to be
+        /// empty for a property that only contains resource references.
+        /// </param>
         private static async Task<SerializationResult> SerializeFilteredPropertiesAsync(
-            string label, IDictionary<string, object?> args, Predicate<string> acceptKey, bool keepResources, bool keepOutputValues)
+            string label, IDictionary<string, object?> args, Predicate<string> acceptKey, bool keepResources, bool keepOutputValues,
+            bool excludeResourceReferencesFromDependencies = false)
         {
-            var result = await SerializeFilteredPropertiesRawAsync(label, args, acceptKey, keepResources, keepOutputValues);
+            var result = await SerializeFilteredPropertiesRawAsync(label, args, acceptKey, keepResources, keepOutputValues,
+                excludeResourceReferencesFromDependencies);
             return result.ToSerializationResult();
         }
 
@@ -64,7 +75,8 @@ namespace Pulumi
         /// last step of encoding the value into a Protobuf form.
         /// </summary>
         private static async Task<RawSerializationResult> SerializeFilteredPropertiesRawAsync(
-            string label, IDictionary<string, object?> args, Predicate<string> acceptKey, bool keepResources, bool keepOutputValues)
+            string label, IDictionary<string, object?> args, Predicate<string> acceptKey, bool keepResources, bool keepOutputValues,
+            bool excludeResourceReferencesFromDependencies = false)
         {
             var propertyToDependentResources = ImmutableDictionary.CreateBuilder<string, HashSet<Resource>>();
             var result = ImmutableDictionary.CreateBuilder<string, object>();
@@ -75,7 +87,8 @@ namespace Pulumi
                 {
                     // We treat properties with null values as if they do not exist.
                     var serializer = new Serializer(_excessiveDebugOutput);
-                    var v = await serializer.SerializeAsync($"{label}.{key}", val, keepResources, keepOutputValues).ConfigureAwait(false);
+                    var v = await serializer.SerializeAsync($"{label}.{key}", val, keepResources, keepOutputValues,
+                        excludeResourceReferencesFromDependencies).ConfigureAwait(false);
                     if (v != null)
                     {
                         result[key] = v;

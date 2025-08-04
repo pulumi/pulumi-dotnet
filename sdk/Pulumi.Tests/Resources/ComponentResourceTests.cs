@@ -15,7 +15,7 @@ namespace Pulumi.Tests.Resources
         // A ComponentResource cannot use a Provider that was passed in.
         // However, it should still propagate the Provider to its children.
         [Fact]
-        public async void PropagatesProviderOption()
+        public async Task PropagatesProviderOption()
         {
             var mocks = new MinimalMocks();
             var options = new TestOptions();
@@ -59,7 +59,7 @@ namespace Pulumi.Tests.Resources
         // A ComponentResource should propagate the bag of Providers
         // it receives via the Provider option to its children.
         [Fact]
-        public async void PropagatesProvidersOption()
+        public async Task PropagatesProvidersOption()
         {
             var mocks = new MinimalMocks();
             var options = new TestOptions();

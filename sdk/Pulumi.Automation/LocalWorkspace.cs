@@ -39,6 +39,7 @@ namespace Pulumi.Automation
         private readonly IDictionary<string, EnvironmentVariableValue>? _remoteEnvironmentVariables;
         private readonly IList<string>? _remotePreRunCommands;
         private readonly bool _remoteSkipInstallDependencies;
+        private readonly ExecutorImage? _remoteExecutorImage;
 
         internal Task ReadyTask { get; }
 
@@ -282,7 +283,7 @@ namespace Pulumi.Automation
             CancellationToken cancellationToken)
         {
             if (args.ProjectSettings is null)
-                throw new ArgumentNullException(nameof(args.ProjectSettings));
+                throw new ArgumentNullException(nameof(args), $"{nameof(args.ProjectSettings)} cannot be null.");
 
             var ws = new LocalWorkspace(
                 await LocalPulumiCommand.CreateAsync(new LocalPulumiCommandOptions
@@ -334,6 +335,7 @@ namespace Pulumi.Automation
                 this.Remote = options.Remote;
                 this._remoteGitProgramArgs = options.RemoteGitProgramArgs;
                 this._remoteSkipInstallDependencies = options.RemoteSkipInstallDependencies;
+                this._remoteExecutorImage = options.RemoteExecutorImage;
 
                 if (options.EnvironmentVariables != null)
                     this.EnvironmentVariables = new Dictionary<string, string?>(options.EnvironmentVariables);
@@ -796,7 +798,7 @@ namespace Pulumi.Automation
             {
                 "plugin",
                 "rm",
-                kind.ToString().ToLower(),
+                kind.ToString().ToLowerInvariant(),
             };
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -1002,6 +1004,21 @@ namespace Pulumi.Automation
             if (_remoteSkipInstallDependencies)
             {
                 args.Add("--remote-skip-install-dependencies");
+            }
+
+            if (_remoteExecutorImage != null)
+            {
+                args.Add("--remote-executor-image");
+                args.Add(_remoteExecutorImage.Image);
+
+                if (_remoteExecutorImage.Credentials != null)
+                {
+                    args.Add("--remote-executor-image-username");
+                    args.Add(_remoteExecutorImage.Credentials.Username);
+
+                    args.Add("--remote-executor-image-password");
+                    args.Add(_remoteExecutorImage.Credentials.Password);
+                }
             }
 
             return args;

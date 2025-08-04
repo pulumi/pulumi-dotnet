@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Collections.Generic;
 using Grpc.Core;
@@ -24,10 +25,10 @@ namespace Pulumi.Experimental.Converter
 {
     public sealed class ConvertProgramRequest
     {
-        public readonly string SourceDirectory;
-        public readonly string TargetDirectory;
-        public readonly string MapperTarget;
-        public readonly string[] Args;
+        public string SourceDirectory { get; }
+        public string TargetDirectory { get; }
+        public string MapperTarget { get; }
+        public string[] Args { get; }
 
         public ConvertProgramRequest(
             string sourceDirectory,
@@ -150,7 +151,7 @@ namespace Pulumi.Experimental.Converter
             // Explicitly write just the number and "\n". WriteLine would write "\r\n" on Windows, and while
             // the engine has now been fixed to handle that (see https://github.com/pulumi/pulumi/pull/11915)
             // we work around this here so that old engines can use dotnet providers as well.
-            await stdout.WriteAsync(port.ToString() + "\n");
+            await stdout.WriteAsync(port.ToString(CultureInfo.InvariantCulture) + "\n");
 
             await host.WaitForShutdownAsync(ct);
 
@@ -181,7 +182,7 @@ namespace Pulumi.Experimental.Converter
             _convertProgram = implementation.ConvertProgram;
         }
 
-        private Pulumirpc.Codegen.Range RpcRange(Pulumi.Codegen.Range range)
+        private static Pulumirpc.Codegen.Range RpcRange(Pulumi.Codegen.Range range)
         {
             var rpcRange = new Pulumirpc.Codegen.Range();
             rpcRange.Filename = range.Filename ?? "";

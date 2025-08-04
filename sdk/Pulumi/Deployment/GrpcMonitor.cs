@@ -61,5 +61,27 @@ namespace Pulumi
 
         public async Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request)
             => await this._client.RegisterResourceOutputsAsync(request);
+
+        public async Task RegisterStackInvokeTransform(Pulumirpc.Callback callback)
+            => await this._client.RegisterStackInvokeTransformAsync(callback);
+
+        public async Task RegisterResourceHookAsync(RegisterResourceHookRequest request)
+            => await this._client.RegisterResourceHookAsync(request);
+
+        public async Task SignalAndWaitForShutdownAsync()
+        {
+            try
+            {
+                await this._client.SignalAndWaitForShutdownAsync(new Google.Protobuf.WellKnownTypes.Empty());
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.Unimplemented)
+            {
+                // If we are running against an older version of the CLI, SignalAndWaitForShutdown might not be
+                // implemented. This is mostly fine, but means that delete hooks do not work. Since we check if
+                // the CLI supports the `resourceHook` feature when registering hooks, it's fine to ignore the
+                // `UNIMPLEMENTED` error here.
+                return;
+            }
+        }
     }
 }

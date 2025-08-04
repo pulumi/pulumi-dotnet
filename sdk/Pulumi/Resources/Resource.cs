@@ -64,7 +64,7 @@ namespace Pulumi
         /// <summary>
         /// When set to true, protect ensures this resource cannot be deleted.
         /// </summary>
-        private readonly bool _protect;
+        private readonly bool? _protect;
 
         /// <summary>
         /// A collection of transformations to apply as part of resource registration.
@@ -152,17 +152,21 @@ namespace Pulumi
             // `CompletionSources`. This needs to happen before
             // partially initialized `this` is exposed to other
             // threads via `parentResource.ChildResources`.
-            CompletionSources = OutputCompletionSource.InitializeOutputs(this);
+            CompletionSources = OutputCompletionSource.InitializeOutputs(this, options.Urn != null || remote);
 
-            // Before anything else - if there are transformations registered, invoke them in order
-            // to transform the properties and options assigned to this resource.
-            var parent = type == Stack._rootPulumiStackTypeName
-                ? null
-                : (options.Parent ?? Deployment.InternalInstance.Stack);
+            Resource? parent = null;
+            if (type != Stack._rootPulumiStackTypeName)
+            {
+                parent = options.Parent ??
+                         // if this resource is only read from the engine we don't want to fall back to the stack
+                         (options.Urn != null ? null : Deployment.InternalInstance.Stack);
+            }
 
             _type = type;
             _name = name;
 
+            // Before anything else - if there are transformations registered, invoke them in order
+            // to transform the properties and options assigned to this resource.
             var transformations = ImmutableArray.CreateBuilder<ResourceTransformation>();
             transformations.AddRange(options.ResourceTransformations);
             if (parent != null)
@@ -260,7 +264,7 @@ namespace Pulumi
                 this._providers = this._providers.AddRange(ConvertToProvidersMap(providerList));
             }
 
-            this._protect = options.Protect == true;
+            this._protect = options.Protect;
             this._provider = custom ? options.Provider : null;
             this._version = options.Version;
             this._pluginDownloadURL = options.PluginDownloadURL;

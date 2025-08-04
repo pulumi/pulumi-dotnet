@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Make OutputConstructorAttribute optional
-time: 2024-12-30T10:48:22.983
-custom:
-    PR: "438"

@@ -37,8 +37,8 @@ class Program
 
             var complexResult10 = await OutputUtilities.GetValueAsync(component10.ComplexResult);
             var complexResult20 = await OutputUtilities.GetValueAsync(component20.ComplexResult);
-            ValidateComplexResult(complexResult10, complexArgs10);
-            ValidateComplexResult(complexResult20, complexArgs20);
+            await ValidateComplexResult(complexResult10, complexArgs10);
+            await ValidateComplexResult(complexResult20, complexArgs20);
 
             var inheritedOutputResult10 = await OutputUtilities.GetValueAsync(component10.InheritOutputAttribute);
             var inheritedOutputResult20 = await OutputUtilities.GetValueAsync(component20.InheritOutputAttribute);
@@ -49,10 +49,12 @@ class Program
         return returnCode;
     }
 
-    private static void ValidateComplexResult(ComplexType result, ComplexTypeArgs expected)
+    private static async Task ValidateComplexResult(ComplexType result, ComplexTypeArgs expected)
     {
         result.Name.Should().Be(expected.Name);
         result.IntValue.Should().Be(expected.IntValue);
         result.InheritOutputAttribute.Should().Be(expected.InheritInputAttribute);
+        var nestedValue = await OutputUtilities.GetValueAsync(result.NestedOutput);
+        nestedValue.Value.Should().Be(expected.Name);
     }
 }

@@ -224,5 +224,20 @@ namespace Pulumi.Testing
             var dict = await SerializeToDictionary(o).ConfigureAwait(false);
             return Serializer.CreateStruct(dict!);
         }
+
+        public Task RegisterStackInvokeTransform(Pulumirpc.Callback callback)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RegisterResourceHookAsync(RegisterResourceHookRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SignalAndWaitForShutdownAsync()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

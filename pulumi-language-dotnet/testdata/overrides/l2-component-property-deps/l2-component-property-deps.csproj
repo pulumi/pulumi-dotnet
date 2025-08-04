@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RestoreSources>../../artifacts/Pulumi;../../artifacts/Pulumi.ComponentPropertyDeps;$(RestoreSources)</RestoreSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Pulumi.ComponentPropertyDeps" Version="1.33.7" />
+		<PackageReference Include="Pulumi" Version="1.0.0" />
+	</ItemGroup>
+
+</Project>

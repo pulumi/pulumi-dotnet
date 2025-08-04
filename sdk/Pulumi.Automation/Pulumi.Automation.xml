@@ -65,6 +65,11 @@
             Show config secrets when they appear.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.DestroyOptions.PreviewOnly">
+            <summary>
+            Only show a preview of the destroy, but don't perform the destroy itself.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.DestroyOptions.ContinueOnError">
             <summary>
             Continue to perform the destroy operation despite the occurrence of errors.
@@ -73,6 +78,26 @@
         <member name="P:Pulumi.Automation.DestroyOptions.Refresh">
             <summary>
             Refresh the state of the stack's resources before this destroy.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.DestroyOptions.RunProgram">
+            <summary>
+            Runs the program in the workspace to perform the destroy.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.DockerImageCredentials">
+            <summary>
+            Credentials for the remote execution Docker image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.DockerImageCredentials.Username">
+            <summary>
+            The username for the image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.DockerImageCredentials.Password">
+            <summary>
+            The password for the image.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.Events.CancelEvent">
@@ -364,6 +389,21 @@
              settings file found on disk.
             
              </summary>
+        </member>
+        <member name="T:Pulumi.Automation.ExecutorImage">
+            <summary>
+            Information about the remote execution image.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.ExecutorImage.Image">
+            <summary>
+            The Docker image to use.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.ExecutorImage.Credentials">
+            <summary>
+            Credentials for the remote execution Docker image.
+            </summary>
         </member>
         <member name="T:Pulumi.Automation.HistoryOptions">
             <summary>
@@ -879,6 +919,11 @@
             An optional list of arbitrary commands to run before a remote Pulumi operation is invoked.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.LocalWorkspaceOptions.RemoteExecutorImage">
+            <summary>
+            Optional information about a remote execution image.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.LocalWorkspaceOptions.RemoteSkipInstallDependencies">
             <summary>
             Whether to skip the default dependency installation step.
@@ -937,6 +982,11 @@
         <member name="P:Pulumi.Automation.PreviewOptions.Refresh">
             <summary>
             Refresh the state of the stack's resources before this preview.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.PreviewOptions.ShowReads">
+            <summary>
+            Show resources that are being read in, alongside those being managed directly in the stack.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.ProjectBackend">
@@ -1110,6 +1160,11 @@
         <member name="P:Pulumi.Automation.RefreshOptions.ImportPendingCreates">
             <summary>
             <see cref="T:Pulumi.Automation.PendingCreateValue"/> values to import into the stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RefreshOptions.RunProgram">
+            <summary>
+            Runs the program in the workspace to perform the refresh.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.RemoteDestroyOptions">
@@ -1304,6 +1359,11 @@
             Whether to skip the default dependency installation step.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.RemoteWorkspaceOptions.ExecutorImage">
+            <summary>
+            Information about a remote execution image.
+            </summary>
+        </member>
         <member name="P:Pulumi.Automation.RemoteWorkspaceStack.Name">
             <summary>
             The name identifying the Stack.
@@ -1493,6 +1553,11 @@
             Format standard output as JSON not text.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.UpdateOptions.ConfigFile">
+            <summary>
+            Path to a YAML file containing stack configuration values.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.UpOptions">
             <summary>
             Options controlling the behavior of an <see cref="M:Pulumi.Automation.WorkspaceStack.UpAsync(Pulumi.Automation.UpOptions,System.Threading.CancellationToken)"/> operation.
@@ -1522,6 +1587,11 @@
         <member name="P:Pulumi.Automation.UpOptions.Refresh">
             <summary>
             Refresh the state of the stack's resources before this update.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.UpOptions.ShowReads">
+            <summary>
+            Show resources that are being read in, alongside those being managed directly in the stack.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.Workspace">

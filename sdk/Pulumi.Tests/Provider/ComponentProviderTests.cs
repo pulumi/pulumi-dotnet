@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Pulumi.Experimental;
 using Pulumi.Experimental.Provider;
 
 namespace Pulumi.Tests.Provider
@@ -16,7 +17,8 @@ namespace Pulumi.Tests.Provider
         public ComponentProviderTests()
         {
             var assembly = typeof(TestComponent).Assembly;
-            _provider = new ComponentProvider(assembly, "test-package", new[] { typeof(TestComponent) });
+            var metadata = new Metadata(Name: "test-package");
+            _provider = new ComponentProvider(assembly, metadata, new[] { typeof(TestComponent) });
         }
 
         [Fact]

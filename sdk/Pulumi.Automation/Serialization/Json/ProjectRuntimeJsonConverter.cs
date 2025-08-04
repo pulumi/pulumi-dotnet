@@ -64,7 +64,7 @@ namespace Pulumi.Automation.Serialization.Json
         {
             if (value.Options is null)
             {
-                writer.WriteStringValue(value.Name.ToString().ToLower());
+                writer.WriteStringValue(value.Name.ToString().ToLowerInvariant());
             }
             else
             {

@@ -17,29 +17,6 @@ $ changie new
 ✔ GitHub Pull Request … 123
 ```
 
-## Running conformance tests
-
-When running conformance tests, nuget package caches can sometimes cause updates to the SDK to fail,
-in this case you can fix it by deleting the pulumi package from your cache like so:
-
-```shell
-rm -rf ~/.nuget/packages/pulumi/
-```
-
-or clearing the entire cache with
-
-```shell
-dotnet nuget locals --clear all
-```
-
-or simply
-
-```shell
-make clear_nuget_cache
-```
-
-This is done automatically before running `make conformance_tests`
-
 ## Release
 
 To release a new version use `changie` to update the changelog file, open a PR for that change. Once that PR merges it will trigger a release workflow.

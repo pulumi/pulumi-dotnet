@@ -192,7 +192,7 @@ namespace Pulumi
             {
                 if (_rootDirectory == null)
                 {
-                  throw new InvalidOperationException("The Pulumi CLI version does not support root directory. Please update the Pulumi CLI.");
+                    throw new InvalidOperationException("The Pulumi CLI version does not support root directory. Please update the Pulumi CLI.");
                 }
 
                 return _rootDirectory;

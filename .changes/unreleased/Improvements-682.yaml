@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Add `RemoveStackOptions` to Automation API
+time: 2025-08-05T11:58:50.374862-07:00
+custom:
+    PR: "682"

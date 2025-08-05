@@ -230,7 +230,7 @@ jobs:
           curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-linux-amd64.tar.gz -o netcoredbg.tar.gz
           tar xzf netcoredbg.tar.gz
           sudo cp netcoredbg/* /usr/bin/
-      - uses: MinoruSekine/setup-scoop@v4.0.1
+      - uses: MinoruSekine/setup-scoop@v4.0.2
         if: startsWith(matrix.os, 'windows')
         with:
           buckets: extras

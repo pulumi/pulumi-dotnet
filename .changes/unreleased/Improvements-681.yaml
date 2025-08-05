@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Serialize OutputType annotated objects as stack outputs
+time: 2025-08-05T14:55:59.083220484+01:00
+custom:
+    PR: "681"

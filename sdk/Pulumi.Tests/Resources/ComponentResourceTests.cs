@@ -102,6 +102,19 @@ namespace Pulumi.Tests.Resources
                 Assert.Equal(provider, custom._provider);
             });
         }
+        [OutputType]
+        sealed class ComplexOutputType
+        {
+            public readonly string Name;
+            public readonly string Value;
+
+            [OutputConstructor]
+            public ComplexOutputType(string key, string value)
+            {
+                Name = key;
+                Value = value;
+            }
+        }
 
         class BasicComponent : ComponentResource
         {
@@ -112,11 +125,15 @@ namespace Pulumi.Tests.Resources
             public Output<string> Second { get; set; }
             [Output("myThird")]
             public Output<string> Third { get; set; }
+            [Output("myFourth")]
+            public Output<ComplexOutputType> Fourth { get; set; }
+
             public BasicComponent(string name) : base("token:token:token", name, ResourceArgs.Empty)
             {
                 First = Output.Create("first");
                 Second = Output.Create("second");
                 Third = Output.Create("third");
+                Fourth = Output.Create(new ComplexOutputType("fourth", "value"));
                 PrivateOutputProperty = Output.Create("private");
                 // RegisterOutputs will only register "Second" and "myThird" since
                 // those are public properties marked with [Output]
@@ -138,15 +155,22 @@ namespace Pulumi.Tests.Resources
 
             var urn = await basic.Urn.GetValueAsync("<unknown>");
             var outputs = mocks.GetRegisteredOutputs(urn);
-            Assert.Equal(2, outputs.Count);
+            Assert.Equal(3, outputs.Count);
             Assert.True(outputs.ContainsKey("Second"));
             Assert.True(outputs.ContainsKey("myThird"));
+            Assert.True(outputs.ContainsKey("myFourth"));
 
             var second = await outputs["Second"].GetValueAsync("<unknown>");
             Assert.Equal("second", second);
 
             var myThird = await outputs["myThird"].GetValueAsync("<unknown>");
             Assert.Equal("third", myThird);
+
+            var myFourth = await outputs["myFourth"].GetValueAsync("<unknown>");
+            var expectedFourth = ImmutableDictionary.Create<string, object?>()
+                .Add("name", "fourth")
+                .Add("value", "value");
+            Assert.Equal(expectedFourth, myFourth);
         }
     }
 

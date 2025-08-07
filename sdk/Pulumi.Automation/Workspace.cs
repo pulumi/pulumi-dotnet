@@ -1,4 +1,4 @@
-// Copyright 2016-2022, Pulumi Corporation
+// Copyright 2016-2025, Pulumi Corporation
 
 using System;
 using System.Collections.Generic;
@@ -333,6 +333,17 @@ namespace Pulumi.Automation
         /// <param name="stackName">The stack to remove.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public abstract Task RemoveStackAsync(string stackName, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Deletes the stack and all associated configuration and history.
+        /// </summary>
+        /// <param name="stackName">The stack to remove.</param>
+        /// <param name="options">Options to pass into the remove stack operation.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public virtual Task RemoveStackAsync(string stackName, RemoveStackOptions? options, CancellationToken cancellationToken = default)
+            => options is not null ?
+                throw new NotSupportedException($"{nameof(RemoveStackAsync)} with {nameof(RemoveStackOptions)} is not supported") :
+                RemoveStackAsync(stackName, cancellationToken);
 
         /// <summary>
         /// Returns all stacks created under the current project.

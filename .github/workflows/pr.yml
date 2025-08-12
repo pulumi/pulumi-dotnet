@@ -41,7 +41,7 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: 'recursive'
       - name: Setup dotnet SDK
@@ -68,7 +68,7 @@ jobs:
         id: esc-secrets
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Go 1.24.x
         uses: actions/setup-go@v5
         with:
@@ -95,7 +95,7 @@ jobs:
         id: esc-secrets
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check if folder is empty
         id: folder_check
         run: |
@@ -125,7 +125,7 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup dotnet SDK
@@ -193,7 +193,7 @@ jobs:
             exit 1
           fi
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup dotnet SDK
@@ -276,7 +276,7 @@ jobs:
             exit 1
           fi
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Setup dotnet SDK
@@ -321,7 +321,7 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Get the latest version
         id: latest
         uses: miniscruff/changie-action@v2

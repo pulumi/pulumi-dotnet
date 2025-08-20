@@ -210,6 +210,9 @@ namespace Pulumi
     /// </summary>
     public static partial class Output
     {
+        // Cached default JsonSerializerOptions instance
+        internal static readonly System.Text.Json.JsonSerializerOptions DefaultJsonSerializerOptions = new System.Text.Json.JsonSerializerOptions();
+
         public static Output<T> Create<T>(T value)
             => Create(Task.FromResult(value));
 
@@ -308,10 +311,7 @@ namespace Pulumi
         /// </summary>
         public static Output<string> JsonSerialize<T>(Output<T> value, System.Text.Json.JsonSerializerOptions? options = null)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ArgumentNullException.ThrowIfNull(value);
 
             async Task<OutputData<string>> GetData()
             {
@@ -321,12 +321,8 @@ namespace Pulumi
                 {
                     return new OutputData<string>(result.Resources, "", false, result.IsSecret);
                 }
-
-                // This needs to handle nested potentially secret and unknown Output values, we do this by
-                // hooking options to handle any seen Output<T> values.
-                var internalOptions = options == null ?
-                    new System.Text.Json.JsonSerializerOptions() :
-                    new System.Text.Json.JsonSerializerOptions(options);
+                // Use a cached default JsonSerializerOptions instance if none is provided
+                var internalOptions = options ?? Output.DefaultJsonSerializerOptions;
 
                 // Add the magic converter to allow us to do nested outputs
                 var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);
@@ -357,10 +353,7 @@ namespace Pulumi
         /// </summary>
         public static Output<T> JsonDeserialize<T>(Output<string> json, System.Text.Json.JsonSerializerOptions? options = null)
         {
-            if (json == null)
-            {
-                throw new ArgumentNullException(nameof(json));
-            }
+            ArgumentNullException.ThrowIfNull(json);
 
             async Task<OutputData<T>> GetData()
             {
@@ -371,9 +364,7 @@ namespace Pulumi
                     return new OutputData<T>(result.Resources, default!, false, result.IsSecret);
                 }
 
-                var internalOptions = options == null ?
-                    new System.Text.Json.JsonSerializerOptions() :
-                    new System.Text.Json.JsonSerializerOptions(options);
+                var internalOptions = options ?? Output.DefaultJsonSerializerOptions;
 
                 // Add the magic converter to allow us to do nested outputs
                 var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);
@@ -480,10 +471,7 @@ namespace Pulumi
 
         internal static Output<T> CreateSecret(Output<T> value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ArgumentNullException.ThrowIfNull(value);
 
             async Task<OutputData<T>> GetData()
             {
@@ -507,10 +495,7 @@ namespace Pulumi
 
         private static Output<T> Create(Task<T> value, bool isSecret)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ArgumentNullException.ThrowIfNull(value);
 
             async Task<OutputData<T>> GetData()
             {

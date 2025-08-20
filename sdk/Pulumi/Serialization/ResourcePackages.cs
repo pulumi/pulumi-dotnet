@@ -48,8 +48,8 @@ namespace Pulumi
             var matches =
                     from vt in types
                     let resourceVersion = !string.IsNullOrEmpty(vt.Item1) ? SemVersion.Parse(vt.Item1, SemVersionStyles.Any) : minimalVersion
-                    where resourceVersion >= minimalVersion
-                    where (string.IsNullOrEmpty(version) || vt.Item1 == null || minimalVersion.Major == resourceVersion.Major)
+                    where resourceVersion.CompareSortOrderTo(minimalVersion) >= 0
+                    where string.IsNullOrEmpty(version) || vt.Item1 == null || minimalVersion.Major == resourceVersion.Major
                     orderby resourceVersion descending
                     select vt.Item2;
 
@@ -90,7 +90,7 @@ namespace Pulumi
                 }
             }
 
-            while (assembliesToCheck.Any())
+            while (assembliesToCheck.Count != 0)
             {
                 var assemblyToCheck = assembliesToCheck.Dequeue();
                 if (yieldedAssemblies.Contains(assemblyToCheck.FullName!))

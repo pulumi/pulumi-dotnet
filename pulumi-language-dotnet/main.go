@@ -297,6 +297,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	if err != nil {
 		return nil, err
 	}
+	logging.V(5).Infof("GetRequiredPlugins: dotnet list package --include-transitive: %q", commandOutput)
 
 	// expected output should be like so:
 	//

@@ -69,7 +69,7 @@ namespace Pulumi.Automation.Commands
             }
 
             var minimumVersion = _minimumVersion;
-            if (options?.Version != null && options.Version > minimumVersion)
+            if (options?.Version != null && options.Version.CompareSortOrderTo(minimumVersion) > 0)
             {
                 minimumVersion = options.Version;
             }
@@ -151,7 +151,7 @@ namespace Pulumi.Automation.Commands
                 string command = systemRoot != null
                     ? Path.Combine(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
                     : "powershell.exe";
-                string[] args = {
+                string[] args = [
                     "-NoProfile",
                     "-InputFormat",
                     "None",
@@ -164,7 +164,7 @@ namespace Pulumi.Automation.Commands
                     root,
                     "-Version",
                     version.ToString()
-                };
+                ];
 
                 var result = await Cli.Wrap(command).WithArguments(args, escape: true)
                     .WithValidation(CommandResultValidation.None)
@@ -257,7 +257,7 @@ namespace Pulumi.Automation.Commands
             {
                 throw new InvalidOperationException($"Major version mismatch. You are using Pulumi CLI version {version} with Automation SDK v{minVersion.Major}. Please update the SDK.");
             }
-            if (minVersion > version)
+            if (minVersion.CompareSortOrderTo(version) > 0)
             {
                 throw new InvalidOperationException($"Minimum version requirement failed. The minimum CLI version requirement is {minVersion}, your current CLI version is {version}. Please update the Pulumi CLI.");
             }
@@ -384,12 +384,12 @@ namespace Pulumi.Automation.Commands
             // this causes commands to fail rather than prompting for input (and thus hanging indefinitely)
             if (!args.Contains("--non-interactive"))
             {
-                args = args.Concat(new[] { "--non-interactive" }).ToList();
+                args = args.Concat(["--non-interactive"]).ToList();
             }
 
             if (eventLogFile != null)
             {
-                args = args.Concat(new[] { "--event-log", eventLogFile.FilePath }).ToList();
+                args = args.Concat(["--event-log", eventLogFile.FilePath]).ToList();
             }
 
             return args;

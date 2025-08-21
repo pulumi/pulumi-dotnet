@@ -5,7 +5,7 @@ namespace Pulumi.Serialization;
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(Output<int>))]
 [JsonSerializable(typeof(Output<string>))]
-public partial class PulumiJsonSerializerContext : JsonSerializerContext
+internal partial class PulumiJsonSerializerContext : JsonSerializerContext
 {
 
 }

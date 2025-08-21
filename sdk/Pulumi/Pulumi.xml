@@ -3215,6 +3215,35 @@
             SpecialOutputValueSig is a randomly assigned hash used to identify outputs in maps. See sdk/go/common/resource/properties.go.
             </summary>
         </member>
+        <member name="P:Pulumi.Serialization.PulumiJsonSerializerContext.OutputInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Serialization.PulumiJsonSerializerContext.OutputString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Serialization.PulumiJsonSerializerContext.Default">
+            <summary>
+            The default <see cref="T:System.Text.Json.Serialization.JsonSerializerContext"/> associated with a default <see cref="T:System.Text.Json.JsonSerializerOptions"/> instance.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Serialization.PulumiJsonSerializerContext.GeneratedSerializerOptions">
+            <summary>
+            The source-generated options associated with this context.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Serialization.PulumiJsonSerializerContext.#ctor">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Serialization.PulumiJsonSerializerContext.#ctor(System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Serialization.PulumiJsonSerializerContext.GetTypeInfo(System.Type)">
+            <inheritdoc/>
+        </member>
         <member name="M:Pulumi.Serialization.Serializer.SerializeAsync(System.String,System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Takes in an arbitrary object and serializes it into a uniform form that can converted

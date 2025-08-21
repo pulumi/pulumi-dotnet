@@ -136,7 +136,7 @@ namespace Pulumi.Automation.Tests.Serialization
             Assert.Equal(UpdateKind.Update, update.Kind);
             Assert.Equal(UpdateState.Succeeded, update.Result);
             Assert.NotNull(update.ResourceChanges);
-            Assert.Equal(1, update.ResourceChanges!.Count);
+            Assert.Single(update.ResourceChanges!);
             Assert.True(update.ResourceChanges.TryGetValue(OperationType.Create, out var createdCount));
             Assert.Equal(3, createdCount);
         }

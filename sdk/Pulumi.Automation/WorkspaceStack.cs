@@ -898,7 +898,7 @@ namespace Pulumi.Automation
         /// supported for local backends.
         /// </summary>
         public async Task CancelAsync(CancellationToken cancellationToken = default)
-            => await this.Workspace.RunCommandAsync(new[] { "cancel", "--stack", this.Name, "--yes" }, cancellationToken).ConfigureAwait(false);
+            => await this.Workspace.RunCommandAsync(["cancel", "--stack", this.Name, "--yes"], cancellationToken).ConfigureAwait(false);
 
         internal async Task<CommandResult> RunCommandAsync(
             IList<string> args,
@@ -907,7 +907,7 @@ namespace Pulumi.Automation
             Action<EngineEvent>? onEngineEvent,
             CancellationToken cancellationToken)
         {
-            args = args.Concat(new[] { "--stack", this.Name }).ToList();
+            args = args.Concat(["--stack", this.Name]).ToList();
             return await this.Workspace.RunStackCommandAsync(this.Name, args, onStandardOutput, onStandardError, onEngineEvent, cancellationToken).ConfigureAwait(false);
         }
 

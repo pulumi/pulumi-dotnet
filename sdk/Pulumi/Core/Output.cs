@@ -321,8 +321,12 @@ namespace Pulumi
                 {
                     return new OutputData<string>(result.Resources, "", false, result.IsSecret);
                 }
-                // Use a cached default JsonSerializerOptions instance if none is provided
-                var internalOptions = options ?? Output.DefaultJsonSerializerOptions;
+
+                // This needs to handle nested potentially secret and unknown Output values, we do this by
+                // hooking options to handle any seen Output<T> values.
+#pragma warning disable CA1869 // Cache and reuse 'JsonSerializerOptions' instances
+                var internalOptions = new System.Text.Json.JsonSerializerOptions(options ?? Output.DefaultJsonSerializerOptions);
+#pragma warning restore CA1869 // Cache and reuse 'JsonSerializerOptions' instances
 
                 // Add the magic converter to allow us to do nested outputs
                 var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);
@@ -364,7 +368,9 @@ namespace Pulumi
                     return new OutputData<T>(result.Resources, default!, false, result.IsSecret);
                 }
 
-                var internalOptions = options ?? Output.DefaultJsonSerializerOptions;
+#pragma warning disable CA1869 // Cache and reuse 'JsonSerializerOptions' instances
+                var internalOptions = new System.Text.Json.JsonSerializerOptions(options ?? Output.DefaultJsonSerializerOptions);
+#pragma warning restore CA1869 // Cache and reuse 'JsonSerializerOptions' instances
 
                 // Add the magic converter to allow us to do nested outputs
                 var outputConverter = new OutputJsonConverter(result.Resources, result.IsSecret);

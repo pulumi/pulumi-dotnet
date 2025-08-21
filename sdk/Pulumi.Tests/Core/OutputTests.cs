@@ -736,7 +736,7 @@ namespace Pulumi.Tests.Core
   }
 }";
                     // we need to normalize line endings to make this work cross platform
-                    Assert.Equal(expected, data.Value.ReplaceLineEndings("\n"));
+                    Assert.Equal(expected.ReplaceLineEndings("\n"), data.Value.ReplaceLineEndings("\n"));
                 });
 
             [Fact]

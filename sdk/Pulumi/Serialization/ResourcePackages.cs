@@ -39,19 +39,23 @@ namespace Pulumi
         {
             var minimalVersion = !string.IsNullOrEmpty(version) ? SemVersion.Parse(version, SemVersionStyles.Any) : new SemVersion(0);
             var yes = _resourceTypes.Value.TryGetValue(name, out var types);
-            if (!yes)
+            if (!yes || types is null)
             {
                 type = null;
                 return false;
             }
 
+            // Splitted Ordering from the Query as SemVer 3.x no longer implements IComparable interface, see: https://github.com/WalkerCodeRanger/semver/issues/88#issuecomment-3211103141
             var matches =
-                    from vt in types
-                    let resourceVersion = !string.IsNullOrEmpty(vt.Item1) ? SemVersion.Parse(vt.Item1, SemVersionStyles.Any) : minimalVersion
-                    where resourceVersion.CompareSortOrderTo(minimalVersion) >= 0
-                    where string.IsNullOrEmpty(version) || vt.Item1 == null || minimalVersion.Major == resourceVersion.Major
-                    orderby resourceVersion descending
-                    select vt.Item2;
+                    (
+                        from vt in types
+                        let resourceVersion = !string.IsNullOrEmpty(vt.Item1) ? SemVersion.Parse(vt.Item1, SemVersionStyles.Any) : minimalVersion
+                        where resourceVersion.CompareSortOrderTo(minimalVersion) >= 0
+                        where string.IsNullOrEmpty(version) || vt.Item1 == null || minimalVersion.Major == resourceVersion.Major
+                        select (resourceVersion, vt.Item2)
+            )
+                .OrderByDescending(((SemVersion, Type) vt) => vt.Item1, SemVersion.SortOrderComparer)
+                .Select(vt => vt.Item2);
 
             type = matches.FirstOrDefault();
             return type != null;

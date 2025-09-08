@@ -45,9 +45,9 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
       - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           # Install 8.0 for Build.fsproj
           dotnet-version: 8.0.x
@@ -130,7 +130,7 @@ jobs:
           submodules: recursive
       - name: Setup dotnet SDK
         id: setup-dotnet
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           # Install 8.0 for Build.fsproj and the matrix version.
           # `outputs.dotnet-version` is the latest version among the installed
@@ -198,7 +198,7 @@ jobs:
           submodules: recursive
       - name: Setup dotnet SDK
         id: setup-dotnet
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Create global.json
@@ -281,7 +281,7 @@ jobs:
           submodules: recursive
       - name: Setup dotnet SDK
         id: setup-dotnet
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Create global.json

@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Skip update checks when looking up the currently installed pulumi version
+time: 2025-09-15T12:04:05.358309+01:00
+custom:
+    PR: "696"

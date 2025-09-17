@@ -87,8 +87,13 @@ namespace Pulumi.Automation.Commands
 
         private static async Task<SemVersion?> GetPulumiVersionAsync(SemVersion minimumVersion, string command, bool optOut, CancellationToken cancellationToken)
         {
+            var env = System.Environment.GetEnvironmentVariables()
+                .Cast<System.Collections.DictionaryEntry>()
+                .ToDictionary(de => de.Key.ToString()!, de => de.Value?.ToString());
+            env["PULUMI_SKIP_UPDATE_CHECK"] = "true";
             var result = await Cli.Wrap(command)
                 .WithArguments("version")
+                .WithEnvironmentVariables(env)
                 .WithValidation(CommandResultValidation.None)
                 .ExecuteBufferedAsync(cancellationToken);
             if (result.ExitCode != 0)

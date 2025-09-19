@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Include inner exception message in LogException messages
+time: 2025-09-19T08:40:27.57344+01:00
+custom:
+    PR: "700"

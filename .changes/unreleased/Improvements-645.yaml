@@ -1,0 +1,6 @@
+component: sdk/policy
+kind: Improvements
+body: Initial version of Policy As Code
+time: 2025-06-12T15:26:39.284198744+01:00
+custom:
+    PR: "645"

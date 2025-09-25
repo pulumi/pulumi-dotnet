@@ -591,7 +591,7 @@ type logWriter struct {
 func (w *logWriter) Write(p []byte) (n int, err error) {
 	n, err = w.buffer.Write(p)
 	if err != nil {
-		return
+		return n, err
 	}
 
 	return w.LogToUser(string(p))

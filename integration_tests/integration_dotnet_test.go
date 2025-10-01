@@ -752,6 +752,11 @@ outer:
 func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
+	// TODO[pulumi/pulumi-dotnet#705]: Fix disabled test on MacOS..
+	if runtime.GOOS == "darwin" {
+		t.Skip("Skipping test due to broken netcoredbg on MacOS - pulumi/pulumi-dotnet#705")
+	}
+
 	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
 	require.NoError(t, err)
 

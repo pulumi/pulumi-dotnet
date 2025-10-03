@@ -135,6 +135,7 @@ namespace Pulumi
             }
 
             request.IgnoreChanges.AddRange(options.IgnoreChanges);
+            request.HideDiffs.AddRange(options.HideDiffs);
 
             return request;
         }

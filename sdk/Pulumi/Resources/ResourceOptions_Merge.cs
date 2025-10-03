@@ -21,6 +21,7 @@ namespace Pulumi
             options1.ResourceTransformations.AddRange(options2.ResourceTransformations);
             options1.Aliases.AddRange(options2.Aliases);
             options1.ReplaceOnChanges.AddRange(options2.ReplaceOnChanges);
+            options1.HideDiffs.AddRange(options2.HideDiffs);
 
             options1.DependsOn = options1.DependsOn.Concat(options2.DependsOn);
 

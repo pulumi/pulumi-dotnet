@@ -154,5 +154,18 @@ namespace Pulumi
             get => _hooks ??= new();
             set => _hooks = value;
         }
+
+        private List<string>? _hideDiffs;
+
+        /// <summary>
+        /// If set, diffs from the included property paths will not be show.
+        /// This only effects the diff display, and does not effect update behavior.
+        /// </summary>
+        public List<string> HideDiffs
+        {
+            get => _hideDiffs ??= new List<string>();
+            set => _hideDiffs = value;
+        }
+
     }
 }

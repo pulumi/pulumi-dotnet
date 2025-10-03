@@ -1,0 +1,13 @@
+[env]
+PULUMI_ROOT = "{{config_root}}/.root"
+
+_.path = [
+  "{{env.PULUMI_ROOT}}/bin",
+]
+
+[tools]
+github-cli = "latest"
+changie = "latest"
+dotnet = "latest"
+
+[plugins]

@@ -2927,6 +2927,12 @@
             the resource.
             </summary>
         </member>
+        <member name="P:Pulumi.ResourceOptions.HideDiffs">
+            <summary>
+            If set, diffs from the included property paths will not be show.
+            This only effects the diff display, and does not effect update behavior.
+            </summary>
+        </member>
         <member name="T:Pulumi.ResourceTransform">
             <summary>
             ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.ResourceTransforms"/>. A

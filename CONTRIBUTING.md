@@ -2,6 +2,14 @@
 
 This repo is made up of three main components. The host runtime (pulumi-language-dotnet), the SDK and integration tests.
 
+## Setup
+
+After cloning the repository, run the following command to sync the submodule:
+
+```shell
+git submodule sync && git submodule update --init --recursive
+```
+
 ## Changelog
 
 Changelog management is done via [`changie`](https://changie.dev/).

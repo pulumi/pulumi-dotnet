@@ -8,6 +8,6 @@ _.path = [
 [tools]
 github-cli = "latest"
 changie = "latest"
-dotnet = "latest"
+dotnet = "8"
 
 [plugins]

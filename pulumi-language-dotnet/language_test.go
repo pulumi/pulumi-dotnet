@@ -208,6 +208,7 @@ var expectedFailures = map[string]string{
 	"l2-resource-parent-inheritance": "expected child to inherit retain on delete flag",
 	"l2-invoke-scalar":               "run bailed",
 	"l2-union":                       "dotnet build failed",
+	"l2-resource-option-hide-diffs":  "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

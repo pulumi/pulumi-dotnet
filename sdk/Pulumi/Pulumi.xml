@@ -2927,6 +2927,12 @@
             the resource.
             </summary>
         </member>
+        <member name="P:Pulumi.ResourceOptions.HideDiffs">
+            <summary>
+            If set, diffs from the included property paths will not be shown.
+            This only affects the diff display, and does not affect update behavior.
+            </summary>
+        </member>
         <member name="T:Pulumi.ResourceTransform">
             <summary>
             ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.ResourceTransforms"/>. A
@@ -3700,6 +3706,56 @@
             Remediated policies actually fixes problems instead of issuing diagnostics.
             </summary>
         </member>
+        <member name="T:Pulumirpc.PolicyType">
+            <summary>
+            PolicyType indicates the type of a policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyType.Unknown">
+            <summary>
+            Unknown policy type.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyType.Resource">
+            <summary>
+            A policy that validates a resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyType.Stack">
+            <summary>
+            A policy that validates a stack.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.PolicySeverity">
+            <summary>
+            PolicySeverity indicates the severity of a policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Unspecified">
+            <summary>
+            Unspecified severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Low">
+            <summary>
+            Low severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Medium">
+            <summary>
+            Medium severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.High">
+            <summary>
+            High severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Critical">
+            <summary>
+            Critical severity.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AnalyzerStackConfigureRequest">
             <summary>
             `AnalyzerStackConfigureRequest` is the message for the stack configuration of the stack being analyzed.
@@ -3751,6 +3807,14 @@
         <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Config">
             <summary>
             The configuration of the stack being analyzed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.TagsFieldNumber">
+            <summary>Field number for the "tags" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Tags">
+            <summary>
+            Tags for the current stack.
             </summary>
         </member>
         <member name="T:Pulumirpc.AnalyzerStackConfigureResponse">
@@ -4099,6 +4163,14 @@
             information about policy violations.
             </summary>
         </member>
+        <member name="F:Pulumirpc.AnalyzeResponse.NotApplicableFieldNumber">
+            <summary>Field number for the "not_applicable" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzeResponse.NotApplicable">
+            <summary>
+            information about policies that were not applicable.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.AnalyzeDiagnostic.PolicyNameFieldNumber">
             <summary>Field number for the "policyName" field.</summary>
         </member>
@@ -4221,6 +4293,14 @@
             the list of remediations that were applied.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RemediateResponse.NotApplicableFieldNumber">
+            <summary>Field number for the "not_applicable" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RemediateResponse.NotApplicable">
+            <summary>
+            information about policies that were not applicable.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AnalyzerInfo">
             <summary>
             AnalyzerInfo provides metadata about a PolicyPack inside an analyzer.
@@ -4272,6 +4352,46 @@
         <member name="P:Pulumirpc.AnalyzerInfo.InitialConfig">
             <summary>
             Map of policy name to config.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.DescriptionFieldNumber">
+            <summary>Field number for the "description" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Description">
+            <summary>
+            Description of the policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.ReadmeFieldNumber">
+            <summary>Field number for the "readme" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Readme">
+            <summary>
+            README text for the policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Provider">
+            <summary>
+            Cloud provider/platform associated with the policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.TagsFieldNumber">
+            <summary>Field number for the "tags" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Tags">
+            <summary>
+            Tags for this policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.RepositoryFieldNumber">
+            <summary>Field number for the "repository" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Repository">
+            <summary>
+            A URL to the repository where the policy pack is defined.
             </summary>
         </member>
         <member name="T:Pulumirpc.PolicyInfo">
@@ -4327,6 +4447,54 @@
             Config schema for the policy.
             </summary>
         </member>
+        <member name="F:Pulumirpc.PolicyInfo.PolicyTypeFieldNumber">
+            <summary>Field number for the "policy_type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.PolicyType">
+            <summary>
+            Type of the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.SeverityFieldNumber">
+            <summary>Field number for the "severity" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Severity">
+            <summary>
+            Severity of the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.FrameworkFieldNumber">
+            <summary>Field number for the "framework" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Framework">
+            <summary>
+            Compliance framework that this policy belongs to.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.TagsFieldNumber">
+            <summary>Field number for the "tags" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Tags">
+            <summary>
+            Tags associated with the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.RemediationStepsFieldNumber">
+            <summary>Field number for the "remediation_steps" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.RemediationSteps">
+            <summary>
+            A description of the steps to take to remediate a policy violation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.UrlFieldNumber">
+            <summary>Field number for the "url" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Url">
+            <summary>
+            A URL to more information about the policy.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.PolicyConfigSchema">
             <summary>
             PolicyConfigSchema provides the schema for a policy's configuration.
@@ -4380,6 +4548,64 @@
         <member name="P:Pulumirpc.ConfigureAnalyzerRequest.PolicyConfig">
             <summary>
             Map of policy name to config.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.PolicyComplianceFramework">
+            <summary>
+            PolicyComplianceFramework provides information about the compliance framework that a policy belongs to.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Name">
+            <summary>
+            The compliance framework name.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Version">
+            <summary>
+            The compliance framework version.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.ReferenceFieldNumber">
+            <summary>Field number for the "reference" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Reference">
+            <summary>
+            The compliance framework reference.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.SpecificationFieldNumber">
+            <summary>Field number for the "specification" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Specification">
+            <summary>
+            The compliance framework specification.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.PolicyNotApplicable">
+            <summary>
+            PolicyNotApplicable describes a policy that was not applicable, including an optional reason why.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyNotApplicable.PolicyNameFieldNumber">
+            <summary>Field number for the "policy_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyNotApplicable.PolicyName">
+            <summary>
+            The name of the policy that was not applicable.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyNotApplicable.ReasonFieldNumber">
+            <summary>Field number for the "reason" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyNotApplicable.Reason">
+            <summary>
+            An optional reason why the policy was not applicable.
             </summary>
         </member>
         <member name="T:Pulumirpc.Analyzer">
@@ -6930,6 +7156,14 @@
             to be used instead of the published `@pulumi/aws` package.
             </summary>
         </member>
+        <member name="F:Pulumirpc.LinkRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkRequest.LoaderTarget">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.LinkResponse">
             <summary>
             `LinkResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Link) call.
@@ -7107,6 +7341,15 @@
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Link(Pulumirpc.LinkRequest,Grpc.Core.ServerCallContext)">
             <summary>
             `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -7781,6 +8024,46 @@
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
             <summary>
             `Link` links a local dependency into a project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -8592,6 +8875,14 @@
         <member name="P:Pulumirpc.CallRequest.AcceptsOutputValues">
             <summary>
             the engine can be passed output values back, returnDependencies can be left blank if returning output values.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CallRequest.StackTraceHandleFieldNumber">
+            <summary>Field number for the "stack_trace_handle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallRequest.StackTraceHandle">
+            <summary>
+            The stack trace handle for the call. Supports stitching stack traces together across plugins.
             </summary>
         </member>
         <member name="T:Pulumirpc.CallRequest.Types">
@@ -9761,6 +10052,14 @@
         </member>
         <member name="F:Pulumirpc.ConstructRequest.ResourceHooksFieldNumber">
             <summary>Field number for the "resource_hooks" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.StackTraceHandleFieldNumber">
+            <summary>Field number for the "stack_trace_handle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.StackTraceHandle">
+            <summary>
+            The stack trace handle for the construct call. Supports stitching stack traces together across plugins.
+            </summary>
         </member>
         <member name="T:Pulumirpc.ConstructRequest.Types">
             <summary>Container for nested types declared in the ConstructRequest message type.</summary>
@@ -11875,6 +12174,22 @@
             the optional source position of the user code that initiated the read.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ReadResourceRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadResourceRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ReadResourceRequest.PackageRefFieldNumber">
             <summary>Field number for the "packageRef" field.</summary>
         </member>
@@ -12167,6 +12482,22 @@
             the optional source position of the user code that initiated the register.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.TransformsFieldNumber">
             <summary>Field number for the "transforms" field.</summary>
         </member>
@@ -12198,6 +12529,9 @@
             <summary>
             The resource hooks that should run at certain points in the resource's lifecycle.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.HideDiffsFieldNumber">
+            <summary>Field number for the "hideDiffs" field.</summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
@@ -12425,6 +12759,22 @@
             the optional source position of the user code that initiated the invoke.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceInvokeRequest.PackageRefFieldNumber">
             <summary>Field number for the "packageRef" field.</summary>
         </member>
@@ -12495,6 +12845,22 @@
         <member name="P:Pulumirpc.ResourceCallRequest.SourcePosition">
             <summary>
             the optional source position of the user code that initiated the call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
             </summary>
         </member>
         <member name="F:Pulumirpc.ResourceCallRequest.PackageRefFieldNumber">
@@ -12591,6 +12957,12 @@
         </member>
         <member name="F:Pulumirpc.TransformResourceOptions.HooksFieldNumber">
             <summary>Field number for the "hooks" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ImportFieldNumber">
+            <summary>Field number for the "import" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.HideDiffFieldNumber">
+            <summary>Field number for the "hide_diff" field.</summary>
         </member>
         <member name="F:Pulumirpc.TransformRequest.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>
@@ -13627,6 +13999,32 @@
         <member name="P:Pulumirpc.SourcePosition.Column">
             <summary>
             The column in the line
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.StackFrame">
+            <summary>
+            A StackFrame represents a single stack frame.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StackFrame.PcFieldNumber">
+            <summary>Field number for the "pc" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StackFrame.Pc">
+            <summary>
+            The position of the frame's program counter. Optional.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.StackTrace">
+            <summary>
+            A StackTrace represents the frames on the stack at the point of an RPC call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StackTrace.FramesFieldNumber">
+            <summary>Field number for the "frames" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StackTrace.Frames">
+            <summary>
+            The frames on the stack.
             </summary>
         </member>
         <member name="T:Pulumirpc.Testing.LanguageReflection">

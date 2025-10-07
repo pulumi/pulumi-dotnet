@@ -262,6 +262,7 @@ namespace Pulumi
                 opts.RetainOnDelete = request.Options.RetainOnDelete ? request.Options.RetainOnDelete : null;
                 opts.Version = request.Options.Version;
                 opts.Hooks = ResourceHookUtilities.ResourceHookBindingFromProto(request.Options.Hooks) ?? new ResourceHookBinding();
+                opts.HideDiffs = request.Options.HideDiff.ToList();
 
                 var args = new ResourceTransformArgs(
                     request.Name,

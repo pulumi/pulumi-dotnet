@@ -1,2 +1,10 @@
+[env]
+PULUMI_ROOT = "{{config_root}}/.root"
+
+_.path = [
+  "{{env.PULUMI_ROOT}}/bin",
+]
+
 [tools]
 changie = "latest"
+dotnet = "8"

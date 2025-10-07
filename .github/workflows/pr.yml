@@ -44,19 +44,8 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-      - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v4
-      - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          # Install 8.0 for Build.fsproj
-          dotnet-version: 8.0.x
-      - name: Set up Go 1.24.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.24.x
-      - name: Install `gofumpt`
-        run: go install mvdan.cc/gofumpt@latest
+      - name: Setup mise and install tools
+        uses: jdx/mise-action@v3.3.1
       - name: Run `make format_check`
         run: make format_check
 

@@ -85,6 +85,8 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - uses: actions/checkout@v5
+      - name: Setup mise and install tools
+        uses: jdx/mise-action@v3.3.1
       - name: Check if folder is empty
         id: folder_check
         run: |
@@ -96,9 +98,7 @@ jobs:
       - name: Check the changelog is batchable
         # There are changes so check changie will batch them
         if: steps.folder_check.outputs.empty == 'false'
-        uses: miniscruff/changie-action@v2
-        with:
-          args: batch auto --dry-run
+        run: changie batch auto --dry-run
 
   build:
     needs: setup_matrix

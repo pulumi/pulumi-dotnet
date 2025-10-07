@@ -257,34 +257,12 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-      - name: Setup dotnet SDK
-        id: setup-dotnet
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Create global.json
-        # This ensures that we use the matrix version instead of the runner's default version
-        # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing
-        run: |
-          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > ./global.json
+      - name: Setup mise and install tools
+        uses: jdx/mise-action@v3.3.1
+      - name: Set dotnet version from matrix
+        run: mise use dotnet@${{ matrix.dotnet-version }}
       - name: Dotnet version
         run: dotnet --version
-      - name: Set up Go 1.24.x
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.24.x
-      - name: Install Pulumi CLI
-        uses: pulumi/actions@d7ceb0215da5a14ec84f50b703365ddf0194a9c8 # v6
-        with:
-          pulumi-version: dev
-      - name: Install gotestsum
-        uses: jaxxstorm/action-install-gh-release@v2.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          repo: gotestyourself/gotestsum
-          tag: v1.8.1
-          cache: enable
       - name: Conformance tests
         run: make test_conformance
 

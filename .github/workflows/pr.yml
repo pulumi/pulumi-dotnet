@@ -300,21 +300,12 @@ jobs:
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Checkout code
         uses: actions/checkout@v5
-      - name: Get the latest version
-        id: latest
-        uses: miniscruff/changie-action@v2
-        with:
-          args: next auto
-        continue-on-error: true
-      - name: Get the next patch version
-        id: patch
-        uses: miniscruff/changie-action@v2
-        with:
-          args: next patch
-      - name: Stitch version together
+      - name: Setup mise and install tools
+        uses: jdx/mise-action@v3.3.1
+      - name: Get version info
         id: version
         run: |
-          TAG="${{ steps.latest.outputs.output || steps.patch.outputs.output }}"
+          TAG="$(changie next auto || changie next patch)"
           TAG="${TAG#v}" # remove prefix
           OID="$(git rev-parse --short HEAD)"
           PULUMI_VERSION="$TAG-alpha.$OID"

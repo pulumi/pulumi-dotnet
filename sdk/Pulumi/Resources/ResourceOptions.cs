@@ -158,8 +158,8 @@ namespace Pulumi
         private List<string>? _hideDiffs;
 
         /// <summary>
-        /// If set, diffs from the included property paths will not be show.
-        /// This only effects the diff display, and does not effect update behavior.
+        /// If set, diffs from the included property paths will not be shown.
+        /// This only affects the diff display, and does not affect update behavior.
         /// </summary>
         public List<string> HideDiffs
         {

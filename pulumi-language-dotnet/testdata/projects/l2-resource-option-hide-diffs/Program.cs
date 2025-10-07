@@ -10,7 +10,7 @@ return await Deployment.RunAsync(() =>
         Value = true,
     }, new CustomResourceOptions
     {
-        IgnoreChanges =
+        HideDiffs =
         {
             "@value",
         },

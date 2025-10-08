@@ -261,6 +261,8 @@ jobs:
         uses: jdx/mise-action@v3.3.1
       - name: Set dotnet version from matrix
         run: mise use dotnet@${{ matrix.dotnet-version }}
+      - name: Install dev Pulumi
+        run: mise use pulumi@$(curl https://www.pulumi.com/latest-dev-version)
       - name: Dotnet version
         run: dotnet --version
       - name: Conformance tests

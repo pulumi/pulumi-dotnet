@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
-        dotnet-version: [8.0.x, 9.0.x]
+        dotnet-version: [8.0, 9.0]
 
     runs-on: ${{ matrix.os }}
     steps:

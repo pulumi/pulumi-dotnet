@@ -248,8 +248,6 @@ jobs:
         uses: pulumi/actions@v6
         with:
           pulumi-version: dev
-      - name: Pulumi version
-        run: which pulumi && pulumi version
       - name: Dotnet version
         run: dotnet --version
       - name: Conformance tests

@@ -245,7 +245,14 @@ jobs:
       - name: Set dotnet version from matrix
         run: mise use dotnet@${{ matrix.dotnet-version }}
       - name: Install dev Pulumi
-        run: mise use pulumi@$(curl https://www.pulumi.com/latest-dev-version)
+        run: |
+         if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+           mise use http:pulumi[url=https://get.pulumi.com/releases/sdk/pulumi-{version}-linux-x64.tar.gz]@v$(curl https://www.pulumi.com/latest-dev-version)
+         elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+           mise use http:pulumi[url=https://get.pulumi.com/releases/sdk/pulumi-{version}-darwin-x64.tar.gz]@v$(curl https://www.pulumi.com/latest-dev-version)
+         fi
+
+         which pulumi
       - name: Dotnet version
         run: dotnet --version
       - name: Conformance tests

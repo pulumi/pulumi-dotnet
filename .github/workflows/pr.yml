@@ -152,7 +152,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: [8.0.x, 9.0.x]
+        dotnet-version: [8.0, 9.0]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Fetch secrets from ESC
@@ -161,15 +161,7 @@ jobs:
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Set TARGET_FRAMEWORK
         shell: bash
-        run: |
-          if [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
-            echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
-          elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
-            echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
-          else
-            echo "Unexpected dotnet-version: ${{ matrix.dotnet-version }}"
-            exit 1
-          fi
+        run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v5
         with:
@@ -235,7 +227,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        dotnet-version: [8.0.x]
+        dotnet-version: [8.0]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Fetch secrets from ESC
@@ -243,16 +235,7 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
       - name: Set TARGET_FRAMEWORK
-        shell: bash
-        run: |
-          if [[ "${{ matrix.dotnet-version }}" == "8.0.x" ]]; then
-            echo "TARGET_FRAMEWORK=net8.0" >> $GITHUB_ENV
-          elif [[ "${{ matrix.dotnet-version }}" == "9.0.x" ]]; then
-            echo "TARGET_FRAMEWORK=net9.0" >> $GITHUB_ENV
-          else
-            echo "Unexpected dotnet-version: ${{ matrix.dotnet-version }}"
-            exit 1
-          fi
+        run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v5
         with:

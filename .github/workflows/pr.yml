@@ -249,7 +249,7 @@ jobs:
         with:
           pulumi-version: dev
       - name: Pulumi version
-        run: which pulumi && pulumi --version
+        run: which pulumi && pulumi version
       - name: Dotnet version
         run: dotnet --version
       - name: Conformance tests

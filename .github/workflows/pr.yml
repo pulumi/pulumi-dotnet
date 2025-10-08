@@ -117,7 +117,7 @@ jobs:
           # https://github.com/actions/setup-dotnet?tab=readme-ov-file#dotnet-version
           dotnet-version: |
             8.0.x
-            ${{ matrix.dotnet-version }}
+            ${{ matrix.dotnet-version }}.x
       - name: Create global.json
         # This ensures that we use the matrix version instead of the runner's default version
         # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing

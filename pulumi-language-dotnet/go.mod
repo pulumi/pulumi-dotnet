@@ -11,7 +11,7 @@ replace github.com/atotto/clipboard => github.com/tgummerer/clipboard v0.0.0-202
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.201.1-0.20251007104707-8ba1c5027909
+	github.com/pulumi/pulumi/pkg/v3 b114b5f1f6bd
 	github.com/pulumi/pulumi/sdk/v3 v3.201.1-0.20251007104707-8ba1c5027909
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.72.1

@@ -270,7 +270,11 @@ jobs:
       - name: Get version info
         id: version
         run: |
-          TAG="$(changie next auto || changie next patch)"
+          if [ -n "$(ls .changes/unreleased 2>/dev/null)" ]; then
+            TAG="$(changie next auto)"
+          else
+            TAG="$(changie next patch)"
+          fi
           TAG="${TAG#v}" # remove prefix
           OID="$(git rev-parse --short HEAD)"
           PULUMI_VERSION="$TAG-alpha.$OID"

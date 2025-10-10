@@ -18,7 +18,7 @@ jobs:
         run: |
           if ! gh release list | grep -q "$(changie latest)"; then
             # The changie latest isn't yet published, i.e. we're going to publish it so check ".changes/unreleased" is empty
-            if [ -n "$(ls -A .changes/unreleased 2>/dev/null)" ]; then
+            if [ -n "$(ls .changes/unreleased 2>/dev/null)" ]; then
               echo "Unreleased changes are not empty"
               exit 1
             fi

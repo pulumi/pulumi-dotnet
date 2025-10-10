@@ -18,7 +18,6 @@
     <PackageReference Include="Fake.Core.Environment" Version="5.23.1" />
     <PackageReference Include="Fake.Core.Target" Version="5.23.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="Pulumi" Version="3.89.0" />
   </ItemGroup>
 
 </Project>

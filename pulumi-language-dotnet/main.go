@@ -1212,7 +1212,7 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to pack: %w. CombinedOutput:\n%s", err, string(output))
+		return nil, fmt.Errorf("failed to pack: %w. Dotnet pack output:\n%s", err, string(output))
 	}
 
 	var nugetFilePath string

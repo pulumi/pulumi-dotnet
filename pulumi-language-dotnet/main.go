@@ -1207,11 +1207,12 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	cmd := exec.CommandContext( //nolint:gosec // intentionally running dynamic program name.
 		ctx,
-		opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
+		opts.dotnetExec, "pack", "-c", "Release", "-o", destination, "-p:IncludeSource", "-p:SymbolPackageFormat=snupkg")
 	cmd.Dir = req.PackageDirectory
 
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("failed to pack: %w", err)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack: %w. Dotnet pack output:\n%s", err, string(output))
 	}
 
 	var nugetFilePath string

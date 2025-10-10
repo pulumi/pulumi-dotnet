@@ -179,7 +179,7 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Set up Go 1.24.x
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 1.24.x
       - name: Install Pulumi CLI

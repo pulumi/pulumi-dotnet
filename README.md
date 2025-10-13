@@ -71,6 +71,7 @@ And finally, `pulumi preview` and `pulumi up` as you would any other Pulumi proj
 - Dotnet [SDK v6+](https://dotnet.microsoft.com/download/dotnet/6.0) installed on your machine.
 - Go 1.24+ for building and testing `pulumi-language-dotnet`
 - The Pulumi CLI (used in automation tests and for integration tests)
+- Run 'git submodule update --init --recursive'
 
 Then you can run one of the following commands:
 

@@ -1558,6 +1558,11 @@
             Path to a YAML file containing stack configuration values.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.UpdateOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.UpOptions">
             <summary>
             Options controlling the behavior of an <see cref="M:Pulumi.Automation.WorkspaceStack.UpAsync(Pulumi.Automation.UpOptions,System.Threading.CancellationToken)"/> operation.

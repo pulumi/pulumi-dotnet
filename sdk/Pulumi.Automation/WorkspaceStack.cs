@@ -1127,6 +1127,12 @@ namespace Pulumi.Automation
                 args.Add("--config-file");
                 args.Add(options.ConfigFile);
             }
+
+            if (!string.IsNullOrWhiteSpace(options.Profiling))
+            {
+                args.Add("--profiling");
+                args.Add(options.Profiling);
+            }
         }
 
         private bool Remote

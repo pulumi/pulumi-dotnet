@@ -78,5 +78,10 @@ namespace Pulumi.Automation
         /// Path to a YAML file containing stack configuration values.
         /// </summary>
         public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively.
+        /// </summary>
+        public string? Profiling { get; set; }
     }
 }

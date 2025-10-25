@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Allow non-custom child resources to override parent provider list
+time: 2025-10-25T16:34:49.50326-07:00
+custom:
+    PR: "731"

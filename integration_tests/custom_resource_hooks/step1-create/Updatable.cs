@@ -21,6 +21,9 @@ public sealed class UpdatableArgs : Pulumi.ResourceArgs
     [Input("value", required: true)]
     public Input<string> Value { get; set; } = null!;
 
+    [Input("secret")]
+    public Input<string> Secret { get; set; } = null;
+
     public UpdatableArgs()
     {
     }

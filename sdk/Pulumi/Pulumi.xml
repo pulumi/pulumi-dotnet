@@ -4216,7 +4216,7 @@
         </member>
         <member name="P:Pulumirpc.AnalyzeDiagnostic.EnforcementLevel">
             <summary>
-            Severity of the policy violation.
+            Enforcement level of the policy violation.
             </summary>
         </member>
         <member name="F:Pulumirpc.AnalyzeDiagnostic.UrnFieldNumber">
@@ -4225,6 +4225,14 @@
         <member name="P:Pulumirpc.AnalyzeDiagnostic.Urn">
             <summary>
             URN of the resource that violates the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzeDiagnostic.SeverityFieldNumber">
+            <summary>Field number for the "severity" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzeDiagnostic.Severity">
+            <summary>
+            Severity of the policy violation.
             </summary>
         </member>
         <member name="T:Pulumirpc.Remediation">
@@ -6447,7 +6455,7 @@
         </member>
         <member name="P:Pulumirpc.RunRequest.QueryMode">
             <summary>
-            This is deprecated, query mode is no longer a supported feature. 
+            This is deprecated, query mode is no longer a supported feature.
             </summary>
         </member>
         <member name="F:Pulumirpc.RunRequest.ConfigSecretKeysFieldNumber">
@@ -7144,18 +7152,6 @@
             The program to use.
             </summary>
         </member>
-        <member name="F:Pulumirpc.LinkRequest.LocalDependenciesFieldNumber">
-            <summary>Field number for the "local_dependencies" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.LinkRequest.LocalDependencies">
-            <summary>
-            Local dependencies that the program should reference explicitly, instead of e.g. using the language's
-            package system. This is a map of package names to local paths of language-specific artifacts that
-            should be used. For instance, in the case of a NodeJS package, this might be a map of NPM package names
-            to local paths to be used, such as `{ "@pulumi/aws": "/some/path/to/aws.tgz" }` if a local tarball is
-            to be used instead of the published `@pulumi/aws` package.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.LinkRequest.LoaderTargetFieldNumber">
             <summary>Field number for the "loader_target" field.</summary>
         </member>
@@ -7164,9 +7160,38 @@
             The target of a codegen.LoaderServer to use for loading schemas.
             </summary>
         </member>
+        <member name="F:Pulumirpc.LinkRequest.PackagesFieldNumber">
+            <summary>Field number for the "packages" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkRequest.Packages">
+            <summary>
+            Local dependencies that should be linked into the program or plugin's language specific project files.
+            Each dependency has a path to a a language specific artifact. This can be a binary artifact like a
+            Python wheel or a tar.gz for Node.js, or a source directory.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.LinkRequest.Types">
+            <summary>Container for nested types declared in the LinkRequest message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.Types.LinkDependency.PackageFieldNumber">
+            <summary>Field number for the "package" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.Types.LinkDependency.PathFieldNumber">
+            <summary>Field number for the "path" field.</summary>
+        </member>
         <member name="T:Pulumirpc.LinkResponse">
             <summary>
             `LinkResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Link) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.LinkResponse.ImportInstructionsFieldNumber">
+            <summary>Field number for the "import_instructions" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkResponse.ImportInstructions">
+            <summary>
+            The instructions on how to use a linked package in a program or plugin. These instructions are meant
+            to be displayed to the user. For example when linking a local Python dependency, this might return
+            `import my_namespace_mypkg as mypkg`.
             </summary>
         </member>
         <member name="T:Pulumirpc.LanguageRuntime">
@@ -7340,7 +7365,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Link(Pulumirpc.LinkRequest,Grpc.Core.ServerCallContext)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -7995,7 +8023,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -8005,7 +8036,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -8013,7 +8047,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -8023,7 +8060,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -14086,6 +14126,14 @@
             <summary>
             A folder pointing to policy packs to use for the tests. This is used to test the language plugin's policy pack
             support. These must be manually written.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.LocalFieldNumber">
+            <summary>Field number for the "local" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.Local">
+            <summary>
+            If true, tests will be run in "local" mode, meaning all SDKs will be generated with the `--local` flag and not packed.
             </summary>
         </member>
         <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">

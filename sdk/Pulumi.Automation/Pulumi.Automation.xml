@@ -184,6 +184,39 @@
         <member name="M:Pulumi.Automation.Events.EventLogWatcher.AwaitPollingTask">
             Exposed for testing; use Stop instead.
         </member>
+        <member name="T:Pulumi.Automation.Events.EventsServer">
+            <summary>
+            gRPC service implementation for receiving engine events over gRPC.
+            This service receives events streamed from the Pulumi CLI during stack operations.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Events.FileEventWatcher">
+            <summary>
+            File-based event watcher that polls a log file for engine events.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Events.GrpcEventWatcher">
+            <summary>
+            gRPC-based event watcher that hosts a gRPC server to receive engine events.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Events.IEventWatcher">
+            <summary>
+            Interface for watching engine events, either from a file or via gRPC.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Events.IEventWatcher.EventLogPath">
+            <summary>
+            Gets the event log path or address to pass to the Pulumi CLI.
+            For file-based watching, this is a file path.
+            For gRPC-based watching, this is a TCP address like "tcp://localhost:12345".
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Events.IEventWatcher.StopAsync">
+            <summary>
+            Stops watching for events and waits for any pending event processing to complete.
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Events.PolicyEvent">
             <summary>
             <see cref="T:Pulumi.Automation.Events.PolicyEvent"/> is emitted whenever there is Policy violation.

@@ -6075,6 +6075,103 @@
             The reason the property is invalid.
             </summary>
         </member>
+        <member name="T:Pulumirpc.EventsReflection">
+            <summary>Holder for reflection information generated from pulumi/events.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.EventsReflection.Descriptor">
+            <summary>File descriptor for pulumi/events.proto</summary>
+        </member>
+        <member name="T:Pulumirpc.EventRequest">
+            <summary>
+            EventRequest contains a single engine event.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.EventRequest.EventFieldNumber">
+            <summary>Field number for the "event" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.EventRequest.Event">
+            <summary>
+            event is a JSON-encoded string containing the engine event data.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Events">
+            <summary>
+            Events is a service for receiving engine events over gRPC.
+            This service allows the Pulumi CLI to send engine events to clients
+            (such as the Automation API) over a gRPC stream instead of writing them to
+            a file on the filesystem and reading them from there.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.Events.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Pulumirpc.Events.EventsBase">
+            <summary>Base class for server-side implementations of Events</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsBase.StreamEvents(Grpc.Core.IAsyncStreamReader{Pulumirpc.EventRequest},Grpc.Core.ServerCallContext)">
+            <summary>
+            StreamEvents allows the client to stream multiple engine events to the server.
+            The client sends multiple EventRequest messages over the stream, and the server
+            processes them as they arrive. When the client is done sending events, it closes
+            the stream.
+            </summary>
+            <param name="requestStream">Used for reading requests from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Pulumirpc.Events.EventsClient">
+            <summary>Client for Events</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for Events</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for Events that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.StreamEvents(Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            StreamEvents allows the client to stream multiple engine events to the server.
+            The client sends multiple EventRequest messages over the stream, and the server
+            processes them as they arrive. When the client is done sending events, it closes
+            the stream.
+            </summary>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.StreamEvents(Grpc.Core.CallOptions)">
+            <summary>
+            StreamEvents allows the client to stream multiple engine events to the server.
+            The client sends multiple EventRequest messages over the stream, and the server
+            processes them as they arrive. When the client is done sending events, it closes
+            the stream.
+            </summary>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.BindService(Pulumirpc.Events.EventsBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Events.EventsBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
         <member name="T:Pulumirpc.LanguageReflection">
             <summary>Holder for reflection information generated from pulumi/language.proto</summary>
         </member>
@@ -8360,6 +8457,14 @@
             If true the engine supports letting the provider mark resource states as requiring refresh before update.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.InvokeWithPreviewFieldNumber">
+            <summary>Field number for the "invoke_with_preview" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.InvokeWithPreview">
+            <summary>
+            If true the engine will send `preview` to `Invoke` methods to let them know if the current operation is a preview or up.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>
             `ProviderHandshakeResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Handshake) call.
@@ -8803,6 +8908,15 @@
         <member name="P:Pulumirpc.InvokeRequest.Args">
             <summary>
             the arguments for the function invocation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.InvokeRequest.PreviewFieldNumber">
+            <summary>Field number for the "preview" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InvokeRequest.Preview">
+            <summary>
+            This is only set if `HandshakeRequest.invoke_with_preview` was true. If this is true then the engine is currently
+            running a preview deployment.
             </summary>
         </member>
         <member name="F:Pulumirpc.InvokeResponse.ReturnFieldNumber">

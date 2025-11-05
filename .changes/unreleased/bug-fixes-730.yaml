@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Pass secret values as Output objects to resource hooks to properly maintain their secretness. Previously hooks received an internal representation for secret values.
-time: 2025-10-23T12:55:44.123435+02:00
-custom:
-  PR: "730"

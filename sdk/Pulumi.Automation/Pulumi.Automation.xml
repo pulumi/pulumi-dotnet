@@ -184,12 +184,6 @@
         <member name="M:Pulumi.Automation.Events.EventLogWatcher.AwaitPollingTask">
             Exposed for testing; use Stop instead.
         </member>
-        <member name="T:Pulumi.Automation.Events.EventsServer">
-            <summary>
-            gRPC service implementation for receiving engine events over gRPC.
-            This service receives events streamed from the Pulumi CLI during stack operations.
-            </summary>
-        </member>
         <member name="T:Pulumi.Automation.Events.FileEventWatcher">
             <summary>
             File-based event watcher that polls a log file for engine events.
@@ -198,6 +192,12 @@
         <member name="T:Pulumi.Automation.Events.GrpcEventWatcher">
             <summary>
             gRPC-based event watcher that hosts a gRPC server to receive engine events.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Events.EventsServer">
+            <summary>
+            gRPC service implementation for receiving engine events over gRPC.
+            This service receives events streamed from the Pulumi CLI during stack operations.
             </summary>
         </member>
         <member name="T:Pulumi.Automation.Events.IEventWatcher">

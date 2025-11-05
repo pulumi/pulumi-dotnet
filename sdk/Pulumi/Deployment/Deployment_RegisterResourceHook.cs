@@ -90,7 +90,14 @@ namespace Pulumi
             foreach (var kv in s.Fields)
             {
                 var outputData = Serialization.Deserializer.Deserialize(kv.Value);
-                builder.Add(kv.Key, outputData.Value);
+                if (outputData.IsSecret)
+                {
+                    builder.Add(kv.Key, Output.CreateSecret(outputData.Value));
+                }
+                else
+                {
+                    builder.Add(kv.Key, outputData.Value);
+                }
             }
 
             return builder.ToImmutable();

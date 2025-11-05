@@ -294,19 +294,25 @@ namespace Pulumi.Automation.Commands
             if (onEngineEvent != null)
             {
                 var commandName = SanitizeCommandName(args.FirstOrDefault());
-                using var eventLogFile = new EventLogFile(commandName);
-                using var eventLogWatcher = new EventLogWatcher(eventLogFile.FilePath, onEngineEvent, cancellationToken);
+
+                // Use gRPC-based event streaming for Pulumi v3.205.0+, otherwise fall back to file-based
+                var useGrpc = Version != null && Version > new SemVersion(3, 205, 0);
+
+                await using var eventWatcher = useGrpc
+                    ? (IEventWatcher)new GrpcEventWatcher(onEngineEvent, cancellationToken)
+                    : new FileEventWatcher(commandName, onEngineEvent, cancellationToken);
+
                 try
                 {
-                    return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, stdIn, eventLogFile, cancellationToken).ConfigureAwait(false);
+                    return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, stdIn, eventWatcher.EventLogPath, cancellationToken).ConfigureAwait(false);
                 }
                 finally
                 {
-                    await eventLogWatcher.Stop().ConfigureAwait(false);
+                    await eventWatcher.StopAsync().ConfigureAwait(false);
                 }
             }
 
-            return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, stdIn, eventLogFile: null, cancellationToken).ConfigureAwait(false);
+            return await RunAsyncInner(args, workingDir, additionalEnv, onStandardOutput, onStandardError, stdIn, eventLogPath: null, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<CommandResult> RunAsyncInner(
@@ -316,7 +322,7 @@ namespace Pulumi.Automation.Commands
             Action<string>? onStandardOutput = null,
             Action<string>? onStandardError = null,
             string? stdIn = null,
-            EventLogFile? eventLogFile = null,
+            string? eventLogPath = null,
             CancellationToken cancellationToken = default)
         {
             var stdOutBuffer = new StringBuilder();
@@ -340,9 +346,9 @@ namespace Pulumi.Automation.Commands
             }
 
             var pulumiCommand = Cli.Wrap("pulumi")
-                .WithArguments(PulumiArgs(args, eventLogFile), escape: true)
+                .WithArguments(PulumiArgs(args, eventLogPath), escape: true)
                 .WithWorkingDirectory(workingDir)
-                .WithEnvironmentVariables(PulumiEnvironment(additionalEnv, _command, debugCommands: eventLogFile != null))
+                .WithEnvironmentVariables(PulumiEnvironment(additionalEnv, _command, debugCommands: eventLogPath != null))
                 .WithStandardOutputPipe(stdOutPipe)
                 .WithStandardErrorPipe(stdErrPipe)
                 .WithStandardInputPipe(stdInPipe)
@@ -383,7 +389,7 @@ namespace Pulumi.Automation.Commands
             return env;
         }
 
-        private static IList<string> PulumiArgs(IList<string> args, EventLogFile? eventLogFile)
+        private static IList<string> PulumiArgs(IList<string> args, string? eventLogPath)
         {
             // all commands should be run in non-interactive mode.
             // this causes commands to fail rather than prompting for input (and thus hanging indefinitely)
@@ -392,9 +398,9 @@ namespace Pulumi.Automation.Commands
                 args = args.Concat(new[] { "--non-interactive" }).ToList();
             }
 
-            if (eventLogFile != null)
+            if (eventLogPath != null)
             {
-                args = args.Concat(new[] { "--event-log", eventLogFile.FilePath }).ToList();
+                args = args.Concat(new[] { "--event-log", eventLogPath }).ToList();
             }
 
             return args;
@@ -408,36 +414,6 @@ namespace Pulumi.Automation.Commands
                 return "event-log";
             }
             return alphaNumWord.IsMatch(firstArgument) ? firstArgument : "event-log";
-        }
-
-        private sealed class EventLogFile : IDisposable
-        {
-            public string FilePath { get; }
-
-            public EventLogFile(string command)
-            {
-                var logDir = Path.Combine(Path.GetTempPath(), $"automation-logs-{command}-{Path.GetRandomFileName()}");
-                Directory.CreateDirectory(logDir);
-                this.FilePath = Path.Combine(logDir, "eventlog.txt");
-            }
-
-            public void Dispose()
-            {
-                var dir = Path.GetDirectoryName(this.FilePath);
-                System.Diagnostics.Debug.Assert(dir != null, "FilePath had no directory name");
-                try
-                {
-                    Directory.Delete(dir, recursive: true);
-                }
-                catch (Exception e)
-                {
-                    // allow graceful exit if for some reason
-                    // we're not able to delete the directory
-                    // will rely on OS to clean temp directory
-                    // in this case.
-                    Trace.TraceWarning("Ignoring exception during cleanup of {0} folder: {1}", dir, e);
-                }
-            }
         }
     }
 }

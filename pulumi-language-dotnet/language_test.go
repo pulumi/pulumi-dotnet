@@ -206,7 +206,6 @@ var expectedFailures = map[string]string{
 	"l2-rtti":                         "codegen not implemented",
 	"l2-namespaced-provider":          "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",
 	"l2-resource-parent-inheritance":  "expected child to inherit retain on delete flag",
-	"l2-invoke-scalar":                "run bailed",
 	"l2-union":                        "dotnet build failed",
 	"l2-resource-option-hide-diffs":   "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
 	"l1-builtin-cwd":                  "testdata not yet generated for .NET",
@@ -214,7 +213,6 @@ var expectedFailures = map[string]string{
 	"l2-keywords":                     "testdata not yet generated for .NET",
 	"l2-parallel-resources":           "testdata not yet generated for .NET",
 	"l2-parameterized-resource-twice": "testdata not yet generated for .NET",
-	"l2-invoke-scalars":               "run bailed",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

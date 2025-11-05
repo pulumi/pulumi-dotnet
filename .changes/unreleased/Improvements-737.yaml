@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Implement `Language.Link`
+time: 2025-11-05T09:53:49.574896+01:00
+custom:
+    PR: "737"

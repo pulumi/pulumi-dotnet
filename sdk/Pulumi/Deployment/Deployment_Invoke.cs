@@ -31,13 +31,13 @@ namespace Pulumi
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest)
         {
-            var outputs = await InvokeAsync<Dictionary<string, T>>(token, args, options, convertResult: true, registerPackageRequest);
+            var outputs = await InvokeAsync<ImmutableDictionary<string, T>>(token, args, options, convertResult: true, registerPackageRequest);
             return outputs.Values.First();
         }
 
         async Task<T> IDeployment.InvokeSingleAsync<T>(string token, InvokeArgs args, InvokeOptions? options)
         {
-            var outputs = await InvokeAsync<Dictionary<string, T>>(
+            var outputs = await InvokeAsync<ImmutableDictionary<string, T>>(
                 token: token,
                 args: args,
                 options: options,
@@ -74,7 +74,8 @@ namespace Pulumi
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest)
         {
-            var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest));
+            var outputResult = new Output<ImmutableDictionary<string, T>>(
+                RawInvoke<ImmutableDictionary<string, T>>(token, args, options, registerPackageRequest));
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 
@@ -84,21 +85,22 @@ namespace Pulumi
             InvokeOutputOptions options,
             RegisterPackageRequest? registerPackageRequest)
         {
-            var outputResult = new Output<Dictionary<string, T>>(RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest));
+            var outputResult = new Output<ImmutableDictionary<string, T>>(
+                RawInvoke<ImmutableDictionary<string, T>>(token, args, options, registerPackageRequest));
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 
         Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOptions? options)
         {
-            var outputResult = new Output<Dictionary<string, T>>(
-                RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));
+            var outputResult = new Output<ImmutableDictionary<string, T>>(
+                RawInvoke<ImmutableDictionary<string, T>>(token, args, options, registerPackageRequest: null));
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 
         Output<T> IDeployment.InvokeSingle<T>(string token, InvokeArgs args, InvokeOutputOptions options)
         {
-            var outputResult = new Output<Dictionary<string, T>>(
-                RawInvoke<Dictionary<string, T>>(token, args, options, registerPackageRequest: null));
+            var outputResult = new Output<ImmutableDictionary<string, T>>(
+                RawInvoke<ImmutableDictionary<string, T>>(token, args, options, registerPackageRequest: null));
             return outputResult.Apply(outputs => outputs.Values.First());
         }
 

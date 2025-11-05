@@ -1,6 +1,0 @@
-component: sdk/auto
-kind: Improvements
-body: Get event log via gRPC instead of via text file
-time: 2025-11-04T17:51:43.240261452+01:00
-custom:
-    PR: "736"

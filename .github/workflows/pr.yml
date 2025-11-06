@@ -102,9 +102,6 @@ jobs:
         id: esc-secrets
         continue-on-error: true
         uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
-      - name: Set TARGET_FRAMEWORK
-        shell: bash
-        run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v5
         with:

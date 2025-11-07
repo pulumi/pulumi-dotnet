@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
-        dotnet-version: [8.0, 9.0]
+        dotnet-version: ["8.0", "9.0", "10.0"]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -152,7 +152,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: [8.0, 9.0]
+        dotnet-version: ["8.0", "9.0", "10.0"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Fetch secrets from ESC

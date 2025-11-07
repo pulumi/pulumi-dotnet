@@ -140,7 +140,7 @@ jobs:
       - name: Test Pulumi Automation SDK
         run: make test_sdk_automation_coverage
       - name: Upload coverage data
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: coverage
           files: "*"

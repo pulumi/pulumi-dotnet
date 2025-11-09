@@ -22,6 +22,7 @@ class ResourceHooksStack : Stack
         var u = new Updatable("updatable", new UpdatableArgs
         {
             Value = "step1",
+            Secret = Output.CreateSecret("hello secret"),
         }, new CustomResourceOptions
         {
             Hooks = {
@@ -29,6 +30,11 @@ class ResourceHooksStack : Stack
                 {
                     new("beforeCreate", async (args, cancellationToken) => {
                         Console.WriteLine($"BeforeCreate: value is {args.NewInputs?["value"]}");
+                        var secret = (Output<object>)args.NewInputs?["secret"]!;
+                        if (await Output.IsSecretAsync(secret)) {
+                            Console.WriteLine($"BeforeCreate: secret is secret");
+                        }
+                        secret.Apply(value => { Console.WriteLine($"BeforeCreate: secret is {value}"); return true; });
                     }),
                 },
                 AfterCreate =

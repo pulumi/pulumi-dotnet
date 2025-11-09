@@ -12,7 +12,7 @@ namespace Pulumi
     public class LogException : Exception
     {
         public LogException(Exception exception)
-            : base("Error occurred during logging", exception)
+            : base("Error occurred during logging: " + exception.Message, exception)
         {
         }
     }

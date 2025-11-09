@@ -591,7 +591,7 @@ type logWriter struct {
 func (w *logWriter) Write(p []byte) (n int, err error) {
 	n, err = w.buffer.Write(p)
 	if err != nil {
-		return
+		return n, err
 	}
 
 	return w.LogToUser(string(p))
@@ -1207,11 +1207,12 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	cmd := exec.CommandContext( //nolint:gosec // intentionally running dynamic program name.
 		ctx,
-		opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
+		opts.dotnetExec, "pack", "-c", "Release", "-o", destination, "-p:IncludeSource", "-p:SymbolPackageFormat=snupkg")
 	cmd.Dir = req.PackageDirectory
 
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("failed to pack: %w", err)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack: %w. Dotnet pack output:\n%s", err, string(output))
 	}
 
 	var nugetFilePath string
@@ -1381,4 +1382,106 @@ func (host *dotnetLanguageHost) GenerateProgram(
 		Source:      files,
 		Diagnostics: rpcDiagnostics,
 	}, nil
+}
+
+func (host *dotnetLanguageHost) Link(
+	ctx context.Context, req *pulumirpc.LinkRequest,
+) (*pulumirpc.LinkResponse, error) {
+	logging.V(5).Infof("Linking %+v in %s", req.Packages, req.Info.RootDirectory)
+
+	loader, err := schema.NewLoaderClient(req.LoaderTarget)
+	if err != nil {
+		return nil, err
+	}
+	defer loader.Close()
+	cachedLoader := schema.NewCachedLoader(loader)
+
+	instructions := "Add the following to your .csproj file of the program:\n"
+	instructions += "\n"
+	instructions += "  <DefaultItemExcludes>$(DefaultItemExcludes);sdks/**/*.cs</DefaultItemExcludes>\n"
+	instructions += "\n"
+	if len(req.Packages) == 1 {
+		instructions += "You can then use the SDK in your .NET code with:\n"
+	} else {
+		instructions += "You can then use the SDKs in your .NET code with:\n"
+	}
+
+	for _, dep := range req.Packages {
+		cmd := exec.Command("dotnet", "add", "reference", dep.Path) //nolint:gosec
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		if err := cmd.Run(); err != nil {
+			return nil, fmt.Errorf("dotnet error: %w", err)
+		}
+
+		var version *semver.Version
+		v, err := semver.New(dep.Package.Version)
+		if err != nil {
+			logging.V(5).Infof("Invalid version %s for package %s", dep.Package.Version, dep.Package.Name)
+		} else {
+			version = v
+		}
+		var param *schema.ParameterizationDescriptor
+		if dep.Package.Parameterization != nil {
+			param = &schema.ParameterizationDescriptor{
+				Name:  dep.Package.Parameterization.Name,
+				Value: dep.Package.Parameterization.Value,
+			}
+			if dep.Package.Parameterization.Version != "" {
+				v, err := semver.New(dep.Package.Parameterization.Version)
+				if err != nil {
+					logging.V(5).Infof("Invalid version %s for package %s", dep.Package.Version, dep.Package.Name)
+				} else {
+					param.Version = *v
+				}
+			}
+		}
+		packageDesc := &schema.PackageDescriptor{
+			Name:             dep.Package.Name,
+			Version:          version,
+			DownloadURL:      dep.Package.Server,
+			Parameterization: param,
+		}
+
+		pkgRef, err := schema.LoadPackageReferenceV2(ctx, cachedLoader, packageDesc)
+		if err != nil {
+			return nil, err
+		}
+		pkg, err := pkgRef.Definition()
+		if err != nil {
+			return nil, err
+		}
+		if err := pkg.ImportLanguages(map[string]schema.Language{"csharp": dotnetcodegen.Importer}); err != nil {
+			return nil, err
+		}
+
+		namespace := "Pulumi"
+		if pkg.Namespace != "" {
+			namespace = pkg.Namespace
+		}
+		if info, ok := pkg.Language["csharp"]; ok {
+			if info, ok := info.(dotnetcodegen.CSharpPackageInfo); ok {
+				if info.RootNamespace != "" {
+					namespace = info.RootNamespace
+				}
+			}
+		}
+		instructions += "\n"
+		instructions += fmt.Sprintf("  using %s.%s;\n", csharpPackageName(namespace), csharpPackageName(pkg.Name))
+	}
+	instructions += "\n"
+
+	return &pulumirpc.LinkResponse{
+		ImportInstructions: instructions,
+	}, nil
+}
+
+// csharpPackageName converts a package name to a C#-friendly package name.
+// for example "aws-api-gateway" becomes "AwsApiGateway".
+func csharpPackageName(pkgName string) string {
+	parts := strings.Split(pkgName, "-")
+	for i, part := range parts {
+		parts[i] = dotnetcodegen.Title(part)
+	}
+	return strings.Join(parts, "")
 }

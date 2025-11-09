@@ -43,6 +43,10 @@
     </PackageReference>
     <PackageReference Include="CliWrap" Version="3.9.0" />
     <PackageReference Include="Grpc.AspNetCore.Server" version="2.71.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.71.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 

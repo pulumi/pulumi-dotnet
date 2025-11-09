@@ -1,0 +1,15 @@
+[env]
+PULUMI_ROOT = "{{config_root}}/.root"
+
+_.path = [
+  "{{env.PULUMI_ROOT}}/bin",
+]
+
+[tools]
+changie = "latest"
+dotnet = "8"
+go = "1.24"
+gofumpt = "0.9.1"
+golangci-lint = "latest"
+gotestsum = "latest"
+pulumi = "latest"

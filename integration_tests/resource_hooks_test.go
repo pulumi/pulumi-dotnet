@@ -43,6 +43,8 @@ func TestDotnetCustomResourceHooks(t *testing.T) {
 		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			requirePrinted(t, stack, "info", "BeforeCreate: value is step1")
 			requirePrinted(t, stack, "info", "AfterCreate: value is step1")
+			requirePrinted(t, stack, "info", "BeforeCreate: secret is secret")
+			requirePrinted(t, stack, "info", "BeforeCreate: secret is hello secret")
 		},
 		EditDirs: []integration.EditDir{
 			// Step 2 -- update the resource to test update hooks.

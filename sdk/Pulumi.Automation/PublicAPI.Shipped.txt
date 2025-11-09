@@ -637,6 +637,8 @@ Pulumi.Automation.UpdateOptions.PolicyPackConfigs.get -> System.Collections.Gene
 Pulumi.Automation.UpdateOptions.PolicyPackConfigs.set -> void
 Pulumi.Automation.UpdateOptions.PolicyPacks.get -> System.Collections.Generic.List<string!>?
 Pulumi.Automation.UpdateOptions.PolicyPacks.set -> void
+Pulumi.Automation.UpdateOptions.Profiling.get -> string?
+Pulumi.Automation.UpdateOptions.Profiling.set -> void
 Pulumi.Automation.UpdateOptions.Target.get -> System.Collections.Generic.List<string!>?
 Pulumi.Automation.UpdateOptions.Target.set -> void
 Pulumi.Automation.UpdateOptions.Tracing.get -> string?
@@ -742,18 +744,18 @@ Pulumi.Automation.WorkspaceStackState.UnprotectAsync(string! urn, System.Threadi
 static Pulumi.Automation.Commands.LocalPulumiCommand.CreateAsync(Pulumi.Automation.Commands.LocalPulumiCommandOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Pulumi.Automation.Commands.LocalPulumiCommand!>!
 static Pulumi.Automation.Commands.LocalPulumiCommand.Install(Pulumi.Automation.Commands.LocalPulumiCommandOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Pulumi.Automation.Commands.LocalPulumiCommand!>!
 static Pulumi.Automation.LocalWorkspace.CreateAsync(Pulumi.Automation.LocalWorkspaceOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Pulumi.Automation.LocalWorkspace!>!
-static Pulumi.Automation.LocalWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.InlineProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
 static Pulumi.Automation.LocalWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.InlineProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
-static Pulumi.Automation.LocalWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.LocalProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
+static Pulumi.Automation.LocalWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.InlineProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
 static Pulumi.Automation.LocalWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.LocalProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
-static Pulumi.Automation.LocalWorkspace.CreateStackAsync(Pulumi.Automation.InlineProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
+static Pulumi.Automation.LocalWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.LocalProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
 static Pulumi.Automation.LocalWorkspace.CreateStackAsync(Pulumi.Automation.InlineProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
-static Pulumi.Automation.LocalWorkspace.CreateStackAsync(Pulumi.Automation.LocalProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
+static Pulumi.Automation.LocalWorkspace.CreateStackAsync(Pulumi.Automation.InlineProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
 static Pulumi.Automation.LocalWorkspace.CreateStackAsync(Pulumi.Automation.LocalProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
-static Pulumi.Automation.LocalWorkspace.SelectStackAsync(Pulumi.Automation.InlineProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
+static Pulumi.Automation.LocalWorkspace.CreateStackAsync(Pulumi.Automation.LocalProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
 static Pulumi.Automation.LocalWorkspace.SelectStackAsync(Pulumi.Automation.InlineProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
-static Pulumi.Automation.LocalWorkspace.SelectStackAsync(Pulumi.Automation.LocalProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
+static Pulumi.Automation.LocalWorkspace.SelectStackAsync(Pulumi.Automation.InlineProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
 static Pulumi.Automation.LocalWorkspace.SelectStackAsync(Pulumi.Automation.LocalProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
+static Pulumi.Automation.LocalWorkspace.SelectStackAsync(Pulumi.Automation.LocalProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.WorkspaceStack!>!
 static Pulumi.Automation.PulumiFn.Create(System.Action! program) -> Pulumi.Automation.PulumiFn!
 static Pulumi.Automation.PulumiFn.Create(System.Func<System.Collections.Generic.IDictionary<string!, object?>!>! program) -> Pulumi.Automation.PulumiFn!
 static Pulumi.Automation.PulumiFn.Create(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task!>! program) -> Pulumi.Automation.PulumiFn!
@@ -763,12 +765,12 @@ static Pulumi.Automation.PulumiFn.Create(System.Func<System.Threading.Tasks.Task
 static Pulumi.Automation.PulumiFn.Create(System.IServiceProvider! serviceProvider, System.Type! stackType) -> Pulumi.Automation.PulumiFn!
 static Pulumi.Automation.PulumiFn.Create<TStack>() -> Pulumi.Automation.PulumiFn!
 static Pulumi.Automation.PulumiFn.Create<TStack>(System.IServiceProvider! serviceProvider) -> Pulumi.Automation.PulumiFn!
-static Pulumi.Automation.RemoteWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
 static Pulumi.Automation.RemoteWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
-static Pulumi.Automation.RemoteWorkspace.CreateStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
+static Pulumi.Automation.RemoteWorkspace.CreateOrSelectStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
 static Pulumi.Automation.RemoteWorkspace.CreateStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
-static Pulumi.Automation.RemoteWorkspace.SelectStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
+static Pulumi.Automation.RemoteWorkspace.CreateStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
 static Pulumi.Automation.RemoteWorkspace.SelectStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
+static Pulumi.Automation.RemoteWorkspace.SelectStackAsync(Pulumi.Automation.RemoteGitProgramArgs! args) -> System.Threading.Tasks.Task<Pulumi.Automation.RemoteWorkspaceStack!>!
 static Pulumi.Automation.Serialization.LocalSerializer.BuildJsonSerializerOptions() -> System.Text.Json.JsonSerializerOptions!
 static Pulumi.Automation.Serialization.LocalSerializer.BuildYamlDeserializer() -> YamlDotNet.Serialization.IDeserializer!
 static Pulumi.Automation.Serialization.LocalSerializer.BuildYamlSerializer() -> YamlDotNet.Serialization.ISerializer!

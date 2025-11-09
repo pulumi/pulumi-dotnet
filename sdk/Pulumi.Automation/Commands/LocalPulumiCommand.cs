@@ -296,7 +296,7 @@ namespace Pulumi.Automation.Commands
                 var commandName = SanitizeCommandName(args.FirstOrDefault());
 
                 // Use gRPC-based event streaming for Pulumi v3.205.0+, otherwise fall back to file-based
-                var useGrpc = Version != null && Version > new SemVersion(3, 205, 0);
+                var useGrpc = Version is not null && Version.ComparePrecedenceTo(new SemVersion(3, 205, 0)) > 0;
 
                 await using var eventWatcher = useGrpc
                     ? (IEventWatcher)new GrpcEventWatcher(onEngineEvent, cancellationToken)

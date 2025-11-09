@@ -1074,3 +1074,7 @@ virtual Pulumi.InvokeTransform.Invoke(Pulumi.InvokeTransformArgs args, System.Th
 virtual Pulumi.ResourceHookCallback.Invoke(Pulumi.ResourceHookArgs! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 virtual Pulumi.ResourceTransform.Invoke(Pulumi.ResourceTransformArgs args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Pulumi.ResourceTransformResult?>!
 virtual Pulumi.ResourceTransformation.Invoke(Pulumi.ResourceTransformationArgs args) -> Pulumi.ResourceTransformationResult?
+Pulumi.ResourceOptions.HideDiffs.get -> System.Collections.Generic.List<string!>!
+Pulumi.ResourceOptions.HideDiffs.set -> void
+static Pulumi.InputUnion<T0, T1>.implicit operator Pulumi.InputUnion<T0, T1>!(Pulumi.Input<T0>! value) -> Pulumi.InputUnion<T0, T1>!
+static Pulumi.InputUnion<T0, T1>.implicit operator Pulumi.InputUnion<T0, T1>!(Pulumi.Input<T1>! value) -> Pulumi.InputUnion<T0, T1>!

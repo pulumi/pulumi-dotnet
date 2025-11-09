@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.ExceptionServices;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +44,8 @@ namespace Pulumi.Automation
     public sealed class WorkspaceStack : IDisposable
 #pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
+        private readonly LocalSerializer _serializer = new LocalSerializer();
+
         private readonly Task _readyTask;
 
         /// <summary>
@@ -736,14 +737,13 @@ namespace Pulumi.Automation
                 if (options.Resources != null && options.Resources.Count > 0)
                 {
                     Directory.CreateDirectory(tempDirectoryPath);
-                    var importPath = Path.Combine(tempDirectoryPath, "import.json");
-                    var importContent = new
-                    {
-                        nameTable = options.NameTable,
-                        resources = options.Resources,
-                    };
+                    string importPath = Path.Combine(tempDirectoryPath, "import.json");
+                    var importContent = new ImportContent(
+                options.NameTable,
+                options.Resources
+                    );
 
-                    var importJson = JsonSerializer.Serialize(importContent, LocalSerializer.BuildJsonSerializerOptions());
+                    var importJson = this._serializer.SerializeJson(importContent);
 
                     await File.WriteAllTextAsync(importPath, importJson, cancellationToken);
                     args.Add("--file");
@@ -848,8 +848,7 @@ namespace Pulumi.Automation
             if (string.IsNullOrWhiteSpace(result.StandardOutput))
                 return ImmutableList<UpdateSummary>.Empty;
 
-            var jsonOptions = LocalSerializer.BuildJsonSerializerOptions();
-            var list = JsonSerializer.Deserialize<List<UpdateSummary>>(result.StandardOutput, jsonOptions)!;
+            List<UpdateSummary>? list = this._serializer.DeserializeJson<List<UpdateSummary>>(result.StandardOutput)!;
             return list.ToImmutableList();
         }
 
@@ -1131,4 +1130,6 @@ namespace Pulumi.Automation
         private IReadOnlyList<string> GetRemoteArgs()
             => Workspace is LocalWorkspace localWorkspace ? localWorkspace.GetRemoteArgs() : Array.Empty<string>();
     }
+
+    internal record ImportContent([property: JsonPropertyName("nameTable")]Dictionary<string, string>? NameTable, [property: JsonPropertyName("resources")]List<ImportResource> Resources);
 }

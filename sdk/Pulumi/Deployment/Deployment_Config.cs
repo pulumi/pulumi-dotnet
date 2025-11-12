@@ -103,7 +103,7 @@ namespace Pulumi
         /// </summary>
         private static string CleanKey(string key)
         {
-            var idx = key.IndexOf(":", StringComparison.Ordinal);
+            var idx = key.IndexOf(':');
 
             if (idx > 0 && key.Substring(idx + 1).StartsWith("config:", StringComparison.Ordinal))
             {

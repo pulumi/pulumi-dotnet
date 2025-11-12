@@ -40,7 +40,7 @@ namespace Pulumi.Automation
             }
 
             var args = request.Args;
-            var engineAddr = args != null && args.Any() ? args[0] : "";
+            var engineAddr = args != null && args.Count != 0 ? args[0] : "";
 
             var settings = new InlineDeploymentSettings(
                 _callerContext.Logger,

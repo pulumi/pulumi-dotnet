@@ -1,12 +1,12 @@
 using System;
-using System.Collections.Immutable;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using Humanizer;
 using Pulumi.Utilities;
 
@@ -17,6 +17,12 @@ namespace Pulumi.Experimental.Provider
     /// </summary>
     public class ComponentProvider : Provider
     {
+        private static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+
         private readonly Assembly componentAssembly;
         private readonly Metadata metadata;
         private readonly Type[]? componentTypes;
@@ -46,6 +52,7 @@ namespace Pulumi.Experimental.Provider
         /// <param name="request">The request containing the package name</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>The schema for the components in the assembly</returns>
+
         public override Task<GetSchemaResponse> GetSchema(GetSchemaRequest request, CancellationToken ct)
         {
             var schema = componentTypes != null
@@ -53,11 +60,7 @@ namespace Pulumi.Experimental.Provider
                 : ComponentAnalyzer.GenerateSchema(metadata, componentAssembly);
 
             // Serialize to JSON
-            var jsonSchema = JsonSerializer.Serialize(schema, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            });
+            var jsonSchema = JsonSerializer.Serialize(schema, DefaultJsonSerializerOptions);
 
             return Task.FromResult(new GetSchemaResponse
             {

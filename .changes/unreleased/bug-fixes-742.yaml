@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Fix error being thrown from using hooks/transforms in mock tests
-time: 2025-11-06T11:42:45.52386442Z
-custom:
-    PR: "742"

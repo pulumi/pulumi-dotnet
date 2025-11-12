@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Add a couple of missing implict casts to InputUnion
-time: 2025-11-07T13:19:30.699748689Z
-custom:
-    PR: "744"

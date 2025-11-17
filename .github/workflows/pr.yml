@@ -168,7 +168,6 @@ jobs:
           submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@v3.4.0
-        continue-on-error: true
       - name: Set dotnet version from matrix
         run: mise use dotnet@${{ matrix.dotnet-version }}
       - name: Create global.json

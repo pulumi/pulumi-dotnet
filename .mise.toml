@@ -6,14 +6,10 @@ _.path = [
 ]
 
 [tools]
+"asdf:mise-plugins/mise-dotnet" = "8.0"
 changie = "latest"
-dotnet = "8.0" # Windows users: see below
 go = "1.24"
 gofumpt = "0.9.1"
 golangci-lint = "latest"
 gotestsum = "latest"
 pulumi = "latest"
-
-# The Windows vfox plugin has a known issue.
-# If `mise install` fails, install dotnet explicitly:
-# `mise install dotnet@8.0`

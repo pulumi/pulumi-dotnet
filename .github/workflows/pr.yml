@@ -174,7 +174,7 @@ jobs:
         # This ensures that we use the matrix version instead of the runner's default version
         run: |
           DOTNET_VERSION=$(dotnet --version)
-          echo "{\"sdk\":{\"version\": \"$DOTNET_VERSION\"}}" > ./global.json
+          echo '{"sdk":{"version": "$DOTNET_VERSION"}}' > ./global.json
       - name: Dotnet version
         run: dotnet --version
       - name: Install netcoredbg (Linux)

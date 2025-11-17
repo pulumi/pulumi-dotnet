@@ -7,7 +7,7 @@ _.path = [
 
 [tools]
 changie = "latest"
-dotnet = "8"
+dotnet = "8.0"
 go = "1.24"
 gofumpt = "0.9.1"
 golangci-lint = "latest"

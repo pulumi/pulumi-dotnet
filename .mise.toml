@@ -10,6 +10,6 @@ _.path = [
 changie = "latest"
 go = "1.24"
 gofumpt = "0.9.1"
-golangci-lint = "latest"
+golangci-lint = "2.5.0"
 gotestsum = "latest"
 pulumi = "latest"

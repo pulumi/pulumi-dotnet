@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Support scalar invokes
-time: 2025-11-05T20:55:19.082793Z
-custom:
-    PR: "740"

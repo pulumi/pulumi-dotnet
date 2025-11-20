@@ -921,7 +921,7 @@ namespace Pulumi.Automation.Tests
                     var upResult = await stackA.UpAsync();
                     Assert.Equal(UpdateKind.Update, upResult.Summary.Kind);
                     Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
-                    Assert.Equal(1, upResult.Outputs.Count);
+                    Assert.Single(upResult.Outputs);
 
                     // exp_static
                     Assert.True(upResult.Outputs.TryGetValue("exp_static", out var expStaticValue));
@@ -934,7 +934,7 @@ namespace Pulumi.Automation.Tests
                     var upResult = await stackB.UpAsync();
                     Assert.Equal(UpdateKind.Update, upResult.Summary.Kind);
                     Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
-                    Assert.Equal(1, upResult.Outputs.Count);
+                    Assert.Single(upResult.Outputs);
 
                     // exp_static
                     Assert.True(upResult.Outputs.TryGetValue("exp_static", out var expStaticValue));
@@ -1765,7 +1765,7 @@ namespace Pulumi.Automation.Tests
 
                 try
                 {
-                    Task.WaitAll(destroyTask, cancelTask);
+                    await Task.WhenAll(destroyTask, cancelTask);
                 }
                 catch (AggregateException)
                 {

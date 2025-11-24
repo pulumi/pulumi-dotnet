@@ -41,7 +41,7 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: 'recursive'
       - name: Setup mise and install tools
@@ -57,7 +57,7 @@ jobs:
         id: esc-secrets
         continue-on-error: true
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@v3.4.1
       - name: Run `make lint_language_host`
@@ -73,7 +73,7 @@ jobs:
         id: esc-secrets
         continue-on-error: true
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@v3.4.1
       - name: Check if folder is empty
@@ -103,7 +103,7 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Setup dotnet SDK
@@ -163,7 +163,7 @@ jobs:
         shell: bash
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Setup dotnet SDK
@@ -237,7 +237,7 @@ jobs:
       - name: Set TARGET_FRAMEWORK
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Setup mise and install tools
@@ -264,7 +264,7 @@ jobs:
         continue-on-error: true
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@v3.4.1
       - name: Get version info

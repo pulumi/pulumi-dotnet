@@ -3365,6 +3365,39 @@
             Inspect all public properties of the stack to find outputs. Validate the values and register them as stack outputs.
             </summary>
         </member>
+        <member name="T:Pulumi.Stash">
+            <summary>
+            Stash stores an arbitrary value in the state.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Stash.Output">
+            <summary>
+            The value saved in the state for the stash.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Stash.Input">
+            <summary>
+            The most recent value passed to the stash resource.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Stash.#ctor(System.String,Pulumi.StashArgs,Pulumi.CustomResourceOptions)">
+            <summary>
+            Create a <see cref="T:Pulumi.Stash"/> resource with the given arguments and options.
+            </summary>
+            <param name="name">The unique name of the resource.</param>
+            <param name="args">The arguments to use to populate this resource's properties.</param>
+            <param name="options">A bag of options that control this resource's behavior.</param>
+        </member>
+        <member name="T:Pulumi.StashArgs">
+            <summary>
+            The set of arguments for constructing a <see cref="T:Pulumi.Stash"/> resource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.StashArgs.Input">
+            <summary>
+            The value to store in the stash resource.
+            </summary>
+        </member>
         <member name="T:Pulumi.Testing.IMocks">
             <summary>
             Hooks to mock the engine that provide test doubles for offline unit testing of stacks.

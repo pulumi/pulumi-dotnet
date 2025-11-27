@@ -10,7 +10,8 @@ namespace Pulumi.Automation
 
         public ConfigValue(
             string value,
-            bool isSecret = false)
+            bool isSecret = false
+        )
         {
             this.Value = value;
             this.IsSecret = isSecret;

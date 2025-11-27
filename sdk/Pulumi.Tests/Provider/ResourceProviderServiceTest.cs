@@ -83,7 +83,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
         constructResponse.State.Fields.Should().Contain(kv => kv.Key == nameof(TestBucket.TestBucketOutput) && kv.Value.StringValue == stringInput);
     }
 
-    private static async Task<Value> Serialize(object args)
+    private static async Task<Google.Protobuf.WellKnownTypes.Value> Serialize(object args)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         var propertyValueSerializer = new PropertyValueSerializer();

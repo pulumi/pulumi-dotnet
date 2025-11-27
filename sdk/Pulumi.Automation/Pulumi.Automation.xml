@@ -1487,6 +1487,420 @@
             The new Passphrase to use in the passphrase provider
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.Boolean">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.NullableBoolean">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ConfigValue">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.CancelEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DiagnosticEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DiffKind">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.EngineEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PolicyEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PreludeEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PropertyDiff">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ResourceOperationFailedEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ResourceOutputsEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ResourcePreEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StandardOutputEngineEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StepEventMetadata">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StepEventStateMetadata">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.SummaryEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.OperationType">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PluginInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PluginKind">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectBackend">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectRuntime">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectRuntimeName">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectRuntimeOptions">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectSettings">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectTemplate">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectTemplateConfigValue">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.CancelEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ConfigValueModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DiagnosticEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.EngineEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PluginInfoModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PolicyEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PreludeEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ProjectSettingsModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.PropertyDiffModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ResourceOperationFailedEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ResourceOutputsEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ResourcePreEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StackSummaryModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StandardOutputEngineEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StepEventMetadataModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StepEventStateMetadataModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.SummaryEventModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.UpdateSummaryModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StackSettings">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StackSettingsConfigValue">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.StackSummary">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.UpdateKind">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.UpdateState">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.UpdateSummary">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.WhoAmIResult">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DictionaryOperationTypeInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DictionaryStringConfigValue">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DictionaryStringPropertyDiffModel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DictionaryStringObject">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DictionaryStringString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.IDictionaryStringProjectTemplateConfigValue">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.IDictionaryStringStackSettingsConfigValue">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ListPluginInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ListStackSummary">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ListUpdateSummary">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ListString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.IImmutableDictionaryOperationTypeInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.IImmutableDictionaryStringConfigValue">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.IImmutableDictionaryStringPropertyDiff">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.IImmutableDictionaryStringObject">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.IImmutableDictionaryStringString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ImmutableArrayString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.NullableImmutableArrayString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.DateTimeOffset">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.NullableDateTimeOffset">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.JsonElement">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.Int32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.NullableInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.Int64">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.Object">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.ObjectArray">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.String">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.Default">
+            <summary>
+            The default <see cref="T:System.Text.Json.Serialization.JsonSerializerContext"/> associated with a default <see cref="T:System.Text.Json.JsonSerializerOptions"/> instance.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Serialization.Json.SourceGenerationContext.GeneratedSerializerOptions">
+            <summary>
+            The source-generated options associated with this context.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Serialization.Json.SourceGenerationContext.#ctor">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Automation.Serialization.Json.SourceGenerationContext.#ctor(System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Pulumi.Automation.Serialization.Json.SourceGenerationContext.GetTypeInfo(System.Type)">
+            <inheritdoc/>
+        </member>
         <member name="T:Pulumi.Automation.StackDeployment">
             <summary>
             Represents the state of a stack deployment as used by
@@ -2224,7 +2638,7 @@
         </member>
         <member name="M:Pulumi.Automation.WorkspaceStack.RefreshAsync(Pulumi.Automation.RefreshOptions,System.Threading.CancellationToken)">
             <summary>
-            Compares the current stack’s resource state with the state known to exist in the actual
+            Compares the current stack's resource state with the state known to exist in the actual
             cloud provider. Any such changes are adopted into the current stack.
             </summary>
             <param name="options">Options to customize the behavior of the refresh.</param>
@@ -2290,10 +2704,10 @@
         </member>
         <member name="M:Pulumi.Automation.WorkspaceStackState.DeleteAsync(System.String,System.Boolean,System.Threading.CancellationToken)">
             <summary>
-            This command deletes a resource from a stack’s state, as long as it is safe to do so.
+            This command deletes a resource from a stack's state, as long as it is safe to do so.
             The resource is specified by its Pulumi URN.
             <para/>
-            Resources can’t be deleted if there exist other resources that depend on it or are parented to it.
+            Resources can't be deleted if there exist other resources that depend on it or are parented to it.
             Protected resources will not be deleted unless it is specifically requested using the <paramref name="force"/> flag.
             </summary>
             <param name="urn">The Pulumi URN of the resource to be deleted.</param>
@@ -2303,7 +2717,7 @@
         <member name="M:Pulumi.Automation.WorkspaceStackState.UnprotectAsync(System.String,System.Threading.CancellationToken)">
             <summary>
             Unprotect a resource in a stack's state.
-            This command clears the ‘protect’ bit on the provided resource <paramref name="urn"/>, allowing the resource to be deleted.
+            This command clears the 'protect' bit on the provided resource <paramref name="urn"/>, allowing the resource to be deleted.
             </summary>
             <param name="urn">The Pulumi URN to be unprotected.</param>
             <param name="cancellationToken">A cancellation token.</param>
@@ -2311,7 +2725,7 @@
         <member name="M:Pulumi.Automation.WorkspaceStackState.UnprotectAllAsync(System.Threading.CancellationToken)">
             <summary>
             Unprotect all resources in a stack's state.
-            This command clears the ‘protect’ bit on all resources in the stack, allowing those resources to be deleted.
+            This command clears the 'protect' bit on all resources in the stack, allowing those resources to be deleted.
             </summary>
             <param name="cancellationToken">A cancellation token.</param>
         </member>

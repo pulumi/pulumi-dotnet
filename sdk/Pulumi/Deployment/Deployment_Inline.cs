@@ -12,8 +12,7 @@ namespace Pulumi
     {
         private Deployment(IDeploymentBuilder builder, InlineDeploymentSettings settings)
         {
-            if (settings is null)
-                throw new ArgumentNullException(nameof(settings));
+            ArgumentNullException.ThrowIfNull(settings);
 
             _organizationName = settings.Organization ?? "organization";
             _projectName = settings.Project;

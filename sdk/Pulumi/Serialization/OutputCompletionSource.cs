@@ -102,7 +102,7 @@ namespace Pulumi.Serialization
                 result.Add(outputName, completionSource);
             }
 
-            Log.Debug("Fields to assign: " + JsonSerializer.Serialize(result.Keys), resource);
+            Log.Debug("Fields to assign: " + JsonSerializer.Serialize(result.Keys, PulumiJsonSerializerContext.Default.IEnumerableString), resource);
             return result.ToImmutable();
         }
     }

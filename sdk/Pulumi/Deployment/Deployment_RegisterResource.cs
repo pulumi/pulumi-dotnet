@@ -1,6 +1,7 @@
 // Copyright 2016-2024, Pulumi Corporation
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +27,19 @@ namespace Pulumi
             if (options.DeletedWith != null && !(await MonitorSupportsDeletedWith().ConfigureAwait(false)))
             {
                 throw new InvalidOperationException("The Pulumi CLI does not support the DeletedWith option. Please update the Pulumi CLI.");
+            }
+
+            // InputList has no IsEmpty/Count
+            var hasReplaceWith = false;
+            await foreach (var _ in options.ReplaceWith)
+            {
+                hasReplaceWith = true;
+                break;
+            }
+
+            if (hasReplaceWith && !(await MonitorSupportsReplaceWith().ConfigureAwait(false)))
+            {
+                throw new InvalidOperationException("The Pulumi CLI does not support the ReplaceWith option. Please update the Pulumi CLI.");
             }
 
             var request = await CreateRegisterResourceRequest(type, name, custom, remote, options);
@@ -114,6 +128,22 @@ namespace Pulumi
                 DeletedWith = deletedWith,
                 SupportsResultReporting = true,
             };
+
+            await foreach (var resourceInput in options.ReplaceWith)
+            {
+                if (resourceInput != null)
+                {
+                    var resource = await resourceInput.ToOutput().GetValueAsync(null!).ConfigureAwait(false);
+                    if (resource != null)
+                    {
+                        var urn = await resource.Urn.GetValueAsync("").ConfigureAwait(false);
+                        if (!string.IsNullOrEmpty(urn))
+                        {
+                            request.ReplaceWith.Add(urn);
+                        }
+                    }
+                }
+            }
 
             if (deleteBeforeReplace != null)
             {

@@ -1104,6 +1104,9 @@ namespace Pulumi.Experimental.Provider
                 InputList<Resource> dependsOn = request.Dependencies
                     .Select(urn => new DependencyResource(urn))
                     .ToImmutableArray<Resource>();
+                InputList<Resource> replaceWith = request.ReplaceWith
+                    .Select(urn => new DependencyResource(urn))
+                    .ToImmutableArray<Resource>();
                 var providers = request.Providers.Values
                     .Select(reference => new DependencyProviderResource(reference))
                     .ToList<ProviderResource>();
@@ -1114,6 +1117,7 @@ namespace Pulumi.Experimental.Provider
                 {
                     Aliases = aliases,
                     DependsOn = dependsOn,
+                    ReplaceWith = replaceWith,
                     Protect = request.Protect,
                     Providers = providers,
                     Parent = !string.IsNullOrEmpty(request.Parent) ? new DependencyResource(request.Parent) : throw new RpcException(new Status(StatusCode.InvalidArgument, "Parent must be set for Component Providers.")),

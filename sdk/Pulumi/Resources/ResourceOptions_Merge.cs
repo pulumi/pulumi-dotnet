@@ -16,6 +16,7 @@ namespace Pulumi
             options1.CustomTimeouts = options2.CustomTimeouts ?? options1.CustomTimeouts;
             options1.RetainOnDelete = options2.RetainOnDelete ?? options1.RetainOnDelete;
             options1.DeletedWith = options2.DeletedWith ?? options1.DeletedWith;
+            options1.ReplaceWith = options1.ReplaceWith.Concat(options2.ReplaceWith);
 
             options1.IgnoreChanges.AddRange(options2.IgnoreChanges);
             options1.ResourceTransformations.AddRange(options2.ResourceTransformations);

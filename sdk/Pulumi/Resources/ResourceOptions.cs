@@ -143,6 +143,17 @@ namespace Pulumi
         /// </summary>
         public Resource? DeletedWith { get; set; }
 
+        private InputList<Resource>? _replaceWith;
+
+        /// <summary>
+        /// If set, the resource will be replaced if one of the specified resources is replaced.
+        /// </summary>
+        public InputList<Resource> ReplaceWith
+        {
+            get => _replaceWith ??= new InputList<Resource>();
+            set => _replaceWith = value;
+        }
+
         private ResourceHookBinding? _hooks;
 
         /// <summary>

@@ -5,12 +5,7 @@ using Simple = Pulumi.Simple;
 
 return await Deployment.RunAsync(() => 
 {
-    var target1 = new Simple.Resource("target1", new()
-    {
-        Value = true,
-    });
-
-    var target2 = new Simple.Resource("target2", new()
+    var target = new Simple.Resource("target", new()
     {
         Value = true,
     });
@@ -20,7 +15,10 @@ return await Deployment.RunAsync(() =>
         Value = true,
     }, new CustomResourceOptions
     {
-        ReplaceWith = new[] { target1, target2 },
+        ReplaceWith = new[]
+        {
+            target,
+        },
     });
 
     var notReplaceWith = new Simple.Resource("notReplaceWith", new()

@@ -17,7 +17,11 @@ class MyStack : Stack
             Length = 10,
         });
 
-        new FailsOnReplace("failsonreplace", new FailsOnReplaceArgs(), new CustomResourceOptions
+        // This resource should be replaced when rand1 or rand2 is replaced
+        var replaced = new Random("replaced", new RandomArgs
+        {
+            Length = 10,
+        }, new CustomResourceOptions
         {
             ReplaceWith = new[] { rand1, rand2 },
         });

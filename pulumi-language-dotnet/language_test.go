@@ -174,8 +174,8 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 // Add test names here that are expected to fail and the reason why they are failing
 var expectedFailures = map[string]string{
 	"l1-builtin-can":           "#489 codegen not implemented",
-	"l1-builtin-try":           "#490 codegen not implemented",
 	"l1-builtin-stash":         "testdata not yet generated for .NET",
+	"l1-builtin-try":           "#490 codegen not implemented",
 	"l1-config-types":          "dotnet build failed",
 	"l1-keyword-overlap":       "#493 update to pulumi 1.50 conformance failure",
 	"l1-proxy-index":           "dotnet build failed",
@@ -205,7 +205,7 @@ var expectedFailures = map[string]string{
 	"l2-resource-secret":                     "test hanging",
 	"l1-builtin-project-root":                "#466",
 	"l2-rtti":                                "codegen not implemented",
-	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
+	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",
 	"l2-resource-parent-inheritance":         "expected child to inherit retain on delete flag",
 	"l2-union":                               "dotnet build failed",
 	"l2-resource-option-hide-diffs":          "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
@@ -214,7 +214,6 @@ var expectedFailures = map[string]string{
 	"l2-keywords":                            "testdata not yet generated for .NET",
 	"l2-parallel-resources":                  "testdata not yet generated for .NET",
 	"l2-parameterized-resource-twice":        "testdata not yet generated for .NET",
-	"l2-resource-option-replace-with":        "not yet implemented",
 	"l2-resource-option-replacement-trigger": "not yet implemented",
 }
 

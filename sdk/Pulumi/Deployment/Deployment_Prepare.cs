@@ -252,6 +252,7 @@ namespace Pulumi
                     ? CustomTimeouts.Deserialize(request.Options.CustomTimeouts)
                     : null;
                 opts.DeletedWith = request.Options.DeletedWith == "" ? null : new DependencyResource(request.Options.DeletedWith);
+                opts.ReplaceWith = request.Options.ReplaceWith.Select(u => (Resource)new DependencyResource(u)).ToList();
                 opts.DependsOn = request.Options.DependsOn.Select(u => (Resource)new DependencyResource(u)).ToList();
                 opts.IgnoreChanges = request.Options.IgnoreChanges.ToList();
                 opts.Parent = request.Parent == "" ? null : new DependencyResource(request.Parent);
@@ -299,6 +300,25 @@ namespace Pulumi
                     response.Options.Aliases.AddRange(aliases);
                     response.Options.CustomTimeouts = result.Value.Options.CustomTimeouts == null ? null : result.Value.Options.CustomTimeouts.Serialize();
                     response.Options.DeletedWith = result.Value.Options.DeletedWith == null ? "" : await result.Value.Options.DeletedWith.Urn.GetValueAsync("").ConfigureAwait(false);
+                    await foreach (var dep in result.Value.Options.ReplaceWith)
+                    {
+                        if (dep == null)
+                        {
+                            continue;
+                        }
+
+                        var res = await dep.ToOutput().GetValueAsync(null!).ConfigureAwait(false);
+                        if (res == null)
+                        {
+                            continue;
+                        }
+
+                        var urn = await res.Urn.GetValueAsync("").ConfigureAwait(false);
+                        if (!string.IsNullOrEmpty(urn))
+                        {
+                            response.Options.ReplaceWith.Add(urn);
+                        }
+                    }
                     await foreach (var dep in result.Value.Options.DependsOn)
                     {
                         if (dep == null)

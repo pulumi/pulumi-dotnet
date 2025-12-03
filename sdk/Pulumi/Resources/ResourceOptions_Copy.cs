@@ -25,6 +25,7 @@ namespace Pulumi
                 PluginDownloadURL = options.PluginDownloadURL,
                 RetainOnDelete = options.RetainOnDelete,
                 DeletedWith = options.DeletedWith,
+                ReplaceWith = options.ReplaceWith.Clone(),
                 ResourceTransforms = options.ResourceTransforms.ToList(),
                 Hooks = options.Hooks.Clone(),
                 HideDiffs = options.HideDiffs.ToList(),

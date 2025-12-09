@@ -6831,6 +6831,32 @@
             Prompts to ask the user.
             </summary>
         </member>
+        <member name="T:Pulumirpc.TemplateRequest">
+            <summary>
+            `TemplateRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.Template) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TemplateRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TemplateRequest.Info">
+            <summary>
+            The [plugin program](pulumirpc.ProgramInfo) to use.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TemplateRequest.ProjectNameFieldNumber">
+            <summary>Field number for the "project_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TemplateRequest.ProjectName">
+            <summary>
+            The name of the project we are templating.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.TemplateResponse">
+            <summary>
+            `TemplateResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Template) call.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RunPluginRequest">
             <summary>
             `RunPluginRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.RunPlugin) call.
@@ -7384,6 +7410,16 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Template(Pulumirpc.TemplateRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.About(Pulumirpc.AboutRequest,Grpc.Core.ServerCallContext)">
             <summary>
             `About` returns information about the language runtime being used.
@@ -7811,6 +7847,50 @@
             <summary>
             `RuntimeOptionsPrompts` accepts a request specifying a Pulumi project and returns a list of additional prompts to
             ask during `pulumi new`.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Template(Pulumirpc.TemplateRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Template(Pulumirpc.TemplateRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.TemplateAsync(Pulumirpc.TemplateRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.TemplateAsync(Pulumirpc.TemplateRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -10215,6 +10295,14 @@
             The stack trace handle for the construct call. Supports stitching stack traces together across plugins.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConstructRequest.ReplaceWithFieldNumber">
+            <summary>Field number for the "replace_with" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.ReplaceWith">
+            <summary>
+            The URNs of resources whose replaces will trigger a replace on this resource.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ConstructRequest.Types">
             <summary>Container for nested types declared in the ConstructRequest message type.</summary>
         </member>
@@ -12614,6 +12702,22 @@
             if set the engine will not call the resource providers delete method for this resource when specified resource is deleted.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.ReplaceWithFieldNumber">
+            <summary>Field number for the "replace_with" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.ReplaceWith">
+            <summary>
+            if set the engine will replace this resource when any of the specified resources are replaced.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.ReplacementTriggerFieldNumber">
+            <summary>Field number for the "replacement_trigger" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.ReplacementTrigger">
+            <summary>
+            if set, the engine will diff this with the last recorded value, and trigger a replace if they are not equal.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.AliasSpecsFieldNumber">
             <summary>Field number for the "aliasSpecs" field.</summary>
         </member>
@@ -13117,6 +13221,12 @@
         </member>
         <member name="F:Pulumirpc.TransformResourceOptions.HideDiffFieldNumber">
             <summary>Field number for the "hide_diff" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ReplaceWithFieldNumber">
+            <summary>Field number for the "replace_with" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ReplacementTriggerFieldNumber">
+            <summary>Field number for the "replacement_trigger" field.</summary>
         </member>
         <member name="F:Pulumirpc.TransformRequest.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>

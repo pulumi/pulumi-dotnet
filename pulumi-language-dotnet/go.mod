@@ -11,8 +11,8 @@ replace github.com/atotto/clipboard => github.com/tgummerer/clipboard v0.0.0-202
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.207.0
-	github.com/pulumi/pulumi/sdk/v3 v3.207.0
+	github.com/pulumi/pulumi/pkg/v3 v3.210.1-0.20251209160449-f36a85f96dfd
+	github.com/pulumi/pulumi/sdk/v3 v3.210.1-0.20251209160449-f36a85f96dfd
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.72.1
 	google.golang.org/protobuf v1.36.6
@@ -20,7 +20,6 @@ require (
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
-	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect

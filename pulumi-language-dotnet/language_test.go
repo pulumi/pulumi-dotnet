@@ -214,7 +214,6 @@ var expectedFailures = map[string]string{
 	"l2-keywords":                            "testdata not yet generated for .NET",
 	"l2-parallel-resources":                  "testdata not yet generated for .NET",
 	"l2-parameterized-resource-twice":        "testdata not yet generated for .NET",
-	"l2-resource-option-replace-with":        "not yet implemented",
 	"l2-resource-option-replacement-trigger": "not yet implemented",
 }
 

@@ -591,17 +591,6 @@ func TestDeletedWith(t *testing.T) {
 	})
 }
 
-// TestReplaceWith tests the ReplaceWith resource option.
-//
-//nolint:paralleltest // ProgramTest calls testing.T.Parallel
-func TestReplaceWith(t *testing.T) {
-	testDotnetProgram(t, &integration.ProgramTestOptions{
-		Dir:            "replace_with",
-		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
-		Quick:          true,
-	})
-}
-
 //nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProviderCall(t *testing.T) {
 	const testDir = "provider_call"

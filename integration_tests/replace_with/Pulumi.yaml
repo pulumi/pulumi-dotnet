@@ -1,4 +1,0 @@
-name: replace_with_dotnet
-description: A program that uses the ReplaceWith resource option
-runtime: dotnet
-

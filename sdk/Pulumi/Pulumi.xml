@@ -2921,6 +2921,11 @@
             if specified resource is being deleted as well.
             </summary>
         </member>
+        <member name="P:Pulumi.ResourceOptions.ReplaceWith">
+            <summary>
+            If set, the resource will be replaced if one of the specified resources is replaced.
+            </summary>
+        </member>
         <member name="P:Pulumi.ResourceOptions.Hooks">
             <summary>
             Optional resource hooks to bind to this resource. The hooks will be invoked during the lifecycle of

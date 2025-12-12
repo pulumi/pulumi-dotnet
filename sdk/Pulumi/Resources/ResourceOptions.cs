@@ -178,5 +178,14 @@ namespace Pulumi
             set => _hideDiffs = value;
         }
 
+        /// <summary>
+        /// If set, the engine will diff this with the last recorded value, and trigger
+        /// a replace if they are not equal. Note that if either value is null, no
+        /// comparison is done and no replacement is triggered. This means that the
+        /// replacement trigger only applies to two subsequent deployments with defined
+        /// triggers.
+        /// </summary>
+        public Input<object>? ReplacementTrigger { get; set; }
+
     }
 }

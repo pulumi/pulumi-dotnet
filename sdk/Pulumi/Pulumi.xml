@@ -2938,6 +2938,15 @@
             This only affects the diff display, and does not affect update behavior.
             </summary>
         </member>
+        <member name="P:Pulumi.ResourceOptions.ReplacementTrigger">
+            <summary>
+            If set, the engine will diff this with the last recorded value, and trigger
+            a replace if they are not equal. Note that if either value is null, no
+            comparison is done and no replacement is triggered. This means that the
+            replacement trigger only applies to two subsequent deployments with defined
+            triggers.
+            </summary>
+        </member>
         <member name="T:Pulumi.ResourceTransform">
             <summary>
             ResourceTransform is the callback signature for <see cref="P:Pulumi.ResourceOptions.ResourceTransforms"/>. A

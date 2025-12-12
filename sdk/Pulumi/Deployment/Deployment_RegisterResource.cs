@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
+using Pulumi.Serialization;
 using Pulumirpc;
 
 namespace Pulumi
@@ -42,13 +43,13 @@ namespace Pulumi
                 throw new InvalidOperationException("The Pulumi CLI does not support the ReplaceWith option. Please update the Pulumi CLI.");
             }
 
-            var request = await CreateRegisterResourceRequest(type, name, custom, remote, options);
+            var (request, replacementTriggerDeps) = await this.CreateRegisterResourceRequest(type, name, custom, remote, options);
 
             Log.Debug($"Preparing resource: t={type}, name={name}, custom={custom}, remote={remote}");
             var prepareResult = await PrepareResourceAsync(label, resource, custom, remote, args, options, registerPackageRequest).ConfigureAwait(false);
             Log.Debug($"Prepared resource: t={type}, name={name}, custom={custom}, remote={remote}");
 
-            PopulateRequest(request, prepareResult);
+            PopulateRequest(request, prepareResult, replacementTriggerDeps);
 
             Log.Debug($"Registering resource monitor start: t={type}, name={name}, custom={custom}, remote={remote}");
             var result = await this.Monitor.RegisterResourceAsync(resource, request).ConfigureAwait(false);
@@ -68,7 +69,7 @@ namespace Pulumi
             return (result.Urn, result.Id, result.Object, dependencies.ToImmutable(), result.Result);
         }
 
-        private static void PopulateRequest(RegisterResourceRequest request, PrepareResult prepareResult)
+        private static void PopulateRequest(RegisterResourceRequest request, PrepareResult prepareResult, HashSet<string> replacementTriggerDeps)
         {
             request.Object = prepareResult.SerializedProps;
             request.Parent = prepareResult.ParentUrn;
@@ -89,7 +90,11 @@ namespace Pulumi
             }
 
             request.Transforms.AddRange(prepareResult.Transforms);
-            request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
+
+            // Merge all dependencies: from prepareResult and replacement trigger
+            var allDeps = new HashSet<string>(prepareResult.AllDirectDependencyUrns);
+            allDeps.UnionWith(replacementTriggerDeps);
+            request.Dependencies.AddRange(allDeps);
 
             request.Hooks = prepareResult.Hooks;
 
@@ -101,7 +106,7 @@ namespace Pulumi
             }
         }
 
-        private static async Task<RegisterResourceRequest> CreateRegisterResourceRequest(
+        private async Task<(RegisterResourceRequest, HashSet<string>)> CreateRegisterResourceRequest(
             string type, string name, bool custom, bool remote, ResourceOptions options)
         {
             var customOpts = options as CustomResourceOptions;
@@ -145,6 +150,28 @@ namespace Pulumi
                 }
             }
 
+            var replacementTriggerDeps = new HashSet<string>();
+            if (options.ReplacementTrigger != null)
+            {
+                var label = $"resource:{name}[{type}]";
+                var keepResources = await MonitorSupportsResourceReferences().ConfigureAwait(false);
+                var keepOutputValues = remote && await MonitorSupportsOutputValues().ConfigureAwait(false);
+                var serializer = new Serializer(_excessiveDebugOutput);
+                var serialized = await serializer.SerializeAsync($"{label}.replacementTrigger", options.ReplacementTrigger, keepResources, keepOutputValues, false).ConfigureAwait(false);
+                
+                var value = Serializer.CreateValue(serialized);
+                request.ReplacementTrigger = value;
+                
+                foreach (var dep in serializer.DependentResources)
+                {
+                    var urn = await dep.Urn.GetValueAsync("").ConfigureAwait(false);
+                    if (!string.IsNullOrEmpty(urn))
+                    {
+                        replacementTriggerDeps.Add(urn);
+                    }
+                }
+            }
+
             if (deleteBeforeReplace != null)
             {
                 request.DeleteBeforeReplace = deleteBeforeReplace.Value;
@@ -167,7 +194,7 @@ namespace Pulumi
             request.IgnoreChanges.AddRange(options.IgnoreChanges);
             request.HideDiffs.AddRange(options.HideDiffs);
 
-            return request;
+            return (request, replacementTriggerDeps);
         }
     }
 }

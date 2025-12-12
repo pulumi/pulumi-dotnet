@@ -29,6 +29,7 @@ namespace Pulumi
                 ResourceTransforms = options.ResourceTransforms.ToList(),
                 Hooks = options.Hooks.Clone(),
                 HideDiffs = options.HideDiffs.ToList(),
+                ReplacementTrigger = options.ReplacementTrigger,
             };
 
         internal static CustomResourceOptions CreateCustomResourceOptionsCopy(ResourceOptions? options)

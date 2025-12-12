@@ -158,10 +158,10 @@ namespace Pulumi
                 var keepOutputValues = remote && await MonitorSupportsOutputValues().ConfigureAwait(false);
                 var serializer = new Serializer(_excessiveDebugOutput);
                 var serialized = await serializer.SerializeAsync($"{label}.replacementTrigger", options.ReplacementTrigger, keepResources, keepOutputValues, false).ConfigureAwait(false);
-                
+
                 var value = Serializer.CreateValue(serialized);
                 request.ReplacementTrigger = value;
-                
+
                 foreach (var dep in serializer.DependentResources)
                 {
                     var urn = await dep.Urn.GetValueAsync("").ConfigureAwait(false);

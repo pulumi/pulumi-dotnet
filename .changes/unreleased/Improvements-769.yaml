@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Add support for the builtin Stash resource
-time: 2025-12-11T14:32:47.352237616Z
-custom:
-    PR: "769"

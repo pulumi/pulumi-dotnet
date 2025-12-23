@@ -104,7 +104,7 @@ namespace Pulumi
         private readonly ConcurrentDictionary<string, bool> _featureSupport = new ConcurrentDictionary<string, bool>();
 
         private readonly IEngineLogger _logger;
-        private readonly IRunner _runner;
+        private readonly Runner _runner;
 
         internal Experimental.IEngine Engine { get; }
         internal IMonitor Monitor { get; }
@@ -251,12 +251,14 @@ namespace Pulumi
 
         private async Task<bool> MonitorSupportsFeature(string feature)
         {
+#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             if (!this._featureSupport.ContainsKey(feature))
             {
                 var request = new SupportsFeatureRequest { Id = feature };
                 var response = await this.Monitor.SupportsFeatureAsync(request).ConfigureAwait(false);
                 this._featureSupport[feature] = response.HasSupport;
             }
+#pragma warning restore CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             return this._featureSupport[feature];
         }
 

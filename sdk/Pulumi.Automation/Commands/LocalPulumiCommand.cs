@@ -69,7 +69,7 @@ namespace Pulumi.Automation.Commands
             }
 
             var minimumVersion = _minimumVersion;
-            if (options?.Version != null && options.Version > minimumVersion)
+            if (options?.Version != null && options.Version.CompareSortOrderTo(minimumVersion) > 0)
             {
                 minimumVersion = options.Version;
             }
@@ -156,7 +156,7 @@ namespace Pulumi.Automation.Commands
                 string command = systemRoot != null
                     ? Path.Combine(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
                     : "powershell.exe";
-                string[] args = {
+                string[] args = [
                     "-NoProfile",
                     "-InputFormat",
                     "None",
@@ -169,7 +169,7 @@ namespace Pulumi.Automation.Commands
                     root,
                     "-Version",
                     version.ToString()
-                };
+                ];
 
                 var result = await Cli.Wrap(command).WithArguments(args, escape: true)
                     .WithValidation(CommandResultValidation.None)
@@ -262,7 +262,7 @@ namespace Pulumi.Automation.Commands
             {
                 throw new InvalidOperationException($"Major version mismatch. You are using Pulumi CLI version {version} with Automation SDK v{minVersion.Major}. Please update the SDK.");
             }
-            if (minVersion > version)
+            if (minVersion.CompareSortOrderTo(version) > 0)
             {
                 throw new InvalidOperationException($"Minimum version requirement failed. The minimum CLI version requirement is {minVersion}, your current CLI version is {version}. Please update the Pulumi CLI.");
             }
@@ -296,7 +296,7 @@ namespace Pulumi.Automation.Commands
                 var commandName = SanitizeCommandName(args.FirstOrDefault());
 
                 // Use gRPC-based event streaming for Pulumi v3.205.0+, otherwise fall back to file-based
-                var useGrpc = Version != null && Version > new SemVersion(3, 205, 0);
+                var useGrpc = Version is not null && Version.ComparePrecedenceTo(new SemVersion(3, 205, 0)) > 0;
 
                 await using var eventWatcher = useGrpc
                     ? (IEventWatcher)new GrpcEventWatcher(onEngineEvent, cancellationToken)
@@ -395,12 +395,12 @@ namespace Pulumi.Automation.Commands
             // this causes commands to fail rather than prompting for input (and thus hanging indefinitely)
             if (!args.Contains("--non-interactive"))
             {
-                args = args.Concat(new[] { "--non-interactive" }).ToList();
+                args = args.Concat(["--non-interactive"]).ToList();
             }
 
-            if (eventLogPath != null)
+            if (eventLogPath is not null)
             {
-                args = args.Concat(new[] { "--event-log", eventLogPath }).ToList();
+                args = args.Concat(["--event-log", eventLogPath]).ToList();
             }
 
             return args;
@@ -409,7 +409,7 @@ namespace Pulumi.Automation.Commands
         private static string SanitizeCommandName(string? firstArgument)
         {
             var alphaNumWord = new Regex(@"^[-A-Za-z0-9_]{1,20}$");
-            if (firstArgument == null)
+            if (firstArgument is null)
             {
                 return "event-log";
             }

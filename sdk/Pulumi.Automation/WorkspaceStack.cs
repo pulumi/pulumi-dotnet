@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.ExceptionServices;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +44,8 @@ namespace Pulumi.Automation
     public sealed class WorkspaceStack : IDisposable
 #pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
+        private readonly LocalSerializer _serializer = new LocalSerializer();
+
         private readonly Task _readyTask;
 
         /// <summary>
@@ -350,7 +351,7 @@ namespace Pulumi.Automation
                     args.Add(options.Plan);
                 }
 
-                if (options.Replace?.Any() == true)
+                if (options.Replace != null && options.Replace.Count > 0)
                 {
                     foreach (var item in options.Replace)
                     {
@@ -474,7 +475,7 @@ namespace Pulumi.Automation
                     args.Add(options.Plan);
                 }
 
-                if (options.Replace?.Any() == true)
+                if (options.Replace != null && options.Replace.Count > 0)
                 {
                     foreach (var item in options.Replace)
                     {
@@ -565,7 +566,7 @@ namespace Pulumi.Automation
         }
 
         /// <summary>
-        /// Compares the current stack’s resource state with the state known to exist in the actual
+        /// Compares the current stack's resource state with the state known to exist in the actual
         /// cloud provider. Any such changes are adopted into the current stack.
         /// </summary>
         /// <param name="options">Options to customize the behavior of the refresh.</param>
@@ -598,7 +599,7 @@ namespace Pulumi.Automation
                 if (options.ClearPendingCreates is true)
                     args.Add("--clear-pending-creates");
 
-                if (options.ImportPendingCreates?.Any() == true)
+                if (options.ImportPendingCreates != null && options.ImportPendingCreates.Count > 0)
                 {
                     foreach (var item in options.ImportPendingCreates)
                     {
@@ -733,21 +734,16 @@ namespace Pulumi.Automation
                 // we the output file to read the generated code and return it to the user
                 tempDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-                if (options.Resources?.Any() == true)
+                if (options.Resources != null && options.Resources.Count > 0)
                 {
                     Directory.CreateDirectory(tempDirectoryPath);
-                    var importPath = Path.Combine(tempDirectoryPath, "import.json");
-                    var importContent = new
-                    {
-                        nameTable = options.NameTable,
-                        resources = options.Resources,
-                    };
+                    string importPath = Path.Combine(tempDirectoryPath, "import.json");
+                    var importContent = new ImportContent(
+                options.NameTable,
+                options.Resources
+                    );
 
-                    var importJson = JsonSerializer.Serialize(importContent, new JsonSerializerOptions
-                    {
-                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
+                    var importJson = this._serializer.SerializeJson(importContent);
 
                     await File.WriteAllTextAsync(importPath, importJson, cancellationToken);
                     args.Add("--file");
@@ -775,7 +771,7 @@ namespace Pulumi.Automation
                     // if the user specifies a converter, pass it to `--from <converter>` argument of import.
                     args.Add("--from");
                     args.Add(options.Converter);
-                    if (options.ConverterArgs?.Any() == true)
+                    if (options.ConverterArgs != null && options.ConverterArgs.Count > 0)
                     {
                         // pass any additional arguments to the converter
                         args.Add("--");
@@ -852,8 +848,7 @@ namespace Pulumi.Automation
             if (string.IsNullOrWhiteSpace(result.StandardOutput))
                 return ImmutableList<UpdateSummary>.Empty;
 
-            var jsonOptions = LocalSerializer.BuildJsonSerializerOptions();
-            var list = JsonSerializer.Deserialize<List<UpdateSummary>>(result.StandardOutput, jsonOptions)!;
+            List<UpdateSummary>? list = this._serializer.DeserializeJson<List<UpdateSummary>>(result.StandardOutput)!;
             return list.ToImmutableList();
         }
 
@@ -902,7 +897,7 @@ namespace Pulumi.Automation
         /// supported for local backends.
         /// </summary>
         public async Task CancelAsync(CancellationToken cancellationToken = default)
-            => await this.Workspace.RunCommandAsync(new[] { "cancel", "--stack", this.Name, "--yes" }, cancellationToken).ConfigureAwait(false);
+            => await this.Workspace.RunCommandAsync(["cancel", "--stack", this.Name, "--yes"], cancellationToken).ConfigureAwait(false);
 
         internal async Task<CommandResult> RunCommandAsync(
             IList<string> args,
@@ -911,7 +906,7 @@ namespace Pulumi.Automation
             Action<EngineEvent>? onEngineEvent,
             CancellationToken cancellationToken)
         {
-            args = args.Concat(new[] { "--stack", this.Name }).ToList();
+            args = args.Concat(["--stack", this.Name]).ToList();
             return await this.Workspace.RunStackCommandAsync(this.Name, args, onStandardOutput, onStandardError, onEngineEvent, cancellationToken).ConfigureAwait(false);
         }
 
@@ -1048,7 +1043,7 @@ namespace Pulumi.Automation
                 args.Add(options.Message);
             }
 
-            if (options.Exclude?.Any() == true)
+            if (options.Exclude != null && options.Exclude.Count > 0)
             {
                 foreach (var item in options.Exclude)
                 {
@@ -1057,7 +1052,7 @@ namespace Pulumi.Automation
                 }
             }
 
-            if (options.Target?.Any() == true)
+            if (options.Target != null && options.Target.Count > 0)
             {
                 foreach (var item in options.Target)
                 {
@@ -1066,7 +1061,7 @@ namespace Pulumi.Automation
                 }
             }
 
-            if (options.PolicyPacks?.Any() == true)
+            if (options.PolicyPacks != null && options.PolicyPacks.Count > 0)
             {
                 foreach (var item in options.PolicyPacks)
                 {
@@ -1075,7 +1070,7 @@ namespace Pulumi.Automation
                 }
             }
 
-            if (options.PolicyPackConfigs?.Any() == true)
+            if (options.PolicyPackConfigs != null && options.PolicyPackConfigs.Count > 0)
             {
                 foreach (var item in options.PolicyPackConfigs)
                 {
@@ -1141,4 +1136,6 @@ namespace Pulumi.Automation
         private IReadOnlyList<string> GetRemoteArgs()
             => Workspace is LocalWorkspace localWorkspace ? localWorkspace.GetRemoteArgs() : Array.Empty<string>();
     }
+
+    internal record ImportContent([property: JsonPropertyName("nameTable")]Dictionary<string, string>? NameTable, [property: JsonPropertyName("resources")]List<ImportResource> Resources);
 }

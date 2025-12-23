@@ -48,9 +48,9 @@ namespace Pulumi
             var matches =
                     from vt in types
                     let resourceVersion = !string.IsNullOrEmpty(vt.Item1) ? SemVersion.Parse(vt.Item1, SemVersionStyles.Any) : minimalVersion
-                    where resourceVersion >= minimalVersion
+                    where resourceVersion.ComparePrecedenceTo(minimalVersion) >= 0
                     where (string.IsNullOrEmpty(version) || vt.Item1 == null || minimalVersion.Major == resourceVersion.Major)
-                    orderby resourceVersion descending
+                    orderby resourceVersion.ComparePrecedenceTo(minimalVersion) descending
                     select vt.Item2;
 
             type = matches.FirstOrDefault();

@@ -1028,7 +1028,7 @@ namespace Pulumi.Automation
         {
             var version = _cmd.Version ?? new SemVersion(3, 0);
 
-            return version >= minSupportedVersion;
+            return version.ComparePrecedenceTo(minSupportedVersion) >= 0;
         }
 
         private void CheckSupportsEnvironmentsCommands()

@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Update Semver dependency to 3.x to fix compatibility issues with packages like Aspire.Hosting
+time: 2025-12-23T09:34:32.0401908-08:00
+custom:
+    PR: "776"

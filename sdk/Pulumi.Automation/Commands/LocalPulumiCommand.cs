@@ -69,7 +69,7 @@ namespace Pulumi.Automation.Commands
             }
 
             var minimumVersion = _minimumVersion;
-            if (options?.Version != null && options.Version > minimumVersion)
+            if (options?.Version != null && options.Version.ComparePrecedenceTo(minimumVersion) > 0)
             {
                 minimumVersion = options.Version;
             }
@@ -262,7 +262,7 @@ namespace Pulumi.Automation.Commands
             {
                 throw new InvalidOperationException($"Major version mismatch. You are using Pulumi CLI version {version} with Automation SDK v{minVersion.Major}. Please update the SDK.");
             }
-            if (minVersion > version)
+            if (minVersion.ComparePrecedenceTo(version) > 0)
             {
                 throw new InvalidOperationException($"Minimum version requirement failed. The minimum CLI version requirement is {minVersion}, your current CLI version is {version}. Please update the Pulumi CLI.");
             }
@@ -296,7 +296,7 @@ namespace Pulumi.Automation.Commands
                 var commandName = SanitizeCommandName(args.FirstOrDefault());
 
                 // Use gRPC-based event streaming for Pulumi v3.205.0+, otherwise fall back to file-based
-                var useGrpc = Version != null && Version > new SemVersion(3, 205, 0);
+                var useGrpc = Version != null && Version.ComparePrecedenceTo(new SemVersion(3, 205, 0)) > 0;
 
                 await using var eventWatcher = useGrpc
                     ? (IEventWatcher)new GrpcEventWatcher(onEngineEvent, cancellationToken)

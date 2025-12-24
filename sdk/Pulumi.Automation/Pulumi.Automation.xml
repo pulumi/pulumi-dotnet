@@ -846,6 +846,9 @@
         <member name="M:Pulumi.Automation.LocalWorkspace.RemoveStackAsync(System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
+        <member name="M:Pulumi.Automation.LocalWorkspace.RemoveStackAsync(System.String,Pulumi.Automation.RemoveStackOptions,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
         <member name="M:Pulumi.Automation.LocalWorkspace.ListStacksAsync(System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -1477,6 +1480,26 @@
             supported for local backends.
             </summary>
         </member>
+        <member name="T:Pulumi.Automation.RemoveStackOptions">
+            <summary>
+            Options to pass into <see cref="M:Pulumi.Automation.Workspace.RemoveStackAsync(System.String,Pulumi.Automation.RemoveStackOptions,System.Threading.CancellationToken)"/>.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RemoveStackOptions.Force">
+            <summary>
+            Forces deletion of the stack, leaving behind any resources managed by the stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RemoveStackOptions.PreserveConfig">
+            <summary>
+            Do not delete the corresponding Pulumi.&lt;stack-name&gt;.yaml configuration file for the stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.RemoveStackOptions.RemoveBackups">
+            <summary>
+            Remove backups of the stack, if using the DIY backend
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.SecretsProviderOptions">
             <summary>
             Options to pass into <see cref="M:Pulumi.Automation.WorkspaceStack.ChangeSecretsProviderAsync(System.String,Pulumi.Automation.SecretsProviderOptions,System.Threading.CancellationToken)"/>.
@@ -1930,6 +1953,14 @@
             Deletes the stack and all associated configuration and history.
             </summary>
             <param name="stackName">The stack to remove.</param>
+            <param name="cancellationToken">A cancellation token.</param>
+        </member>
+        <member name="M:Pulumi.Automation.Workspace.RemoveStackAsync(System.String,Pulumi.Automation.RemoveStackOptions,System.Threading.CancellationToken)">
+            <summary>
+            Deletes the stack and all associated configuration and history.
+            </summary>
+            <param name="stackName">The stack to remove.</param>
+            <param name="options">Options to pass into the remove stack operation.</param>
             <param name="cancellationToken">A cancellation token.</param>
         </member>
         <member name="M:Pulumi.Automation.Workspace.ListStacksAsync(System.Threading.CancellationToken)">

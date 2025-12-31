@@ -2,7 +2,7 @@ module github.com/pulumi-dotnet/integration_tests
 
 go 1.24.7
 
-replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.5.0
+replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.8.3
 
 require (
 	github.com/blang/semver v3.5.1+incompatible

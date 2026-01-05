@@ -215,6 +215,7 @@ var expectedFailures = map[string]string{
 	"l2-parallel-resources":                  "testdata not yet generated for .NET",
 	"l2-parameterized-resource-twice":        "testdata not yet generated for .NET",
 	"l2-resource-option-replacement-trigger": "not yet implemented",
+	"l2-resource-option-replace-with":        "not yet implemented",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.
@@ -278,6 +279,9 @@ func TestLanguage(t *testing.T) {
 			}
 			if strings.HasPrefix(tt, "policy-") {
 				t.Skipf("dotnet doesn't support policy tests yet: %s", tt)
+			}
+			if strings.HasPrefix(tt, "provider-") {
+				t.Skipf("dotnet doesn't support provider tests yet: %s", tt)
 			}
 
 			result, err := engine.RunLanguageTest(context.Background(), &testingrpc.RunLanguageTestRequest{

@@ -14398,6 +14398,14 @@
             If true, tests will be run in "local" mode, meaning all SDKs will be generated with the `--local` flag and not packed.
             </summary>
         </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.ProvidersDirectoryFieldNumber">
+            <summary>Field number for the "providers_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.ProvidersDirectory">
+            <summary>
+            The path to a directory containing provider plugins to be used for the "provider-" tests.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">
             <summary>Container for nested types declared in the PrepareLanguageTestsRequest message type.</summary>
         </member>

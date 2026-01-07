@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Fix TryGetResourceType & run unit tests in CI
+time: 2026-01-07T12:17:35.149504+01:00
+custom:
+    PR: "783"

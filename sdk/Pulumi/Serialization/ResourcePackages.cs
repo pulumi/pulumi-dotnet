@@ -50,10 +50,11 @@ namespace Pulumi
                     let resourceVersion = !string.IsNullOrEmpty(vt.Item1) ? SemVersion.Parse(vt.Item1, SemVersionStyles.Any) : minimalVersion
                     where resourceVersion.ComparePrecedenceTo(minimalVersion) >= 0
                     where (string.IsNullOrEmpty(version) || vt.Item1 == null || minimalVersion.Major == resourceVersion.Major)
-                    orderby resourceVersion.ComparePrecedenceTo(minimalVersion) descending
-                    select vt.Item2;
+                    select new { ResourceVersion = resourceVersion, Type = vt.Item2 };
 
-            type = matches.FirstOrDefault();
+            var orderedMatches = matches.OrderByDescending(x => x.ResourceVersion, SemVersion.PrecedenceComparer);
+
+            type = orderedMatches.Select(x => x.Type).FirstOrDefault();
             return type != null;
         }
 

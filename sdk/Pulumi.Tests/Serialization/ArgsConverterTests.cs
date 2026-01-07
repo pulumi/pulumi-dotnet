@@ -39,6 +39,7 @@ namespace Pulumi.Tests.Serialization
             var converted = Converter.ConvertValue<JsonElement>(NoWarn, "", serialized);
             var value = converted.Value.GetProperty("v").GetProperty("s").GetString();
             Assert.Equal(expected, value);
+            Assert.True(false);
         }
 
         [Fact]

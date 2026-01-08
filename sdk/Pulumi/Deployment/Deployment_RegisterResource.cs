@@ -155,7 +155,9 @@ namespace Pulumi
             {
                 var label = $"resource:{name}[{type}]";
                 var keepResources = await MonitorSupportsResourceReferences().ConfigureAwait(false);
-                var keepOutputValues = remote && await MonitorSupportsOutputValues().ConfigureAwait(false);
+                // Replacement triggers should always be serialized as plain values (not Output values) so they can be compared
+                // This matches the behavior in NodeJS where keepOutputValues is only true for unknown Outputs or dry runs
+                var keepOutputValues = false;
                 var serializer = new Serializer(_excessiveDebugOutput);
                 var serialized = await serializer.SerializeAsync($"{label}.replacementTrigger", options.ReplacementTrigger, keepResources, keepOutputValues, false).ConfigureAwait(false);
 
@@ -169,6 +171,7 @@ namespace Pulumi
                     {
                         replacementTriggerDeps.Add(urn);
                     }
+
                 }
             }
 
@@ -198,3 +201,4 @@ namespace Pulumi
         }
     }
 }
+

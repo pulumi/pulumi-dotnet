@@ -896,11 +896,9 @@ func TestReplacementTrigger(t *testing.T) {
 			return nil
 		},
 		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
-			require.Len(t, stack.Deployment.Resources, 3)
-			require.Equal(t, stack.Deployment.Resources[0].Type, tokens.Type("pulumi:pulumi:Stack"))
-			require.Equal(t, stack.Deployment.Resources[1].Type, tokens.Type("pulumi:providers:testcomponent"))
-			require.Equal(t, stack.Deployment.Resources[2].Type, tokens.Type("testcomponent:index:Component"))
-			require.Equal(t, stack.Deployment.Resources[2].URN.Name(), "trigger")
+			require.Len(t, stack.Deployment.Resources, 2)
+			require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+			require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
 		},
 		EditDirs: []integration.EditDir{
 			{
@@ -908,22 +906,28 @@ func TestReplacementTrigger(t *testing.T) {
 				Additive:        true,
 				ExpectNoChanges: true,
 				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
-					require.Len(t, stack.Deployment.Resources, 3)
-					require.Equal(t, stack.Deployment.Resources[0].Type, tokens.Type("pulumi:pulumi:Stack"))
-					require.Equal(t, stack.Deployment.Resources[1].Type, tokens.Type("pulumi:providers:testcomponent"))
-					require.Equal(t, stack.Deployment.Resources[2].Type, tokens.Type("testcomponent:index:Component"))
-					require.Equal(t, stack.Deployment.Resources[2].URN.Name(), "trigger")
+					require.Len(t, stack.Deployment.Resources, 2)
+					require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+					require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
+
+					for _, ev := range stack.Events {
+						if ev.ResourcePreEvent != nil {
+							metadata := ev.ResourcePreEvent.Metadata
+							if metadata.URN != "" {
+								require.NotEqual(t, apitype.OpReplace, metadata.Op,
+									"Did not expect OpReplace for 'trigger' resource, but found OpReplace")
+							}
+						}
+					}
 				},
 			},
 			{
 				Dir:      filepath.Join(testDir, "step3"),
 				Additive: true,
 				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
-					require.Len(t, stack.Deployment.Resources, 3)
-					require.Equal(t, stack.Deployment.Resources[0].Type, tokens.Type("pulumi:pulumi:Stack"))
-					require.Equal(t, stack.Deployment.Resources[1].Type, tokens.Type("pulumi:providers:testcomponent"))
-					require.Equal(t, stack.Deployment.Resources[2].Type, tokens.Type("testcomponent:index:Component"))
-					require.Equal(t, stack.Deployment.Resources[2].URN.Name(), "trigger")
+					require.Len(t, stack.Deployment.Resources, 2)
+					require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+					require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
 
 					var operations []apitype.OpType
 					for _, ev := range stack.Events {

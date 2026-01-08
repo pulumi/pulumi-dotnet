@@ -20,7 +20,7 @@ class Component : Pulumi.ComponentResource
     public Output<string> Secret { get; private set; } = null!;
 
     public Component(string name, ComponentArgs args, ComponentResourceOptions opts = null)
-        : base("testcomponent:index:Component", name, args, opts, remote: true)
+        : base("testcomponent:index:Component", name, args, opts)
     {
     }
 }

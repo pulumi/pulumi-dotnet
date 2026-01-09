@@ -875,6 +875,8 @@ func TestProgramErrorPython(t *testing.T) {
 	})
 }
 
+// @TODO: We can delete this test when #788 is fixed and we can use the conformance test.
+//
 //nolint:paralleltest // ProgramTest calls t.Parallel()
 func TestReplacementTrigger(t *testing.T) {
 	testDir := "replacement_trigger"

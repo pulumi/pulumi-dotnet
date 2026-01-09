@@ -881,10 +881,6 @@ func TestReplacementTrigger(t *testing.T) {
 
 	testDotnetProgram(t, &integration.ProgramTestOptions{
 		Dir: filepath.Join(testDir, "step1"),
-		LocalProviders: []integration.LocalDependency{
-			{Package: "testprovider", Path: "testprovider"},
-			{Package: "testcomponent", Path: filepath.Join("construct_component_plain", "testcomponent-go")},
-		},
 		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			require.Len(t, stack.Deployment.Resources, 2)
 			require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")

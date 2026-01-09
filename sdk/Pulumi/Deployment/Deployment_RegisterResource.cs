@@ -90,6 +90,7 @@ namespace Pulumi
             }
 
             request.Transforms.AddRange(prepareResult.Transforms);
+            request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
 
             request.Hooks = prepareResult.Hooks;
 

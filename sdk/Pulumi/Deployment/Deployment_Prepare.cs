@@ -287,7 +287,7 @@ namespace Pulumi
                 {
                     var serializer = new Serializer(excessiveDebugOutput: false);
                     var serialized = await serializer.SerializeAsync("Args", result.Value.Args,
-                        keepResources: true, keepOutputValues: true).ConfigureAwait(false);
+                        keepResources: true, keepOutputValues: false).ConfigureAwait(false);
                     response.Properties = Serializer.CreateStruct((ImmutableDictionary<string, object?>)serialized!);
 
                     // Copy the options back

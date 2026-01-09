@@ -885,16 +885,6 @@ func TestReplacementTrigger(t *testing.T) {
 			{Package: "testprovider", Path: "testprovider"},
 			{Package: "testcomponent", Path: filepath.Join("construct_component_plain", "testcomponent-go")},
 		},
-		PrePrepareProject: func(info *engine.Projinfo) error {
-			e := newEnvironmentDotnet(t)
-			e.CWD = info.Root
-			path := info.Proj.Plugins.Providers[0].Path
-			_, _ = e.RunCommand("pulumi", "package", "gen-sdk", path, "pkg", "--language", "dotnet")
-			return nil
-		},
-		PostPrepareProject: func(info *engine.Projinfo) error {
-			return nil
-		},
 		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			require.Len(t, stack.Deployment.Resources, 2)
 			require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")

@@ -264,6 +264,14 @@ namespace Pulumi
                 opts.Version = request.Options.Version;
                 opts.Hooks = ResourceHookUtilities.ResourceHookBindingFromProto(request.Options.Hooks) ?? new ResourceHookBinding();
                 opts.HideDiffs = request.Options.HideDiff.ToList();
+                if (request.Options.ReplacementTrigger != null)
+                {
+                    var deserialized = Serialization.Deserializer.Deserialize(request.Options.ReplacementTrigger);
+                    if (deserialized.Value != null)
+                    {
+                        opts.ReplacementTrigger = deserialized.Value;
+                    }
+                }
 
                 var args = new ResourceTransformArgs(
                     request.Name,
@@ -279,7 +287,7 @@ namespace Pulumi
                 {
                     var serializer = new Serializer(excessiveDebugOutput: false);
                     var serialized = await serializer.SerializeAsync("Args", result.Value.Args,
-                        keepResources: true, keepOutputValues: true).ConfigureAwait(false);
+                        keepResources: true, keepOutputValues: false).ConfigureAwait(false);
                     response.Properties = Serializer.CreateStruct((ImmutableDictionary<string, object?>)serialized!);
 
                     // Copy the options back
@@ -348,6 +356,16 @@ namespace Pulumi
                         response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete.Value;
                     }
                     response.Options.Version = result.Value.Options.Version;
+                    if (result.Value.Options.ReplacementTrigger != null)
+                    {
+                        var replacementTriggerSerializer = new Serializer(excessiveDebugOutput: false);
+                        var replacementTriggerSerialized = await replacementTriggerSerializer.SerializeAsync("ReplacementTrigger", result.Value.Options.ReplacementTrigger,
+                            keepResources: true, keepOutputValues: true).ConfigureAwait(false);
+                        if (replacementTriggerSerialized != null)
+                        {
+                            response.Options.ReplacementTrigger = Serializer.CreateValue(replacementTriggerSerialized);
+                        }
+                    }
 
                     if (result.Value.Options is CustomResourceOptions customOptions)
                     {

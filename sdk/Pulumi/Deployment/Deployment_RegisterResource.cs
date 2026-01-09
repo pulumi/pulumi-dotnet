@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
+using Pulumi.Serialization;
 using Pulumirpc;
 
 namespace Pulumi
@@ -42,7 +43,7 @@ namespace Pulumi
                 throw new InvalidOperationException("The Pulumi CLI does not support the ReplaceWith option. Please update the Pulumi CLI.");
             }
 
-            var request = await CreateRegisterResourceRequest(type, name, custom, remote, options);
+            var request = await this.CreateRegisterResourceRequest(type, name, custom, remote, options);
 
             Log.Debug($"Preparing resource: t={type}, name={name}, custom={custom}, remote={remote}");
             var prepareResult = await PrepareResourceAsync(label, resource, custom, remote, args, options, registerPackageRequest).ConfigureAwait(false);
@@ -101,7 +102,7 @@ namespace Pulumi
             }
         }
 
-        private static async Task<RegisterResourceRequest> CreateRegisterResourceRequest(
+        private async Task<RegisterResourceRequest> CreateRegisterResourceRequest(
             string type, string name, bool custom, bool remote, ResourceOptions options)
         {
             var customOpts = options as CustomResourceOptions;
@@ -145,6 +146,18 @@ namespace Pulumi
                 }
             }
 
+            if (options.ReplacementTrigger != null)
+            {
+                var label = $"resource:{name}[{type}]";
+                var keepResources = await MonitorSupportsResourceReferences().ConfigureAwait(false);
+                // Replacement triggers should always be serialized as plain values (not Output values) so they can be compared
+                var serializer = new Serializer(_excessiveDebugOutput);
+                var serialized = await serializer.SerializeAsync($"{label}.replacementTrigger", options.ReplacementTrigger, keepResources, false).ConfigureAwait(false);
+
+                var value = Serializer.CreateValue(serialized);
+                request.ReplacementTrigger = value;
+            }
+
             if (deleteBeforeReplace != null)
             {
                 request.DeleteBeforeReplace = deleteBeforeReplace.Value;
@@ -171,3 +184,4 @@ namespace Pulumi
         }
     }
 }
+

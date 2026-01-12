@@ -874,3 +874,66 @@ func TestProgramErrorPython(t *testing.T) {
 		},
 	})
 }
+
+// @TODO: We can delete this test when #788 is fixed and we can use the conformance test.
+//
+//nolint:paralleltest // ProgramTest calls t.Parallel()
+func TestReplacementTrigger(t *testing.T) {
+	testDir := "replacement_trigger"
+
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir: filepath.Join(testDir, "step1"),
+		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+			require.Len(t, stack.Deployment.Resources, 2)
+			require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+			require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
+		},
+		EditDirs: []integration.EditDir{
+			{
+				Dir:             filepath.Join(testDir, "step2"),
+				Additive:        true,
+				ExpectNoChanges: true,
+				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+					require.Len(t, stack.Deployment.Resources, 2)
+					require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+					require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
+
+					for _, ev := range stack.Events {
+						if ev.ResourcePreEvent != nil {
+							metadata := ev.ResourcePreEvent.Metadata
+							if metadata.URN != "" {
+								require.NotEqual(t, apitype.OpReplace, metadata.Op,
+									"Did not expect OpReplace for 'trigger' resource, but found OpReplace")
+							}
+						}
+					}
+				},
+			},
+			{
+				Dir:      filepath.Join(testDir, "step3"),
+				Additive: true,
+				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+					require.Len(t, stack.Deployment.Resources, 2)
+					require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+					require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
+
+					var operations []apitype.OpType
+					for _, ev := range stack.Events {
+						if ev.ResourcePreEvent != nil {
+							metadata := ev.ResourcePreEvent.Metadata
+							if metadata.URN != "" {
+								if resource.URN(metadata.URN).Name() == "trigger" {
+									operations = append(operations, metadata.Op)
+								}
+							}
+						}
+					}
+
+					require.NotEmpty(t, operations, "Expected to find events for 'trigger' resource")
+					require.Contains(t, operations, apitype.OpReplace,
+						"Expected to find OpReplace in events for 'trigger' resource, found operations: %v", operations)
+				},
+			},
+		},
+	})
+}

@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Add support for the ReplacementTrigger resource option
+time: 2026-01-08T18:22:33.311421+01:00
+custom:
+    PR: "770"

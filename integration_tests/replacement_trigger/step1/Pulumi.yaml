@@ -1,0 +1,4 @@
+name: replacement-trigger
+description: A test program for replacement trigger functionality
+runtime: dotnet
+

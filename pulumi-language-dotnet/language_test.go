@@ -206,7 +206,6 @@ var expectedFailures = map[string]string{
 	"l1-builtin-project-root":                "#466",
 	"l2-rtti":                                "codegen not implemented",
 	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
-	"l2-resource-parent-inheritance":         "expected child to inherit retain on delete flag",
 	"l2-union":                               "dotnet build failed",
 	"l2-resource-option-hide-diffs":          "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
 	"l1-builtin-cwd":                         "testdata not yet generated for .NET",

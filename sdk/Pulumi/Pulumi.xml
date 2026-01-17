@@ -5842,6 +5842,23 @@
             the string to display to the user with instructions on how to connect to the debugger.
             </summary>
         </member>
+        <member name="F:Pulumirpc.CheckPulumiVersionRequest.PulumiVersionRangeFieldNumber">
+            <summary>Field number for the "pulumi_version_range" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckPulumiVersionRequest.PulumiVersionRange">
+            <summary>
+            A version range to check against the engine (CLI) version. If the version is not compatible with the specified
+            range, an error is returned. The supported syntax for ranges is that of
+            https://pkg.go.dev/github.com/blang/semver#ParseRange. For example ">=3.0.0", or "!3.1.2". Ranges can be AND-ed
+            together by concatenating with spaces ">=3.5.0 !3.7.7", meaning greater-or-equal to 3.5.0 and not exactly 3.7.7.
+            Ranges can be OR-ed with the `||` operator: "&lt;3.4.0 || >3.8.0", meaning less-than 3.4.0 or greater-than 3.8.0.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.CheckPulumiVersionResponse">
+            <summary>
+            empty
+            </summary>
+        </member>
         <member name="T:Pulumirpc.Engine">
             <summary>
             Engine is an auxiliary service offered to language and resource provider plugins. Its main purpose today is
@@ -5884,6 +5901,14 @@
             <summary>
             StartDebugging indicates to the engine that the program has started under a debugger, and the engine
             should notify the user of how to connect to the debugger.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineBase.CheckPulumiVersion(Pulumirpc.CheckPulumiVersionRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            CheckPulumiVersion checks that the version of the engine satisfies the passed in range.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -6054,6 +6079,42 @@
             <summary>
             StartDebugging indicates to the engine that the program has started under a debugger, and the engine
             should notify the user of how to connect to the debugger.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.CheckPulumiVersion(Pulumirpc.CheckPulumiVersionRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            CheckPulumiVersion checks that the version of the engine satisfies the passed in range.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.CheckPulumiVersion(Pulumirpc.CheckPulumiVersionRequest,Grpc.Core.CallOptions)">
+            <summary>
+            CheckPulumiVersion checks that the version of the engine satisfies the passed in range.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.CheckPulumiVersionAsync(Pulumirpc.CheckPulumiVersionRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            CheckPulumiVersion checks that the version of the engine satisfies the passed in range.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.CheckPulumiVersionAsync(Pulumirpc.CheckPulumiVersionRequest,Grpc.Core.CallOptions)">
+            <summary>
+            CheckPulumiVersion checks that the version of the engine satisfies the passed in range.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -8634,25 +8695,6 @@
             True if the provider accepts and respects autonaming configuration that the engine provides on behalf of the
             user. *Must* match the value returned in response to [](pulumirpc.ResourceProvider.Configure).
             </summary>
-        </member>
-        <member name="F:Pulumirpc.ProviderHandshakeResponse.PulumiVersionRangeFieldNumber">
-            <summary>Field number for the "pulumi_version_range" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ProviderHandshakeResponse.PulumiVersionRange">
-            <summary>
-            The CLI version range required for this provider to work correctly. If no version range is specified, the
-            provider will be considered compatible with any CLI version.
-            The supported syntax for ranges is that of https://pkg.go.dev/github.com/blang/semver#ParseRange. For example
-            ">=3.0.0", or "!3.1.2". Ranges can be AND-ed together by concatenating with spaces ">=3.5.0 !3.7.7", meaning
-            greater-or-equal to 3.5.0 and not exactly 3.7.7. Ranges can be OR-ed with the `||` operator: "&lt;3.4.0 || >3.8.0",
-            meaning less-than 3.4.0 or greater-than 3.8.0.
-            </summary>
-        </member>
-        <member name="P:Pulumirpc.ProviderHandshakeResponse.HasPulumiVersionRange">
-            <summary>Gets whether the "pulumi_version_range" field is set</summary>
-        </member>
-        <member name="M:Pulumirpc.ProviderHandshakeResponse.ClearPulumiVersionRange">
-            <summary>Clears the value of the "pulumi_version_range" field</summary>
         </member>
         <member name="T:Pulumirpc.ParameterizeRequest">
              <summary>

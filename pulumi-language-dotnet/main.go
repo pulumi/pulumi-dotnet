@@ -621,13 +621,11 @@ func buildDebuggingDLL(ctx context.Context, dotnetExec, programDirectory, entryP
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
-	args := []string{
+	cmd := exec.CommandContext(ctx, dotnetExec, //nolint:gosec // Allow sub-process to accept remote inputs
 		"build", "-nologo", "-o",
 		filepath.Join(programDirectory, "bin", "pulumi-debugging"),
-	}
-	args = append(args, filepath.Join(programDirectory, entryPoint))
-
-	cmd := exec.CommandContext(ctx, dotnetExec, args...)
+		filepath.Join(programDirectory, entryPoint),
+	)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to build project: %v, output: %v", err, string(out))
@@ -1396,14 +1394,15 @@ func (host *dotnetLanguageHost) Link(
 	defer loader.Close()
 	cachedLoader := schema.NewCachedLoader(loader)
 
-	instructions := "Add the following to your .csproj file of the program:\n"
-	instructions += "\n"
-	instructions += "  <DefaultItemExcludes>$(DefaultItemExcludes);sdks/**/*.cs</DefaultItemExcludes>\n"
-	instructions += "\n"
+	var instructions strings.Builder
+	instructions.WriteString("Add the following to your .csproj file of the program:\n")
+	instructions.WriteString("\n")
+	instructions.WriteString("  <DefaultItemExcludes>$(DefaultItemExcludes);sdks/**/*.cs</DefaultItemExcludes>\n")
+	instructions.WriteString("\n")
 	if len(req.Packages) == 1 {
-		instructions += "You can then use the SDK in your .NET code with:\n"
+		instructions.WriteString("You can then use the SDK in your .NET code with:\n")
 	} else {
-		instructions += "You can then use the SDKs in your .NET code with:\n"
+		instructions.WriteString("You can then use the SDKs in your .NET code with:\n")
 	}
 
 	for _, dep := range req.Packages {
@@ -1466,13 +1465,13 @@ func (host *dotnetLanguageHost) Link(
 				}
 			}
 		}
-		instructions += "\n"
-		instructions += fmt.Sprintf("  using %s.%s;\n", csharpPackageName(namespace), csharpPackageName(pkg.Name))
+		instructions.WriteString("\n")
+		instructions.WriteString(fmt.Sprintf("  using %s.%s;\n", csharpPackageName(namespace), csharpPackageName(pkg.Name)))
 	}
-	instructions += "\n"
+	instructions.WriteString("\n")
 
 	return &pulumirpc.LinkResponse{
-		ImportInstructions: instructions,
+		ImportInstructions: instructions.String(),
 	}, nil
 }
 

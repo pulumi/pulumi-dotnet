@@ -323,8 +323,15 @@ namespace Pulumi.Experimental.Provider
         public string Id { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public ImmutableDictionary<string, PropertyValue> Olds { get; }
-        public ImmutableDictionary<string, PropertyValue> News { get; }
+
+        [Obsolete("Use OldState")]
+        public ImmutableDictionary<string, PropertyValue> Olds => OldState;
+
+        [Obsolete("Use NewInputs")]
+        public ImmutableDictionary<string, PropertyValue> News => NewInputs;
+
+        public ImmutableDictionary<string, PropertyValue> OldState { get; }
+        public ImmutableDictionary<string, PropertyValue> NewInputs { get; }
         public TimeSpan Timeout { get; }
         public ImmutableArray<string> IgnoreChanges { get; }
         public bool Preview { get; }
@@ -332,8 +339,8 @@ namespace Pulumi.Experimental.Provider
 
         public UpdateRequest(Urn urn,
             string id,
-            ImmutableDictionary<string, PropertyValue> olds,
-            ImmutableDictionary<string, PropertyValue> news,
+            ImmutableDictionary<string, PropertyValue> oldState,
+            ImmutableDictionary<string, PropertyValue> newInputs,
             TimeSpan timeout,
             ImmutableArray<string> ignoreChanges,
             bool preview,
@@ -341,8 +348,8 @@ namespace Pulumi.Experimental.Provider
         {
             Urn = urn;
             Id = id;
-            Olds = olds;
-            News = news;
+            OldState = oldState;
+            NewInputs = newInputs;
             Timeout = timeout;
             IgnoreChanges = ignoreChanges;
             Preview = preview;

@@ -97,9 +97,9 @@ namespace Pulumi.Experimental.Provider
                 throw new InvalidOperationException($"URN of resource {request.Name} is not known.");
             }
 
-            var stateValue = await serializer.StateFromComponentResource(component);
+            var outputs = await serializer.OutputsFromComponentResource(component);
 
-            return new ConstructResponse(new Urn(urn), stateValue, ImmutableDictionary<string, ISet<Urn>>.Empty);
+            return new ConstructResponse(new Urn(urn), outputs, ImmutableDictionary<string, ISet<Urn>>.Empty);
         }
 
         private static Type GetArgsType(Type componentType)

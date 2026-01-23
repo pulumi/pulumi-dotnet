@@ -964,10 +964,10 @@ namespace Pulumi.Experimental
             return PropertyValue.Unmarshal(Serializer.CreateValue(value));
         }
 
-        internal async Task<ImmutableDictionary<string, PropertyValue>> StateFromComponentResource(
+        internal async Task<ImmutableDictionary<string, PropertyValue>> OutputsFromComponentResource(
             ComponentResource component)
         {
-            var state = new Dictionary<string, PropertyValue>();
+            var outputs = new Dictionary<string, PropertyValue>();
             var componentType = component.GetType();
             var properties = componentType.GetProperties();
             foreach (var property in properties)
@@ -986,12 +986,12 @@ namespace Pulumi.Experimental
                     if (value != null)
                     {
                         var serialized = await Serialize(value);
-                        state.Add(propertyName, serialized);
+                        outputs.Add(propertyName, serialized);
                     }
                 }
             }
 
-            return state.ToImmutableDictionary();
+            return outputs.ToImmutableDictionary();
         }
     }
 }

@@ -147,21 +147,21 @@ namespace Pulumi.Experimental.Provider
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
         public string Id { get; }
-        public ImmutableDictionary<string, PropertyValue> OldState { get; }
+        public ImmutableDictionary<string, PropertyValue> OldOutputs { get; }
         public ImmutableDictionary<string, PropertyValue> NewInputs { get; }
         public ImmutableArray<string> IgnoreChanges { get; }
         public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
 
         public DiffRequest(Urn urn,
             string id,
-            ImmutableDictionary<string, PropertyValue> oldState,
+            ImmutableDictionary<string, PropertyValue> oldOutputs,
             ImmutableDictionary<string, PropertyValue> newInputs,
             ImmutableArray<string> ignoreChanges,
             ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
-            OldState = oldState;
+            OldOutputs = oldOutputs;
             NewInputs = newInputs;
             IgnoreChanges = ignoreChanges;
             OldInputs = oldInputs;
@@ -273,14 +273,14 @@ namespace Pulumi.Experimental.Provider
         public Urn Urn { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public ImmutableDictionary<string, PropertyValue> Properties { get; }
+        public ImmutableDictionary<string, PropertyValue> Inputs { get; }
         public TimeSpan Timeout { get; }
         public bool Preview { get; }
 
-        public CreateRequest(Urn urn, ImmutableDictionary<string, PropertyValue> properties, TimeSpan timeout, bool preview)
+        public CreateRequest(Urn urn, ImmutableDictionary<string, PropertyValue> inputs, TimeSpan timeout, bool preview)
         {
             Urn = urn;
-            Properties = properties;
+            Inputs = inputs;
             Timeout = timeout;
             Preview = preview;
         }
@@ -289,7 +289,7 @@ namespace Pulumi.Experimental.Provider
     public sealed class CreateResponse
     {
         public string? Id { get; set; }
-        public IDictionary<string, PropertyValue>? Properties { get; set; }
+        public IDictionary<string, PropertyValue>? Outputs { get; set; }
     }
 
     public sealed class ReadRequest
@@ -298,14 +298,14 @@ namespace Pulumi.Experimental.Provider
         public string Id { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public ImmutableDictionary<string, PropertyValue> Properties { get; }
+        public ImmutableDictionary<string, PropertyValue> Outputs { get; }
         public ImmutableDictionary<string, PropertyValue> Inputs { get; }
 
-        public ReadRequest(Urn urn, string id, ImmutableDictionary<string, PropertyValue> properties, ImmutableDictionary<string, PropertyValue> inputs)
+        public ReadRequest(Urn urn, string id, ImmutableDictionary<string, PropertyValue> outputs, ImmutableDictionary<string, PropertyValue> inputs)
         {
             Urn = urn;
             Id = id;
-            Properties = properties;
+            Outputs = outputs;
             Inputs = inputs;
         }
     }
@@ -313,7 +313,7 @@ namespace Pulumi.Experimental.Provider
     public sealed class ReadResponse
     {
         public string? Id { get; set; }
-        public IDictionary<string, PropertyValue>? Properties { get; set; }
+        public IDictionary<string, PropertyValue>? Outputs { get; set; }
         public IDictionary<string, PropertyValue>? Inputs { get; set; }
     }
 
@@ -323,14 +323,7 @@ namespace Pulumi.Experimental.Provider
         public string Id { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-
-        [Obsolete("Use OldState")]
-        public ImmutableDictionary<string, PropertyValue> Olds => OldState;
-
-        [Obsolete("Use NewInputs")]
-        public ImmutableDictionary<string, PropertyValue> News => NewInputs;
-
-        public ImmutableDictionary<string, PropertyValue> OldState { get; }
+        public ImmutableDictionary<string, PropertyValue> OldOutputs { get; }
         public ImmutableDictionary<string, PropertyValue> NewInputs { get; }
         public TimeSpan Timeout { get; }
         public ImmutableArray<string> IgnoreChanges { get; }
@@ -339,7 +332,7 @@ namespace Pulumi.Experimental.Provider
 
         public UpdateRequest(Urn urn,
             string id,
-            ImmutableDictionary<string, PropertyValue> oldState,
+            ImmutableDictionary<string, PropertyValue> oldOutputs,
             ImmutableDictionary<string, PropertyValue> newInputs,
             TimeSpan timeout,
             ImmutableArray<string> ignoreChanges,
@@ -348,7 +341,7 @@ namespace Pulumi.Experimental.Provider
         {
             Urn = urn;
             Id = id;
-            OldState = oldState;
+            OldOutputs = oldOutputs;
             NewInputs = newInputs;
             Timeout = timeout;
             IgnoreChanges = ignoreChanges;
@@ -359,7 +352,7 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class UpdateResponse
     {
-        public IDictionary<string, PropertyValue>? Properties { get; set; }
+        public IDictionary<string, PropertyValue>? Outputs { get; set; }
     }
 
     public sealed class DeleteRequest
@@ -368,20 +361,20 @@ namespace Pulumi.Experimental.Provider
         public string Id { get; }
         public string Type => Pulumi.Urn.Type(Urn);
         public string Name => Pulumi.Urn.Name(Urn);
-        public ImmutableDictionary<string, PropertyValue> Properties { get; }
+        public ImmutableDictionary<string, PropertyValue> OldOutputs { get; }
         public TimeSpan Timeout { get; }
 
         public ImmutableDictionary<string, PropertyValue> OldInputs { get; }
 
         public DeleteRequest(Urn urn,
             string id,
-            ImmutableDictionary<string, PropertyValue> properties,
+            ImmutableDictionary<string, PropertyValue> oldOutputs,
             TimeSpan timeout,
             ImmutableDictionary<string, PropertyValue> oldInputs)
         {
             Urn = urn;
             Id = id;
-            Properties = properties;
+            OldOutputs = oldOutputs;
             Timeout = timeout;
             OldInputs = oldInputs;
         }
@@ -406,14 +399,14 @@ namespace Pulumi.Experimental.Provider
     public sealed class ConstructResponse
     {
         public Urn Urn { get; init; }
-        public IDictionary<string, PropertyValue> State { get; init; }
-        public IDictionary<string, ISet<Urn>> StateDependencies { get; init; }
+        public IDictionary<string, PropertyValue> Outputs { get; init; }
+        public IDictionary<string, ISet<Urn>> OutputDependencies { get; init; }
 
-        public ConstructResponse(Urn urn, IDictionary<string, PropertyValue> state, IDictionary<string, ISet<Urn>> stateDependencies)
+        public ConstructResponse(Urn urn, IDictionary<string, PropertyValue> outputs, IDictionary<string, ISet<Urn>> outputDependencies)
         {
             Urn = urn;
-            State = state;
-            StateDependencies = stateDependencies;
+            Outputs = outputs;
+            OutputDependencies = outputDependencies;
         }
     }
 
@@ -981,7 +974,7 @@ namespace Pulumi.Experimental.Provider
                     var domResponse = await Implementation.Create(domRequest, cts.Token);
                     var grpcResponse = new Pulumirpc.CreateResponse();
                     grpcResponse.Id = domResponse.Id ?? "";
-                    grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
+                    grpcResponse.Properties = domResponse.Outputs == null ? null : PropertyValue.Marshal(domResponse.Outputs);
                     return grpcResponse;
                 }
             );
@@ -996,7 +989,7 @@ namespace Pulumi.Experimental.Provider
                     var domResponse = await Implementation.Read(domRequest, cts.Token);
                     var grpcResponse = new Pulumirpc.ReadResponse();
                     grpcResponse.Id = domResponse.Id ?? "";
-                    grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
+                    grpcResponse.Properties = domResponse.Outputs == null ? null : PropertyValue.Marshal(domResponse.Outputs);
                     grpcResponse.Inputs = domResponse.Inputs == null ? null : PropertyValue.Marshal(domResponse.Inputs);
                     return grpcResponse;
                 }
@@ -1072,7 +1065,7 @@ namespace Pulumi.Experimental.Provider
                 using var cts = GetToken(context);
                 var domResponse = await Implementation.Update(domRequest, cts.Token);
                 var grpcResponse = new Pulumirpc.UpdateResponse();
-                grpcResponse.Properties = domResponse.Properties == null ? null : PropertyValue.Marshal(domResponse.Properties);
+                grpcResponse.Properties = domResponse.Outputs == null ? null : PropertyValue.Marshal(domResponse.Outputs);
                 return grpcResponse;
             }
             );
@@ -1137,14 +1130,14 @@ namespace Pulumi.Experimental.Provider
                     .RunInlineAsyncWithResult(deploymentBuilder, inlineDeploymentSettings, () => Implementation.Construct(domRequest, cts.Token))
                     .ConfigureAwait(false);
 
-                var state = PropertyValue.Marshal(domResponse.State);
+                var state = PropertyValue.Marshal(domResponse.Outputs);
 
                 var grpcResponse = new Pulumirpc.ConstructResponse
                 {
                     Urn = domResponse.Urn,
                     State = state,
                 };
-                grpcResponse.StateDependencies.Add(domResponse.StateDependencies.ToDictionary(kv => kv.Key, kv => BuildPropertyDependencies(kv.Value)));
+                grpcResponse.StateDependencies.Add(domResponse.OutputDependencies.ToDictionary(kv => kv.Key, kv => BuildOutputDependencies(kv.Value)));
 
                 return grpcResponse;
             });
@@ -1210,7 +1203,7 @@ namespace Pulumi.Experimental.Provider
             return domArgs;
         }
 
-        private static Pulumirpc.ConstructResponse.Types.PropertyDependencies BuildPropertyDependencies(ISet<Urn> dependencies)
+        private static Pulumirpc.ConstructResponse.Types.PropertyDependencies BuildOutputDependencies(ISet<Urn> dependencies)
         {
             var propertyDependencies = new Pulumirpc.ConstructResponse.Types.PropertyDependencies();
             propertyDependencies.Urns.AddRange(dependencies.Select(urn => (string)urn));

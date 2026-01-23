@@ -1,6 +1,6 @@
 component: sdk
 kind: Improvements
-body: Align Provider Request Property Names
+body: BREAKING Align Provider Request Property Names
 time: 2026-01-23T14:35:41.8706371+01:00
 custom:
     PR: "799"

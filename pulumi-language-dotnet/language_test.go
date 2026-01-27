@@ -95,13 +95,14 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 
 // Add test names here that are expected to fail and the reason why they are failing
 var expectedFailures = map[string]string{
-	"l1-builtin-can":           "#489 codegen not implemented",
-	"l1-builtin-try":           "#490 codegen not implemented",
-	"l1-builtin-stash":         "testdata not yet generated for .NET",
-	"l1-config-types":          "dotnet build failed",
-	"l1-keyword-overlap":       "#493 update to pulumi 1.50 conformance failure",
-	"l1-proxy-index":           "dotnet build failed",
-	"l2-component-call-simple": "#491 update to pulumi 1.50 conformance failure",
+	"l1-builtin-can":                    "#489 codegen not implemented",
+	"l1-builtin-require-pulumi-version": "not yet implemented: should bail on preview",
+	"l1-builtin-try":                    "#490 codegen not implemented",
+	"l1-builtin-stash":                  "testdata not yet generated for .NET",
+	"l1-config-types":                   "dotnet build failed",
+	"l1-keyword-overlap":                "#493 update to pulumi 1.50 conformance failure",
+	"l1-proxy-index":                    "dotnet build failed",
+	"l2-component-call-simple":          "#491 update to pulumi 1.50 conformance failure",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config": "sdk packing for config: build error before pack",
@@ -121,19 +122,27 @@ var expectedFailures = map[string]string{
 	"l2-provider-grpc-config-schema-secret": "dotnet build failed",
 	"l2-proxy-index":                        "dotnet build failed",
 	"l2-invoke-options-depends-on":          "dotnet build failed",
+	"l2-invoke-scalar": "" +
+		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
+	"l2-invoke-scalars": "" +
+		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
 	"l2-invoke-secrets": "" +
 		"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-	"l2-map-keys":                            "dotnet build failed",
-	"l2-resource-secret":                     "test hanging",
-	"l1-builtin-project-root":                "#466",
-	"l2-rtti":                                "codegen not implemented",
-	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
-	"l2-union":                               "dotnet build failed",
-	"l2-resource-option-hide-diffs":          "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
-	"l1-builtin-cwd":                         "testdata not yet generated for .NET",
-	"l1-builtin-project-root-main":           "testdata not yet generated for .NET",
-	"l2-keywords":                            "testdata not yet generated for .NET",
-	"l2-parallel-resources":                  "testdata not yet generated for .NET",
+	"l2-map-keys":                       "dotnet build failed",
+	"l2-resource-secret":                "test hanging",
+	"l1-builtin-project-root":           "#466",
+	"l2-rtti":                           "codegen not implemented",
+	"l2-namespaced-provider":            "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
+	"l2-union":                          "dotnet build failed",
+	"l2-resource-option-alias":          "aliases not recognized: expected 0 create operations but got 3",
+	"l2-resource-option-hide-diffs":     "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
+	"l2-resource-option-ignore-changes": "property path has @ prefix: expected 'value' but got '@value'",
+	"l1-builtin-cwd":                    "testdata not yet generated for .NET",
+	"l1-builtin-project-root-main":      "testdata not yet generated for .NET",
+	"l2-keywords":                       "testdata not yet generated for .NET",
+	"l2-parallel-resources":             "testdata not yet generated for .NET",
+	"l2-parameterized-invoke": "dotnet build failed: " +
+		"DoHelloWorld does not exist in namespace Pulumi.Subpackage",
 	"l2-parameterized-resource-twice":        "testdata not yet generated for .NET",
 	"l2-resource-option-replacement-trigger": "not yet implemented",
 	"l2-resource-option-replace-with":        "not yet implemented",

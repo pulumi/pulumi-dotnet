@@ -1096,10 +1096,7 @@ namespace Pulumi.Experimental.Provider
         {
             return WrapProviderCall(async () =>
             {
-                var aliases = request.Aliases.Select(urn => (Input<Alias>)new Alias()
-                {
-                    Urn = urn
-                }).ToList();
+                var aliases = request.Aliases.Select(alias => (Input<Alias>)Alias.Deserialize(alias)).ToList();
 
                 InputList<Resource> dependsOn = request.Dependencies
                     .Select(urn => new DependencyResource(urn))

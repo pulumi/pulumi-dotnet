@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Update aliases to conform to pulumi/pulumi 3.217.0
+time: 2026-01-27T14:38:53.746317+01:00
+custom:
+    PR: "805"

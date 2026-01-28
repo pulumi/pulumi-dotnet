@@ -13606,14 +13606,6 @@
             the optional checked old inputs of the resource.
             </summary>
         </member>
-        <member name="F:Pulumirpc.ErrorHookRequest.NewOutputsFieldNumber">
-            <summary>Field number for the "new_outputs" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ErrorHookRequest.NewOutputs">
-            <summary>
-            the optional new outputs of the resource.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.ErrorHookRequest.OldOutputsFieldNumber">
             <summary>Field number for the "old_outputs" field.</summary>
         </member>

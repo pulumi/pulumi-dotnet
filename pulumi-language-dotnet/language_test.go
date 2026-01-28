@@ -95,14 +95,15 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 
 // Add test names here that are expected to fail and the reason why they are failing
 var expectedFailures = map[string]string{
-	"l1-builtin-can":                    "#489 codegen not implemented",
-	"l1-builtin-require-pulumi-version": "not yet implemented: should bail on preview",
-	"l1-builtin-try":                    "#490 codegen not implemented",
-	"l1-builtin-stash":                  "testdata not yet generated for .NET",
-	"l1-config-types":                   "dotnet build failed",
-	"l1-keyword-overlap":                "#493 update to pulumi 1.50 conformance failure",
-	"l1-proxy-index":                    "dotnet build failed",
-	"l2-component-call-simple":          "#491 update to pulumi 1.50 conformance failure",
+	"l1-builtin-can":                        "#489 codegen not implemented",
+	"l1-builtin-require-pulumi-version":     "not yet implemented: should bail on preview",
+	"l1-builtin-try":                        "#490 codegen not implemented",
+	"l1-builtin-stash":                      "testdata not yet generated for .NET",
+	"l1-config-types":                       "dotnet build failed",
+	"l1-keyword-overlap":                    "#493 update to pulumi 1.50 conformance failure",
+	"l1-proxy-index":                        "dotnet build failed",
+	"l2-component-call-simple":              "#491 update to pulumi 1.50 conformance failure",
+	"l2-resource-option-replace-on-changes": "not yet implemented",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config": "sdk packing for config: build error before pack",

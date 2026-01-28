@@ -17,10 +17,14 @@ build: build_sdk build_language_host
 build_sdk:
 	cd sdk && dotnet build --configuration Release -p:PulumiSdkVersion=$(SDK_VERSION)
 
-.PHONY: build_language_host
-build_language_host:
-	cd pulumi-language-dotnet && ${GO} build \
+build_language_host: bin/pulumi-language-dotnet ;
+
+.PHONY: bin/pulumi-language-dotnet
+bin/pulumi-language-dotnet:
+	@mkdir -p bin
+	cd pulumi-language-dotnet && ${GO} build -o ../$@ \
 		-ldflags "-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=$(DEV_VERSION)" .
+
 
 .PHONY: changelog
 changelog:

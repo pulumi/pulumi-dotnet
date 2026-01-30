@@ -7,9 +7,9 @@ _.path = [
 
 [tools]
 changie = "latest"
-dotnet = "8"
 go = "1.24"
 gofumpt = "0.9.1"
-golangci-lint = "latest"
+golangci-lint = "2.5.0"
 gotestsum = "latest"
 pulumi = "latest"
+"vfox:dotnet" = "8.0"

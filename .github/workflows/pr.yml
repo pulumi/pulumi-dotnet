@@ -171,10 +171,8 @@ jobs:
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Create global.json
-        # This ensures that we use the matrix version instead of the runner's default version
         run: |
-          DOTNET_VERSION=$(dotnet --version)
-          echo '{"sdk":{"version": "$DOTNET_VERSION"}}' > ./global.json
+          echo '{"sdk":{"version": "${{ matrix.dotnet-version }}"}}' > ./global.json
       - name: Dotnet version
         run: dotnet --version
       - name: Install netcoredbg (Linux)

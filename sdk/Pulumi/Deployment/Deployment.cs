@@ -1,4 +1,4 @@
-// Copyright 2016-2019, Pulumi Corporation
+// Copyright 2016-2026, Pulumi Corporation
 
 using System;
 using System.Collections.Concurrent;
@@ -204,6 +204,7 @@ namespace Pulumi
 
         IEngineLogger IDeploymentInternal.Logger => _logger;
         IRunner IDeploymentInternal.Runner => _runner;
+        Experimental.IEngine IDeploymentInternal.Engine => Engine;
 
         CallbacksHost? _callbacks;
         internal async Task<CallbacksHost> GetCallbacksAsync(CancellationToken cancellationToken)

@@ -1,4 +1,4 @@
-// Copyright 2016-2025, Pulumi Corporation
+// Copyright 2016-2026, Pulumi Corporation
 
 using System.Threading.Tasks;
 
@@ -84,5 +84,18 @@ namespace Pulumi.Experimental
         /// Send a log message to the host.
         /// </summary>
         public Task LogAsync(LogRequest message);
+
+        /// <summary>
+        /// Checks that the version of the Pulumi CLI satisfies the specified version range.
+        /// </summary>
+        /// <param name="pulumiVersionRange">
+        /// A version range to check against the engine (CLI) version. If the version is not compatible with the
+        /// specified range, an error is returned. The supported syntax for ranges is that of
+        /// https://pkg.go.dev/github.com/blang/semver#ParseRange. For example ">=3.0.0", or "!3.1.2". Ranges can be
+        /// AND-ed together by concatenating with spaces ">=3.5.0 !3.7.7", meaning greater-or-equal to 3.5.0 and not
+        /// exactly 3.7.7. Ranges can be OR-ed with the || operator: "&lt;3.4.0 || &gt;3.8.0", meaning less-than 3.4.0
+        /// or greater-than 3.8.0.
+        /// </param>
+        public Task RequirePulumiVersionAsync(string pulumiVersionRange);
     }
 }

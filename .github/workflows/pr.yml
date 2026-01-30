@@ -110,14 +110,9 @@ jobs:
         id: setup-dotnet
         uses: actions/setup-dotnet@v5
         with:
-          # Install 8.0 for Build.fsproj and the matrix version.
-          # `outputs.dotnet-version` is the latest version among the installed
-          # versions. Since Build.fsproj targets the lowest version we support,
-          # this works out ok for the matrix.
-          # https://github.com/actions/setup-dotnet?tab=readme-ov-file#dotnet-version
           dotnet-version: |
-            8.0.x
-            ${{ matrix.dotnet-version }}.x
+            8.0
+            ${{ matrix.dotnet-version }}
       - name: Create global.json
         # This ensures that we use the matrix version instead of the runner's default version
         # https://github.com/actions/setup-dotnet?tab=readme-ov-file#matrix-testing

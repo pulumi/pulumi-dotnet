@@ -1,4 +1,4 @@
-// Copyright 2016-2019, Pulumi Corporation
+// Copyright 2016-2026, Pulumi Corporation
 
 using System;
 using System.Collections.Generic;
@@ -15,6 +15,7 @@ namespace Pulumi
 
         IEngineLogger Logger { get; }
         IRunner Runner { get; }
+        Experimental.IEngine Engine { get; }
 
         void ReadOrRegisterResource(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,

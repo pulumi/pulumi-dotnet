@@ -1,4 +1,4 @@
-// Copyright 2016-2021, Pulumi Corporation
+// Copyright 2016-2025, Pulumi Corporation
 
 using System;
 using System.Collections.Generic;
@@ -734,6 +734,81 @@ namespace Pulumi.Automation.Tests
             {
                 await stack.Workspace.RemoveStackAsync(stackName);
             }
+        }
+
+        [Fact]
+        public async Task RemoveStackForce()
+        {
+            var program = PulumiFn.Create(() =>
+            {
+                new ComponentResource("test:res:a", "a");
+            });
+            Assert.IsType<PulumiFnInline>(program);
+
+            var stackName = $"{RandomStackName()}";
+            var projectName = "inline_node";
+            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program));
+
+            var upResult = await stack.UpAsync();
+            Assert.Equal(UpdateKind.Update, upResult.Summary.Kind);
+            Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
+
+            // We shouldn't be able to remove the stack that has resources without force.
+            await Assert.ThrowsAsync<CommandException>(() => stack.Workspace.RemoveStackAsync(stackName));
+
+            // Force remove the stack.
+            await stack.Workspace.RemoveStackAsync(stackName, new RemoveStackOptions { Force = true });
+
+            // We shouldn't be able to select the stack after removing it.
+            await Assert.ThrowsAsync<StackNotFoundException>(() => stack.Workspace.SelectStackAsync(stackName));
+        }
+
+        [Fact]
+        public async Task RemoveStackPreserveConfig()
+        {
+            var program = PulumiFn.Create(() =>
+            {
+                // Empty program
+            });
+            Assert.IsType<PulumiFnInline>(program);
+
+            var stackName = $"{RandomStackName()}";
+            var projectName = "inline_node";
+            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program));
+
+            var upResult = await stack.UpAsync();
+            Assert.Equal(UpdateKind.Update, upResult.Summary.Kind);
+            Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
+
+            // Remove the stack, specifying PreserveConfig.
+            await stack.Workspace.RemoveStackAsync(stackName, new RemoveStackOptions { PreserveConfig = true });
+
+            // We shouldn't be able to select the stack after removing it.
+            await Assert.ThrowsAsync<StackNotFoundException>(() => stack.Workspace.SelectStackAsync(stackName));
+        }
+
+        [Fact]
+        public async Task RemoveStackRemoveBackups()
+        {
+            var program = PulumiFn.Create(() =>
+            {
+                // Empty program
+            });
+            Assert.IsType<PulumiFnInline>(program);
+
+            var stackName = $"{RandomStackName()}";
+            var projectName = "inline_node";
+            using var stack = await LocalWorkspace.CreateStackAsync(new InlineProgramArgs(projectName, stackName, program));
+
+            var upResult = await stack.UpAsync();
+            Assert.Equal(UpdateKind.Update, upResult.Summary.Kind);
+            Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
+
+            // Remove the stack, specifying RemoveBackups.
+            await stack.Workspace.RemoveStackAsync(stackName, new RemoveStackOptions { RemoveBackups = true });
+
+            // We shouldn't be able to select the stack after removing it.
+            await Assert.ThrowsAsync<StackNotFoundException>(() => stack.Workspace.SelectStackAsync(stackName));
         }
 
         [Fact]

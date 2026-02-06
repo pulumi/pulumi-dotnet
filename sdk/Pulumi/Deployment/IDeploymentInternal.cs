@@ -30,6 +30,12 @@ namespace Pulumi
         Task RegisterResourceHook(ResourceHook hook);
 
         /// <summary>
+        /// Registers an error hook against the deployment, returning a task that completes when the registration
+        /// has finished.
+        /// </summary>
+        Task RegisterErrorHook(ErrorHook hook);
+
+        /// <summary>
         /// Signals to the deployment that no more resources will be registered and that the program has no more work to
         /// do. This method should not return until the deployment is finished and it is safe for the program to exit
         /// (e.g. the engine does not need anything more from the program, such as resource hook implementations).

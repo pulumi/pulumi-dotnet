@@ -68,6 +68,9 @@ namespace Pulumi
         public async Task RegisterResourceHookAsync(RegisterResourceHookRequest request)
             => await this._client.RegisterResourceHookAsync(request);
 
+        public async Task RegisterErrorHookAsync(RegisterErrorHookRequest request)
+            => await this._client.RegisterErrorHookAsync(request);
+
         public async Task SignalAndWaitForShutdownAsync()
         {
             try

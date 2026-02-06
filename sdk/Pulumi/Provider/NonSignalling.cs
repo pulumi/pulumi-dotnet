@@ -83,6 +83,9 @@ namespace Pulumi.Experimental.Provider
         public async Task RegisterResourceHookAsync(RegisterResourceHookRequest request)
             => await Monitor.RegisterResourceHookAsync(request);
 
+        public async Task RegisterErrorHookAsync(RegisterErrorHookRequest request)
+            => await Monitor.RegisterErrorHookAsync(request);
+
         public Task SignalAndWaitForShutdownAsync() => Task.CompletedTask;
     }
 }

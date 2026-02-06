@@ -16,7 +16,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"io"
 	"os/exec"
@@ -162,9 +161,10 @@ var programOverrides = map[string]*testingrpc.PrepareLanguageTestsRequest_Progra
 
 func TestLanguage(t *testing.T) {
 	t.Parallel()
+
 	engineAddress, engine := runTestingHost(t)
 
-	tests, err := engine.GetLanguageTests(context.Background(), &testingrpc.GetLanguageTestsRequest{})
+	tests, err := engine.GetLanguageTests(t.Context(), &testingrpc.GetLanguageTestsRequest{})
 	require.NoError(t, err)
 
 	cancel := make(chan bool)
@@ -186,7 +186,7 @@ func TestLanguage(t *testing.T) {
 	snapshotDir := "./testdata/"
 
 	// Prepare to run the tests
-	prepare, err := engine.PrepareLanguageTests(context.Background(), &testingrpc.PrepareLanguageTestsRequest{
+	prepare, err := engine.PrepareLanguageTests(t.Context(), &testingrpc.PrepareLanguageTestsRequest{
 		LanguagePluginName:   "dotnet",
 		LanguagePluginTarget: fmt.Sprintf("127.0.0.1:%d", handle.Port),
 		TemporaryDirectory:   rootDir,
@@ -216,7 +216,7 @@ func TestLanguage(t *testing.T) {
 				t.Skipf("dotnet doesn't support provider tests yet: %s", tt)
 			}
 
-			result, err := engine.RunLanguageTest(context.Background(), &testingrpc.RunLanguageTestRequest{
+			result, err := engine.RunLanguageTest(t.Context(), &testingrpc.RunLanguageTestRequest{
 				Token: prepare.Token,
 				Test:  tt,
 			})

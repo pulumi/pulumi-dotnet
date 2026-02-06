@@ -16,7 +16,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"io"
 	"os/exec"
@@ -148,6 +147,10 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-replace-with":              "not yet implemented",
 	"l2-resource-option-delete-before-replace":     "https://github.com/pulumi/pulumi-dotnet/issues/813",
 	"l2-resource-option-additional-secret-outputs": "https://github.com/pulumi/pulumi-dotnet/issues/814",
+	"l2-resource-option-custom-timeouts":           "https://github.com/pulumi/pulumi-dotnet/issues/822",
+	"l2-resource-option-version":                   "https://github.com/pulumi/pulumi-dotnet/issues/823",
+	"l3-range-resource-output-traversal":           "dotnet build failed: Output<ImmutableArray> missing Select extension method", //nolint:lll
+	"l2-resource-option-plugin-download-url":       "https://github.com/pulumi/pulumi-dotnet/issues/824",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.
@@ -162,9 +165,10 @@ var programOverrides = map[string]*testingrpc.PrepareLanguageTestsRequest_Progra
 
 func TestLanguage(t *testing.T) {
 	t.Parallel()
+
 	engineAddress, engine := runTestingHost(t)
 
-	tests, err := engine.GetLanguageTests(context.Background(), &testingrpc.GetLanguageTestsRequest{})
+	tests, err := engine.GetLanguageTests(t.Context(), &testingrpc.GetLanguageTestsRequest{})
 	require.NoError(t, err)
 
 	cancel := make(chan bool)
@@ -186,7 +190,7 @@ func TestLanguage(t *testing.T) {
 	snapshotDir := "./testdata/"
 
 	// Prepare to run the tests
-	prepare, err := engine.PrepareLanguageTests(context.Background(), &testingrpc.PrepareLanguageTestsRequest{
+	prepare, err := engine.PrepareLanguageTests(t.Context(), &testingrpc.PrepareLanguageTestsRequest{
 		LanguagePluginName:   "dotnet",
 		LanguagePluginTarget: fmt.Sprintf("127.0.0.1:%d", handle.Port),
 		TemporaryDirectory:   rootDir,
@@ -216,7 +220,7 @@ func TestLanguage(t *testing.T) {
 				t.Skipf("dotnet doesn't support provider tests yet: %s", tt)
 			}
 
-			result, err := engine.RunLanguageTest(context.Background(), &testingrpc.RunLanguageTestRequest{
+			result, err := engine.RunLanguageTest(t.Context(), &testingrpc.RunLanguageTestRequest{
 				Token: prepare.Token,
 				Test:  tt,
 			})

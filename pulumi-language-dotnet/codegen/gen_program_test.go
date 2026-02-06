@@ -49,7 +49,7 @@ func TestGenerateProgram(t *testing.T) {
 		GenProgram: GenerateProgram,
 		TestCases:  test.PulumiPulumiProgramTests,
 
-		InputDirectory:  filepath.Join("..", "..", "..", "tests", "testdata", "codegen"),
+		InputDirectory:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
 		ResultDirectory: "testdata",
 	})
 }
@@ -68,7 +68,7 @@ func TestGenerateProgramYAML(t *testing.T) {
 		GenProgram: GenerateProgram,
 		TestCases:  test.PulumiPulumiYAMLProgramTests,
 
-		InputDirectory:  filepath.Join("..", "..", "..", "tests", "testdata", "codegen"),
+		InputDirectory:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
 		ResultDirectory: "testdata",
 	})
 }

@@ -43,7 +43,7 @@ func TestGeneratePackage(t *testing.T) {
 		},
 		TestCases: test.PulumiPulumiSDKTests,
 
-		InputDir:  filepath.Join("..", "..", "..", "tests", "testdata", "codegen"),
+		InputDir:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
 		ResultDir: "testdata",
 	})
 }

@@ -1,5 +1,6 @@
 // Copyright 2025, Pulumi Corporation
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -69,6 +70,104 @@ namespace Pulumi
     public delegate Task ResourceHookCallback(ResourceHookArgs args, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// <para>
+    /// ErrorHookArgs represents the arguments passed to an error hook. Depending on the failed operation, only some of
+    /// the new/old inputs/outputs are set.
+    /// </para>
+    /// <code>
+    /// | Failed Operation | old_inputs | new_inputs | old_outputs |
+    /// | ---------------- | ---------- | ---------- | ----------- |
+    /// | create           |            | ✓          |             |
+    /// | update           | ✓          | ✓          | ✓           |
+    /// | delete           | ✓          |            | ✓           |
+    /// </code>
+    /// </summary>
+    public class ErrorHookArgs
+    {
+        /// <summary>The URN of the resource that triggered the hook.</summary>
+        public string Urn { get; }
+        /// <summary>The ID of the resource that triggered the hook.</summary>
+        public string Id { get; }
+        /// <summary>The name of the resource that triggered the hook.</summary>
+        public string Name { get; }
+        /// <summary>The type of the resource that triggered the hook.</summary>
+        public string Type { get; }
+        /// <summary>The new inputs of the resource that triggered the hook.</summary>
+        public ImmutableDictionary<string, object?>? NewInputs { get; }
+        /// <summary>The old inputs of the resource that triggered the hook.</summary>
+        public ImmutableDictionary<string, object?>? OldInputs { get; }
+        /// <summary>The old outputs of the resource that triggered the hook.</summary>
+        public ImmutableDictionary<string, object?>? OldOutputs { get; }
+        /// <summary>The operation that failed (create, update, or delete).</summary>
+        public string FailedOperation { get; }
+        /// <summary>The errors that have been seen so far (newest first).</summary>
+        public IReadOnlyList<string> Errors { get; }
+
+        public ErrorHookArgs(
+            string urn,
+            string id,
+            string name,
+            string type,
+            ImmutableDictionary<string, object?>? newInputs = null,
+            ImmutableDictionary<string, object?>? oldInputs = null,
+            ImmutableDictionary<string, object?>? oldOutputs = null,
+            string failedOperation = "",
+            IReadOnlyList<string>? errors = null)
+        {
+            Urn = urn;
+            Id = id;
+            Name = name;
+            Type = type;
+            NewInputs = newInputs;
+            OldInputs = oldInputs;
+            OldOutputs = oldOutputs;
+            FailedOperation = failedOperation;
+            Errors = errors ?? Array.Empty<string>();
+        }
+    }
+
+    /// <summary>
+    /// ErrorHookCallback is a delegate that defines the signature of <see cref="ErrorHook"/> callback functions.
+    /// Returns true to retry the operation, false to not retry.
+    /// </summary>
+    public delegate Task<bool> ErrorHookCallback(ErrorHookArgs args, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// An error hook is a callback that can be registered to run when a resource operation fails. The callback can
+    /// return true to retry the operation or false to not retry.
+    /// </summary>
+    public class ErrorHook
+    {
+        /// <summary>The name of the error hook. This must be unique within a program.</summary>
+        public string Name { get; }
+        /// <summary>The callback to invoke when the error hook is triggered.</summary>
+        public ErrorHookCallback Callback { get; }
+
+        internal readonly Task _registered;
+
+        /// <summary>
+        /// Creates a new <see cref="ErrorHook"/> with the specified name and callback.
+        /// </summary>
+        public ErrorHook(string name, ErrorHookCallback callback)
+        {
+            Name = name;
+            Callback = callback;
+            _registered = Deployment.InternalInstance.RegisterErrorHook(this);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ErrorHook"/> with the specified name, callback, and registration task. Used by
+        /// <see cref="ResourceHookUtilities.StubErrorHook"/> when reconstructing hooks from proto.
+        /// </summary>
+        protected internal ErrorHook(string name, ErrorHookCallback callback, Task registered)
+        {
+            Name = name;
+            Callback = callback;
+            _registered = registered;
+        }
+    }
+
+    /// <summary>
     /// Options for registering a <see cref="ResourceHook"/>.
     /// </summary>
     public class ResourceHookOptions
@@ -108,6 +207,16 @@ namespace Pulumi
         public string Id { get; }
 
         /// <summary>
+        /// The logical name of the resource that triggered the hook.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// The resource type token of the resource that triggered the hook.
+        /// </summary>
+        public string Type { get; }
+
+        /// <summary>
         /// The new inputs of the resource that triggered the hook.
         /// </summary>
         public ImmutableDictionary<string, object?>? NewInputs { get; }
@@ -133,6 +242,8 @@ namespace Pulumi
         public ResourceHookArgs(
           string urn,
           string id,
+          string name,
+          string type,
           ImmutableDictionary<string, object?>? newInputs = null,
           ImmutableDictionary<string, object?>? oldInputs = null,
           ImmutableDictionary<string, object?>? newOutputs = null,
@@ -140,6 +251,8 @@ namespace Pulumi
         {
             Urn = urn;
             Id = id;
+            Name = name;
+            Type = type;
             NewInputs = newInputs;
             OldInputs = oldInputs;
             NewOutputs = newOutputs;
@@ -229,6 +342,17 @@ namespace Pulumi
             set => _afterDelete = value;
         }
 
+        private List<ErrorHook>? _onError;
+
+        /// <summary>
+        /// Hooks to be invoked when a resource operation fails. Return true to retry, false to not retry.
+        /// </summary>
+        public List<ErrorHook> OnError
+        {
+            get => _onError ??= new List<ErrorHook>();
+            set => _onError = value;
+        }
+
         /// <summary>
         /// IsEmpty is true if and only if no hooks have been bound to any of the lifecycle events.
         /// </summary>
@@ -238,7 +362,8 @@ namespace Pulumi
             BeforeUpdate.Count == 0 &&
             AfterUpdate.Count == 0 &&
             BeforeDelete.Count == 0 &&
-            AfterDelete.Count == 0;
+            AfterDelete.Count == 0 &&
+            OnError.Count == 0;
 
         /// <summary>
         /// Creates a deep copy of this <see cref="ResourceHookBinding"/> instance.
@@ -253,6 +378,7 @@ namespace Pulumi
                 AfterUpdate = AfterUpdate.ToList(),
                 BeforeDelete = BeforeDelete.ToList(),
                 AfterDelete = AfterDelete.ToList(),
+                OnError = OnError.ToList(),
             };
         }
 
@@ -269,6 +395,7 @@ namespace Pulumi
                 AfterUpdate = AfterUpdate.Concat(other.AfterUpdate).ToList(),
                 BeforeDelete = BeforeDelete.Concat(other.BeforeDelete).ToList(),
                 AfterDelete = AfterDelete.Concat(other.AfterDelete).ToList(),
+                OnError = OnError.Concat(other.OnError).ToList(),
             };
         }
     }

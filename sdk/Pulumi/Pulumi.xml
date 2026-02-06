@@ -1948,6 +1948,12 @@
             has finished.
             </summary>
         </member>
+        <member name="M:Pulumi.IDeploymentInternal.RegisterErrorHook(Pulumi.ErrorHook)">
+            <summary>
+            Registers an error hook against the deployment, returning a task that completes when the registration
+            has finished.
+            </summary>
+        </member>
         <member name="M:Pulumi.IDeploymentInternal.SignalAndWaitForShutdownAsync">
             <summary>
             Signals to the deployment that no more resources will be registered and that the program has no more work to
@@ -1958,6 +1964,12 @@
         <member name="M:Pulumi.IMonitor.RegisterResourceHookAsync(Pulumirpc.RegisterResourceHookRequest)">
             <summary>
             Registers a resource hook against the deployment, returning a task that completes when the registration
+            has finished.
+            </summary>
+        </member>
+        <member name="M:Pulumi.IMonitor.RegisterErrorHookAsync(Pulumirpc.RegisterErrorHookRequest)">
+            <summary>
+            Registers an error hook against the deployment, returning a task that completes when the registration
             has finished.
             </summary>
         </member>
@@ -2675,6 +2687,77 @@
             triggered the hook.
             </summary>
         </member>
+        <member name="T:Pulumi.ErrorHookArgs">
+            <summary>
+            <para>
+            ErrorHookArgs represents the arguments passed to an error hook. Depending on the failed operation, only some of
+            the new/old inputs/outputs are set.
+            </para>
+            <code>
+            | Failed Operation | old_inputs | new_inputs | old_outputs |
+            | ---------------- | ---------- | ---------- | ----------- |
+            | create           |            | ✓          |             |
+            | update           | ✓          | ✓          | ✓           |
+            | delete           | ✓          |            | ✓           |
+            </code>
+            </summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.Urn">
+            <summary>The URN of the resource that triggered the hook.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.Id">
+            <summary>The ID of the resource that triggered the hook.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.Name">
+            <summary>The name of the resource that triggered the hook.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.Type">
+            <summary>The type of the resource that triggered the hook.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.NewInputs">
+            <summary>The new inputs of the resource that triggered the hook.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.OldInputs">
+            <summary>The old inputs of the resource that triggered the hook.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.OldOutputs">
+            <summary>The old outputs of the resource that triggered the hook.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.FailedOperation">
+            <summary>The operation that failed (create, update, or delete).</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHookArgs.Errors">
+            <summary>The errors that have been seen so far (newest first).</summary>
+        </member>
+        <member name="T:Pulumi.ErrorHookCallback">
+            <summary>
+            ErrorHookCallback is a delegate that defines the signature of <see cref="T:Pulumi.ErrorHook"/> callback functions.
+            Returns true to retry the operation, false to not retry.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ErrorHook">
+            <summary>
+            An error hook is a callback that can be registered to run when a resource operation fails. The callback can
+            return true to retry the operation or false to not retry.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ErrorHook.Name">
+            <summary>The name of the error hook. This must be unique within a program.</summary>
+        </member>
+        <member name="P:Pulumi.ErrorHook.Callback">
+            <summary>The callback to invoke when the error hook is triggered.</summary>
+        </member>
+        <member name="M:Pulumi.ErrorHook.#ctor(System.String,Pulumi.ErrorHookCallback)">
+            <summary>
+            Creates a new <see cref="T:Pulumi.ErrorHook"/> with the specified name and callback.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ErrorHook.#ctor(System.String,Pulumi.ErrorHookCallback,System.Threading.Tasks.Task)">
+            <summary>
+            Creates a new <see cref="T:Pulumi.ErrorHook"/> with the specified name, callback, and registration task. Used by
+            <see cref="T:Pulumi.ResourceHookUtilities.StubErrorHook"/> when reconstructing hooks from proto.
+            </summary>
+        </member>
         <member name="T:Pulumi.ResourceHookOptions">
             <summary>
             Options for registering a <see cref="T:Pulumi.ResourceHook"/>.
@@ -2713,6 +2796,16 @@
             The ID of the resource that triggered the hook.
             </summary>
         </member>
+        <member name="P:Pulumi.ResourceHookArgs.Name">
+            <summary>
+            The logical name of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.Type">
+            <summary>
+            The resource type token of the resource that triggered the hook.
+            </summary>
+        </member>
         <member name="P:Pulumi.ResourceHookArgs.NewInputs">
             <summary>
             The new inputs of the resource that triggered the hook.
@@ -2733,7 +2826,7 @@
             The old outputs of the resource that triggered the hook.
             </summary>
         </member>
-        <member name="M:Pulumi.ResourceHookArgs.#ctor(System.String,System.String,System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object})">
+        <member name="M:Pulumi.ResourceHookArgs.#ctor(System.String,System.String,System.String,System.String,System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object})">
             <summary>
             Creates a new set of <see cref="T:Pulumi.ResourceHookArgs"/>.
             </summary>
@@ -2784,6 +2877,11 @@
             Hooks to be invoked after the resource is deleted.
             </summary>
         </member>
+        <member name="P:Pulumi.ResourceHookBinding.OnError">
+            <summary>
+            Hooks to be invoked when a resource operation fails. Return true to retry, false to not retry.
+            </summary>
+        </member>
         <member name="P:Pulumi.ResourceHookBinding.IsEmpty">
             <summary>
             IsEmpty is true if and only if no hooks have been bound to any of the lifecycle events.
@@ -2819,6 +2917,12 @@
             .NET ResourceHookBinding using StubResourceHook instances. This is
             used when receiving hooks from remote components that need to be
             reconstructed as .NET objects.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookUtilities.StubErrorHook">
+            <summary>
+            StubErrorHook is an error hook that does nothing (returns false - do not retry).
+            Used when reconstructing hooks from transforms or remote components.
             </summary>
         </member>
         <member name="T:Pulumi.ResourceHookUtilities.StubResourceHook">

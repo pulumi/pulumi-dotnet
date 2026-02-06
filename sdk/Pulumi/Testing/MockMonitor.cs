@@ -235,6 +235,11 @@ namespace Pulumi.Testing
             return Task.CompletedTask;
         }
 
+        public Task RegisterErrorHookAsync(RegisterErrorHookRequest request)
+        {
+            return Task.CompletedTask;
+        }
+
         public Task SignalAndWaitForShutdownAsync()
         {
             return Task.CompletedTask;

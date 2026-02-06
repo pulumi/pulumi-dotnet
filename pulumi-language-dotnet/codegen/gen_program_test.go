@@ -39,6 +39,13 @@ import (
 
 func TestGenerateProgram(t *testing.T) {
 	t.Parallel()
+	for i, tc := range test.PulumiPulumiProgramTests {
+		if tc.Directory != "azure-native-v2-eventgrid" {
+			continue
+		}
+		tc.PluginHost = nil
+		test.PulumiPulumiProgramTests[i] = tc
+	}
 	test.TestProgramCodegen(t, test.ProgramCodegenOptions{
 		Language:   "dotnet",
 		Extension:  "cs",
@@ -49,7 +56,7 @@ func TestGenerateProgram(t *testing.T) {
 		GenProgram: GenerateProgram,
 		TestCases:  test.PulumiPulumiProgramTests,
 
-		InputDirectory:  filepath.Join("..", "..", "..", "tests", "testdata", "codegen"),
+		InputDirectory:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
 		ResultDirectory: "testdata",
 	})
 }
@@ -68,7 +75,7 @@ func TestGenerateProgramYAML(t *testing.T) {
 		GenProgram: GenerateProgram,
 		TestCases:  test.PulumiPulumiYAMLProgramTests,
 
-		InputDirectory:  filepath.Join("..", "..", "..", "tests", "testdata", "codegen"),
+		InputDirectory:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
 		ResultDirectory: "testdata",
 	})
 }
@@ -119,7 +126,7 @@ resource "test-organization" "tfe:index/organization:Organization" {
 	program, diags, err := parseAndBindProgram(t,
 		source,
 		"main.pp",
-		filepath.Join("..", "testing", "test", "testdata", "parameterized-schemas"))
+		filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen", "parameterized-schemas"))
 
 	require.NoError(t, err)
 	require.False(t, diags.HasErrors(), "unexpected diags: %v", diags)
@@ -185,7 +192,7 @@ resource "test-organization" "tfe:index/organization:Organization" {
 	program, diags, err := parseAndBindProgram(t,
 		source,
 		"main.pp",
-		filepath.Join("..", "testing", "test", "testdata", "parameterized-schemas"))
+		filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen", "parameterized-schemas"))
 
 	require.NoError(t, err)
 	require.False(t, diags.HasErrors(), "unexpected diags: %v", diags)

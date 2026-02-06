@@ -147,6 +147,10 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-replace-with":              "not yet implemented",
 	"l2-resource-option-delete-before-replace":     "https://github.com/pulumi/pulumi-dotnet/issues/813",
 	"l2-resource-option-additional-secret-outputs": "https://github.com/pulumi/pulumi-dotnet/issues/814",
+	"l2-resource-option-custom-timeouts":           "https://github.com/pulumi/pulumi-dotnet/issues/822",
+	"l2-resource-option-version":                   "https://github.com/pulumi/pulumi-dotnet/issues/823",
+	"l3-range-resource-output-traversal":           "dotnet build failed: Output<ImmutableArray> missing Select extension method", //nolint:lll
+	"l2-resource-option-plugin-download-url":       "https://github.com/pulumi/pulumi-dotnet/issues/824",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

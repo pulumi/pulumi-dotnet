@@ -136,5 +136,5 @@ func TestGenerateTypeNames(t *testing.T) {
 		return func(t schema.Type) string {
 			return root.typeString(t, "", false, false, false)
 		}
-	})
+	}, filepath.FromSlash("../../pulumi/tests/testdata/codegen"))
 }

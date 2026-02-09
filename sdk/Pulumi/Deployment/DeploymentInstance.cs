@@ -27,6 +27,11 @@ namespace Pulumi
         public string ProjectName => _deployment.ProjectName;
 
         /// <summary>
+        /// Root directory, that is the location of the Pulumi.yaml file.
+        /// </summary>
+        public string RootDirectory => _deployment.RootDirectory;
+
+        /// <summary>
         /// Returns the current organization name.
         /// </summary>
         public string OrganizationName => _deployment.OrganizationName;

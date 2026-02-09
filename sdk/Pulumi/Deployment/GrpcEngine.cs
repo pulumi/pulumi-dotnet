@@ -1,4 +1,4 @@
-// Copyright 2016-2020, Pulumi Corporation
+// Copyright 2016-2026, Pulumi Corporation
 
 using System;
 using System.Collections.Concurrent;
@@ -59,6 +59,13 @@ namespace Pulumi
             rpcRequest.Severity = (Pulumirpc.LogSeverity)request.Severity;
             rpcRequest.StreamId = request.StreamId;
             await this._engine.LogAsync(rpcRequest);
+        }
+
+        public async Task RequirePulumiVersionAsync(string pulumiVersionRange)
+        {
+            var rpcRequest = new Pulumirpc.RequirePulumiVersionRequest();
+            rpcRequest.PulumiVersionRange = pulumiVersionRange;
+            await this._engine.RequirePulumiVersionAsync(rpcRequest);
         }
     }
 }

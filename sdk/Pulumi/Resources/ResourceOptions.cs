@@ -142,5 +142,50 @@ namespace Pulumi
         /// if specified resource is being deleted as well.
         /// </summary>
         public Resource? DeletedWith { get; set; }
+
+        private InputList<Resource>? _replaceWith;
+
+        /// <summary>
+        /// If set, the resource will be replaced if one of the specified resources is replaced.
+        /// </summary>
+        public InputList<Resource> ReplaceWith
+        {
+            get => _replaceWith ??= new InputList<Resource>();
+            set => _replaceWith = value;
+        }
+
+        private ResourceHookBinding? _hooks;
+
+        /// <summary>
+        /// Optional resource hooks to bind to this resource. The hooks will be invoked during the lifecycle of
+        /// the resource.
+        /// </summary>
+        public ResourceHookBinding Hooks
+        {
+            get => _hooks ??= new();
+            set => _hooks = value;
+        }
+
+        private List<string>? _hideDiffs;
+
+        /// <summary>
+        /// If set, diffs from the included property paths will not be shown.
+        /// This only affects the diff display, and does not affect update behavior.
+        /// </summary>
+        public List<string> HideDiffs
+        {
+            get => _hideDiffs ??= new List<string>();
+            set => _hideDiffs = value;
+        }
+
+        /// <summary>
+        /// If set, the engine will diff this with the last recorded value, and trigger
+        /// a replace if they are not equal. Note that if either value is null, no
+        /// comparison is done and no replacement is triggered. This means that the
+        /// replacement trigger only applies to two subsequent deployments with defined
+        /// triggers.
+        /// </summary>
+        public Input<object>? ReplacementTrigger { get; set; }
+
     }
 }

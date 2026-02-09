@@ -1,4 +1,4 @@
-// Copyright 2016-2021, Pulumi Corporation
+// Copyright 2016-2025, Pulumi Corporation
 
 using System;
 using System.Collections.Concurrent;
@@ -153,6 +153,16 @@ namespace Pulumi
                 }
             }
 
+            LogExcessive($"Checking whether hooks must be prepared: t={type}, name={name}");
+            var hooks = new Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding();
+            if (!options.Hooks.IsEmpty)
+            {
+                LogExcessive($"Preparing hooks: t={type}, name={name}");
+                var callbacks = await this.GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
+                hooks = await PrepareHooks(callbacks.Callbacks, options.Hooks).ConfigureAwait(false);
+                LogExcessive($"Prepared hooks: t={type}, name={name}");
+            }
+
             string? packageRef = null;
             if (registerPackageRequest != null)
             {
@@ -169,6 +179,7 @@ namespace Pulumi
                 aliases,
                 resourceMonitorSupportsAliasSpecs,
                 transforms,
+                hooks,
                 packageRef);
 
             void LogExcessive(string message)
@@ -241,6 +252,7 @@ namespace Pulumi
                     ? CustomTimeouts.Deserialize(request.Options.CustomTimeouts)
                     : null;
                 opts.DeletedWith = request.Options.DeletedWith == "" ? null : new DependencyResource(request.Options.DeletedWith);
+                opts.ReplaceWith = request.Options.ReplaceWith.Select(u => (Resource)new DependencyResource(u)).ToList();
                 opts.DependsOn = request.Options.DependsOn.Select(u => (Resource)new DependencyResource(u)).ToList();
                 opts.IgnoreChanges = request.Options.IgnoreChanges.ToList();
                 opts.Parent = request.Parent == "" ? null : new DependencyResource(request.Parent);
@@ -250,6 +262,16 @@ namespace Pulumi
                 opts.ReplaceOnChanges = request.Options.ReplaceOnChanges.ToList();
                 opts.RetainOnDelete = request.Options.RetainOnDelete ? request.Options.RetainOnDelete : null;
                 opts.Version = request.Options.Version;
+                opts.Hooks = ResourceHookUtilities.ResourceHookBindingFromProto(request.Options.Hooks) ?? new ResourceHookBinding();
+                opts.HideDiffs = request.Options.HideDiff.ToList();
+                if (request.Options.ReplacementTrigger != null)
+                {
+                    var deserialized = Serialization.Deserializer.Deserialize(request.Options.ReplacementTrigger);
+                    if (deserialized.Value != null)
+                    {
+                        opts.ReplacementTrigger = deserialized.Value;
+                    }
+                }
 
                 var args = new ResourceTransformArgs(
                     request.Name,
@@ -286,6 +308,25 @@ namespace Pulumi
                     response.Options.Aliases.AddRange(aliases);
                     response.Options.CustomTimeouts = result.Value.Options.CustomTimeouts == null ? null : result.Value.Options.CustomTimeouts.Serialize();
                     response.Options.DeletedWith = result.Value.Options.DeletedWith == null ? "" : await result.Value.Options.DeletedWith.Urn.GetValueAsync("").ConfigureAwait(false);
+                    await foreach (var dep in result.Value.Options.ReplaceWith)
+                    {
+                        if (dep == null)
+                        {
+                            continue;
+                        }
+
+                        var res = await dep.ToOutput().GetValueAsync(null!).ConfigureAwait(false);
+                        if (res == null)
+                        {
+                            continue;
+                        }
+
+                        var urn = await res.Urn.GetValueAsync("").ConfigureAwait(false);
+                        if (!string.IsNullOrEmpty(urn))
+                        {
+                            response.Options.ReplaceWith.Add(urn);
+                        }
+                    }
                     await foreach (var dep in result.Value.Options.DependsOn)
                     {
                         if (dep == null)
@@ -315,6 +356,16 @@ namespace Pulumi
                         response.Options.RetainOnDelete = result.Value.Options.RetainOnDelete.Value;
                     }
                     response.Options.Version = result.Value.Options.Version;
+                    if (result.Value.Options.ReplacementTrigger != null)
+                    {
+                        var replacementTriggerSerializer = new Serializer(excessiveDebugOutput: false);
+                        var replacementTriggerSerialized = await replacementTriggerSerializer.SerializeAsync("ReplacementTrigger", result.Value.Options.ReplacementTrigger,
+                            keepResources: true, keepOutputValues: true).ConfigureAwait(false);
+                        if (replacementTriggerSerialized != null)
+                        {
+                            response.Options.ReplacementTrigger = Serializer.CreateValue(replacementTriggerSerialized);
+                        }
+                    }
 
                     if (result.Value.Options is CustomResourceOptions customOptions)
                     {
@@ -330,6 +381,10 @@ namespace Pulumi
                         {
                             response.Options.Providers.Add(provider.Package, await provider.Ref.ConfigureAwait(false));
                         }
+                    }
+                    if (!result.Value.Options.Hooks.IsEmpty)
+                    {
+                        response.Options.Hooks = await PrepareHooks(callbacks, result.Value.Options.Hooks).ConfigureAwait(false);
                     }
                 }
                 return response;
@@ -377,6 +432,31 @@ namespace Pulumi
                 return response;
             });
             return await callbacks.AllocateCallback(wrapper);
+        }
+
+        /// <summary>
+        /// Prepares a set of <see cref="ResourceHookBinding"/>s for transmission as part of a resource registration by
+        /// serializing their names into a <see cref="Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding"/>.
+        /// </summary>
+        private static async Task<Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding> PrepareHooks(Callbacks callbacks, ResourceHookBinding hooks)
+        {
+            var binding = new Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding();
+
+            static Task<string[]> prepareType(List<ResourceHook> hooksOfType)
+              => Task.WhenAll(hooksOfType.Select(async hook =>
+                  {
+                      await hook._registered;
+                      return hook.Name;
+                  }));
+
+            binding.BeforeCreate.AddRange(await prepareType(hooks.BeforeCreate));
+            binding.AfterCreate.AddRange(await prepareType(hooks.AfterCreate));
+            binding.BeforeUpdate.AddRange(await prepareType(hooks.BeforeUpdate));
+            binding.AfterUpdate.AddRange(await prepareType(hooks.AfterUpdate));
+            binding.BeforeDelete.AddRange(await prepareType(hooks.BeforeDelete));
+            binding.AfterDelete.AddRange(await prepareType(hooks.AfterDelete));
+
+            return binding;
         }
 
         static async Task<T> Resolve<T>(Input<T>? input, T whenUnknown)
@@ -678,6 +758,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
             public readonly Dictionary<string, HashSet<string>> PropertyToDirectDependencyUrns;
             public readonly List<Pulumirpc.Alias> Aliases;
             public readonly List<Pulumirpc.Callback> Transforms;
+            public readonly Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding? Hooks;
             public readonly string? PackageRef;
             /// <summary>
             /// Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
@@ -697,6 +778,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 List<Pulumirpc.Alias> aliases,
                 bool supportsAliasSpec,
                 List<Pulumirpc.Callback> transforms,
+                Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding? hooks = null,
                 string? packageRef = null)
             {
                 SerializedProps = serializedProps;
@@ -708,6 +790,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 SupportsAliasSpec = supportsAliasSpec;
                 Aliases = aliases;
                 Transforms = transforms;
+                Hooks = hooks;
                 PackageRef = packageRef;
             }
         }

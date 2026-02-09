@@ -11,17 +11,14 @@ jobs:
   check-changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Get the latest version
-        id: latest
-        uses: miniscruff/changie-action@v2
-        with:
-          args: latest
+      - uses: actions/checkout@v6
+      - name: Setup mise and install tools
+        uses: jdx/mise-action@v3.6.1
       - name: Verify
         run: |
-          if [ ! gh release list | grep "${{ steps.latest.outputs.output }}" ]; then
+          if ! gh release list | grep -q "$(changie latest)"; then
             # The changie latest isn't yet published, i.e. we're going to publish it so check ".changes/unreleased" is empty
-            if [ ! -z $(ls -A .changes/unreleased) ]; then
+            if [ -n "$(ls .changes/unreleased 2>/dev/null)" ]; then
               echo "Unreleased changes are not empty"
               exit 1
             fi

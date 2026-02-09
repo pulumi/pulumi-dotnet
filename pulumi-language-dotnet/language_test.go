@@ -16,18 +16,13 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
-
-	"github.com/pulumi/pulumi/sdk/v3/go/common/diag"
-	pbempty "google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
@@ -38,79 +33,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
-
-type hostEngine struct {
-	pulumirpc.UnimplementedEngineServer
-	t *testing.T
-
-	logLock         sync.Mutex
-	logRepeat       int
-	previousMessage string
-}
-
-func (e *hostEngine) Log(_ context.Context, req *pulumirpc.LogRequest) (*pbempty.Empty, error) {
-	e.logLock.Lock()
-	defer e.logLock.Unlock()
-
-	var sev diag.Severity
-	switch req.Severity {
-	case pulumirpc.LogSeverity_DEBUG:
-		sev = diag.Debug
-	case pulumirpc.LogSeverity_INFO:
-		sev = diag.Info
-	case pulumirpc.LogSeverity_WARNING:
-		sev = diag.Warning
-	case pulumirpc.LogSeverity_ERROR:
-		sev = diag.Error
-	default:
-		return nil, fmt.Errorf("Unrecognized logging severity: %v", req.Severity)
-	}
-
-	message := req.Message
-	if os.Getenv("PULUMI_LANGUAGE_TEST_SHOW_FULL_OUTPUT") != "true" {
-		// Cut down logs so they don't overwhelm the test output
-		if len(message) > 1024 {
-			message = message[:1024] + "... (truncated, run with PULUMI_LANGUAGE_TEST_SHOW_FULL_OUTPUT=true to see full logs))"
-		}
-	}
-
-	if e.previousMessage == message {
-		e.logRepeat++
-		return &pbempty.Empty{}, nil
-	}
-
-	if e.logRepeat > 1 {
-		e.t.Logf("Last message repeated %d times", e.logRepeat)
-	}
-	e.logRepeat = 1
-	e.previousMessage = message
-
-	if req.StreamId != 0 {
-		e.t.Logf("(%d) %s[%s]: %s", req.StreamId, sev, req.Urn, message)
-	} else {
-		e.t.Logf("%s[%s]: %s", sev, req.Urn, message)
-	}
-	return &pbempty.Empty{}, nil
-}
-
-func runEngine(t *testing.T) string {
-	// Run a gRPC server that implements the Pulumi engine RPC interface. But all we do is forward logs on to T.
-	engine := &hostEngine{t: t}
-	stop := make(chan bool)
-	t.Cleanup(func() {
-		close(stop)
-	})
-	handle, err := rpcutil.ServeWithOptions(rpcutil.ServeOptions{
-		Cancel: stop,
-		Init: func(srv *grpc.Server) error {
-			pulumirpc.RegisterEngineServer(srv, engine)
-			return nil
-		},
-		Options: rpcutil.OpenTracingServerInterceptorOptions(nil),
-	})
-	require.NoError(t, err)
-	return fmt.Sprintf("127.0.0.1:%v", handle.Port)
-}
 
 func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 	// We can't just go run the pulumi-test-language package because of
@@ -167,18 +89,19 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 		contract.IgnoreError(cmd.Wait())
 	})
 
-	engineAddress := runEngine(t)
-	return engineAddress, client
+	return address, client
 }
 
 // Add test names here that are expected to fail and the reason why they are failing
 var expectedFailures = map[string]string{
-	"l1-builtin-can":           "#489 codegen not implemented",
-	"l1-builtin-try":           "#490 codegen not implemented",
-	"l1-config-types":          "dotnet build failed",
-	"l1-keyword-overlap":       "#493 update to pulumi 1.50 conformance failure",
-	"l1-proxy-index":           "dotnet build failed",
-	"l2-component-call-simple": "#491 update to pulumi 1.50 conformance failure",
+	"l1-builtin-can":                        "#489 codegen not implemented",
+	"l1-builtin-try":                        "#490 codegen not implemented",
+	"l1-builtin-stash":                      "testdata not yet generated for .NET",
+	"l1-config-types":                       "dotnet build failed",
+	"l1-keyword-overlap":                    "#493 update to pulumi 1.50 conformance failure",
+	"l1-proxy-index":                        "dotnet build failed",
+	"l2-component-call-simple":              "#491 update to pulumi 1.50 conformance failure",
+	"l2-resource-option-replace-on-changes": "not yet implemented",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config": "sdk packing for config: build error before pack",
@@ -198,15 +121,36 @@ var expectedFailures = map[string]string{
 	"l2-provider-grpc-config-schema-secret": "dotnet build failed",
 	"l2-proxy-index":                        "dotnet build failed",
 	"l2-invoke-options-depends-on":          "dotnet build failed",
+	"l2-invoke-scalar": "" +
+		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
+	"l2-invoke-scalars": "" +
+		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
 	"l2-invoke-secrets": "" +
 		"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-	"l2-map-keys":                    "dotnet build failed",
-	"l2-resource-secret":             "test hanging",
-	"l1-builtin-project-root":        "#466",
-	"l2-rtti":                        "codegen not implemented",
-	"l2-namespaced-provider":         "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",
-	"l2-resource-parent-inheritance": "expected child to inherit retain on delete flag",
-	"l2-invoke-scalar":               "run bailed",
+	"l2-map-keys":                       "dotnet build failed",
+	"l2-resource-secret":                "test hanging",
+	"l1-builtin-project-root":           "#466",
+	"l2-rtti":                           "codegen not implemented",
+	"l2-namespaced-provider":            "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
+	"l2-union":                          "dotnet build failed",
+	"l2-resource-option-alias":          "aliases not recognized: expected 0 create operations but got 3",
+	"l2-resource-option-hide-diffs":     "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
+	"l2-resource-option-ignore-changes": "property path has @ prefix: expected 'value' but got '@value'",
+	"l1-builtin-cwd":                    "testdata not yet generated for .NET",
+	"l1-builtin-project-root-main":      "testdata not yet generated for .NET",
+	"l2-keywords":                       "testdata not yet generated for .NET",
+	"l2-parallel-resources":             "testdata not yet generated for .NET",
+	"l2-parameterized-invoke": "dotnet build failed: " +
+		"DoHelloWorld does not exist in namespace Pulumi.Subpackage",
+	"l2-parameterized-resource-twice":              "testdata not yet generated for .NET",
+	"l2-resource-option-replacement-trigger":       "not yet implemented",
+	"l2-resource-option-replace-with":              "not yet implemented",
+	"l2-resource-option-delete-before-replace":     "https://github.com/pulumi/pulumi-dotnet/issues/813",
+	"l2-resource-option-additional-secret-outputs": "https://github.com/pulumi/pulumi-dotnet/issues/814",
+	"l2-resource-option-custom-timeouts":           "https://github.com/pulumi/pulumi-dotnet/issues/822",
+	"l2-resource-option-version":                   "https://github.com/pulumi/pulumi-dotnet/issues/823",
+	"l3-range-resource-output-traversal":           "dotnet build failed: Output<ImmutableArray> missing Select extension method", //nolint:lll
+	"l2-resource-option-plugin-download-url":       "https://github.com/pulumi/pulumi-dotnet/issues/824",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.
@@ -221,9 +165,10 @@ var programOverrides = map[string]*testingrpc.PrepareLanguageTestsRequest_Progra
 
 func TestLanguage(t *testing.T) {
 	t.Parallel()
+
 	engineAddress, engine := runTestingHost(t)
 
-	tests, err := engine.GetLanguageTests(context.Background(), &testingrpc.GetLanguageTestsRequest{})
+	tests, err := engine.GetLanguageTests(t.Context(), &testingrpc.GetLanguageTestsRequest{})
 	require.NoError(t, err)
 
 	cancel := make(chan bool)
@@ -245,7 +190,7 @@ func TestLanguage(t *testing.T) {
 	snapshotDir := "./testdata/"
 
 	// Prepare to run the tests
-	prepare, err := engine.PrepareLanguageTests(context.Background(), &testingrpc.PrepareLanguageTestsRequest{
+	prepare, err := engine.PrepareLanguageTests(t.Context(), &testingrpc.PrepareLanguageTestsRequest{
 		LanguagePluginName:   "dotnet",
 		LanguagePluginTarget: fmt.Sprintf("127.0.0.1:%d", handle.Port),
 		TemporaryDirectory:   rootDir,
@@ -271,8 +216,11 @@ func TestLanguage(t *testing.T) {
 			if strings.HasPrefix(tt, "policy-") {
 				t.Skipf("dotnet doesn't support policy tests yet: %s", tt)
 			}
+			if strings.HasPrefix(tt, "provider-") {
+				t.Skipf("dotnet doesn't support provider tests yet: %s", tt)
+			}
 
-			result, err := engine.RunLanguageTest(context.Background(), &testingrpc.RunLanguageTestRequest{
+			result, err := engine.RunLanguageTest(t.Context(), &testingrpc.RunLanguageTestRequest{
 				Token: prepare.Token,
 				Test:  tt,
 			})

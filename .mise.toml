@@ -1,0 +1,15 @@
+[env]
+PULUMI_ROOT = "{{config_root}}/.root"
+
+_.path = [
+  "{{env.PULUMI_ROOT}}/bin",
+]
+
+[tools]
+changie = "latest"
+go = "1.24"
+gofumpt = "0.9.1"
+golangci-lint = "2.5.0"
+gotestsum = "latest"
+pulumi = "latest"
+"vfox:dotnet" = { version = "8.0", postinstall = "powershell -Command \"Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile '$env:TEMP\\dotnet-install.ps1'; & '$env:TEMP\\dotnet-install.ps1' -Version 6.0.427 -InstallDir '$env:MISE_TOOL_INSTALL_PATH' -NoPath -SkipNonVersionedFiles\" || curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --version 6.0.427 --install-dir \"$MISE_TOOL_INSTALL_PATH\" --no-path --skip-non-versioned-files" }

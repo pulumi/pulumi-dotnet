@@ -22,7 +22,7 @@ type PublishResult =
     | Ok of project:string
     | Failed of project:string * error: string
     | AlreadyPublished of project:string
-    
+
     member this.ProjectName() =
         match this with
         | Ok project -> projectName project
@@ -47,10 +47,12 @@ let publishSdk (projectDir: string) (version: string) (nugetApiKey: string) (goS
     else
         let releaseDir = Path.Combine(projectDir, "bin", "Release")
         let releaseArtifacts = Directory.EnumerateFiles(releaseDir)
-        if not (releaseArtifacts.Any()) then
+        let nugetPackageFile = releaseArtifacts.FirstOrDefault(
+            (fun path -> path.Contains(version)), "")
+
+        if nugetPackageFile = "" then
             PublishResult.Failed(projectDir, "couldn't find the nuget package")
         else
-            let nugetPackageFile = releaseArtifacts.First()
             let publishNugetCmd = String.concat " " [
                 "nuget"
                 "push"

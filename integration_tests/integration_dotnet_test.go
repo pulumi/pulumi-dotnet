@@ -32,6 +32,7 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -751,6 +752,11 @@ outer:
 func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
+	// TODO[pulumi/pulumi-dotnet#705]: Fix disabled test on MacOS..
+	if runtime.GOOS == "darwin" {
+		t.Skip("Skipping test due to broken netcoredbg on MacOS - pulumi/pulumi-dotnet#705")
+	}
+
 	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
 	require.NoError(t, err)
 
@@ -831,6 +837,103 @@ func TestParameterized(t *testing.T) {
 			e.CWD = info.Root
 			e.RunCommand("dotnet", "test")
 			return nil
+		},
+	})
+}
+
+// This test ensures that we do not proceed to deletions if a program throws an error.
+//
+//nolint:paralleltest // ProgramTest calls t.Parallel()
+func TestProgramErrorPython(t *testing.T) {
+	d := "program_error"
+
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:            filepath.Join(d, "step1"),
+		LocalProviders: []integration.LocalDependency{{Package: "testprovider", Path: "testprovider"}},
+		Quick:          true,
+		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+			require.Len(t, stack.Deployment.Resources, 4)
+			require.Equal(t, stack.Deployment.Resources[0].Type, tokens.Type("pulumi:pulumi:Stack"))
+			require.Equal(t, stack.Deployment.Resources[1].Type, tokens.Type("pulumi:providers:testprovider"))
+			require.Equal(t, stack.Deployment.Resources[2].Type, tokens.Type("testprovider:index:Random"))
+			require.Equal(t, stack.Deployment.Resources[3].Type, tokens.Type("testprovider:index:Random"))
+		},
+		EditDirs: []integration.EditDir{
+			{
+				Dir:           filepath.Join(d, "step2"),
+				Additive:      true,
+				ExpectFailure: true,
+				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+					require.Len(t, stack.Deployment.Resources, 4)
+					require.Equal(t, stack.Deployment.Resources[0].Type, tokens.Type("pulumi:pulumi:Stack"))
+					require.Equal(t, stack.Deployment.Resources[1].Type, tokens.Type("pulumi:providers:testprovider"))
+					require.Equal(t, stack.Deployment.Resources[2].Type, tokens.Type("testprovider:index:Random"))
+					require.Equal(t, stack.Deployment.Resources[3].Type, tokens.Type("testprovider:index:Random"))
+				},
+			},
+		},
+	})
+}
+
+// @TODO: We can delete this test when #788 is fixed and we can use the conformance test.
+//
+//nolint:paralleltest // ProgramTest calls t.Parallel()
+func TestReplacementTrigger(t *testing.T) {
+	testDir := "replacement_trigger"
+
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir: filepath.Join(testDir, "step1"),
+		ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+			require.Len(t, stack.Deployment.Resources, 2)
+			require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+			require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
+		},
+		EditDirs: []integration.EditDir{
+			{
+				Dir:             filepath.Join(testDir, "step2"),
+				Additive:        true,
+				ExpectNoChanges: true,
+				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+					require.Len(t, stack.Deployment.Resources, 2)
+					require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+					require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
+
+					for _, ev := range stack.Events {
+						if ev.ResourcePreEvent != nil {
+							metadata := ev.ResourcePreEvent.Metadata
+							if metadata.URN != "" {
+								require.NotEqual(t, apitype.OpReplace, metadata.Op,
+									"Did not expect OpReplace for 'trigger' resource, but found OpReplace")
+							}
+						}
+					}
+				},
+			},
+			{
+				Dir:      filepath.Join(testDir, "step3"),
+				Additive: true,
+				ExtraRuntimeValidation: func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+					require.Len(t, stack.Deployment.Resources, 2)
+					require.Equal(t, stack.Deployment.Resources[0].Type.DisplayName(), "pulumi:pulumi:Stack")
+					require.Equal(t, stack.Deployment.Resources[1].Type.DisplayName(), "testcomponent:index:Component")
+
+					var operations []apitype.OpType
+					for _, ev := range stack.Events {
+						if ev.ResourcePreEvent != nil {
+							metadata := ev.ResourcePreEvent.Metadata
+							if metadata.URN != "" {
+								if resource.URN(metadata.URN).Name() == "trigger" {
+									operations = append(operations, metadata.Op)
+								}
+							}
+						}
+					}
+
+					require.NotEmpty(t, operations, "Expected to find events for 'trigger' resource")
+					require.Contains(t, operations, apitype.OpReplace,
+						"Expected to find OpReplace in events for 'trigger' resource, found operations: %v", operations)
+				},
+			},
 		},
 	})
 }

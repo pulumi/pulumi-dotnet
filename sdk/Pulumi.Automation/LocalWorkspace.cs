@@ -866,7 +866,7 @@ namespace Pulumi.Automation
             if (!SupportsCommand(new SemVersion(3, 91, 0)))
             {
                 throw new InvalidOperationException("The Pulumi CLI version does not support the install command. Please update the Pulumi CLI.");
-            };
+            }
 
             var args = new List<string> { "install" };
 
@@ -1028,7 +1028,7 @@ namespace Pulumi.Automation
         {
             var version = _cmd.Version ?? new SemVersion(3, 0);
 
-            return version >= minSupportedVersion;
+            return version.ComparePrecedenceTo(minSupportedVersion) >= 0;
         }
 
         private void CheckSupportsEnvironmentsCommands()

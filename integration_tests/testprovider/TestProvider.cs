@@ -120,7 +120,8 @@ public class TestProvider : Provider
     {
         if (request.Type == parameter + ":index:Echo" ||
             request.Type == parameter + ":index:Random" ||
-            request.Type == parameter + ":index:FailsOnDelete")
+            request.Type == parameter + ":index:FailsOnDelete" ||
+            request.Type == parameter + ":index:Updatable")
         {
             return Task.FromResult(new CheckResponse() { Inputs = request.NewInputs });
         }
@@ -149,6 +150,13 @@ public class TestProvider : Provider
         {
             return Task.FromResult(new DiffResponse() {
                 Changes = false,
+            });
+        }
+        else if (request.Type == parameter + ":index:Updatable")
+        {
+            var changes = !request.OldInputs["value"].Equals(request.NewInputs["value"]);
+            return Task.FromResult(new DiffResponse() {
+                Changes = changes,
             });
         }
 
@@ -205,6 +213,32 @@ public class TestProvider : Provider
             ++this.id;
             return Task.FromResult(new CreateResponse() {
                 Id = this.id.ToString(),
+            });
+        }
+        else if (request.Type == parameter + ":index:Updatable")
+        {
+            var outputs = new Dictionary<string, PropertyValue>();
+            outputs.Add("value", request.Inputs["value"]);
+
+            ++this.id;
+            return Task.FromResult(new CreateResponse() {
+                Id = this.id.ToString(),
+                Outputs = outputs,
+            });
+        }
+
+        throw new Exception($"Unknown resource type '{request.Type}'");
+    }
+
+    public override Task<UpdateResponse> Update(UpdateRequest request, CancellationToken ct)
+    {
+        if (request.Type == parameter + ":index:Updatable")
+        {
+            var outputs = new Dictionary<string, PropertyValue>();
+            outputs.Add("value", request.NewInputs["value"]);
+
+            return Task.FromResult(new UpdateResponse() {
+                Outputs = outputs,
             });
         }
 

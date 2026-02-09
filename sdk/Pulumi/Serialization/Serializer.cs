@@ -339,6 +339,31 @@ $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:
                 return mi.Invoke(null, new[] { prop });
             }
 
+            if (propType.GetCustomAttribute<OutputTypeAttribute>() != null)
+            {
+                // Serialize each readonly field, and lowercase the first character of the field name to match
+                // the Pulumi convention.
+                var result = ImmutableDictionary.CreateBuilder<string, object?>();
+                foreach (var field in propType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
+                {
+                    if (!field.IsInitOnly)
+                    {
+                        continue; // Skip non readonly fields.
+                    }
+
+                    var fieldName = field.Name;
+                    if (fieldName.Length > 0)
+                    {
+                        fieldName = char.ToLowerInvariant(fieldName[0]) + fieldName.Substring(1);
+                    }
+
+                    result[fieldName] = await SerializeAsync(
+                        $"{ctx}.{fieldName}",
+                        field.GetValue(prop), keepResources, keepOutputValues).ConfigureAwait(false);
+                }
+                return result.ToImmutable();
+            }
+
             throw new InvalidOperationException($"{propType.FullName} is not a supported argument type.\n\t{ctx}");
         }
 

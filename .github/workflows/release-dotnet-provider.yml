@@ -17,13 +17,13 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
-        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
-      - uses: actions/checkout@v4
+        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+      - uses: actions/checkout@v6
       - name: Fetch Tags
         run: |
           git fetch --quiet --prune --tags
       - name: Set up Go 1.24.x
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: 1.24.x
       - name: Configure Go cache
@@ -32,7 +32,7 @@ jobs:
           echo "go-build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
           echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
       - name: Set up Go cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: go-cache
         with:
           path: |

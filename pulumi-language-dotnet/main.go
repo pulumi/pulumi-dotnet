@@ -33,8 +33,8 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/pkg/errors"
+	dotnetcodegen "github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/codegen"
 	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version"
-	dotnetcodegen "github.com/pulumi/pulumi/pkg/v3/codegen/dotnet"
 	hclsyntax "github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/syntax"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/pcl"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
@@ -297,6 +297,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	if err != nil {
 		return nil, err
 	}
+	logging.V(5).Infof("GetRequiredPlugins: dotnet list package --include-transitive: %q", commandOutput)
 
 	// expected output should be like so:
 	//
@@ -590,7 +591,7 @@ type logWriter struct {
 func (w *logWriter) Write(p []byte) (n int, err error) {
 	n, err = w.buffer.Write(p)
 	if err != nil {
-		return
+		return n, err
 	}
 
 	return w.LogToUser(string(p))
@@ -620,13 +621,11 @@ func buildDebuggingDLL(ctx context.Context, dotnetExec, programDirectory, entryP
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
 	// of things.
-	args := []string{
+	cmd := exec.CommandContext(ctx, dotnetExec, //nolint:gosec // Allow sub-process to accept remote inputs
 		"build", "-nologo", "-o",
 		filepath.Join(programDirectory, "bin", "pulumi-debugging"),
-	}
-	args = append(args, filepath.Join(programDirectory, entryPoint))
-
-	cmd := exec.CommandContext(ctx, dotnetExec, args...)
+		filepath.Join(programDirectory, entryPoint),
+	)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to build project: %v, output: %v", err, string(out))
@@ -819,6 +818,7 @@ func (host *dotnetLanguageHost) constructEnv(req *pulumirpc.RunRequest, config, 
 	maybeAppendEnv("engine", host.engineAddress)
 	maybeAppendEnv("organization", req.GetOrganization())
 	maybeAppendEnv("project", req.GetProject())
+	maybeAppendEnv("root_directory", req.GetInfo().RootDirectory)
 	maybeAppendEnv("stack", req.GetStack())
 	maybeAppendEnv("pwd", req.GetPwd())
 	maybeAppendEnv("dry_run", strconv.FormatBool(req.GetDryRun()))
@@ -1205,11 +1205,12 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	cmd := exec.CommandContext( //nolint:gosec // intentionally running dynamic program name.
 		ctx,
-		opts.dotnetExec, "pack", "-c", "Release", "-o", destination)
+		opts.dotnetExec, "pack", "-c", "Release", "-o", destination, "-p:IncludeSource", "-p:SymbolPackageFormat=snupkg")
 	cmd.Dir = req.PackageDirectory
 
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("failed to pack: %w", err)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack: %w. Dotnet pack output:\n%s", err, string(output))
 	}
 
 	var nugetFilePath string
@@ -1379,4 +1380,107 @@ func (host *dotnetLanguageHost) GenerateProgram(
 		Source:      files,
 		Diagnostics: rpcDiagnostics,
 	}, nil
+}
+
+func (host *dotnetLanguageHost) Link(
+	ctx context.Context, req *pulumirpc.LinkRequest,
+) (*pulumirpc.LinkResponse, error) {
+	logging.V(5).Infof("Linking %+v in %s", req.Packages, req.Info.RootDirectory)
+
+	loader, err := schema.NewLoaderClient(req.LoaderTarget)
+	if err != nil {
+		return nil, err
+	}
+	defer loader.Close()
+	cachedLoader := schema.NewCachedLoader(loader)
+
+	var instructions strings.Builder
+	instructions.WriteString("Add the following to your .csproj file of the program:\n")
+	instructions.WriteString("\n")
+	instructions.WriteString("  <DefaultItemExcludes>$(DefaultItemExcludes);sdks/**/*.cs</DefaultItemExcludes>\n")
+	instructions.WriteString("\n")
+	if len(req.Packages) == 1 {
+		instructions.WriteString("You can then use the SDK in your .NET code with:\n")
+	} else {
+		instructions.WriteString("You can then use the SDKs in your .NET code with:\n")
+	}
+
+	for _, dep := range req.Packages {
+		cmd := exec.Command("dotnet", "add", "reference", dep.Path) //nolint:gosec
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		if err := cmd.Run(); err != nil {
+			return nil, fmt.Errorf("dotnet error: %w", err)
+		}
+
+		var version *semver.Version
+		v, err := semver.New(dep.Package.Version)
+		if err != nil {
+			logging.V(5).Infof("Invalid version %s for package %s", dep.Package.Version, dep.Package.Name)
+		} else {
+			version = v
+		}
+		var param *schema.ParameterizationDescriptor
+		if dep.Package.Parameterization != nil {
+			param = &schema.ParameterizationDescriptor{
+				Name:  dep.Package.Parameterization.Name,
+				Value: dep.Package.Parameterization.Value,
+			}
+			if dep.Package.Parameterization.Version != "" {
+				v, err := semver.New(dep.Package.Parameterization.Version)
+				if err != nil {
+					logging.V(5).Infof("Invalid version %s for package %s", dep.Package.Version, dep.Package.Name)
+				} else {
+					param.Version = *v
+				}
+			}
+		}
+		packageDesc := &schema.PackageDescriptor{
+			Name:             dep.Package.Name,
+			Version:          version,
+			DownloadURL:      dep.Package.Server,
+			Parameterization: param,
+		}
+
+		pkgRef, err := schema.LoadPackageReferenceV2(ctx, cachedLoader, packageDesc)
+		if err != nil {
+			return nil, err
+		}
+		pkg, err := pkgRef.Definition()
+		if err != nil {
+			return nil, err
+		}
+		if err := pkg.ImportLanguages(map[string]schema.Language{"csharp": dotnetcodegen.Importer}); err != nil {
+			return nil, err
+		}
+
+		namespace := "Pulumi"
+		if pkg.Namespace != "" {
+			namespace = pkg.Namespace
+		}
+		if info, ok := pkg.Language["csharp"]; ok {
+			if info, ok := info.(dotnetcodegen.CSharpPackageInfo); ok {
+				if info.RootNamespace != "" {
+					namespace = info.RootNamespace
+				}
+			}
+		}
+		instructions.WriteString("\n")
+		instructions.WriteString(fmt.Sprintf("  using %s.%s;\n", csharpPackageName(namespace), csharpPackageName(pkg.Name)))
+	}
+	instructions.WriteString("\n")
+
+	return &pulumirpc.LinkResponse{
+		ImportInstructions: instructions.String(),
+	}, nil
+}
+
+// csharpPackageName converts a package name to a C#-friendly package name.
+// for example "aws-api-gateway" becomes "AwsApiGateway".
+func csharpPackageName(pkgName string) string {
+	parts := strings.Split(pkgName, "-")
+	for i, part := range parts {
+		parts[i] = dotnetcodegen.Title(part)
+	}
+	return strings.Join(parts, "")
 }

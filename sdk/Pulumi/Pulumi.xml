@@ -247,6 +247,19 @@
             Send a log message to the host.
             </summary>
         </member>
+        <member name="M:Pulumi.Experimental.IEngine.RequirePulumiVersionAsync(System.String)">
+            <summary>
+            Checks that the version of the Pulumi CLI satisfies the specified version range.
+            </summary>
+            <param name="pulumiVersionRange">
+            A version range to check against the engine (CLI) version. If the version is not compatible with the
+            specified range, an error is returned. The supported syntax for ranges is that of
+            https://pkg.go.dev/github.com/blang/semver#ParseRange. For example ">=3.0.0", or "!3.1.2". Ranges can be
+            AND-ed together by concatenating with spaces ">=3.5.0 !3.7.7", meaning greater-or-equal to 3.5.0 and not
+            exactly 3.7.7. Ranges can be OR-ed with the || operator: "&lt;3.4.0 || &gt;3.8.0", meaning less-than 3.4.0
+            or greater-than 3.8.0.
+            </param>
+        </member>
         <member name="T:Pulumi.Experimental.Provider.ComponentAnalyzer">
             <summary>
             Analyzes component resource types and generates a package schema.
@@ -317,6 +330,43 @@
             <param name="args">The command-line arguments</param>
             <param name="componentAssembly">The assembly containing component types</param>
             <param name="packageName">Optional package name (defaults to assembly name)</param>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder">
+            <summary>
+            NonSignallingDeploymentBuilder decorates an existing <see cref="T:Pulumi.IDeploymentBuilder"/> to create an <see
+            cref="T:Pulumi.IMonitor"/> that does not signal the engine for shutdown. This is useful in scenarios where we want to
+            kick off a deployment in tandem with another that is already responsible for managing the engine's lifecycle,
+            such as when a provider <c>Construct</c>s a component resource. In such cases, we do not want to signal shutdown
+            at the end of the <c>Construct</c> operation, as the engine is still in use by the program that created the
+            component.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder.DeploymentBuilder">
+            <summary>
+            The <see cref="T:Pulumi.IDeploymentBuilder"/> that this instance decorates.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder.#ctor(Pulumi.IDeploymentBuilder)">
+            <summary>
+            Initializes a new <see cref="T:Pulumi.Experimental.Provider.NonSignallingDeploymentBuilder"/>.
+            </summary>
+        </member>
+        <member name="T:Pulumi.Experimental.Provider.NonSignallingMonitor">
+            <summary>
+            NonSignallingMonitor decorates an existing <see cref="T:Pulumi.IMonitor"/> to not signal the engine for shutdown. This
+            is useful in scenarios where we know that another monitor is responsible for managing the engine's
+            lifecycle, such as when a provider <c>Construct</c>s a component resource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Experimental.Provider.NonSignallingMonitor.Monitor">
+            <summary>
+            The <see cref="T:Pulumi.IMonitor"/> that this instance decorates.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Experimental.Provider.NonSignallingMonitor.#ctor(Pulumi.IMonitor)">
+            <summary>
+            Initializes a new <see cref="T:Pulumi.Experimental.Provider.NonSignallingMonitor"/>.
+            </summary>
         </member>
         <member name="T:Pulumi.Experimental.Provider.ParametersArgs">
             <summary>
@@ -1201,6 +1251,12 @@
             Returns whether the resource monitor we are connected to supports the "invokeTransforms" feature across the RPC interface.
             </summary>
         </member>
+        <member name="M:Pulumi.Deployment.MonitorSupportsResourceHooks">
+            <summary>
+            Returns whether the resource monitor we are connected to supports the "resourceHooks" feature across the RPC
+            interface. Resource hooks support running arbitrary code at various points in the resource lifecycle.
+            </summary>
+        </member>
         <member name="M:Pulumi.Deployment.EngineLogger.Pulumi#IEngineLogger#DebugAsync(System.String,Pulumi.Resource,System.Nullable{System.Int32},System.Nullable{System.Boolean})">
             <summary>
             Logs a debug-level message that is generally hidden from end-users.
@@ -1289,6 +1345,12 @@
             so we can be compatible with older versions of our packages. Once we stop supporting
             older packages, we can change the language host to not add this :config: thing and
             remove this function.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Deployment.PrepareHooks(Pulumi.Callbacks,Pulumi.ResourceHookBinding)">
+            <summary>
+            Prepares a set of <see cref="T:Pulumi.ResourceHookBinding"/>s for transmission as part of a resource registration by
+            serializing their names into a <see cref="T:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding"/>.
             </summary>
         </member>
         <member name="M:Pulumi.Deployment.AllAliases(System.Collections.Generic.List{Pulumi.Input{Pulumi.Alias}},System.String,System.String,Pulumi.Resource)">
@@ -1583,6 +1645,11 @@
             Returns the current project name.
             </summary>
         </member>
+        <member name="P:Pulumi.DeploymentInstance.RootDirectory">
+            <summary>
+            Root directory, that is the location of the Pulumi.yaml file.
+            </summary>
+        </member>
         <member name="P:Pulumi.DeploymentInstance.OrganizationName">
             <summary>
             Returns the current organization name.
@@ -1661,6 +1728,11 @@
         <member name="P:Pulumi.IDeployment.ProjectName">
             <summary>
             Returns the current project name.
+            </summary>
+        </member>
+        <member name="P:Pulumi.IDeployment.RootDirectory">
+            <summary>
+            Returns the project root. The location of Pulumi.yaml.
             </summary>
         </member>
         <member name="P:Pulumi.IDeployment.OrganizationName">
@@ -1868,6 +1940,32 @@
         <member name="M:Pulumi.IDeployment.RegisterInvokeTransform(Pulumi.InvokeTransform)">
             <summary>
             Register an invoke transform to run when invoke calls are made.
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeploymentInternal.RegisterResourceHook(Pulumi.ResourceHook)">
+            <summary>
+            Registers a resource hook against the deployment, returning a task that completes when the registration
+            has finished.
+            </summary>
+        </member>
+        <member name="M:Pulumi.IDeploymentInternal.SignalAndWaitForShutdownAsync">
+            <summary>
+            Signals to the deployment that no more resources will be registered and that the program has no more work to
+            do. This method should not return until the deployment is finished and it is safe for the program to exit
+            (e.g. the engine does not need anything more from the program, such as resource hook implementations).
+            </summary>
+        </member>
+        <member name="M:Pulumi.IMonitor.RegisterResourceHookAsync(Pulumirpc.RegisterResourceHookRequest)">
+            <summary>
+            Registers a resource hook against the deployment, returning a task that completes when the registration
+            has finished.
+            </summary>
+        </member>
+        <member name="M:Pulumi.IMonitor.SignalAndWaitForShutdownAsync">
+            <summary>
+            Signals to the monitor that no more resources will be registered and that the program has no more work to
+            do. This method should not return until the deployment is finished and it is safe for the program to exit
+            (e.g. the engine does not need anything more from the program, such as resource hook implementations).
             </summary>
         </member>
         <member name="T:Pulumi.InvokeOptions">
@@ -2535,6 +2633,205 @@
             Base type for all resource argument classes.
             </summary>
         </member>
+        <member name="T:Pulumi.ResourceHook">
+            <summary>
+            A resource hook is a callback that can be registered to run at specific points in the resource lifecycle.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHook.Name">
+            <summary>
+            The name of the resource hook. This must be unique within a program.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHook.Callback">
+            <summary>
+            The callback to invoke when the resource hook is triggered.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHook.Options">
+            <summary>
+            Options for the resource hook, such as whether it should run during a dry-run operation
+            (e.g. <c>preview</c>).
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHook.#ctor(System.String,Pulumi.ResourceHookCallback,Pulumi.ResourceHookOptions)">
+            <summary>
+            Creates a new <see cref="T:Pulumi.ResourceHook"/> with the specified name, callback, and options.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHook.#ctor(System.String,Pulumi.ResourceHookCallback,Pulumi.ResourceHookOptions,System.Threading.Tasks.Task)">
+            <summary>
+            Creates a new <see cref="T:Pulumi.ResourceHook"/> with the specified name, callback, and options. The task
+            determining whether or not the hook has been registered must also be provided. Typically this will be a
+            registration task attached to the current deployment, but subclasses may use this constructor to
+            initialize hooks with custom registration logic.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookCallback">
+            <summary>
+            ResourceHookCallback is a delegate that defines the signature of <see cref="T:Pulumi.ResourceHook"/> callback functions.
+            Callbacks take a set of <see cref="T:Pulumi.ResourceHookArgs"/> and an optional <see cref="T:System.Threading.CancellationToken"/>.
+            Callbacks may raise an error by throwing an exception, which will be propagated to the resource operation that
+            triggered the hook.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookOptions">
+            <summary>
+            Options for registering a <see cref="T:Pulumi.ResourceHook"/>.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookOptions.OnDryRun">
+            <summary>
+            Run the hook during dry-run (<c>preview</c>) operations. Defaults to false.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookArgs">
+            <summary>
+            <para>
+            ResourceHookArgs represents the arguments passed to a resource hook. Depending on the hook type, only some of
+            the new/old inputs/outputs are set.
+            </para>
+            <code>
+            | Hook Type     | old_inputs | new_inputs | old_outputs | new_outputs |
+            | ------------- | ---------- | ---------- | ----------- | ----------- |
+            | before_create |            | ✓          |             |             |
+            | after_create  |            | ✓          |             | ✓           |
+            | before_update | ✓          | ✓          | ✓           |             |
+            | after_update  | ✓          | ✓          | ✓           | ✓           |
+            | before_delete | ✓          |            | ✓           |             |
+            | after_delete  | ✓          |            | ✓           |             |
+            </code>
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.Urn">
+            <summary>
+            The URN of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.Id">
+            <summary>
+            The ID of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.NewInputs">
+            <summary>
+            The new inputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.OldInputs">
+            <summary>
+            The old inputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.NewOutputs">
+            <summary>
+            The new outputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookArgs.OldOutputs">
+            <summary>
+            The old outputs of the resource that triggered the hook.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookArgs.#ctor(System.String,System.String,System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object},System.Collections.Immutable.ImmutableDictionary{System.String,System.Object})">
+            <summary>
+            Creates a new set of <see cref="T:Pulumi.ResourceHookArgs"/>.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookBinding">
+            <summary>
+            <para>
+            Binds <see cref="T:Pulumi.ResourceHook"/>s to a resource. The resource hooks will be invoked at specific points in the
+            lifecycle of the resource.
+            </para>
+            <para>
+            <c>Before*</c> hooks that raise an exception will cause the resource operation to fail. <c>After*</c> hooks that
+            raise an exception will log a warning, but do not cause the action or the deployment to fail.
+            </para>
+            <para>
+            When running <c>pulumi destroy</c>, <c>BeforeDelete</c> and <c>AfterDelete</c> resource hooks require the
+            operation to run with <c>--run-program</c>, to ensure that the program which defines the hooks is available.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.BeforeCreate">
+            <summary>
+            Hooks to be invoked before the resource is created.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.AfterCreate">
+            <summary>
+            Hooks to be invoked after the resource is created.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.BeforeUpdate">
+            <summary>
+            Hooks to be invoked before the resource is updated.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.AfterUpdate">
+            <summary>
+            Hooks to be invoked after the resource is updated.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.BeforeDelete">
+            <summary>
+            Hooks to be invoked before the resource is deleted.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.AfterDelete">
+            <summary>
+            Hooks to be invoked after the resource is deleted.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceHookBinding.IsEmpty">
+            <summary>
+            IsEmpty is true if and only if no hooks have been bound to any of the lifecycle events.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookBinding.Clone">
+            <summary>
+            Creates a deep copy of this <see cref="T:Pulumi.ResourceHookBinding"/> instance.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookBinding.Concat(Pulumi.ResourceHookBinding)">
+            <summary>
+            Concatenates this <see cref="T:Pulumi.ResourceHookBinding"/> with another , merging their hooks.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookUtilities">
+            <summary>
+            Utilities for working with resource hooks, particularly for converting
+            between protobuf representations and .NET ResourceHook objects.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookUtilities.ResourceHookBindingFromProto(Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding)">
+            <summary>
+            Converts a protobuf ResourceHooksBinding from
+            RegisterResourceRequest to a .NET ResourceHookBinding using
+            StubResourceHook instances. This is used when receiving hooks from
+            transforms that need to be reconstructed as .NET objects.
+            </summary>
+        </member>
+        <member name="M:Pulumi.ResourceHookUtilities.ResourceHookBindingFromProto(Pulumirpc.ConstructRequest.Types.ResourceHooksBinding)">
+            <summary>
+            Converts a protobuf ResourceHooksBinding from ConstructRequest to a
+            .NET ResourceHookBinding using StubResourceHook instances. This is
+            used when receiving hooks from remote components that need to be
+            reconstructed as .NET objects.
+            </summary>
+        </member>
+        <member name="T:Pulumi.ResourceHookUtilities.StubResourceHook">
+             <summary>
+             StubResourceHook is a resource hook that does nothing.
+            
+             We need to reconstruct ResourceHook instances when receiving hooks
+             from transforms or remote components, but we only have the name
+             available. We know these hooks have already been registered, so we
+             can construct dummy hooks here that will be serialized back into a
+             list of hook names.
+             </summary>
+        </member>
         <member name="T:Pulumi.ResourceOptions">
             <summary>
             ResourceOptions is a bag of optional settings that control a resource's behavior.
@@ -2635,6 +2932,32 @@
             <summary>
             If set, the providers Delete method will not be called for this resource
             if specified resource is being deleted as well.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceOptions.ReplaceWith">
+            <summary>
+            If set, the resource will be replaced if one of the specified resources is replaced.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceOptions.Hooks">
+            <summary>
+            Optional resource hooks to bind to this resource. The hooks will be invoked during the lifecycle of
+            the resource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceOptions.HideDiffs">
+            <summary>
+            If set, diffs from the included property paths will not be shown.
+            This only affects the diff display, and does not affect update behavior.
+            </summary>
+        </member>
+        <member name="P:Pulumi.ResourceOptions.ReplacementTrigger">
+            <summary>
+            If set, the engine will diff this with the last recorded value, and trigger
+            a replace if they are not equal. Note that if either value is null, no
+            comparison is done and no replacement is triggered. This means that the
+            replacement trigger only applies to two subsequent deployments with defined
+            triggers.
             </summary>
         </member>
         <member name="T:Pulumi.ResourceTransform">
@@ -3064,6 +3387,39 @@
             Inspect all public properties of the stack to find outputs. Validate the values and register them as stack outputs.
             </summary>
         </member>
+        <member name="T:Pulumi.Stash">
+            <summary>
+            Stash stores an arbitrary value in the state.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Stash.Output">
+            <summary>
+            The value saved in the state for the stash.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Stash.Input">
+            <summary>
+            The most recent value passed to the stash resource.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Stash.#ctor(System.String,Pulumi.StashArgs,Pulumi.CustomResourceOptions)">
+            <summary>
+            Create a <see cref="T:Pulumi.Stash"/> resource with the given arguments and options.
+            </summary>
+            <param name="name">The unique name of the resource.</param>
+            <param name="args">The arguments to use to populate this resource's properties.</param>
+            <param name="options">A bag of options that control this resource's behavior.</param>
+        </member>
+        <member name="T:Pulumi.StashArgs">
+            <summary>
+            The set of arguments for constructing a <see cref="T:Pulumi.Stash"/> resource.
+            </summary>
+        </member>
+        <member name="P:Pulumi.StashArgs.Input">
+            <summary>
+            The value to store in the stash resource.
+            </summary>
+        </member>
         <member name="T:Pulumi.Testing.IMocks">
             <summary>
             Hooks to mock the engine that provide test doubles for offline unit testing of stacks.
@@ -3164,6 +3520,11 @@
         <member name="P:Pulumi.Testing.TestOptions.ProjectName">
             <summary>
             Project name. Defaults to <b>"project"</b> if not specified.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Testing.TestOptions.RootDirectory">
+            <summary>
+            Root directory. Defaults to <b>"rootDirectory"</b> if not specified.
             </summary>
         </member>
         <member name="P:Pulumi.Testing.TestOptions.StackName">
@@ -3405,6 +3766,56 @@
             Remediated policies actually fixes problems instead of issuing diagnostics.
             </summary>
         </member>
+        <member name="T:Pulumirpc.PolicyType">
+            <summary>
+            PolicyType indicates the type of a policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyType.Unknown">
+            <summary>
+            Unknown policy type.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyType.Resource">
+            <summary>
+            A policy that validates a resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyType.Stack">
+            <summary>
+            A policy that validates a stack.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.PolicySeverity">
+            <summary>
+            PolicySeverity indicates the severity of a policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Unspecified">
+            <summary>
+            Unspecified severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Low">
+            <summary>
+            Low severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Medium">
+            <summary>
+            Medium severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.High">
+            <summary>
+            High severity.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicySeverity.Critical">
+            <summary>
+            Critical severity.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AnalyzerStackConfigureRequest">
             <summary>
             `AnalyzerStackConfigureRequest` is the message for the stack configuration of the stack being analyzed.
@@ -3456,6 +3867,14 @@
         <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Config">
             <summary>
             The configuration of the stack being analyzed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerStackConfigureRequest.TagsFieldNumber">
+            <summary>Field number for the "tags" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerStackConfigureRequest.Tags">
+            <summary>
+            Tags for the current stack.
             </summary>
         </member>
         <member name="T:Pulumirpc.AnalyzerStackConfigureResponse">
@@ -3804,6 +4223,14 @@
             information about policy violations.
             </summary>
         </member>
+        <member name="F:Pulumirpc.AnalyzeResponse.NotApplicableFieldNumber">
+            <summary>Field number for the "not_applicable" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzeResponse.NotApplicable">
+            <summary>
+            information about policies that were not applicable.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.AnalyzeDiagnostic.PolicyNameFieldNumber">
             <summary>Field number for the "policyName" field.</summary>
         </member>
@@ -3849,7 +4276,7 @@
         </member>
         <member name="P:Pulumirpc.AnalyzeDiagnostic.EnforcementLevel">
             <summary>
-            Severity of the policy violation.
+            Enforcement level of the policy violation.
             </summary>
         </member>
         <member name="F:Pulumirpc.AnalyzeDiagnostic.UrnFieldNumber">
@@ -3858,6 +4285,14 @@
         <member name="P:Pulumirpc.AnalyzeDiagnostic.Urn">
             <summary>
             URN of the resource that violates the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzeDiagnostic.SeverityFieldNumber">
+            <summary>Field number for the "severity" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzeDiagnostic.Severity">
+            <summary>
+            Severity of the policy violation.
             </summary>
         </member>
         <member name="T:Pulumirpc.Remediation">
@@ -3926,6 +4361,14 @@
             the list of remediations that were applied.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RemediateResponse.NotApplicableFieldNumber">
+            <summary>Field number for the "not_applicable" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RemediateResponse.NotApplicable">
+            <summary>
+            information about policies that were not applicable.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AnalyzerInfo">
             <summary>
             AnalyzerInfo provides metadata about a PolicyPack inside an analyzer.
@@ -3977,6 +4420,46 @@
         <member name="P:Pulumirpc.AnalyzerInfo.InitialConfig">
             <summary>
             Map of policy name to config.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.DescriptionFieldNumber">
+            <summary>Field number for the "description" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Description">
+            <summary>
+            Description of the policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.ReadmeFieldNumber">
+            <summary>Field number for the "readme" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Readme">
+            <summary>
+            README text for the policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Provider">
+            <summary>
+            Cloud provider/platform associated with the policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.TagsFieldNumber">
+            <summary>Field number for the "tags" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Tags">
+            <summary>
+            Tags for this policy pack.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.AnalyzerInfo.RepositoryFieldNumber">
+            <summary>Field number for the "repository" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerInfo.Repository">
+            <summary>
+            A URL to the repository where the policy pack is defined.
             </summary>
         </member>
         <member name="T:Pulumirpc.PolicyInfo">
@@ -4032,6 +4515,54 @@
             Config schema for the policy.
             </summary>
         </member>
+        <member name="F:Pulumirpc.PolicyInfo.PolicyTypeFieldNumber">
+            <summary>Field number for the "policy_type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.PolicyType">
+            <summary>
+            Type of the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.SeverityFieldNumber">
+            <summary>Field number for the "severity" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Severity">
+            <summary>
+            Severity of the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.FrameworkFieldNumber">
+            <summary>Field number for the "framework" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Framework">
+            <summary>
+            Compliance framework that this policy belongs to.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.TagsFieldNumber">
+            <summary>Field number for the "tags" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Tags">
+            <summary>
+            Tags associated with the policy.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.RemediationStepsFieldNumber">
+            <summary>Field number for the "remediation_steps" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.RemediationSteps">
+            <summary>
+            A description of the steps to take to remediate a policy violation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyInfo.UrlFieldNumber">
+            <summary>Field number for the "url" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyInfo.Url">
+            <summary>
+            A URL to more information about the policy.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.PolicyConfigSchema">
             <summary>
             PolicyConfigSchema provides the schema for a policy's configuration.
@@ -4085,6 +4616,64 @@
         <member name="P:Pulumirpc.ConfigureAnalyzerRequest.PolicyConfig">
             <summary>
             Map of policy name to config.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.PolicyComplianceFramework">
+            <summary>
+            PolicyComplianceFramework provides information about the compliance framework that a policy belongs to.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Name">
+            <summary>
+            The compliance framework name.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Version">
+            <summary>
+            The compliance framework version.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.ReferenceFieldNumber">
+            <summary>Field number for the "reference" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Reference">
+            <summary>
+            The compliance framework reference.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyComplianceFramework.SpecificationFieldNumber">
+            <summary>Field number for the "specification" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyComplianceFramework.Specification">
+            <summary>
+            The compliance framework specification.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.PolicyNotApplicable">
+            <summary>
+            PolicyNotApplicable describes a policy that was not applicable, including an optional reason why.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyNotApplicable.PolicyNameFieldNumber">
+            <summary>Field number for the "policy_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyNotApplicable.PolicyName">
+            <summary>
+            The name of the policy that was not applicable.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PolicyNotApplicable.ReasonFieldNumber">
+            <summary>Field number for the "reason" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PolicyNotApplicable.Reason">
+            <summary>
+            An optional reason why the policy was not applicable.
             </summary>
         </member>
         <member name="T:Pulumirpc.Analyzer">
@@ -4168,6 +4757,17 @@
             `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
             This method is not always called, for example if the engine is just booting the analyzer up to call
             GetAnalyzerInfo.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerBase.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -4506,6 +5106,54 @@
             `ConfigureStack` is always called if the engine is using the analyzer to analyze resources in a specific stack.
             This method is not always called, for example if the engine is just booting the analyzer up to call
             GetAnalyzerInfo.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Analyzer.AnalyzerClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            Cancel signals the analyzer to gracefully shut down and abort any ongoing analysis operations.
+            Operations aborted in this way will return an error. Since Cancel is advisory and non-blocking,
+            it is up to the host to decide how long to wait after Cancel is called before (e.g.)
+            hard-closing any gRPC connection.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -5207,6 +5855,23 @@
             the string to display to the user with instructions on how to connect to the debugger.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RequirePulumiVersionRequest.PulumiVersionRangeFieldNumber">
+            <summary>Field number for the "pulumi_version_range" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RequirePulumiVersionRequest.PulumiVersionRange">
+            <summary>
+            A version range to check against the engine (CLI) version. If the version is not compatible with the specified
+            range, an error is returned. The supported syntax for ranges is that of
+            https://pkg.go.dev/github.com/blang/semver#ParseRange. For example ">=3.0.0", or "!3.1.2". Ranges can be AND-ed
+            together by concatenating with spaces ">=3.5.0 !3.7.7", meaning greater-or-equal to 3.5.0 and not exactly 3.7.7.
+            Ranges can be OR-ed with the `||` operator: "&lt;3.4.0 || >3.8.0", meaning less-than 3.4.0 or greater-than 3.8.0.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.RequirePulumiVersionResponse">
+            <summary>
+            empty
+            </summary>
+        </member>
         <member name="T:Pulumirpc.Engine">
             <summary>
             Engine is an auxiliary service offered to language and resource provider plugins. Its main purpose today is
@@ -5249,6 +5914,14 @@
             <summary>
             StartDebugging indicates to the engine that the program has started under a debugger, and the engine
             should notify the user of how to connect to the debugger.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineBase.RequirePulumiVersion(Pulumirpc.RequirePulumiVersionRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            RequirePulumiVersion checks that the version of the engine satisfies the passed in range.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -5424,6 +6097,42 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.RequirePulumiVersion(Pulumirpc.RequirePulumiVersionRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            RequirePulumiVersion checks that the version of the engine satisfies the passed in range.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.RequirePulumiVersion(Pulumirpc.RequirePulumiVersionRequest,Grpc.Core.CallOptions)">
+            <summary>
+            RequirePulumiVersion checks that the version of the engine satisfies the passed in range.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.RequirePulumiVersionAsync(Pulumirpc.RequirePulumiVersionRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            RequirePulumiVersion checks that the version of the engine satisfies the passed in range.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Engine.EngineClient.RequirePulumiVersionAsync(Pulumirpc.RequirePulumiVersionRequest,Grpc.Core.CallOptions)">
+            <summary>
+            RequirePulumiVersion checks that the version of the engine satisfies the passed in range.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.Engine.EngineClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
         </member>
@@ -5486,6 +6195,103 @@
             <summary>
             The reason the property is invalid.
             </summary>
+        </member>
+        <member name="T:Pulumirpc.EventsReflection">
+            <summary>Holder for reflection information generated from pulumi/events.proto</summary>
+        </member>
+        <member name="P:Pulumirpc.EventsReflection.Descriptor">
+            <summary>File descriptor for pulumi/events.proto</summary>
+        </member>
+        <member name="T:Pulumirpc.EventRequest">
+            <summary>
+            EventRequest contains a single engine event.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.EventRequest.EventFieldNumber">
+            <summary>Field number for the "event" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.EventRequest.Event">
+            <summary>
+            event is a JSON-encoded string containing the engine event data.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Events">
+            <summary>
+            Events is a service for receiving engine events over gRPC.
+            This service allows the Pulumi CLI to send engine events to clients
+            (such as the Automation API) over a gRPC stream instead of writing them to
+            a file on the filesystem and reading them from there.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.Events.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Pulumirpc.Events.EventsBase">
+            <summary>Base class for server-side implementations of Events</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsBase.StreamEvents(Grpc.Core.IAsyncStreamReader{Pulumirpc.EventRequest},Grpc.Core.ServerCallContext)">
+            <summary>
+            StreamEvents allows the client to stream multiple engine events to the server.
+            The client sends multiple EventRequest messages over the stream, and the server
+            processes them as they arrive. When the client is done sending events, it closes
+            the stream.
+            </summary>
+            <param name="requestStream">Used for reading requests from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Pulumirpc.Events.EventsClient">
+            <summary>Client for Events</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for Events</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for Events that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.StreamEvents(Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            StreamEvents allows the client to stream multiple engine events to the server.
+            The client sends multiple EventRequest messages over the stream, and the server
+            processes them as they arrive. When the client is done sending events, it closes
+            the stream.
+            </summary>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.StreamEvents(Grpc.Core.CallOptions)">
+            <summary>
+            StreamEvents allows the client to stream multiple engine events to the server.
+            The client sends multiple EventRequest messages over the stream, and the server
+            processes them as they arrive. When the client is done sending events, it closes
+            the stream.
+            </summary>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Events.EventsClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Pulumirpc.Events.BindService(Pulumirpc.Events.EventsBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Pulumirpc.Events.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.Events.EventsBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
         </member>
         <member name="T:Pulumirpc.LanguageReflection">
             <summary>Holder for reflection information generated from pulumi/language.proto</summary>
@@ -5867,7 +6673,7 @@
         </member>
         <member name="P:Pulumirpc.RunRequest.QueryMode">
             <summary>
-            This is deprecated, query mode is no longer a supported feature. 
+            This is deprecated, query mode is no longer a supported feature.
             </summary>
         </member>
         <member name="F:Pulumirpc.RunRequest.ConfigSecretKeysFieldNumber">
@@ -6144,6 +6950,32 @@
         <member name="P:Pulumirpc.RuntimeOptionsResponse.Prompts">
             <summary>
             Prompts to ask the user.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.TemplateRequest">
+            <summary>
+            `TemplateRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.Template) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TemplateRequest.InfoFieldNumber">
+            <summary>Field number for the "info" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TemplateRequest.Info">
+            <summary>
+            The [plugin program](pulumirpc.ProgramInfo) to use.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.TemplateRequest.ProjectNameFieldNumber">
+            <summary>Field number for the "project_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.TemplateRequest.ProjectName">
+            <summary>
+            The name of the project we are templating.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.TemplateResponse">
+            <summary>
+            `TemplateResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Template) call.
             </summary>
         </member>
         <member name="T:Pulumirpc.RunPluginRequest">
@@ -6564,21 +7396,46 @@
             The program to use.
             </summary>
         </member>
-        <member name="F:Pulumirpc.LinkRequest.LocalDependenciesFieldNumber">
-            <summary>Field number for the "local_dependencies" field.</summary>
+        <member name="F:Pulumirpc.LinkRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
         </member>
-        <member name="P:Pulumirpc.LinkRequest.LocalDependencies">
+        <member name="P:Pulumirpc.LinkRequest.LoaderTarget">
             <summary>
-            Local dependencies that the program should reference explicitly, instead of e.g. using the language's
-            package system. This is a map of package names to local paths of language-specific artifacts that
-            should be used. For instance, in the case of a NodeJS package, this might be a map of NPM package names
-            to local paths to be used, such as `{ "@pulumi/aws": "/some/path/to/aws.tgz" }` if a local tarball is
-            to be used instead of the published `@pulumi/aws` package.
+            The target of a codegen.LoaderServer to use for loading schemas.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.PackagesFieldNumber">
+            <summary>Field number for the "packages" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkRequest.Packages">
+            <summary>
+            Local dependencies that should be linked into the program or plugin's language specific project files.
+            Each dependency has a path to a language specific artifact. This can be a binary artifact like a
+            Python wheel or a tar.gz for Node.js, or a source directory.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.LinkRequest.Types">
+            <summary>Container for nested types declared in the LinkRequest message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.Types.LinkDependency.PackageFieldNumber">
+            <summary>Field number for the "package" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.LinkRequest.Types.LinkDependency.PathFieldNumber">
+            <summary>Field number for the "path" field.</summary>
         </member>
         <member name="T:Pulumirpc.LinkResponse">
             <summary>
             `LinkResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.Link) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.LinkResponse.ImportInstructionsFieldNumber">
+            <summary>Field number for the "import_instructions" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.LinkResponse.ImportInstructions">
+            <summary>
+            The instructions on how to use a linked package in a program or plugin. These instructions are meant
+            to be displayed to the user. For example when linking a local Python dependency, this might return
+            `import my_namespace_mypkg as mypkg`.
             </summary>
         </member>
         <member name="T:Pulumirpc.LanguageRuntime">
@@ -6674,6 +7531,16 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Template(Pulumirpc.TemplateRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.About(Pulumirpc.AboutRequest,Grpc.Core.ServerCallContext)">
             <summary>
             `About` returns information about the language runtime being used.
@@ -6694,7 +7561,7 @@
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.RunPlugin(Pulumirpc.RunPluginRequest,Grpc.Core.IServerStreamWriter{Pulumirpc.RunPluginResponse},Grpc.Core.ServerCallContext)">
             <summary>
             `RunPlugin` is used to execute a program written in this host's language that implements a Pulumi
-            [plugin](plugins). It it is plugins what [](pulumirpc.LanguageRuntime.Run) is to programs. Since a plugin is not
+            [plugin](plugins). It is to plugins what [](pulumirpc.LanguageRuntime.Run) is to programs. Since a plugin is not
             expected to terminate until instructed/for a long time, this method returns a stream of
             [](pulumirpc.RunPluginResponse) messages containing information about standard error and output, as well as the
             exit code of the plugin when it does terminate.
@@ -6752,7 +7619,19 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Link(Pulumirpc.LinkRequest,Grpc.Core.ServerCallContext)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -7094,6 +7973,50 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Template(Pulumirpc.TemplateRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Template(Pulumirpc.TemplateRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.TemplateAsync(Pulumirpc.TemplateRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.TemplateAsync(Pulumirpc.TemplateRequest,Grpc.Core.CallOptions)">
+            <summary>
+            `Template` allows the language runtime to perform additional templating on a newly instantiated project template.
+            For example the Python runtime might want to convert a requirements.txt into a pyproject.toml suitable for use
+            with uv or poetry.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.About(Pulumirpc.AboutRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
             `About` returns information about the language runtime being used.
@@ -7173,7 +8096,7 @@
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RunPlugin(Pulumirpc.RunPluginRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
             `RunPlugin` is used to execute a program written in this host's language that implements a Pulumi
-            [plugin](plugins). It it is plugins what [](pulumirpc.LanguageRuntime.Run) is to programs. Since a plugin is not
+            [plugin](plugins). It is to plugins what [](pulumirpc.LanguageRuntime.Run) is to programs. Since a plugin is not
             expected to terminate until instructed/for a long time, this method returns a stream of
             [](pulumirpc.RunPluginResponse) messages containing information about standard error and output, as well as the
             exit code of the plugin when it does terminate.
@@ -7187,7 +8110,7 @@
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RunPlugin(Pulumirpc.RunPluginRequest,Grpc.Core.CallOptions)">
             <summary>
             `RunPlugin` is used to execute a program written in this host's language that implements a Pulumi
-            [plugin](plugins). It it is plugins what [](pulumirpc.LanguageRuntime.Run) is to programs. Since a plugin is not
+            [plugin](plugins). It is to plugins what [](pulumirpc.LanguageRuntime.Run) is to programs. Since a plugin is not
             expected to terminate until instructed/for a long time, this method returns a stream of
             [](pulumirpc.RunPluginResponse) messages containing information about standard error and output, as well as the
             exit code of the plugin when it does terminate.
@@ -7398,7 +8321,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -7408,7 +8334,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Link(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -7416,7 +8345,10 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
@@ -7426,7 +8358,50 @@
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.LinkAsync(Pulumirpc.LinkRequest,Grpc.Core.CallOptions)">
             <summary>
-            `Link` links a local dependency into a project.
+            `Link` links local dependencies into a project (program or plugin). The dependencies can be binary artifacts such
+            as wheel or tar.gz files, or source directories. `Link` will update the language specific project files, such as
+            `package.json`, `pyproject.toml`, `go.mod`, etc, to include the dependency. `Link` returns instructions for the
+            user on how to use the linked package in the project.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.CancelAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            `Cancel` signals the language runtime to gracefully shut down and abort any ongoing operations.
+            Operations aborted in this way will return an error.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -7681,6 +8656,14 @@
         <member name="P:Pulumirpc.ProviderHandshakeRequest.SupportsRefreshBeforeUpdate">
             <summary>
             If true the engine supports letting the provider mark resource states as requiring refresh before update.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.InvokeWithPreviewFieldNumber">
+            <summary>Field number for the "invoke_with_preview" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.InvokeWithPreview">
+            <summary>
+            If true the engine will send `preview` to `Invoke` methods to let them know if the current operation is a preview or up.
             </summary>
         </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
@@ -8128,6 +9111,15 @@
             the arguments for the function invocation.
             </summary>
         </member>
+        <member name="F:Pulumirpc.InvokeRequest.PreviewFieldNumber">
+            <summary>Field number for the "preview" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.InvokeRequest.Preview">
+            <summary>
+            This is only set if `HandshakeRequest.invoke_with_preview` was true. If this is true then the engine is currently
+            running a preview deployment.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.InvokeResponse.ReturnFieldNumber">
             <summary>Field number for the "return" field.</summary>
         </member>
@@ -8238,6 +9230,14 @@
         <member name="P:Pulumirpc.CallRequest.AcceptsOutputValues">
             <summary>
             the engine can be passed output values back, returnDependencies can be left blank if returning output values.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CallRequest.StackTraceHandleFieldNumber">
+            <summary>Field number for the "stack_trace_handle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CallRequest.StackTraceHandle">
+            <summary>
+            The stack trace handle for the call. Supports stitching stack traces together across plugins.
             </summary>
         </member>
         <member name="T:Pulumirpc.CallRequest.Types">
@@ -9312,16 +10312,6 @@
         <member name="M:Pulumirpc.ConstructRequest.ClearProtect">
             <summary>Clears the value of the "protect" field</summary>
         </member>
-        <member name="F:Pulumirpc.ConstructRequest.AliasesFieldNumber">
-            <summary>Field number for the "aliases" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConstructRequest.Aliases">
-            <summary>
-            A list of additional URNs that should be considered the same as this component's URN (and which will therefore be
-            used to build aliases for its nested resource URNs). These may be URNs that previously referred to this component
-            e.g. if it had its parent (and consequently URN) changed.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.ConstructRequest.AdditionalSecretOutputsFieldNumber">
             <summary>Field number for the "additionalSecretOutputs" field.</summary>
         </member>
@@ -9405,6 +10395,33 @@
             [](pulumirpc.ConstructResponse)'s `stateDependencies` field.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConstructRequest.ResourceHooksFieldNumber">
+            <summary>Field number for the "resource_hooks" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.StackTraceHandleFieldNumber">
+            <summary>Field number for the "stack_trace_handle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.StackTraceHandle">
+            <summary>
+            The stack trace handle for the construct call. Supports stitching stack traces together across plugins.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.ReplaceWithFieldNumber">
+            <summary>Field number for the "replace_with" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.ReplaceWith">
+            <summary>
+            The URNs of resources whose replaces will trigger a replace on this resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.AliasesFieldNumber">
+            <summary>Field number for the "aliases" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.Aliases">
+            <summary>
+            a list of additional aliases that should be considered the same.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ConstructRequest.Types">
             <summary>Container for nested types declared in the ConstructRequest message type.</summary>
         </member>
@@ -9462,6 +10479,27 @@
             How long a caller is prepared to wait for a nested resource's [](pulumirpc.ResourceProvider.Delete) operation
             to complete.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.BeforeCreateFieldNumber">
+            <summary>Field number for the "before_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.AfterCreateFieldNumber">
+            <summary>Field number for the "after_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.BeforeUpdateFieldNumber">
+            <summary>Field number for the "before_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.AfterUpdateFieldNumber">
+            <summary>Field number for the "after_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.BeforeDeleteFieldNumber">
+            <summary>Field number for the "before_delete" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.AfterDeleteFieldNumber">
+            <summary>Field number for the "after_delete" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.ResourceHooksBinding.OnErrorFieldNumber">
+            <summary>Field number for the "on_error" field.</summary>
         </member>
         <member name="T:Pulumirpc.ConstructResponse">
             <summary>
@@ -9546,6 +10584,14 @@
         <member name="P:Pulumirpc.ErrorResourceInitFailed.Inputs">
             <summary>
             the current inputs to this resource (only applicable for Read)
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorResourceInitFailed.RefreshBeforeUpdateFieldNumber">
+            <summary>Field number for the "refresh_before_update" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorResourceInitFailed.RefreshBeforeUpdate">
+            <summary>
+            Indicates that this resource should always be refreshed prior to updates.
             </summary>
         </member>
         <member name="T:Pulumirpc.GetMappingRequest">
@@ -11492,6 +12538,22 @@
             the optional source position of the user code that initiated the read.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ReadResourceRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadResourceRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ReadResourceRequest.PackageRefFieldNumber">
             <summary>Field number for the "packageRef" field.</summary>
         </member>
@@ -11762,6 +12824,22 @@
             if set the engine will not call the resource providers delete method for this resource when specified resource is deleted.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.ReplaceWithFieldNumber">
+            <summary>Field number for the "replace_with" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.ReplaceWith">
+            <summary>
+            if set the engine will replace this resource when any of the specified resources are replaced.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.ReplacementTriggerFieldNumber">
+            <summary>Field number for the "replacement_trigger" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.ReplacementTrigger">
+            <summary>
+            if set, the engine will diff this with the last recorded value, and trigger a replace if they are not equal.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.AliasSpecsFieldNumber">
             <summary>Field number for the "aliasSpecs" field.</summary>
         </member>
@@ -11782,6 +12860,22 @@
         <member name="P:Pulumirpc.RegisterResourceRequest.SourcePosition">
             <summary>
             the optional source position of the user code that initiated the register.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
             </summary>
         </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.TransformsFieldNumber">
@@ -11807,6 +12901,17 @@
             <summary>
             a reference from RegisterPackageRequest.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.HooksFieldNumber">
+            <summary>Field number for the "hooks" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.Hooks">
+            <summary>
+            The resource hooks that should run at certain points in the resource's lifecycle.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.HideDiffsFieldNumber">
+            <summary>Field number for the "hideDiffs" field.</summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
@@ -11852,6 +12957,27 @@
             <summary>
             The delete resource timeout represented as a string e.g. 5m.
             </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.BeforeCreateFieldNumber">
+            <summary>Field number for the "before_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.AfterCreateFieldNumber">
+            <summary>Field number for the "after_create" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.BeforeUpdateFieldNumber">
+            <summary>Field number for the "before_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.AfterUpdateFieldNumber">
+            <summary>Field number for the "after_update" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.BeforeDeleteFieldNumber">
+            <summary>Field number for the "before_delete" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.AfterDeleteFieldNumber">
+            <summary>Field number for the "after_delete" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.OnErrorFieldNumber">
+            <summary>Field number for the "on_error" field.</summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceResponse">
             <summary>
@@ -12016,6 +13142,22 @@
             the optional source position of the user code that initiated the invoke.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceInvokeRequest.PackageRefFieldNumber">
             <summary>Field number for the "packageRef" field.</summary>
         </member>
@@ -12086,6 +13228,22 @@
         <member name="P:Pulumirpc.ResourceCallRequest.SourcePosition">
             <summary>
             the optional source position of the user code that initiated the call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.StackTraceFieldNumber">
+            <summary>Field number for the "stackTrace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.StackTrace">
+            <summary>
+            the optional stack trace at the time of the request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.ParentStackTraceHandleFieldNumber">
+            <summary>Field number for the "parentStackTraceHandle" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.ParentStackTraceHandle">
+            <summary>
+            the optional parent stack trace handle for the request. Supports stitching stack traces across plugins.
             </summary>
         </member>
         <member name="F:Pulumirpc.ResourceCallRequest.PackageRefFieldNumber">
@@ -12179,6 +13337,21 @@
         </member>
         <member name="F:Pulumirpc.TransformResourceOptions.PluginChecksumsFieldNumber">
             <summary>Field number for the "plugin_checksums" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.HooksFieldNumber">
+            <summary>Field number for the "hooks" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ImportFieldNumber">
+            <summary>Field number for the "import" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.HideDiffFieldNumber">
+            <summary>Field number for the "hide_diff" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ReplaceWithFieldNumber">
+            <summary>Field number for the "replace_with" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.TransformResourceOptions.ReplacementTriggerFieldNumber">
+            <summary>Field number for the "replacement_trigger" field.</summary>
         </member>
         <member name="F:Pulumirpc.TransformRequest.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>
@@ -12311,6 +13484,186 @@
         <member name="F:Pulumirpc.TransformInvokeOptions.PluginChecksumsFieldNumber">
             <summary>Field number for the "plugin_checksums" field.</summary>
         </member>
+        <member name="T:Pulumirpc.ResourceHookRequest">
+            <summary>
+            ResourceHookRequest is the request object for resource hook callbacks in CallbackInvokeRequest.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.UrnFieldNumber">
+            <summary>Field number for the "urn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Urn">
+            <summary>
+            the urn of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.IdFieldNumber">
+            <summary>Field number for the "id" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Id">
+            <summary>
+            the optional urn of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Name">
+            <summary>
+            the name of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.Type">
+            <summary>
+            the type of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.NewInputsFieldNumber">
+            <summary>Field number for the "new_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.NewInputs">
+            <summary>
+            the optional checked new inputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.OldInputsFieldNumber">
+            <summary>Field number for the "old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.OldInputs">
+            <summary>
+            the optional checked old inputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.NewOutputsFieldNumber">
+            <summary>Field number for the "new_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.NewOutputs">
+            <summary>
+            the optional new outputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.OldOutputsFieldNumber">
+            <summary>Field number for the "old_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.OldOutputs">
+            <summary>
+            the optional old outputs of the resource.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceHookResponse">
+            <summary>
+            ResourceHookResponse is the response object for resource hook callbacks in CallbackInvokeResponse.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookResponse.ErrorFieldNumber">
+            <summary>Field number for the "error" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookResponse.Error">
+            <summary>
+            an optional error message to return from the hook.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ErrorHookRequest">
+            <summary>
+            ErrorHookRequest is the request object for error hook callbacks in CallbackInvokeRequest.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.UrnFieldNumber">
+            <summary>Field number for the "urn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.Urn">
+            <summary>
+            the urn of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.IdFieldNumber">
+            <summary>Field number for the "id" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.Id">
+            <summary>
+            the optional urn of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.Name">
+            <summary>
+            the name of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.Type">
+            <summary>
+            the type of the resource for which the hook is called.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.NewInputsFieldNumber">
+            <summary>Field number for the "new_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.NewInputs">
+            <summary>
+            the optional checked new inputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.OldInputsFieldNumber">
+            <summary>Field number for the "old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.OldInputs">
+            <summary>
+            the optional checked old inputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.OldOutputsFieldNumber">
+            <summary>Field number for the "old_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.OldOutputs">
+            <summary>
+            the optional old outputs of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.FailedOperationFieldNumber">
+            <summary>Field number for the "failed_operation" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.FailedOperation">
+            <summary>
+            the operation that failed (create, read, update, or delete).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.ErrorsFieldNumber">
+            <summary>Field number for the "errors" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.Errors">
+            <summary>
+            the errors that have been seen so far (newest-first).
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ErrorHookResponse">
+            <summary>
+            ErrorHookResponse is the response object for error hook callbacks in CallbackInvokeResponse.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookResponse.ErrorFieldNumber">
+            <summary>Field number for the "error" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookResponse.Error">
+            <summary>
+            an optional error message to return from the hook.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookResponse.RetryFieldNumber">
+            <summary>Field number for the "retry" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookResponse.Retry">
+            <summary>
+            whether we should retry the operation.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.RegisterPackageRequest.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>
@@ -12385,6 +13738,48 @@
             the parameter value for the parameterized package.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceHookRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceHookRequest.Name">
+            <summary>
+            The name of the hook. Must be unique within a program, registering the
+            same name twice is an error.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceHookRequest.CallbackFieldNumber">
+            <summary>Field number for the "callback" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceHookRequest.Callback">
+            <summary>
+            the callback that the engine can call to run the hook.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceHookRequest.OnDryRunFieldNumber">
+            <summary>Field number for the "on_dry_run" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceHookRequest.OnDryRun">
+            <summary>
+            whether to run the hook on dry runs.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterErrorHookRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterErrorHookRequest.Name">
+            <summary>
+            The name of the hook. Must be unique within a program, registering the
+            same name twice is an error.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterErrorHookRequest.CallbackFieldNumber">
+            <summary>Field number for the "callback" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterErrorHookRequest.Callback">
+            <summary>
+            the callback that the engine can call to run the hook.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceMonitor">
             <summary>
             ResourceMonitor is the interface a source uses to talk back to the planning monitor orchestrating the execution.
@@ -12412,10 +13807,42 @@
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterResourceHook(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterErrorHook(Pulumirpc.RegisterErrorHookRequest,Grpc.Core.ServerCallContext)">
+             <summary>
+             Register an error hook that can be called by the engine when an operation fails and is retryable.
+            
+             Error hooks are a separate type of hook to other life cycle hooks as they have different inputs and outputs.
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterPackage(Pulumirpc.RegisterPackageRequest,Grpc.Core.ServerCallContext)">
             <summary>
             Registers a package and allocates a packageRef. The same package can be registered multiple times in Pulumi.
             Multiple requests are idempotent and guaranteed to return the same result.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.SignalAndWaitForShutdown(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -12511,6 +13938,90 @@
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHook(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHook(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHookAsync(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterResourceHookAsync(Pulumirpc.RegisterResourceHookRequest,Grpc.Core.CallOptions)">
+            <summary>
+            Register a resource hook that can be called by the engine during certain
+            steps of a resource's lifecycle.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterErrorHook(Pulumirpc.RegisterErrorHookRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Register an error hook that can be called by the engine when an operation fails and is retryable.
+            
+             Error hooks are a separate type of hook to other life cycle hooks as they have different inputs and outputs.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterErrorHook(Pulumirpc.RegisterErrorHookRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Register an error hook that can be called by the engine when an operation fails and is retryable.
+            
+             Error hooks are a separate type of hook to other life cycle hooks as they have different inputs and outputs.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterErrorHookAsync(Pulumirpc.RegisterErrorHookRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             Register an error hook that can be called by the engine when an operation fails and is retryable.
+            
+             Error hooks are a separate type of hook to other life cycle hooks as they have different inputs and outputs.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterErrorHookAsync(Pulumirpc.RegisterErrorHookRequest,Grpc.Core.CallOptions)">
+             <summary>
+             Register an error hook that can be called by the engine when an operation fails and is retryable.
+            
+             Error hooks are a separate type of hook to other life cycle hooks as they have different inputs and outputs.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterPackage(Pulumirpc.RegisterPackageRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>
             Registers a package and allocates a packageRef. The same package can be registered multiple times in Pulumi.
@@ -12546,6 +14057,62 @@
             <summary>
             Registers a package and allocates a packageRef. The same package can be registered multiple times in Pulumi.
             Multiple requests are idempotent and guaranteed to return the same result.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdown(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdown(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdownAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.SignalAndWaitForShutdownAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+            <summary>
+            SignalAndWaitForShutdown lets the resource monitor know that no more
+            events will be generated. This call blocks until the resource monitor is
+            finished, which will happen once all the steps have executed. This allows
+            the language runtime to stay running and handle callback requests, even
+            after the user program has completed. Runtime SDKs should call this after
+            executing the user's program. This can only be called once.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -12992,6 +14559,32 @@
             The column in the line
             </summary>
         </member>
+        <member name="T:Pulumirpc.StackFrame">
+            <summary>
+            A StackFrame represents a single stack frame.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StackFrame.PcFieldNumber">
+            <summary>Field number for the "pc" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StackFrame.Pc">
+            <summary>
+            The position of the frame's program counter. Optional.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.StackTrace">
+            <summary>
+            A StackTrace represents the frames on the stack at the point of an RPC call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StackTrace.FramesFieldNumber">
+            <summary>Field number for the "frames" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StackTrace.Frames">
+            <summary>
+            The frames on the stack.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.Testing.LanguageReflection">
             <summary>Holder for reflection information generated from pulumi/testing/language.proto</summary>
         </member>
@@ -13051,6 +14644,22 @@
             <summary>
             A folder pointing to policy packs to use for the tests. This is used to test the language plugin's policy pack
             support. These must be manually written.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.LocalFieldNumber">
+            <summary>Field number for the "local" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.Local">
+            <summary>
+            If true, tests will be run in "local" mode, meaning all SDKs will be generated with the `--local` flag and not packed.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.ProvidersDirectoryFieldNumber">
+            <summary>Field number for the "providers_directory" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.ProvidersDirectory">
+            <summary>
+            The path to a directory containing provider plugins to be used for the "provider-" tests.
             </summary>
         </member>
         <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">

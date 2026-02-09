@@ -16,13 +16,18 @@ namespace Pulumi
             options1.CustomTimeouts = options2.CustomTimeouts ?? options1.CustomTimeouts;
             options1.RetainOnDelete = options2.RetainOnDelete ?? options1.RetainOnDelete;
             options1.DeletedWith = options2.DeletedWith ?? options1.DeletedWith;
+            options1.ReplaceWith = options1.ReplaceWith.Concat(options2.ReplaceWith);
 
             options1.IgnoreChanges.AddRange(options2.IgnoreChanges);
             options1.ResourceTransformations.AddRange(options2.ResourceTransformations);
             options1.Aliases.AddRange(options2.Aliases);
             options1.ReplaceOnChanges.AddRange(options2.ReplaceOnChanges);
+            options1.HideDiffs.AddRange(options2.HideDiffs);
+            options1.ReplacementTrigger = options2.ReplacementTrigger ?? options1.ReplacementTrigger;
 
             options1.DependsOn = options1.DependsOn.Concat(options2.DependsOn);
+
+            options1.Hooks = options1.Hooks.Concat(options2.Hooks);
         }
     }
 }

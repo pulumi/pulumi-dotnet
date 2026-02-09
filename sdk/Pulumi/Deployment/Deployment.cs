@@ -1,4 +1,4 @@
-// Copyright 2016-2019, Pulumi Corporation
+// Copyright 2016-2026, Pulumi Corporation
 
 using System;
 using System.Collections.Concurrent;
@@ -53,6 +53,9 @@ namespace Pulumi
         private int _pendingRegistrations;
         private static readonly object _registrationLock = new object();
 
+        private static readonly object _signalLock = new object();
+        private bool _hasSignaled;
+
         /// <summary>
         /// The current running deployment instance. This is only available from inside the function
         /// passed to <see cref="Deployment.RunAsync(Action)"/> (or its overloads).
@@ -95,6 +98,7 @@ namespace Pulumi
 
         private readonly string _organizationName;
         private readonly string _projectName;
+        private readonly string? _rootDirectory;
         private readonly string _stackName;
         private readonly bool _isDryRun;
         private readonly ConcurrentDictionary<string, bool> _featureSupport = new ConcurrentDictionary<string, bool>();
@@ -118,6 +122,7 @@ namespace Pulumi
             var monitor = Environment.GetEnvironmentVariable("PULUMI_MONITOR");
             var engine = Environment.GetEnvironmentVariable("PULUMI_ENGINE");
             var project = Environment.GetEnvironmentVariable("PULUMI_PROJECT");
+            var rootDirectory = Environment.GetEnvironmentVariable("PULUMI_ROOT_DIRECTORY");
             var organization = Environment.GetEnvironmentVariable("PULUMI_ORGANIZATION");
             var stack = Environment.GetEnvironmentVariable("PULUMI_STACK");
             var pwd = Environment.GetEnvironmentVariable("PULUMI_PWD");
@@ -141,6 +146,7 @@ namespace Pulumi
             _isDryRun = dryRunValue;
             _stackName = stack;
             _projectName = project;
+            _rootDirectory = rootDirectory;
             _organizationName = organization ?? "organization";
 
             var deploymentLogger = CreateDefaultLogger();
@@ -170,6 +176,7 @@ namespace Pulumi
             _isDryRun = options?.IsPreview ?? true;
             _stackName = options?.StackName ?? "stack";
             _projectName = options?.ProjectName ?? "project";
+            _rootDirectory = options?.RootDirectory;
             _organizationName = options?.OrganizationName ?? "organization";
             this.Engine = engine;
             this.Monitor = monitor;
@@ -179,11 +186,25 @@ namespace Pulumi
 
         string IDeployment.OrganizationName => _organizationName;
         string IDeployment.ProjectName => _projectName;
+        string IDeployment.RootDirectory
+        {
+            get
+            {
+                if (_rootDirectory == null)
+                {
+                    throw new InvalidOperationException("The Pulumi CLI version does not support root directory. Please update the Pulumi CLI.");
+                }
+
+                return _rootDirectory;
+            }
+        }
+
         string IDeployment.StackName => _stackName;
         bool IDeployment.IsDryRun => _isDryRun;
 
         IEngineLogger IDeploymentInternal.Logger => _logger;
         IRunner IDeploymentInternal.Runner => _runner;
+        Experimental.IEngine IDeploymentInternal.Engine => Engine;
 
         CallbacksHost? _callbacks;
         internal async Task<CallbacksHost> GetCallbacksAsync(CancellationToken cancellationToken)
@@ -263,6 +284,11 @@ namespace Pulumi
             return MonitorSupportsFeature("deletedWith");
         }
 
+        internal Task<bool> MonitorSupportsReplaceWith()
+        {
+            return MonitorSupportsFeature("replaceWith");
+        }
+
         /// <summary>
         /// Returns whether the resource monitor we are connected to supports the "aliasSpec" feature across the RPC interface.
         /// In which case we no longer compute alias combinations ourselves but instead delegate the work to the engine.
@@ -286,6 +312,15 @@ namespace Pulumi
         public Task<bool> MonitorSupportsInvokeTransforms()
         {
             return MonitorSupportsFeature("invokeTransforms");
+        }
+
+        /// <summary>
+        /// Returns whether the resource monitor we are connected to supports the "resourceHooks" feature across the RPC
+        /// interface. Resource hooks support running arbitrary code at various points in the resource lifecycle.
+        /// </summary>
+        public Task<bool> MonitorSupportsResourceHooks()
+        {
+            return MonitorSupportsFeature("resourceHooks");
         }
 
         public void RegisterInvokeTransform(InvokeTransform transform)

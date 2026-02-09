@@ -1,10 +1,12 @@
 // Copyright 2016-2024, Pulumi Corporation
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
+using Pulumi.Serialization;
 using Pulumirpc;
 
 namespace Pulumi
@@ -28,7 +30,20 @@ namespace Pulumi
                 throw new InvalidOperationException("The Pulumi CLI does not support the DeletedWith option. Please update the Pulumi CLI.");
             }
 
-            var request = await CreateRegisterResourceRequest(type, name, custom, remote, options);
+            // InputList has no IsEmpty/Count
+            var hasReplaceWith = false;
+            await foreach (var _ in options.ReplaceWith)
+            {
+                hasReplaceWith = true;
+                break;
+            }
+
+            if (hasReplaceWith && !(await MonitorSupportsReplaceWith().ConfigureAwait(false)))
+            {
+                throw new InvalidOperationException("The Pulumi CLI does not support the ReplaceWith option. Please update the Pulumi CLI.");
+            }
+
+            var request = await this.CreateRegisterResourceRequest(type, name, custom, remote, options);
 
             Log.Debug($"Preparing resource: t={type}, name={name}, custom={custom}, remote={remote}");
             var prepareResult = await PrepareResourceAsync(label, resource, custom, remote, args, options, registerPackageRequest).ConfigureAwait(false);
@@ -77,6 +92,8 @@ namespace Pulumi
             request.Transforms.AddRange(prepareResult.Transforms);
             request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
 
+            request.Hooks = prepareResult.Hooks;
+
             foreach (var (key, resourceUrns) in prepareResult.PropertyToDirectDependencyUrns)
             {
                 var deps = new RegisterResourceRequest.Types.PropertyDependencies();
@@ -85,7 +102,7 @@ namespace Pulumi
             }
         }
 
-        private static async Task<RegisterResourceRequest> CreateRegisterResourceRequest(
+        private async Task<RegisterResourceRequest> CreateRegisterResourceRequest(
             string type, string name, bool custom, bool remote, ResourceOptions options)
         {
             var customOpts = options as CustomResourceOptions;
@@ -113,6 +130,34 @@ namespace Pulumi
                 SupportsResultReporting = true,
             };
 
+            await foreach (var resourceInput in options.ReplaceWith)
+            {
+                if (resourceInput != null)
+                {
+                    var resource = await resourceInput.ToOutput().GetValueAsync(null!).ConfigureAwait(false);
+                    if (resource != null)
+                    {
+                        var urn = await resource.Urn.GetValueAsync("").ConfigureAwait(false);
+                        if (!string.IsNullOrEmpty(urn))
+                        {
+                            request.ReplaceWith.Add(urn);
+                        }
+                    }
+                }
+            }
+
+            if (options.ReplacementTrigger != null)
+            {
+                var label = $"resource:{name}[{type}]";
+                var keepResources = await MonitorSupportsResourceReferences().ConfigureAwait(false);
+                // Replacement triggers should always be serialized as plain values (not Output values) so they can be compared
+                var serializer = new Serializer(_excessiveDebugOutput);
+                var serialized = await serializer.SerializeAsync($"{label}.replacementTrigger", options.ReplacementTrigger, keepResources, false).ConfigureAwait(false);
+
+                var value = Serializer.CreateValue(serialized);
+                request.ReplacementTrigger = value;
+            }
+
             if (deleteBeforeReplace != null)
             {
                 request.DeleteBeforeReplace = deleteBeforeReplace.Value;
@@ -133,8 +178,10 @@ namespace Pulumi
             }
 
             request.IgnoreChanges.AddRange(options.IgnoreChanges);
+            request.HideDiffs.AddRange(options.HideDiffs);
 
             return request;
         }
     }
 }
+

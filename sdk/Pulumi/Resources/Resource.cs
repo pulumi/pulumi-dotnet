@@ -261,7 +261,7 @@ namespace Pulumi
                     ? new List<ProviderResource> { options.Provider }
                     : componentOpts?.Providers;
 
-                this._providers = this._providers.AddRange(ConvertToProvidersMap(providerList));
+                this._providers = this._providers.SetItems(ConvertToProvidersMap(providerList));
             }
 
             this._protect = options.Protect;

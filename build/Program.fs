@@ -143,21 +143,17 @@ let testPulumiSdk coverage =
     printfn "Deprecated: calling `make test_sdk%s` instead" (if coverage then "_coverage" else "")
     let target = if coverage then "test_sdk_coverage" else "test_sdk"
     let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
-    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    let output = cmd.ExecuteBufferedAsync().GetAwaiter().GetResult()
     if output.ExitCode <> 0 then
         failwith "tests failed"
 
 let testPulumiAutomationSdk coverage =
-    cleanSdk()
-    restoreSdk()
-    match findGoSDKVersion(pulumiLanguageDotnet) with
-    | None -> failwith "Could not find the Pulumi SDK version in go.mod"
-    | Some(version) ->
-        printfn "Testing Pulumi Automation SDK"
-        let coverageArgs = if coverage then $" -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput={coverageDir}/coverage.pulumi.automation.xml" else ""
-        if Shell.Exec("dotnet", $"test --configuration Release -p:PulumiSdkVersion={version} {coverageArgs}", pulumiAutomationSdkTests) <> 0
-
-        then failwith "automation tests failed"
+    printfn "Deprecated: calling `make test_sdk_automation%s` instead" (if coverage then "_coverage" else "")
+    let target = if coverage then "test_sdk_automation_coverage" else "test_sdk_automation"
+    let cmd = Cli.Wrap("make").WithArguments(target).WithWorkingDirectory(repositoryRoot)
+    let output = cmd.ExecuteAsync().GetAwaiter().GetResult()
+    if output.ExitCode <> 0 then
+        failwith "automation tests failed"
 
 let runSpecificIntegrationTest(testName: string) =
     buildLanguagePlugin()

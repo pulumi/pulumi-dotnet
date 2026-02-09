@@ -44,15 +44,15 @@ jobs:
     steps:
       - name: Fetch secrets from ESC
         id: esc-secrets
-        uses: pulumi/esc-action@cf5b30703ffd5ad60cc3a880c09b3a9592b9372d # v1
+        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
           submodules: 'recursive'
       - name: Set up DotNet 8.0.x
         id: setup-dotnet
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
           dotnet-quality: ga
@@ -64,14 +64,14 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6
+        uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6
         with:
           pulumi-version: dev
       - name: Build Pulumi SDK
         run: make build_sdk
       - name: Test Pulumi SDK
-        run: dotnet run test-sdk
+        run: make test_sdk
       - name: Test Pulumi Automation SDK
-        run: dotnet run test-automation-sdk
+        run: make test_sdk_automation
       - name: Publish Packages
         run: dotnet run publish-sdks

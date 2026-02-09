@@ -531,7 +531,15 @@ namespace Pulumi.Experimental.Provider
                     System.Threading.Thread.Sleep(1);
                 }
             }
-            using var host = BuildHost(args, version, GrpcDeploymentBuilder.Instance, factory);
+
+            // Construct the host. As part of this, we'll ensure that any deployment we run (e.g. as part of a Construct
+            // call) is "non-signalling" -- that is, it will not be responsible for telling the engine managing the
+            // overall deployment when the program is ready to shut down. This is because any deployment we run will be
+            // part of a larger calling program (e.g. the one that instantiated the component), and it is this program
+            // that will signal to the engine when it is ready to shut down.
+            using var host = BuildHost(args, version,
+                new NonSignallingDeploymentBuilder(GrpcDeploymentBuilder.Instance),
+                factory);
 
             // before starting the host, set up this callback to tell us what port was selected
             await host.StartAsync(cancellationToken);
@@ -1088,22 +1096,25 @@ namespace Pulumi.Experimental.Provider
         {
             return WrapProviderCall(async () =>
             {
-                var aliases = request.Aliases.Select(urn => (Input<Alias>)new Alias()
-                {
-                    Urn = urn
-                }).ToList();
+                var aliases = request.Aliases.Select(alias => (Input<Alias>)Alias.Deserialize(alias)).ToList();
 
                 InputList<Resource> dependsOn = request.Dependencies
+                    .Select(urn => new DependencyResource(urn))
+                    .ToImmutableArray<Resource>();
+                InputList<Resource> replaceWith = request.ReplaceWith
                     .Select(urn => new DependencyResource(urn))
                     .ToImmutableArray<Resource>();
                 var providers = request.Providers.Values
                     .Select(reference => new DependencyProviderResource(reference))
                     .ToList<ProviderResource>();
 
+                var hooks = ResourceHookUtilities.ResourceHookBindingFromProto(request.ResourceHooks) ?? new ResourceHookBinding();
+
                 var opts = new ComponentResourceOptions()
                 {
                     Aliases = aliases,
                     DependsOn = dependsOn,
+                    ReplaceWith = replaceWith,
                     Protect = request.Protect,
                     Providers = providers,
                     Parent = !string.IsNullOrEmpty(request.Parent) ? new DependencyResource(request.Parent) : throw new RpcException(new Status(StatusCode.InvalidArgument, "Parent must be set for Component Providers.")),
@@ -1118,6 +1129,7 @@ namespace Pulumi.Experimental.Provider
                     ResourceTransforms =
                     {
                     },
+                    Hooks = hooks,
                 };
 
                 var domRequest = new ConstructRequest(request.Type, request.Name,
@@ -1217,4 +1229,6 @@ namespace Pulumi.Experimental.Provider
             return propertyDependencies;
         }
     }
+
+
 }

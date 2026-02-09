@@ -227,7 +227,17 @@ namespace Pulumi.Testing
 
         public Task RegisterStackInvokeTransform(Pulumirpc.Callback callback)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
+        }
+
+        public Task RegisterResourceHookAsync(RegisterResourceHookRequest request)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task SignalAndWaitForShutdownAsync()
+        {
+            return Task.CompletedTask;
         }
     }
 }

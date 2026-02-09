@@ -1,4 +1,4 @@
-// Copyright 2016-2020, Pulumi Corporation
+// Copyright 2016-2026, Pulumi Corporation
 
 using System;
 using System.Collections.Generic;
@@ -21,6 +21,11 @@ namespace Pulumi.Testing
                 }
             }
 
+            return Task.CompletedTask;
+        }
+
+        public Task RequirePulumiVersionAsync(string pulumiVersionRange)
+        {
             return Task.CompletedTask;
         }
     }

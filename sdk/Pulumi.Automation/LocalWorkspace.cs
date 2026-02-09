@@ -1,4 +1,4 @@
-// Copyright 2016-2022, Pulumi Corporation
+// Copyright 2016-2025, Pulumi Corporation
 
 using System;
 using System.Collections.Generic;
@@ -726,7 +726,35 @@ namespace Pulumi.Automation
 
         /// <inheritdoc/>
         public override Task RemoveStackAsync(string stackName, CancellationToken cancellationToken = default)
-            => this.RunCommandAsync(new[] { "stack", "rm", "--yes", stackName }, cancellationToken);
+            => RemoveStackAsync(stackName, null, cancellationToken);
+
+        /// <inheritdoc/>
+        public override Task RemoveStackAsync(string stackName, RemoveStackOptions? options, CancellationToken cancellationToken = default)
+        {
+            var args = new List<string> { "stack", "rm", "--yes", stackName };
+
+            if (options is not null)
+            {
+                if (options.Force)
+                {
+                    args.Add("--force");
+                }
+                if (options.PreserveConfig)
+                {
+                    args.Add("--preserve-config");
+                }
+                if (options.RemoveBackups)
+                {
+                    if (!SupportsCommand(new SemVersion(3, 188, 0)))
+                    {
+                        throw new InvalidOperationException($"The Pulumi CLI version does not support {nameof(options.RemoveBackups)}. Please update the Pulumi CLI.");
+                    }
+                    args.Add("--remove-backups");
+                }
+            }
+
+            return RunCommandAsync(args, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public override async Task<ImmutableList<StackSummary>> ListStacksAsync(CancellationToken cancellationToken = default)

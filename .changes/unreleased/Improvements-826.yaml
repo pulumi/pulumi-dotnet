@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Move codegen into this repo (from pulumi/pulumi)
+time: 2026-02-09T11:43:21.545655+01:00
+custom:
+    PR: "826"

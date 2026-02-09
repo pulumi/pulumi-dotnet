@@ -442,19 +442,27 @@ namespace Pulumi
         {
             var binding = new Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding();
 
-            static Task<string[]> prepareType(List<ResourceHook> hooksOfType)
+            static Task<string[]> prepareResourceHooks(List<ResourceHook> hooksOfType)
               => Task.WhenAll(hooksOfType.Select(async hook =>
                   {
                       await hook._registered;
                       return hook.Name;
                   }));
 
-            binding.BeforeCreate.AddRange(await prepareType(hooks.BeforeCreate));
-            binding.AfterCreate.AddRange(await prepareType(hooks.AfterCreate));
-            binding.BeforeUpdate.AddRange(await prepareType(hooks.BeforeUpdate));
-            binding.AfterUpdate.AddRange(await prepareType(hooks.AfterUpdate));
-            binding.BeforeDelete.AddRange(await prepareType(hooks.BeforeDelete));
-            binding.AfterDelete.AddRange(await prepareType(hooks.AfterDelete));
+            static async Task<string[]> prepareErrorHooks(List<ErrorHook> hooksOfType)
+              => await Task.WhenAll(hooksOfType.Select(async hook =>
+                  {
+                      await hook._registered;
+                      return hook.Name;
+                  }));
+
+            binding.BeforeCreate.AddRange(await prepareResourceHooks(hooks.BeforeCreate));
+            binding.AfterCreate.AddRange(await prepareResourceHooks(hooks.AfterCreate));
+            binding.BeforeUpdate.AddRange(await prepareResourceHooks(hooks.BeforeUpdate));
+            binding.AfterUpdate.AddRange(await prepareResourceHooks(hooks.AfterUpdate));
+            binding.BeforeDelete.AddRange(await prepareResourceHooks(hooks.BeforeDelete));
+            binding.AfterDelete.AddRange(await prepareResourceHooks(hooks.AfterDelete));
+            binding.OnError.AddRange(await prepareErrorHooks(hooks.OnError));
 
             return binding;
         }

@@ -18,6 +18,14 @@ namespace Pulumi
             return task;
         }
 
+        Task IDeploymentInternal.RegisterErrorHook(ErrorHook hook)
+        {
+            Log.Debug($"RegisterErrorHook: registering task for {hook.Name}");
+            var task = RegisterErrorHookAsync(hook);
+            _runner.RegisterTask($"RegisterErrorHook: {hook.Name}", task);
+            return task;
+        }
+
         private async Task RegisterResourceHookAsync(ResourceHook hook)
         {
             Log.Debug($"RegisterResourceHook: registering {hook.Name} (OnDryRun={hook.Options.OnDryRun})");
@@ -40,6 +48,81 @@ namespace Pulumi
 
             await Monitor.RegisterResourceHookAsync(request).ConfigureAwait(false);
             Log.Debug($"RegisterResourceHook resource hook: {hook.Name} (OnDryRun={hook.Options.OnDryRun})");
+        }
+
+        private async Task RegisterErrorHookAsync(ErrorHook hook)
+        {
+            Log.Debug($"RegisterErrorHook: registering {hook.Name}");
+
+            var monitorSupportsResourceHooks = await this.MonitorSupportsResourceHooks().ConfigureAwait(false);
+            if (!monitorSupportsResourceHooks)
+            {
+                throw new InvalidOperationException("The Pulumi CLI does not support resource hooks. Please update the Pulumi CLI.");
+            }
+
+            var callbacks = await this.GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
+            var callback = await AllocateErrorHook(callbacks.Callbacks, hook).ConfigureAwait(false);
+
+            var request = new Pulumirpc.RegisterErrorHookRequest()
+            {
+                Name = hook.Name,
+                Callback = callback,
+            };
+
+            await Monitor.RegisterErrorHookAsync(request).ConfigureAwait(false);
+            Log.Debug($"RegisterErrorHook: {hook.Name}");
+        }
+
+        private static async Task<Pulumirpc.Callback> AllocateErrorHook(Callbacks callbacks, ErrorHook hook)
+        {
+            var wrapper = new Callback(async (message, token) =>
+            {
+                var request = Pulumirpc.ErrorHookRequest.Parser.ParseFrom(message);
+
+                ImmutableDictionary<string, object?>? newInputs = null;
+                if (request.NewInputs != null)
+                {
+                    newInputs = DeserializeStruct(request.NewInputs);
+                }
+
+                ImmutableDictionary<string, object?>? oldInputs = null;
+                if (request.OldInputs != null)
+                {
+                    oldInputs = DeserializeStruct(request.OldInputs);
+                }
+
+                ImmutableDictionary<string, object?>? oldOutputs = null;
+                if (request.OldOutputs != null)
+                {
+                    oldOutputs = DeserializeStruct(request.OldOutputs);
+                }
+
+                var args = new ErrorHookArgs(
+                    request.Urn,
+                    request.Id,
+                    request.Name,
+                    request.Type,
+                    newInputs,
+                    oldInputs,
+                    oldOutputs,
+                    request.FailedOperation,
+                    request.Errors);
+
+                bool retry;
+                try
+                {
+                    retry = await hook.Callback(args, token);
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug($"Exception while executing error hook: {ex.Message}");
+                    return new Pulumirpc.ErrorHookResponse { Error = ex.Message };
+                }
+
+                return new Pulumirpc.ErrorHookResponse { Retry = retry };
+            });
+
+            return await callbacks.AllocateCallback(wrapper);
         }
 
         private static async Task<Pulumirpc.Callback> AllocateResourceHook(Callbacks callbacks, ResourceHook hook)
@@ -72,7 +155,7 @@ namespace Pulumi
                     oldOutputs = DeserializeStruct(request.OldOutputs);
                 }
 
-                var args = new ResourceHookArgs(request.Urn, request.Id, newInputs, oldInputs, newOutputs, oldOutputs);
+                var args = new ResourceHookArgs(request.Urn, request.Id, request.Name, request.Type, newInputs, oldInputs, newOutputs, oldOutputs);
 
                 await hook.Callback(args, token);
 

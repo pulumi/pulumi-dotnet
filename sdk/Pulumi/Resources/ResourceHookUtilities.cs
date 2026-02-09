@@ -31,6 +31,7 @@ namespace Pulumi
             hooks.AfterUpdate.AddRange(protoBinding.AfterUpdate.Select(name => new StubResourceHook(name)));
             hooks.BeforeDelete.AddRange(protoBinding.BeforeDelete.Select(name => new StubResourceHook(name)));
             hooks.AfterDelete.AddRange(protoBinding.AfterDelete.Select(name => new StubResourceHook(name)));
+            hooks.OnError.AddRange(protoBinding.OnError.Select(name => new StubErrorHook(name)));
             return hooks;
         }
 
@@ -54,7 +55,22 @@ namespace Pulumi
             hooks.AfterUpdate.AddRange(protoBinding.AfterUpdate.Select(name => new StubResourceHook(name)));
             hooks.BeforeDelete.AddRange(protoBinding.BeforeDelete.Select(name => new StubResourceHook(name)));
             hooks.AfterDelete.AddRange(protoBinding.AfterDelete.Select(name => new StubResourceHook(name)));
+            hooks.OnError.AddRange(protoBinding.OnError.Select(name => new StubErrorHook(name)));
             return hooks;
+        }
+
+        /// <summary>
+        /// StubErrorHook is an error hook that does nothing (returns false - do not retry).
+        /// Used when reconstructing hooks from transforms or remote components.
+        /// </summary>
+        internal class StubErrorHook : ErrorHook
+        {
+            private static readonly ErrorHookCallback DoNotRetry = (_, _) => Task.FromResult(false);
+
+            internal StubErrorHook(string name)
+                : base(name, DoNotRetry, Task.CompletedTask)
+            {
+            }
         }
 
         /// <summary>

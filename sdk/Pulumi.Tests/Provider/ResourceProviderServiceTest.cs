@@ -229,7 +229,7 @@ public class ResourceProviderServiceTest : IClassFixture<ProviderServerTestHost<
                 throw new InvalidOperationException($"URN of resource {request.Name} is not known.");
             }
 
-            var stateValue = await serializer.StateFromComponentResource(resource);
+            var stateValue = await serializer.OutputsFromComponentResource(resource);
 
             return new ConstructResponse(new Urn(urn), stateValue, ImmutableDictionary<string, ISet<Urn>>.Empty);
         }

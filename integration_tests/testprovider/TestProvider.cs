@@ -132,7 +132,7 @@ public class TestProvider : Provider
     public override Task<DiffResponse> Diff(DiffRequest request, CancellationToken ct)
     {
         if (request.Type == parameter + ":index:Echo") {
-            var changes = !request.OldState["value"].Equals(request.NewInputs["value"]);
+            var changes = !request.OldOutputs["value"].Equals(request.NewInputs["value"]);
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
                 Replaces = new string[] { "value" },
@@ -140,7 +140,7 @@ public class TestProvider : Provider
         }
         else if (request.Type == parameter + ":index:Random")
         {
-            var changes = !request.OldState["length"].Equals(request.NewInputs["length"]);
+            var changes = !request.OldOutputs["length"].Equals(request.NewInputs["length"]);
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
                 Replaces = new string[] { "length" },
@@ -154,7 +154,7 @@ public class TestProvider : Provider
         }
         else if (request.Type == parameter + ":index:Updatable")
         {
-            var changes = !request.OldState["value"].Equals(request.NewInputs["value"]);
+            var changes = !request.OldInputs["value"].Equals(request.NewInputs["value"]);
             return Task.FromResult(new DiffResponse() {
                 Changes = changes,
             });
@@ -180,17 +180,17 @@ public class TestProvider : Provider
         if (request.Type == parameter + ":index:Echo")
         {
             var outputs = new Dictionary<string, PropertyValue>();
-            outputs.Add("value", request.Properties["value"]);
+            outputs.Add("value", request.Inputs["value"]);
 
             ++this.id;
             return Task.FromResult(new CreateResponse() {
                 Id = this.id.ToString(),
-                Properties = outputs,
+                Outputs = outputs,
             });
         }
         else if (request.Type == parameter + ":index:Random")
         {
-            var length = request.Properties["length"];
+            var length = request.Inputs["length"];
             if (!length.TryGetNumber(out var number))
             {
                 throw new Exception($"Expected input property 'length' of type 'number' but got '{length.Type}'");
@@ -205,7 +205,7 @@ public class TestProvider : Provider
 
             return Task.FromResult(new CreateResponse() {
                 Id = result,
-                Properties = outputs,
+                Outputs = outputs,
             });
         }
         else if (request.Type == parameter + ":index:FailsOnDelete")
@@ -218,12 +218,12 @@ public class TestProvider : Provider
         else if (request.Type == parameter + ":index:Updatable")
         {
             var outputs = new Dictionary<string, PropertyValue>();
-            outputs.Add("value", request.Properties["value"]);
+            outputs.Add("value", request.Inputs["value"]);
 
             ++this.id;
             return Task.FromResult(new CreateResponse() {
                 Id = this.id.ToString(),
-                Properties = outputs,
+                Outputs = outputs,
             });
         }
 
@@ -235,10 +235,10 @@ public class TestProvider : Provider
         if (request.Type == parameter + ":index:Updatable")
         {
             var outputs = new Dictionary<string, PropertyValue>();
-            outputs.Add("value", request.News["value"]);
+            outputs.Add("value", request.NewInputs["value"]);
 
             return Task.FromResult(new UpdateResponse() {
-                Properties = outputs,
+                Outputs = outputs,
             });
         }
 
@@ -259,7 +259,7 @@ public class TestProvider : Provider
     {
         var response = new ReadResponse() {
             Id = request.Id,
-            Properties = request.Properties,
+            Outputs = request.Inputs,
         };
         return Task.FromResult(response);
     }

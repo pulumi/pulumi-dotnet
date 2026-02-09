@@ -1,0 +1,30 @@
+name: Release Language Plugin
+
+permissions:
+  contents: write
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        description: "GitHub ref to use"
+        type: string
+      version:
+        required: true
+        description: "Version to produce"
+        type: string
+
+jobs:
+  tag-language-plugin:
+    name: Tag language plugin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - run: git tag pulumi-language-dotnet/v${{ inputs.version }}
+      - run: git push origin pulumi-language-dotnet/v${{ inputs.version }}

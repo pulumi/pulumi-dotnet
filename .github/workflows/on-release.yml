@@ -38,3 +38,11 @@ jobs:
       version: ${{ needs.info.outputs.version }}
       release-notes: ${{ github.event.release.body }}
     secrets: inherit
+
+  release-language-plugin:
+    name: release language plugin
+    needs: [info]
+    uses: ./.github/workflows/release-language-plugin.yml
+    with:
+      ref: ${{ github.event.release.tag_name }}
+      version: ${{ needs.info.outputs.version }}

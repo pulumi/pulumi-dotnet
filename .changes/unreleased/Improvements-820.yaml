@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Add support for OnError hooks
-time: 2026-02-06T10:16:35.390369+01:00
-custom:
-    PR: "820"

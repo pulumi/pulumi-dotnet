@@ -37,6 +37,11 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/executable"
 )
 
+// PulumiDotnetSDKVersion is the version of the Pulumi .NET SDK to use in program-gen tests
+//
+// It should be kept up to date with this repo's released version.
+const PulumiDotnetSDKVersion = "3.101.0"
+
 func TestGenerateProgram(t *testing.T) {
 	t.Parallel()
 	for i, tc := range test.PulumiPulumiProgramTests {
@@ -437,11 +442,11 @@ func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
 		for _, pkg := range pkgs {
 			pkg.install(t, ex, dir)
 		}
-		dep{"Pulumi", test.PulumiDotnetSDKVersion}.install(t, ex, dir)
+		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir)
 	} else {
 		// We would like this regardless of other dependencies, but dotnet
 		// packages do not play well with package references.
-		dep{"Pulumi", test.PulumiDotnetSDKVersion}.install(t, ex, dir)
+		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir)
 	}
 
 	// Clean up build result

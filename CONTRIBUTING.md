@@ -28,4 +28,4 @@ git add .changes
 git commit -m "Changelog for $(changie latest)"
 ```
 
-After the release, also bump the version in `pulumi/pulumi`.  It needs to be bumped both in `scripts/get-language-providers.sh` and `pkg/codegen/testing/test/helpers.go`.  Especially if the latter is not bumped, codegen tests will start failing once providers start requiring the new pulumi-dotnet version. See https://github.com/pulumi/pulumi/pull/16919/files for example.
+After the release, also bump the version in `pulumi/pulumi`.  It needs to be bumped in `scripts/get-language-providers.sh`.

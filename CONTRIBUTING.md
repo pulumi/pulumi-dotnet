@@ -24,7 +24,7 @@ To release a new version use `changie` to update the changelog file, open a PR f
 ```bash
 changie batch auto
 changie merge
-git add .changes
+git add .changes CHANGELOG.md
 git commit -m "Changelog for $(changie latest)"
 ```
 

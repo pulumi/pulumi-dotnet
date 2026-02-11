@@ -38,6 +38,20 @@ namespace Pulumi
         /// </summary>
         public string? ImportId { get; set; }
 
+
+        private Dictionary<string, string> ? _envVarMappings;
+        /// <summary>
+        /// Environment variable mappings for provider resources. Maps source environment variable names to target
+        /// names. If the source variable exists, the provider will see the target variable set to its value. For
+        /// example, {"MY_VAR": "PROVIDER_VAR"} means if MY_VAR is set, the provider sees PROVIDER_VAR with MY_VAR's
+        /// value.
+        /// </summary>
+        public Dictionary<string, string> EnvVarMappings
+        {
+            get => _envVarMappings ??= new Dictionary<string, string>();
+            set => _envVarMappings = value;
+        }
+
         internal override ResourceOptions Clone()
             => CreateCustomResourceOptionsCopy(this);
 
@@ -77,6 +91,10 @@ namespace Pulumi
             options1.ImportId = options2.ImportId ?? options1.ImportId;
 
             options1.AdditionalSecretOutputs.AddRange(options2.AdditionalSecretOutputs);
+            foreach(var item in options2.EnvVarMappings)
+            {
+                options1.EnvVarMappings[item.Key] = item.Value;
+            }
             return options1;
         }
     }

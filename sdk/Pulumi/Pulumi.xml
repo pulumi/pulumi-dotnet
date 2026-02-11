@@ -2301,6 +2301,14 @@
             imported, the import property must be removed from the resource's options.
             </summary>
         </member>
+        <member name="P:Pulumi.CustomResourceOptions.EnvVarMappings">
+            <summary>
+            Environment variable mappings for provider resources. Maps source environment variable names to target
+            names. If the source variable exists, the provider will see the target variable set to its value. For
+            example, {"MY_VAR": "PROVIDER_VAR"} means if MY_VAR is set, the provider sees PROVIDER_VAR with MY_VAR's
+            value.
+            </summary>
+        </member>
         <member name="M:Pulumi.CustomResourceOptions.Merge(Pulumi.CustomResourceOptions,Pulumi.CustomResourceOptions)">
             <summary>
             Takes two <see cref="T:Pulumi.CustomResourceOptions"/> values and produces a new
@@ -10526,6 +10534,15 @@
             a list of additional aliases that should be considered the same.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConstructRequest.ReplacementTriggerFieldNumber">
+            <summary>Field number for the "replacement_trigger" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.ReplacementTrigger">
+            <summary>
+            If set, the engine will diff this value with the last recorded value, and trigger a replace if they are not
+            equal.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ConstructRequest.Types">
             <summary>Container for nested types declared in the ConstructRequest message type.</summary>
         </member>
@@ -13016,6 +13033,14 @@
         </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.HideDiffsFieldNumber">
             <summary>Field number for the "hideDiffs" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.EnvVarMappingsFieldNumber">
+            <summary>Field number for the "envVarMappings" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.EnvVarMappings">
+            <summary>
+            environment variable remappings for provider resources (NEW_KEY -> OLD_KEY)
+            </summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>

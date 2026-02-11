@@ -39,7 +39,7 @@ namespace Pulumi
         public string? ImportId { get; set; }
 
 
-        private Dictionary<string, string> ? _envVarMappings;
+        private Dictionary<string, string>? _envVarMappings;
         /// <summary>
         /// Environment variable mappings for provider resources. Maps source environment variable names to target
         /// names. If the source variable exists, the provider will see the target variable set to its value. For
@@ -91,7 +91,7 @@ namespace Pulumi
             options1.ImportId = options2.ImportId ?? options1.ImportId;
 
             options1.AdditionalSecretOutputs.AddRange(options2.AdditionalSecretOutputs);
-            foreach(var item in options2.EnvVarMappings)
+            foreach (var item in options2.EnvVarMappings)
             {
                 options1.EnvVarMappings[item.Key] = item.Value;
             }

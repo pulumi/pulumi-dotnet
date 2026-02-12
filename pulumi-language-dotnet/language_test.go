@@ -150,7 +150,7 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-version":                   "https://github.com/pulumi/pulumi-dotnet/issues/823",
 	"l3-range-resource-output-traversal":           "dotnet build failed: Output<ImmutableArray> missing Select extension method", //nolint:lll
 	"l2-resource-option-plugin-download-url":       "https://github.com/pulumi/pulumi-dotnet/issues/824",
-	"l1-config-types-object":                       "dotnet build failed: Cannot initialize type 'object' with a collection initializer",
+	"l1-config-types-object":                       "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

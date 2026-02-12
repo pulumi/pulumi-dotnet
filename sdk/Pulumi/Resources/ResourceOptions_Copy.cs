@@ -40,6 +40,7 @@ namespace Pulumi
             copy.AdditionalSecretOutputs = customOptions?.AdditionalSecretOutputs.ToList() ?? new List<string>();
             copy.DeleteBeforeReplace = customOptions?.DeleteBeforeReplace;
             copy.ImportId = customOptions?.ImportId;
+            copy.EnvVarMappings = customOptions?.EnvVarMappings ?? new Dictionary<string, string>();
 
             return copy;
         }

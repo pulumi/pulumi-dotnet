@@ -128,6 +128,7 @@ namespace Pulumi
                 Remote = remote,
                 DeletedWith = deletedWith,
                 SupportsResultReporting = true,
+                EnvVarMappings = { customOpts?.EnvVarMappings ?? new Dictionary<string, string>() }
             };
 
             await foreach (var resourceInput in options.ReplaceWith)

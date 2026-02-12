@@ -13,8 +13,8 @@ require (
 	github.com/deckarep/golang-set/v2 v2.5.0
 	github.com/hashicorp/hcl/v2 v2.22.0
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.219.1-0.20260208071218-1bd84f1343e1
-	github.com/pulumi/pulumi/sdk/v3 v3.219.1-0.20260208071218-1bd84f1343e1
+	github.com/pulumi/pulumi/pkg/v3 v3.220.0
+	github.com/pulumi/pulumi/sdk/v3 v3.220.0
 	github.com/stretchr/testify v1.10.0
 	github.com/zclconf/go-cty v1.14.4
 	google.golang.org/grpc v1.72.1
@@ -136,7 +136,7 @@ require (
 	github.com/pkg/term v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pulumi/appdash v0.0.0-20231130102222-75f619a67231 // indirect
-	github.com/pulumi/esc v0.21.0 // indirect
+	github.com/pulumi/esc v0.22.0 // indirect
 	github.com/pulumi/inflector v0.2.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect

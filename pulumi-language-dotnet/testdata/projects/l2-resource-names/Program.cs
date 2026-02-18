@@ -25,5 +25,15 @@ return await Deployment.RunAsync(() =>
         Value = true,
     });
 
+    var res5 = new Names.Mod.Res("res5", new()
+    {
+        Value = true,
+    });
+
+    var res6 = new Names.Mod.Nested.Res("res6", new()
+    {
+        Value = true,
+    });
+
 });
 

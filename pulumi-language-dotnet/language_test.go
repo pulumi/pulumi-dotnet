@@ -38,7 +38,7 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 	// We can't just go run the pulumi-test-language package because of
 	// https://github.com/golang/go/issues/39172, so we build it to a temp file then run that.
 	binary := t.TempDir() + "/pulumi-test-language"
-	cmd := exec.Command("go", "build", "-C", "../pulumi/cmd/pulumi-test-language", "-o", binary)
+	cmd := exec.Command("go", "build", "-C", "../pulumi/pkg/testing/pulumi-test-language/", "-o", binary)
 	output, err := cmd.CombinedOutput()
 	t.Logf("build output: %s", output)
 	require.NoError(t, err)
@@ -97,7 +97,6 @@ var expectedFailures = map[string]string{
 	"l1-builtin-can":                        "#489 codegen not implemented",
 	"l1-builtin-try":                        "#490 codegen not implemented",
 	"l1-builtin-stash":                      "testdata not yet generated for .NET",
-	"l1-config-types":                       "dotnet build failed",
 	"l1-keyword-overlap":                    "#493 update to pulumi 1.50 conformance failure",
 	"l1-proxy-index":                        "dotnet build failed",
 	"l2-component-call-simple":              "#491 update to pulumi 1.50 conformance failure",
@@ -151,6 +150,11 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-version":                   "https://github.com/pulumi/pulumi-dotnet/issues/823",
 	"l3-range-resource-output-traversal":           "dotnet build failed: Output<ImmutableArray> missing Select extension method", //nolint:lll
 	"l2-resource-option-plugin-download-url":       "https://github.com/pulumi/pulumi-dotnet/issues/824",
+	"l1-config-types-object":                       "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
+	"l1-elide-index":                               "https://github.com/pulumi/pulumi-dotnet/issues/865",
+	"l2-elide-index":                               "https://github.com/pulumi/pulumi-dotnet/issues/868",
+	"l2-discriminated-union":                       "https://github.com/pulumi/pulumi-dotnet/issues/866",
+	"l2-module-format":                             "https://github.com/pulumi/pulumi-dotnet/issues/867",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

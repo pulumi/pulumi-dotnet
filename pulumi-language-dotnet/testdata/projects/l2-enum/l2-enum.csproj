@@ -6,9 +6,10 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<PropertyGroup>
-		<RestoreSources>ROOT/artifacts/Pulumi;$(RestoreSources)</RestoreSources>
+		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Enum;$(RestoreSources)</RestoreSources>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="Pulumi.Enum" Version="30.0.0" />
 		<PackageReference Include="Pulumi" Version="1.0.0" />
 	</ItemGroup>
 

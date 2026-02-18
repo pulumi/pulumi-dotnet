@@ -7164,6 +7164,14 @@
             True if a plugin should be started under a debugger.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RunPluginRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPluginRequest.LoaderTarget">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RunPluginResponse">
             <summary>
             `RunPluginResponse` is the type of responses streamed by a [](pulumirpc.LanguageRuntime.RunPlugin) call.

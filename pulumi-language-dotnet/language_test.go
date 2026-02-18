@@ -152,6 +152,7 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-plugin-download-url":       "https://github.com/pulumi/pulumi-dotnet/issues/824",
 	"l1-config-types-object":                       "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
 	"l1-elide-index":                               "https://github.com/pulumi/pulumi-dotnet/issues/865",
+	"l2-elide-index":                               "https://github.com/pulumi/pulumi-dotnet/issues/868",
 	"l2-discriminated-union":                       "https://github.com/pulumi/pulumi-dotnet/issues/866",
 	"l2-module-format":                             "https://github.com/pulumi/pulumi-dotnet/issues/867",
 }

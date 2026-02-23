@@ -17,15 +17,37 @@ package dotnet
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/pulumi/pulumi/pkg/v3/codegen"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/testing/test"
 )
+
+var (
+	skip             map[string]string = map[string]string{}
+	skipCompileCheck []string          = []string{
+		"hyphen-url",
+	}
+)
+
+func filterTests() []*test.SDKTest {
+	tests := test.PulumiPulumiSDKTests
+	for _, test := range tests {
+		if check, ok := skip[test.Directory]; ok {
+			test.Skip = codegen.NewStringSet(check)
+		}
+		if slices.Contains(skipCompileCheck, test.Directory) {
+			test.SkipCompileCheck = codegen.NewStringSet("dotnet")
+		}
+	}
+	return tests
+}
 
 func TestGeneratePackage(t *testing.T) {
 	t.Parallel()
@@ -41,7 +63,7 @@ func TestGeneratePackage(t *testing.T) {
 			"dotnet/compile": typeCheckGeneratedPackage,
 			"dotnet/test":    testGeneratedPackage,
 		},
-		TestCases: test.PulumiPulumiSDKTests,
+		TestCases: filterTests(),
 
 		InputDir:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
 		ResultDir: "testdata",

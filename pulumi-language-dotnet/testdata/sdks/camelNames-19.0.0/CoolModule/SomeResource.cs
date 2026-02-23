@@ -12,6 +12,9 @@ namespace Pulumi.CamelNames.CoolModule
     [CamelNamesResourceType("camelNames:CoolModule:SomeResource")]
     public partial class SomeResource : global::Pulumi.CustomResource
     {
+        [Output("resourceName")]
+        public Output<string?> ResourceName { get; private set; } = null!;
+
         [Output("theOutput")]
         public Output<bool> TheOutput { get; private set; } = null!;
 
@@ -60,6 +63,9 @@ namespace Pulumi.CamelNames.CoolModule
 
     public sealed class SomeResourceArgs : global::Pulumi.ResourceArgs
     {
+        [Input("resourceName")]
+        public Input<string>? ResourceName { get; set; }
+
         [Input("theInput", required: true)]
         public Input<bool> TheInput { get; set; } = null!;
 

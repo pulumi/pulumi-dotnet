@@ -43,5 +43,28 @@ return await Deployment.RunAsync(() =>
         },
     });
 
+    var emptyListRes = new Plain.Resource("emptyListRes", new()
+    {
+        Data = new Plain.Inputs.DataArgs
+        {
+            InnerData = new Plain.Inputs.InnerDataArgs
+            {
+                Boolean = false,
+                Float = 0,
+                Integer = 0,
+                String = "",
+                BoolArray = new() {},
+                StringMap = null,
+            },
+            Boolean = false,
+            Float = 0,
+            Integer = 0,
+            String = "",
+            BoolArray = new() {},
+            StringMap = null,
+        },
+        DataList = new() {},
+    });
+
 });
 

@@ -30,8 +30,8 @@ import (
 )
 
 var (
-	skip             map[string]string = map[string]string{}
-	skipCompileCheck []string          = []string{
+	skip             = map[string]string{}
+	skipCompileCheck = []string{
 		"hyphen-url",
 	}
 )

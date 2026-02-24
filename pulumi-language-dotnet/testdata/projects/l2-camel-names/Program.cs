@@ -15,5 +15,11 @@ return await Deployment.RunAsync(() =>
         TheInput = firstResource.TheOutput,
     });
 
+    var thirdResource = new CamelNames.CoolModule.SomeResource("thirdResource", new()
+    {
+        TheInput = true,
+        ResourceName = "my-cluster",
+    });
+
 });
 

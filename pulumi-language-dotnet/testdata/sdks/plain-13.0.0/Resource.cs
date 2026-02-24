@@ -15,6 +15,9 @@ namespace Pulumi.Plain
         [Output("data")]
         public Output<Outputs.Data> Data { get; private set; } = null!;
 
+        [Output("dataList")]
+        public Output<ImmutableArray<Outputs.InnerData>> DataList { get; private set; } = null!;
+
         /// <summary>
         /// A non plain input to compare against the plain inputs, as well as testing plain/non-plain nesting.
         /// </summary>
@@ -68,6 +71,14 @@ namespace Pulumi.Plain
     {
         [Input("data", required: true)]
         public Inputs.DataArgs Data { get; set; } = null!;
+
+        [Input("dataList")]
+        private List<Inputs.InnerDataArgs>? _dataList;
+        public List<Inputs.InnerDataArgs> DataList
+        {
+            get => _dataList ?? (_dataList = new List<Inputs.InnerDataArgs>());
+            set => _dataList = value;
+        }
 
         /// <summary>
         /// A non plain input to compare against the plain inputs, as well as testing plain/non-plain nesting.

@@ -22,13 +22,13 @@ namespace Pulumi.Registrygeoreplication
         /// The Registry
         /// </summary>
         [Output("registry")]
-        public Output<Pulumi.AzureNative.ContainerRegistry.Registry> Registry { get; private set; } = null!;
+        public Output<Pulumi.UsingDashes.Dash> Registry { get; private set; } = null!;
 
         /// <summary>
         /// The replication policy
         /// </summary>
         [Output("replication")]
-        public Output<Pulumi.AzureNative.ContainerRegistry.Replication> Replication { get; private set; } = null!;
+        public Output<Pulumi.UsingDashes.Dash> Replication { get; private set; } = null!;
 
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Pulumi.Registrygeoreplication
         /// The resource group that hosts the component resource
         /// </summary>
         [Input("resourceGroup", required: true)]
-        public Input<Pulumi.AzureNative.Resources.ResourceGroup> ResourceGroup { get; set; } = null!;
+        public Input<Pulumi.UsingDashes.Dash> ResourceGroup { get; set; } = null!;
 
         public RegistryGeoReplicationArgs()
         {

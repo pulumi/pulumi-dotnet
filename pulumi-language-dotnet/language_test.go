@@ -155,6 +155,9 @@ var expectedFailures = map[string]string{
 	"l2-elide-index":                               "https://github.com/pulumi/pulumi-dotnet/issues/868",
 	"l2-discriminated-union":                       "https://github.com/pulumi/pulumi-dotnet/issues/866",
 	"l2-module-format":                             "https://github.com/pulumi/pulumi-dotnet/issues/867",
+
+	// TODO: This is a codegen bug, we're translating {} to null
+	"l2-plain": "System.ArgumentNullException: [Input] Pulumi.Plain.Inputs.DataArgs._stringMap is required but was not given a value (Parameter '_stringMap')", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Enum;ROOT/artifacts/Pulumi.Extenumref;$(RestoreSources)</RestoreSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Pulumi.Enum" Version="30.0.0" />
+		<PackageReference Include="Pulumi.Extenumref" Version="32.0.0" />
+		<PackageReference Include="Pulumi" Version="1.0.0" />
+	</ItemGroup>
+
+</Project>

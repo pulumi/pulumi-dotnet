@@ -158,6 +158,14 @@ var expectedFailures = map[string]string{
 
 	// TODO: This is a codegen bug, we're translating {} to null
 	"l2-plain": "System.ArgumentNullException: [Input] Pulumi.Plain.Inputs.DataArgs._stringMap is required but was not given a value (Parameter '_stringMap')", //nolint:lll
+
+	"l1-builtin-list":            "Fail after updating to 3.224: InvalidOperationException: Sequence contains no elements",                             //nolint:lll
+	"l1-builtin-object":          "Fail after updating to 3.224: KeyNotFoundException: The given key 'keyMissing' was not present in the dictionary. ", //nolint:lll
+	"l2-resource-elide-unknowns": "Fail after updating to 3.224: conflict in Output type name",                                                         //nolint:lll
+	"l2-camel-names":             "Fail after updating to 3.224: 'SomeResourceArgs' does not contain a definition for 'ResourceName'",                  //nolint:lll
+	"l2-resource-name-type":      "Fail after updating to 3.224: TODO: call pulumiResourceName",                                                        //nolint:lll
+	"l2-resource-names":          "Fail after updating to 3.224: The type or namespace name 'Mod' does not exist in the namespace 'Pulumi.Names'",      //nolint:lll
+	"l2-builtin-object":          "Fail after updating to 3.224: Invalid expression term ')'",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

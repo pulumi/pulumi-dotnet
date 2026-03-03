@@ -47,6 +47,10 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/workspace"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -82,6 +86,12 @@ func main() {
 	logging.InitLogging(false, 0, false)
 	cmdutil.InitTracing("pulumi-language-dotnet", "pulumi-language-dotnet", tracing)
 
+	otelEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	if err := cmdutil.InitOtelTracing("pulumi-language-dotnet", otelEndpoint); err != nil {
+		logging.V(3).Infof("failed to initialize OTel tracing: %v", err)
+	}
+	defer cmdutil.CloseOtelTracing()
+
 	// Optionally pluck out the engine so we can do logging, etc.
 	var engineAddress string
 	if len(args) > 0 {
@@ -106,11 +116,11 @@ func main() {
 	handle, err := rpcutil.ServeWithOptions(rpcutil.ServeOptions{
 		Cancel: cancelChannel,
 		Init: func(srv *grpc.Server) error {
-			host := newLanguageHost(engineAddress, tracing)
+			host := newLanguageHost(engineAddress, tracing, otelEndpoint)
 			pulumirpc.RegisterLanguageRuntimeServer(srv, host)
 			return nil
 		},
-		Options: rpcutil.OpenTracingServerInterceptorOptions(nil),
+		Options: rpcutil.TracingServerInterceptorOptions(nil),
 	})
 	if err != nil {
 		cmdutil.Exit(errors.Wrapf(err, "could not start language host RPC server"))
@@ -132,6 +142,7 @@ type dotnetLanguageHost struct {
 
 	engineAddress        string
 	tracing              string
+	otelEndpoint         string
 	dotnetBuildSucceeded bool
 }
 
@@ -179,10 +190,11 @@ func parseOptions(root string, options map[string]interface{}) (dotnetOptions, e
 	return dotnetOptions, nil
 }
 
-func newLanguageHost(engineAddress, tracing string) pulumirpc.LanguageRuntimeServer {
+func newLanguageHost(engineAddress, tracing, otelEndpoint string) pulumirpc.LanguageRuntimeServer {
 	return &dotnetLanguageHost{
 		engineAddress: engineAddress,
 		tracing:       tracing,
+		otelEndpoint:  otelEndpoint,
 	}
 }
 
@@ -721,6 +733,14 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		logging.V(5).Infoln("Language host launching process: ", opts.dotnetExec, commandStr)
 	}
 
+	tracer := otel.Tracer("pulumi-language-dotnet")
+	ctx, otelSpan := cmdutil.StartSpan(ctx, tracer, "execDotnet",
+		trace.WithAttributes(
+			attribute.String("component", "exec.Command"),
+			attribute.StringSlice("args", args),
+		))
+	defer otelSpan.End()
+
 	cmd := exec.CommandContext(ctx, executable, args...) //nolint:gas // intentionally running dynamic program name.
 
 	// Now simply spawn a process to execute the requested program, wiring up stdout/stderr directly.
@@ -728,7 +748,18 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Dir = req.Info.ProgramDirectory
-	cmd.Env = host.constructEnv(req, config, configSecretKeys)
+	env := host.constructEnv(req, config, configSecretKeys)
+
+	carrier := make(propagation.MapCarrier)
+	otel.GetTextMapPropagator().Inject(ctx, carrier)
+	if traceparent := carrier.Get("traceparent"); traceparent != "" {
+		env = append(env, "TRACEPARENT="+traceparent)
+	}
+	if host.otelEndpoint != "" {
+		env = append(env, "OTEL_EXPORTER_OTLP_ENDPOINT="+host.otelEndpoint)
+	}
+
+	cmd.Env = env
 	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
@@ -880,6 +911,10 @@ func (host *dotnetLanguageHost) InstallDependencies(
 	}
 	// best effort close, but we try an explicit close and error check at the end as well
 	defer closer.Close()
+
+	tracer := otel.Tracer("pulumi-language-dotnet")
+	_, otelSpan := cmdutil.StartSpan(server.Context(), tracer, "dotnet-build")
+	defer otelSpan.End()
 
 	stdout.Write([]byte("Installing dependencies...\n\n"))
 

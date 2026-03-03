@@ -1980,6 +1980,17 @@
             (e.g. the engine does not need anything more from the program, such as resource hook implementations).
             </summary>
         </member>
+        <member name="M:Pulumi.Instrumentation.Initialize">
+            <summary>
+            Initialize OpenTelemetry tracing if TRACEPARENT is set.
+            This sets up a TracerProvider with OTLP exporter and gRPC client instrumentation.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Instrumentation.Shutdown">
+            <summary>
+            Shutdown the tracer provider and flush any pending spans.
+            </summary>
+        </member>
         <member name="T:Pulumi.InvokeOptions">
             <summary>
             Options to help control the behavior of <see cref="M:Pulumi.IDeployment.InvokeAsync``1(System.String,Pulumi.InvokeArgs,Pulumi.InvokeOptions,Pulumi.RegisterPackageRequest)"/>.

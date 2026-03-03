@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Grpc.Core;
+using Grpc.Core.Interceptors;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Exporter;
@@ -11,15 +13,42 @@ using OpenTelemetry.Trace;
 
 namespace Pulumi
 {
+    /// <summary>
+    /// gRPC client interceptor that propagates W3C trace context (traceparent)
+    /// in outgoing call metadata so the engine can parent its spans correctly.
+    /// </summary>
+    internal class TracingInterceptor : Interceptor
+    {
+        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(
+            TRequest request,
+            ClientInterceptorContext<TRequest, TResponse> context,
+            AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+        {
+            var activity = Activity.Current;
+            if (activity != null)
+            {
+                var metadata = context.Options.Headers ?? new Metadata();
+                metadata.Add("traceparent",
+                    $"00-{activity.TraceId}-{activity.SpanId}-{(activity.Recorded ? "01" : "00")}");
+
+                var options = context.Options.WithHeaders(metadata);
+                context = new ClientInterceptorContext<TRequest, TResponse>(
+                    context.Method, context.Host, options);
+            }
+
+            return continuation(request, context);
+        }
+    }
+
     internal static class Instrumentation
     {
-        private static readonly ActivitySource _activitySource = new("pulumi-sdk-dotnet");
+        internal static readonly ActivitySource ActivitySource = new("pulumi-sdk-dotnet");
         private static TracerProvider? _tracerProvider;
         private static Activity? _rootActivity;
 
         /// <summary>
         /// Initialize OpenTelemetry tracing if TRACEPARENT is set.
-        /// This sets up a TracerProvider with OTLP exporter and gRPC client instrumentation.
+        /// This sets up a TracerProvider with OTLP exporter.
         /// </summary>
         internal static void Initialize()
         {
@@ -33,8 +62,7 @@ namespace Pulumi
 
             var builder = Sdk.CreateTracerProviderBuilder()
                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("pulumi-sdk-dotnet"))
-                .AddSource("pulumi-sdk-dotnet")
-                .AddGrpcClientInstrumentation();
+                .AddSource("pulumi-sdk-dotnet");
 
             if (!string.IsNullOrEmpty(otlpEndpoint))
             {
@@ -66,7 +94,7 @@ namespace Pulumi
             var activityContext = ctx.ActivityContext;
             if (activityContext.IsValid())
             {
-                _rootActivity = _activitySource.StartActivity(
+                _rootActivity = ActivitySource.StartActivity(
                     "pulumi-sdk-dotnet",
                     ActivityKind.Internal,
                     parentContext: activityContext);

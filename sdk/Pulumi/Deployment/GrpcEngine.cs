@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
+using Grpc.Core.Interceptors;
 using Pulumirpc;
 
 namespace Pulumi
@@ -22,7 +24,7 @@ namespace Pulumi
             if (_engineChannels.TryGetValue(engineAddress, out var engineChannel))
             {
                 // A channel already exists for this address
-                this._engine = new Engine.EngineClient(engineChannel);
+                this._engine = new Engine.EngineClient(engineChannel.CreateCallInvoker().Intercept(new TracingInterceptor()));
             }
             else
             {
@@ -31,7 +33,7 @@ namespace Pulumi
                     if (_engineChannels.TryGetValue(engineAddress, out var existingChannel))
                     {
                         // A channel already exists for this address
-                        this._engine = new Engine.EngineClient(existingChannel);
+                        this._engine = new Engine.EngineClient(existingChannel.CreateCallInvoker().Intercept(new TracingInterceptor()));
                     }
                     else
                     {
@@ -44,7 +46,7 @@ namespace Pulumi
                         });
 
                         _engineChannels[engineAddress] = channel;
-                        this._engine = new Engine.EngineClient(channel);
+                        this._engine = new Engine.EngineClient(channel.CreateCallInvoker().Intercept(new TracingInterceptor()));
                     }
                 }
             }
@@ -52,6 +54,7 @@ namespace Pulumi
 
         public async Task LogAsync(Experimental.LogRequest request)
         {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-engine/Log");
             var rpcRequest = new Pulumirpc.LogRequest();
             rpcRequest.Message = request.Message;
             rpcRequest.Ephemeral = request.Ephemeral;
@@ -63,6 +66,7 @@ namespace Pulumi
 
         public async Task RequirePulumiVersionAsync(string pulumiVersionRange)
         {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-engine/RequirePulumiVersion");
             var rpcRequest = new Pulumirpc.RequirePulumiVersionRequest();
             rpcRequest.PulumiVersionRange = pulumiVersionRange;
             await this._engine.RequirePulumiVersionAsync(rpcRequest);

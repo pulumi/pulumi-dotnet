@@ -1,8 +1,10 @@
 // Copyright 2016-2020, Pulumi Corporation
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
+using Grpc.Core.Interceptors;
 using Pulumirpc;
 using Grpc.Core;
 using System.Collections.Generic;
@@ -21,7 +23,8 @@ namespace Pulumi
         public GrpcMonitor(string monitorAddress)
         {
             var monitorChannel = _monitorChannels.GetOrAdd(monitorAddress, LazyCreateChannel);
-            this._client = new ResourceMonitor.ResourceMonitorClient(monitorChannel.Value);
+            var invoker = monitorChannel.Value.CreateCallInvoker().Intercept(new TracingInterceptor());
+            this._client = new ResourceMonitor.ResourceMonitorClient(invoker);
         }
 
         private static Lazy<GrpcChannel> LazyCreateChannel(string monitorAddress)
@@ -42,37 +45,68 @@ namespace Pulumi
         }
 
         public async Task<SupportsFeatureResponse> SupportsFeatureAsync(SupportsFeatureRequest request)
-            => await this._client.SupportsFeatureAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/SupportsFeature");
+            return await this._client.SupportsFeatureAsync(request);
+        }
 
         public async Task<InvokeResponse> InvokeAsync(ResourceInvokeRequest request)
-            => await this._client.InvokeAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/Invoke");
+            return await this._client.InvokeAsync(request);
+        }
 
         public async Task<CallResponse> CallAsync(ResourceCallRequest request)
-            => await this._client.CallAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/Call");
+            return await this._client.CallAsync(request);
+        }
 
         public async Task<RegisterPackageResponse> RegisterPackageAsync(Pulumirpc.RegisterPackageRequest request)
-            => await this._client.RegisterPackageAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/RegisterPackage");
+            return await this._client.RegisterPackageAsync(request);
+        }
 
         public async Task<ReadResourceResponse> ReadResourceAsync(Resource resource, ReadResourceRequest request)
-            => await this._client.ReadResourceAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/ReadResource");
+            return await this._client.ReadResourceAsync(request);
+        }
 
         public async Task<RegisterResourceResponse> RegisterResourceAsync(Resource resource, RegisterResourceRequest request)
-            => await this._client.RegisterResourceAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/RegisterResource");
+            return await this._client.RegisterResourceAsync(request);
+        }
 
         public async Task RegisterResourceOutputsAsync(RegisterResourceOutputsRequest request)
-            => await this._client.RegisterResourceOutputsAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/RegisterResourceOutputs");
+            await this._client.RegisterResourceOutputsAsync(request);
+        }
 
         public async Task RegisterStackInvokeTransform(Pulumirpc.Callback callback)
-            => await this._client.RegisterStackInvokeTransformAsync(callback);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/RegisterStackInvokeTransform");
+            await this._client.RegisterStackInvokeTransformAsync(callback);
+        }
 
         public async Task RegisterResourceHookAsync(RegisterResourceHookRequest request)
-            => await this._client.RegisterResourceHookAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/RegisterResourceHook");
+            await this._client.RegisterResourceHookAsync(request);
+        }
 
         public async Task RegisterErrorHookAsync(RegisterErrorHookRequest request)
-            => await this._client.RegisterErrorHookAsync(request);
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/RegisterErrorHook");
+            await this._client.RegisterErrorHookAsync(request);
+        }
 
         public async Task SignalAndWaitForShutdownAsync()
         {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/SignalAndWaitForShutdown");
             try
             {
                 await this._client.SignalAndWaitForShutdownAsync(new Google.Protobuf.WellKnownTypes.Empty());

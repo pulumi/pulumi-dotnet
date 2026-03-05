@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using OpenTelemetry;
@@ -43,8 +44,8 @@ namespace Pulumi
     internal static class Instrumentation
     {
         internal static readonly ActivitySource ActivitySource = new("pulumi-sdk-dotnet");
-        private static TracerProvider? _tracerProvider;
-        private static Activity? _rootActivity;
+        private static readonly AsyncLocal<TracerProvider?> _tracerProvider = new();
+        private static readonly AsyncLocal<Activity?> _rootActivity = new();
 
         /// <summary>
         /// Initialize OpenTelemetry tracing if TRACEPARENT is set.
@@ -73,7 +74,7 @@ namespace Pulumi
                 });
             }
 
-            _tracerProvider = builder.Build();
+            _tracerProvider.Value = builder.Build();
 
             Sdk.SetDefaultTextMapPropagator(new TraceContextPropagator());
 
@@ -94,7 +95,7 @@ namespace Pulumi
             var activityContext = ctx.ActivityContext;
             if (activityContext.IsValid())
             {
-                _rootActivity = ActivitySource.StartActivity(
+                _rootActivity.Value = ActivitySource.StartActivity(
                     "pulumi-sdk-dotnet",
                     ActivityKind.Internal,
                     parentContext: activityContext);
@@ -106,13 +107,13 @@ namespace Pulumi
         /// </summary>
         internal static void Shutdown()
         {
-            _rootActivity?.Stop();
-            _rootActivity?.Dispose();
-            _rootActivity = null;
+            _rootActivity.Value?.Stop();
+            _rootActivity.Value?.Dispose();
+            _rootActivity.Value = null;
 
-            _tracerProvider?.Shutdown();
-            _tracerProvider?.Dispose();
-            _tracerProvider = null;
+            _tracerProvider.Value?.Shutdown();
+            _tracerProvider.Value?.Dispose();
+            _tracerProvider.Value = null;
         }
     }
 }

@@ -341,9 +341,17 @@ namespace Pulumi
                 }
             }
 
-            var deployment = deploymentFactory();
-            Instance = new DeploymentInstance(deployment);
-            return await runAsync(deployment._runner).ConfigureAwait(false);
+            Instrumentation.Initialize();
+            try
+            {
+                var deployment = deploymentFactory();
+                Instance = new DeploymentInstance(deployment);
+                return await runAsync(deployment._runner).ConfigureAwait(false);
+            }
+            finally
+            {
+                Instrumentation.Shutdown();
+            }
         }
     }
 }

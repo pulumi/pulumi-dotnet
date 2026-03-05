@@ -14816,6 +14816,16 @@
             The path to a directory containing provider plugins to be used for the "provider-" tests.
             </summary>
         </member>
+        <member name="F:Pulumirpc.Testing.PrepareLanguageTestsRequest.ConverterPluginTargetFieldNumber">
+            <summary>Field number for the "converter_plugin_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.PrepareLanguageTestsRequest.ConverterPluginTarget">
+             <summary>
+             If set, the address of the converter plugin.
+            
+             Convert will be tested if and only if this is set.
+             </summary>
+        </member>
         <member name="T:Pulumirpc.Testing.PrepareLanguageTestsRequest.Types">
             <summary>Container for nested types declared in the PrepareLanguageTestsRequest message type.</summary>
         </member>
@@ -14854,6 +14864,14 @@
         </member>
         <member name="F:Pulumirpc.Testing.RunLanguageTestRequest.TestFieldNumber">
             <summary>Field number for the "test" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.Testing.RunLanguageTestRequest.SkipConvertTestsFieldNumber">
+            <summary>Field number for the "skip_convert_tests" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Testing.RunLanguageTestRequest.SkipConvertTests">
+            <summary>
+            Skip a convert test if applicable.
+            </summary>
         </member>
         <member name="F:Pulumirpc.Testing.RunLanguageTestResponse.SuccessFieldNumber">
             <summary>Field number for the "success" field.</summary>

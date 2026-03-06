@@ -40,7 +40,7 @@ import (
 // PulumiDotnetSDKVersion is the version of the Pulumi .NET SDK to use in program-gen tests
 //
 // It should be kept up to date with this repo's released version.
-const PulumiDotnetSDKVersion = "3.101.0"
+const PulumiDotnetSDKVersion = "3.101.2"
 
 func TestGenerateProgram(t *testing.T) {
 	t.Parallel()

@@ -1771,14 +1771,10 @@ func computeConfigTypeParam(configName string, configType model.Type) string {
 	}
 }
 
-func (g *generator) genConfigVariable(w io.Writer, v *pcl.ConfigVariable) {
-	if !g.configCreated {
-		g.Fprintf(w, "%svar config = new Config();\n", g.Indent)
-		g.configCreated = true
-	}
-
+func resolveConfigType(configType model.Type) string {
 	getType := "Object"
-	switch pcl.UnwrapOption(v.Type()) {
+	configType = pcl.UnwrapOption(configType)
+	switch configType {
 	case model.StringType:
 		getType = ""
 	case model.NumberType:
@@ -1787,7 +1783,22 @@ func (g *generator) genConfigVariable(w io.Writer, v *pcl.ConfigVariable) {
 		getType = "Int32"
 	case model.BoolType:
 		getType = "Boolean"
+	default:
+		switch t := configType.(type) {
+		case *model.OutputType:
+			return resolveConfigType(t.ElementType)
+		}
 	}
+	return getType
+}
+
+func (g *generator) genConfigVariable(w io.Writer, v *pcl.ConfigVariable) {
+	if !g.configCreated {
+		g.Fprintf(w, "%svar config = new Config();\n", g.Indent)
+		g.configCreated = true
+	}
+
+	getType := resolveConfigType(v.Type())
 
 	typeParam := ""
 	if getType == "Object" {
@@ -1799,6 +1810,9 @@ func (g *generator) genConfigVariable(w io.Writer, v *pcl.ConfigVariable) {
 	getOrRequire := "Get"
 	if v.DefaultValue == nil {
 		getOrRequire = "Require"
+	}
+	if v.Secret {
+		getOrRequire += "Secret"
 	}
 
 	if v.Description != "" {

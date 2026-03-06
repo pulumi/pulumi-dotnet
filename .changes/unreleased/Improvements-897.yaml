@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Support 'secret' in pcl config blocks
+time: 2026-03-05T13:29:43.628741964Z
+custom:
+    PR: "897"

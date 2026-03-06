@@ -169,9 +169,7 @@ var expectedFailures = map[string]string{
 	"l2-resource-names":          "Fail after updating to 3.224: The type or namespace name 'Mod' does not exist in the namespace 'Pulumi.Names'",      //nolint:lll
 	"l2-builtin-object":          "Fail after updating to 3.224: Invalid expression term ')'",
 
-	"l1-config-secret":  "Fail after updating to 3.225",
-	"l1-builtin-secret": "Fail after updating to 3.225",
-	"l3-range":          "Fail after updating to 3.225",
+	"l3-range": "Fail after updating to 3.225",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

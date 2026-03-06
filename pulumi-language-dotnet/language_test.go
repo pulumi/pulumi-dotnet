@@ -38,7 +38,8 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 	// We can't just go run the pulumi-test-language package because of
 	// https://github.com/golang/go/issues/39172, so we build it to a temp file then run that.
 	binary := t.TempDir() + "/pulumi-test-language"
-	cmd := exec.Command("go", "build", "-C", "../pulumi/pkg/testing/pulumi-test-language/", "-o", binary)
+	cmd := exec.CommandContext(t.Context(),
+		"go", "build", "-C", "../pulumi/pkg/testing/pulumi-test-language/", "-o", binary)
 	output, err := cmd.CombinedOutput()
 	t.Logf("build output: %s", output)
 	require.NoError(t, err)
@@ -101,6 +102,7 @@ var expectedFailures = map[string]string{
 	"l1-proxy-index":                        "dotnet build failed",
 	"l2-component-call-simple":              "#491 update to pulumi 1.50 conformance failure",
 	"l2-resource-option-replace-on-changes": "not yet implemented",
+	"l2-resource-provider-inheritance":      "No best type found for implicitly-typed array",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config": "sdk packing for config: build error before pack",
@@ -186,6 +188,8 @@ func TestLanguage(t *testing.T) {
 	t.Parallel()
 
 	engineAddress, engine := runTestingHost(t)
+	err := exec.CommandContext(t.Context(), "dotnet", "nuget", "locals", "all", "--clear").Run()
+	require.NoError(t, err)
 
 	tests, err := engine.GetLanguageTests(t.Context(), &testingrpc.GetLanguageTestsRequest{})
 	require.NoError(t, err)

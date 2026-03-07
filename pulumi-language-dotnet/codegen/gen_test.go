@@ -18,7 +18,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,6 +26,7 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/testing/test"
+	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 )
 
 var (
@@ -70,8 +70,6 @@ func TestGeneratePackage(t *testing.T) {
 	})
 }
 
-var buildMutex sync.Mutex
-
 func typeCheckGeneratedPackage(t *testing.T, pwd string) {
 	versionPath := filepath.Join(pwd, "version.txt")
 	if _, err := os.Stat(versionPath); os.IsNotExist(err) {
@@ -81,19 +79,15 @@ func typeCheckGeneratedPackage(t *testing.T, pwd string) {
 		require.NoError(t, err)
 	}
 
-	// dotnet build requires exclusive access to shared nuget package
-	// See: https://github.com/pulumi/pulumi/issues/18738
-	buildMutex.Lock()
-	defer buildMutex.Unlock()
-	test.RunCommand(t, "dotnet build", pwd, "dotnet", "build")
+	// Use a per-test NuGet package cache to avoid concurrent writes to the shared global cache.
+	nugetEnv := []string{"NUGET_PACKAGES=" + t.TempDir()}
+	test.RunCommandWithOptions(t, &integration.ProgramTestOptions{Env: nugetEnv}, "dotnet build", pwd, "dotnet", "build")
 }
 
 func testGeneratedPackage(t *testing.T, pwd string) {
-	// dotnet test requires exclusive access to shared nuget package
-	// See: https://github.com/pulumi/pulumi/issues/18738
-	buildMutex.Lock()
-	defer buildMutex.Unlock()
-	test.RunCommand(t, "dotnet test", pwd, "dotnet", "test")
+	// Use a per-test NuGet package cache to avoid concurrent writes to the shared global cache.
+	nugetEnv := []string{"NUGET_PACKAGES=" + t.TempDir()}
+	test.RunCommandWithOptions(t, &integration.ProgramTestOptions{Env: nugetEnv}, "dotnet test", pwd, "dotnet", "test")
 }
 
 func TestGenerateType(t *testing.T) {

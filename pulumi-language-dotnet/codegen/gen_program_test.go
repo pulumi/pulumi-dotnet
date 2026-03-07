@@ -412,6 +412,10 @@ func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
 	ex, err := executable.FindExecutable("dotnet")
 	require.NoError(t, err, "Failed to find dotnet executable")
 
+	// Use a per-test NuGet package cache to avoid concurrent writes to the shared global cache.
+	nugetPackagesDir := t.TempDir()
+	env := []string{"NUGET_PACKAGES=" + nugetPackagesDir}
+
 	// We create a new cs-project each time the test is run.
 	projectFile := filepath.Join(dir, filepath.Base(dir)+".csproj")
 	programFile := filepath.Join(dir, "Program.cs")
@@ -427,7 +431,7 @@ func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
 	}
 	dotnetVersion = fmt.Sprintf("net%s.0", dotnetVersion)
 	err = integration.RunCommand(t, "create dotnet project",
-		[]string{ex, "new", "console", "-f", dotnetVersion}, dir, &integration.ProgramTestOptions{})
+		[]string{ex, "new", "console", "-f", dotnetVersion}, dir, &integration.ProgramTestOptions{Env: env})
 	require.NoError(t, err, "Failed to create C# project")
 
 	// Remove Program.cs again generated from "dotnet new console"
@@ -440,13 +444,13 @@ func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
 	pkgs := dotnetDependencies(dependencies)
 	if len(pkgs) != 0 {
 		for _, pkg := range pkgs {
-			pkg.install(t, ex, dir)
+			pkg.install(t, ex, dir, env)
 		}
-		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir)
+		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir, env)
 	} else {
 		// We would like this regardless of other dependencies, but dotnet
 		// packages do not play well with package references.
-		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir)
+		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir, env)
 	}
 
 	// Clean up build result
@@ -456,10 +460,10 @@ func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
 		err = os.RemoveAll(filepath.Join(dir, "obj"))
 		require.NoError(t, err, "Failed to remove obj result")
 	}()
-	typeCheckDotnet(t, path, dependencies)
+	typeCheckDotnet(t, path, dependencies, env)
 }
 
-func typeCheckDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
+func typeCheckDotnet(t *testing.T, path string, dependencies codegen.StringSet, env []string) {
 	var err error
 	dir := filepath.Dir(path)
 
@@ -467,7 +471,7 @@ func typeCheckDotnet(t *testing.T, path string, dependencies codegen.StringSet) 
 	require.NoError(t, err)
 
 	err = integration.RunCommand(t, "dotnet build",
-		[]string{ex, "build", "--nologo"}, dir, &integration.ProgramTestOptions{})
+		[]string{ex, "build", "--nologo"}, dir, &integration.ProgramTestOptions{Env: env})
 	require.NoError(t, err, "Failed to build dotnet project")
 }
 
@@ -476,13 +480,13 @@ type dep struct {
 	Version string
 }
 
-func (pkg dep) install(t *testing.T, ex, dir string) {
+func (pkg dep) install(t *testing.T, ex, dir string, env []string) {
 	args := []string{ex, "add", "package", pkg.Name}
 	if pkg.Version != "" {
 		args = append(args, "--version", pkg.Version)
 	}
 	err := integration.RunCommand(t, "Add package",
-		args, dir, &integration.ProgramTestOptions{})
+		args, dir, &integration.ProgramTestOptions{Env: env})
 	require.NoError(t, err, "Failed to add dependency %q %q", pkg.Name, pkg.Version)
 }
 

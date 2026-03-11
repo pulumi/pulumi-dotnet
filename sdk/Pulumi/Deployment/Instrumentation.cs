@@ -59,7 +59,7 @@ namespace Pulumi
                 return;
             }
 
-            var otlpEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT");
+            var otlpEndpoint = Environment.GetEnvironmentVariable("PULUMI_OTEL_EXPORTER_OTLP_ENDPOINT");
 
             var builder = Sdk.CreateTracerProviderBuilder()
                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("pulumi-sdk-dotnet"))

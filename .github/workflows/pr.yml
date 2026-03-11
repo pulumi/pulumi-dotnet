@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
-        dotnet-version: ["8.0", "9.0", "10.0"]
+        dotnet-version: ["8.0", "9.0", "10.0.103"]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -147,7 +147,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: ["8.0", "9.0", "10.0"]
+        dotnet-version: ["8.0", "9.0", "10.0.103"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Fetch secrets from ESC
@@ -156,7 +156,10 @@ jobs:
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
       - name: Set TARGET_FRAMEWORK
         shell: bash
-        run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
+        run: |
+          # Extract major.minor for TARGET_FRAMEWORK (e.g. "10.0.103" → "net10.0")
+          major_minor=$(echo "${{ matrix.dotnet-version }}" | cut -d. -f1,2)
+          echo "TARGET_FRAMEWORK=net${major_minor}" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v6
         with:

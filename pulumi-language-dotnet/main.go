@@ -84,13 +84,19 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	logging.InitLogging(false, 0, false)
-	cmdutil.InitTracing("pulumi-language-dotnet", "pulumi-language-dotnet", tracing)
 
-	otelEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
-	if err := cmdutil.InitOtelTracing("pulumi-language-dotnet", otelEndpoint); err != nil {
-		logging.V(3).Infof("failed to initialize OTel tracing: %v", err)
+	// Use OTel when the CLI provides an OTLP endpoint; fall back to
+	// OpenTracing otherwise.  Only one system should be active to avoid
+	// duplicate spans.
+	otelEndpoint := os.Getenv("PULUMI_OTEL_EXPORTER_OTLP_ENDPOINT")
+	if otelEndpoint == "" {
+		cmdutil.InitTracing("pulumi-language-dotnet", "pulumi-language-dotnet", tracing)
+	} else {
+		if err := cmdutil.InitOtelTracing("pulumi-language-dotnet", otelEndpoint); err != nil {
+			logging.V(3).Infof("failed to initialize OTel tracing: %v", err)
+		}
+		defer cmdutil.CloseOtelTracing()
 	}
-	defer cmdutil.CloseOtelTracing()
 
 	// Optionally pluck out the engine so we can do logging, etc.
 	var engineAddress string
@@ -756,7 +762,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		env = append(env, "TRACEPARENT="+traceparent)
 	}
 	if host.otelEndpoint != "" {
-		env = append(env, "OTEL_EXPORTER_OTLP_ENDPOINT="+host.otelEndpoint)
+		env = append(env, "PULUMI_OTEL_EXPORTER_OTLP_ENDPOINT="+host.otelEndpoint)
 	}
 
 	cmd.Env = env

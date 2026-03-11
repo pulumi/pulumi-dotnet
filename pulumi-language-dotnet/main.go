@@ -564,7 +564,7 @@ func RunDotnetCommand(
 			// errors will trigger this.  So, the error message should look as nice as possible.
 			if status, stok := exiterr.Sys().(syscall.WaitStatus); stok {
 				return "", errors.Errorf(
-					"'dotnet %v' exited with non-zero exit code: %d", commandStr, status.ExitStatus())
+					"'dotnet %v' exited with non-zero exit code: %d; stderr: %v, infobuf: %v, errorBuf: %v", commandStr, status.ExitStatus(), string(exiterr.Stderr), infoBuffer.String(), errorBuffer.String())
 			}
 
 			return "", errors.Wrapf(exiterr, "'dotnet %v' exited unexpectedly", commandStr)

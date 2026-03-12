@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Extending Config class to support passing JsonSerializerOptions
+time: 2024-11-08T21:31:30+01:00
+custom:
+    PR: "370"

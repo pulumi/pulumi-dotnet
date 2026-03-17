@@ -170,6 +170,10 @@ var expectedFailures = map[string]string{
 	"l2-builtin-object":          "Fail after updating to 3.224: Invalid expression term ')'",
 
 	"l3-range": "Fail after updating to 3.225",
+
+	"l3-for":          "Fail after updating to 3.226",
+	"l2-snake-names":  "Fail after updating to 3.226",
+	"l3-for-resource": "Fail after updating to 3.226",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

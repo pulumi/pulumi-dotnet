@@ -137,7 +137,6 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-alias":          "aliases not recognized: expected 0 create operations but got 3",
 	"l2-resource-option-hide-diffs":     "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
 	"l2-resource-option-ignore-changes": "property path has @ prefix: expected 'value' but got '@value'",
-	"l1-builtin-project-root-main":      "testdata not yet generated for .NET",
 	"l2-keywords":                       "testdata not yet generated for .NET",
 	"l2-parallel-resources":             "testdata not yet generated for .NET",
 	"l2-parameterized-invoke": "dotnet build failed: " +

@@ -137,10 +137,9 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-alias":          "aliases not recognized: expected 0 create operations but got 3",
 	"l2-resource-option-hide-diffs":     "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
 	"l2-resource-option-ignore-changes": "property path has @ prefix: expected 'value' but got '@value'",
-	"l2-keywords":                       "testdata not yet generated for .NET",
-	"l2-parallel-resources":             "testdata not yet generated for .NET",
 	"l2-parameterized-invoke": "dotnet build failed: " +
 		"DoHelloWorld does not exist in namespace Pulumi.Subpackage",
+	"l2-parallel-resources":                        "testdata not yet generated for .NET",
 	"l2-parameterized-resource-twice":              "testdata not yet generated for .NET",
 	"l2-resource-option-replacement-trigger":       "not yet implemented",
 	"l2-resource-option-replace-with":              "not yet implemented",

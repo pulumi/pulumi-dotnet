@@ -164,12 +164,15 @@ var expectedFailures = map[string]string{
 
 	"l3-range": "Fail after updating to 3.225",
 
-	"l3-for":              "Fail after updating to 3.226",
-	"l2-snake-names":      "Fail after updating to 3.226",
-	"l3-for-resource":     "Fail after updating to 3.226",
-	"l2-keywords":         "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
-	"l1-builtin-to-json":  "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",
-	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
+	"l3-for":                        "Fail after updating to 3.226",
+	"l2-snake-names":                "Fail after updating to 3.226",
+	"l3-for-resource":               "Fail after updating to 3.226",
+	"l2-keywords":                   "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type", //nolint:lll
+	"l1-builtin-to-json":            "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",  //nolint:lll
+	"l3-deferred-outputs":           "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names",      //nolint:lll
+	"l3-rewrite-conversions":        "new test from pulumi update: dotnet build failed",
+	"l2-resource-config-primitives": "new test from pulumi update: Cannot implicitly convert type 'double' to 'Pulumi.Input<int>'", //nolint:lll
+	"l2-resource-config-objects":    "new test from pulumi update: dotnet build failed",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

@@ -168,10 +168,11 @@ var expectedFailures = map[string]string{
 
 	"l3-range": "Fail after updating to 3.225",
 
-	"l3-for":          "Fail after updating to 3.226",
-	"l2-snake-names":  "Fail after updating to 3.226",
-	"l3-for-resource": "Fail after updating to 3.226",
-	"l2-keywords":     "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
+	"l3-for":             "Fail after updating to 3.226",
+	"l2-snake-names":     "Fail after updating to 3.226",
+	"l3-for-resource":    "Fail after updating to 3.226",
+	"l2-keywords":        "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
+	"l1-builtin-to-json": "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

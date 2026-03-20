@@ -6,13 +6,19 @@ return await Deployment.RunAsync(() =>
 {
     var config = new Config();
     var aNumber = config.RequireDouble("aNumber");
+    var optionalNumber = config.GetDouble("optionalNumber") ?? 41;
     var aString = config.Require("aString");
+    var optionalString = config.Get("optionalString") ?? "defaultStringValue";
     var aBool = config.RequireBoolean("aBool");
+    var optionalBool = config.GetBoolean("optionalBool") ?? false;
     return new Dictionary<string, object?>
     {
         ["theNumber"] = aNumber + 1.25,
+        ["defaultNumber"] = optionalNumber + 1,
         ["theString"] = $"{aString} World",
+        ["defaultString"] = optionalString,
         ["theBool"] = !aBool && true,
+        ["defaultBool"] = optionalBool,
     };
 });
 

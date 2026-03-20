@@ -7,7 +7,7 @@ return await Deployment.RunAsync(() =>
 {
     var provider = new Pulumi.Providers.Unknown("provider");
 
-    var main = new Unknown.Index.Main("main", new()
+    var main = new Unknown.Main("main", new()
     {
         First = "hello",
         Second = 

@@ -5,7 +5,7 @@ using Unknown = Pulumi.Unknown;
 
 return await Deployment.RunAsync(() => 
 {
-    var data = Unknown.Index.GetData.Invoke(new()
+    var data = Unknown.GetData.Invoke(new()
     {
         Input = "hello",
     });

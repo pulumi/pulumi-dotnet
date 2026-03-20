@@ -171,6 +171,7 @@ var expectedFailures = map[string]string{
 	"l3-for":          "Fail after updating to 3.226",
 	"l2-snake-names":  "Fail after updating to 3.226",
 	"l3-for-resource": "Fail after updating to 3.226",
+	"l2-keywords":     "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

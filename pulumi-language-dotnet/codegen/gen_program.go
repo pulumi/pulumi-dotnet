@@ -1306,15 +1306,24 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 		}
 
 		switch name {
-		case "IgnoreChanges", "HideDiffs", "ReplaceOnChanges":
-			// IgnoreChanges, HideDiffs, and ReplaceOnChanges need to be special cased because
-			// new [] { "field" } cannot be implicitly casted to List<string>
-			// which is the type of IgnoreChanges, HideDiffs, and ReplaceOnChanges
+		case "IgnoreChanges", "HideDiffs", "ReplaceOnChanges", "AdditionalSecretOutputs":
+			// These options are List<string> in C#, so we use collection initializer syntax
+			// instead of array syntax (which can't be implicitly cast to List<string>).
+			// The entries are property paths resolved as ScopeTraversalExpressions referencing
+			// ResourceProperty definitions. We extract the raw path string to avoid C# keyword
+			// escaping (e.g. "value" must not become "@value").
 			if changes, isTuple := value.(*model.TupleConsExpression); isTuple {
 				g.Fgenf(&result, "\n%s%s =", g.Indent, name)
 				g.Fgenf(&result, "\n%s{", g.Indent)
 				g.Indented(func() {
 					for _, v := range changes.Expressions {
+						if traversal, ok := v.(*model.ScopeTraversalExpression); ok {
+							if prop, ok := traversal.Parts[len(traversal.Parts)-1].(*pcl.ResourceProperty); ok {
+								pathVal, _ := prop.Value(nil)
+								g.Fgenf(&result, "\n%s\"%s\",", g.Indent, pathVal.AsString())
+								continue
+							}
+						}
 						g.Fgenf(&result, "\n%s\"%.v\",", g.Indent, v)
 					}
 				})
@@ -1424,6 +1433,9 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 	}
 	if opts.DeleteBeforeReplace != nil {
 		appendOption("DeleteBeforeReplace", opts.DeleteBeforeReplace)
+	}
+	if opts.AdditionalSecretOutputs != nil {
+		appendOption("AdditionalSecretOutputs", opts.AdditionalSecretOutputs)
 	}
 	if opts.ReplacementTrigger != nil {
 		appendOption("ReplacementTrigger", opts.ReplacementTrigger)

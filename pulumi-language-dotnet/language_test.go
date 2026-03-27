@@ -174,6 +174,8 @@ var expectedFailures = map[string]string{
 	"l2-keywords":         "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
 	"l1-builtin-to-json":  "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",
 	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
+
+	"l2-resource-config-primitives": "dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

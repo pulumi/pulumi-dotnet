@@ -1293,6 +1293,29 @@ func (g *generator) makeResourceName(baseName, count string) string {
 	return fmt.Sprintf("$\"%s-{%s}\"", baseName, count)
 }
 
+// propertyPathString builds a raw property path string from an HCL traversal,
+// suitable for use in resource option lists like IgnoreChanges and ReplaceOnChanges.
+func propertyPathString(traversal hcl.Traversal) string {
+	var buf bytes.Buffer
+	for _, t := range traversal {
+		switch t := t.(type) {
+		case hcl.TraverseRoot:
+			buf.WriteString(t.Name)
+		case hcl.TraverseAttr:
+			fmt.Fprintf(&buf, ".%s", t.Name)
+		case hcl.TraverseIndex:
+			switch t.Key.Type() {
+			case cty.String:
+				fmt.Fprintf(&buf, "[%s]", t.Key.AsString())
+			case cty.Number:
+				idx, _ := t.Key.AsBigFloat().Int64()
+				fmt.Fprintf(&buf, "[%d]", idx)
+			}
+		}
+	}
+	return buf.String()
+}
+
 func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOptionsType string) string {
 	if opts == nil {
 		return ""
@@ -1315,7 +1338,13 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 				g.Fgenf(&result, "\n%s{", g.Indent)
 				g.Indented(func() {
 					for _, v := range changes.Expressions {
-						g.Fgenf(&result, "\n%s\"%.v\",", g.Indent, v)
+						// Property path strings must use the raw property name, not C#-escaped identifiers.
+						// For example, "value" (a C# contextual keyword) must remain "value", not "@value".
+						if st, ok := v.(*model.ScopeTraversalExpression); ok {
+							g.Fgenf(&result, "\n%s%q,", g.Indent, propertyPathString(st.Traversal))
+						} else {
+							g.Fgenf(&result, "\n%s\"%.v\",", g.Indent, v)
+						}
 					}
 				})
 				g.Fgenf(&result, "\n%s},", g.Indent)

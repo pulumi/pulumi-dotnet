@@ -179,8 +179,9 @@ namespace Pulumi.Experimental.Provider
             var required = new HashSet<string>();
 
             // Analyze both fields and properties
-            var members = type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
-                .Where(m => m is FieldInfo or PropertyInfo);
+            var members = type.GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                .Where(m => m is FieldInfo or PropertyInfo)
+                .Where(m => !IsPulumiBaseType(m.DeclaringType));
 
             foreach (var member in members)
             {
@@ -386,6 +387,14 @@ namespace Pulumi.Experimental.Provider
             }
 
             throw new ArgumentException($"Type '{type.FullName}' is not supported as a parameter type");
+        }
+
+        private static bool IsPulumiBaseType(Type? type)
+        {
+            return type == typeof(Resource)
+                || type == typeof(ComponentResource)
+                || type == typeof(CustomResource)
+                || type == typeof(ResourceArgs);
         }
 
         private static string GetTypeName(Type type)

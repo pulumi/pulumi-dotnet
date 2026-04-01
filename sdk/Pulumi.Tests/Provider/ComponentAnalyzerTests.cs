@@ -928,6 +928,41 @@ public class ComponentAnalyzerTests
         Assert.Equal(name, schema.Name);
     }
 
+    abstract class BaseComponentArgs : ResourceArgs
+    {
+        [Input("baseProp")]
+        public Input<string>? BaseProp { get; set; }
+    }
+
+    class DerivedComponentArgs : BaseComponentArgs
+    {
+        [Input("childProp")]
+        public Input<string>? ChildProp { get; set; }
+    }
+
+    class InheritedComponent : ComponentResource
+    {
+        [Output("result")]
+        public Output<string> Result { get; private set; } = null!;
+
+        public InheritedComponent(string name, DerivedComponentArgs args, ComponentResourceOptions? options = null)
+            : base("my-component:index:InheritedComponent", name, args, options)
+        {
+        }
+    }
+
+    [Fact]
+    public void TestInheritedInputProperties()
+    {
+        var schema = ComponentAnalyzer.GenerateSchema(_metadata, typeof(InheritedComponent));
+
+        var resource = schema.Resources["my-component:index:InheritedComponent"];
+
+        // Both base class and derived class input properties should be present
+        Assert.Contains("baseProp", resource.InputProperties.Keys);
+        Assert.Contains("childProp", resource.InputProperties.Keys);
+    }
+
     private readonly Metadata _metadata = new Metadata("my-component", "my-package", "0.0.1", "Test package");
 
     private static PackageSpec CreateBasePackageSpec(

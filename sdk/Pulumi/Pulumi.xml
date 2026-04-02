@@ -7239,6 +7239,48 @@
         <member name="T:Pulumirpc.RunPluginResponse.OutputOneofCase">
             <summary>Enum of possible cases for the "output" oneof.</summary>
         </member>
+        <member name="T:Pulumirpc.RunPlugin2Request">
+            <summary>
+            `RunPlugin2Request` is the type of requests streamed by a [](pulumirpc.LanguageRuntime.RunPlugin2) call.
+            The first message must contain a `start` request with the plugin configuration. Subsequent messages may contain
+            a `cancel` request to signal graceful shutdown of the plugin.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunPlugin2Request.StartFieldNumber">
+            <summary>Field number for the "start" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPlugin2Request.Start">
+            <summary>
+            The initial request to start the plugin.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunPlugin2Request.CancelFieldNumber">
+            <summary>Field number for the "cancel" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPlugin2Request.Cancel">
+            <summary>
+            A request to cancel the running plugin.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.RunPlugin2Request.RequestOneofCase">
+            <summary>Enum of possible cases for the "request" oneof.</summary>
+        </member>
+        <member name="T:Pulumirpc.RunPluginCancelRequest">
+            <summary>
+            `RunPluginCancelRequest` is sent on a [](pulumirpc.LanguageRuntime.RunPlugin2) stream to request shutdown of the
+            running plugin. By default (`force` = false), the plugin receives a graceful shutdown signal (e.g. SIGINT). If
+            `force` is true, the plugin is killed immediately (e.g. SIGKILL).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunPluginCancelRequest.ForceFieldNumber">
+            <summary>Field number for the "force" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunPluginCancelRequest.Force">
+            <summary>
+            If true, forcefully kill the plugin process immediately.
+            If false (default), send a graceful shutdown signal.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.GenerateProgramRequest">
             <summary>
             `GenerateProgramRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.GenerateProgram)
@@ -7764,6 +7806,18 @@
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.RunPlugin2(Grpc.Core.IAsyncStreamReader{Pulumirpc.RunPlugin2Request},Grpc.Core.IServerStreamWriter{Pulumirpc.RunPluginResponse},Grpc.Core.ServerCallContext)">
+            <summary>
+            `RunPlugin2` is a bidirectional streaming version of [](pulumirpc.LanguageRuntime.RunPlugin) that supports
+            in-band cancellation. The client sends an initial [](pulumirpc.RunPlugin2Request) with a `start` message
+            containing the plugin configuration, and can later send a `cancel` message to request graceful shutdown of
+            the plugin. The server streams [](pulumirpc.RunPluginResponse) messages as with `RunPlugin`.
+            </summary>
+            <param name="requestStream">Used for reading requests from the client.</param>
+            <param name="responseStream">Used for sending responses back to the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>A task indicating completion of the handler.</returns>
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
             <summary>
@@ -8501,6 +8555,28 @@
             user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RunPlugin2(Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `RunPlugin2` is a bidirectional streaming version of [](pulumirpc.LanguageRuntime.RunPlugin) that supports
+            in-band cancellation. The client sends an initial [](pulumirpc.RunPlugin2Request) with a `start` message
+            containing the plugin configuration, and can later send a `cancel` message to request graceful shutdown of
+            the plugin. The server streams [](pulumirpc.RunPluginResponse) messages as with `RunPlugin`.
+            </summary>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RunPlugin2(Grpc.Core.CallOptions)">
+            <summary>
+            `RunPlugin2` is a bidirectional streaming version of [](pulumirpc.LanguageRuntime.RunPlugin) that supports
+            in-band cancellation. The client sends an initial [](pulumirpc.RunPlugin2Request) with a `start` message
+            containing the plugin configuration, and can later send a `cancel` message to request graceful shutdown of
+            the plugin. The server streams [](pulumirpc.RunPluginResponse) messages as with `RunPlugin`.
+            </summary>
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>

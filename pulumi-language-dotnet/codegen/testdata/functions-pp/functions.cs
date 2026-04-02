@@ -62,14 +62,11 @@ return await Deployment.RunAsync(() =>
 
     var workingDirectory = Directory.GetCurrentDirectory();
 
-    var fileMimeType = "TODO: call mimeType";
-
     // using the filebase64 function
     var first = new Aws.S3.BucketObject("first", new()
     {
         Bucket = bucket.Id,
         Source = new StringAsset(ReadFileBase64("./base64.txt")),
-        ContentType = fileMimeType,
         Tags = 
         {
             { "stack", currentStack },

@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Fix GetResourceType() returning empty string for DependencyProviderResource
+time: 2026-04-03T16:48:26.508728+02:00
+custom:
+    PR: "922"

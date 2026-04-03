@@ -1315,6 +1315,18 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 				g.Fgenf(&result, "\n%s{", g.Indent)
 				g.Indented(func() {
 					for _, v := range changes.Expressions {
+						// Property paths are Pulumi engine strings, not C# identifiers.
+						// Evaluate the expression to get the raw path instead of going
+						// through identifier escaping (which would prefix keywords like
+						// "value" with "@").
+						if expr, ok := v.(*model.ScopeTraversalExpression); ok {
+							val, diags := expr.Evaluate(nil)
+							if !diags.HasErrors() && val.Type() == cty.String {
+								escaped := strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(val.AsString())
+								g.Fgenf(&result, "\n%s\"%s\",", g.Indent, escaped)
+								continue
+							}
+						}
 						g.Fgenf(&result, "\n%s\"%.v\",", g.Indent, v)
 					}
 				})

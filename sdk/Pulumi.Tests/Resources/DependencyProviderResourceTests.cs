@@ -12,5 +12,12 @@ namespace Pulumi.Tests.Resources
             var res = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:aws::default_4_13_0");
             Assert.Equal("aws", res.Package);
         }
+
+        [Fact]
+        public void GetResourceType()
+        {
+            var res = new DependencyProviderResource("urn:pulumi:stack::project::pulumi:providers:aws::default_4_13_0");
+            Assert.Equal("pulumi:providers:aws", res.GetResourceType());
+        }
     }
 }

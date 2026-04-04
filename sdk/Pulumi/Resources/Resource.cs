@@ -132,8 +132,8 @@ namespace Pulumi
         {
             if (dependency)
             {
-                _type = "";
-                _name = "";
+                _type = type;
+                _name = name;
                 _protect = false;
                 _providers = ImmutableDictionary<string, ProviderResource>.Empty;
                 CompletionSources = ImmutableDictionary<string, IOutputCompletionSource>.Empty;

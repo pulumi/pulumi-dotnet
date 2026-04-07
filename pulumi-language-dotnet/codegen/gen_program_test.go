@@ -224,6 +224,57 @@ func TestGenerateProgramWithReplacementTrigger(t *testing.T) {
 	require.Contains(t, programText, "Output.CreateSecret", "generated code should contain secret replacement trigger")
 }
 
+// Tests that resources in the "index" module do not include "Index" in the generated C# namespace.
+// A token like "mypkg:index/customRole:CustomRole" should generate "Mypkg.CustomRole", not "Mypkg.Index.CustomRole".
+func TestGenerateProgramIndexModuleNotIncludedInNamespace(t *testing.T) {
+	t.Parallel()
+
+	// Use an inline schema so this test has no external dependencies.
+	source := `
+resource "my-role" "mypkg:index/customRole:CustomRole" {
+    displayName = "My Custom Role"
+}
+`
+	parser := syntax.NewParser()
+	err := parser.ParseFile(strings.NewReader(source), "main.pp")
+	require.NoError(t, err)
+	require.False(t, parser.Diagnostics.HasErrors(), "unexpected parse diagnostics: %v", parser.Diagnostics)
+
+	loader := &inlineLoader{
+		schemas: map[string]schema.PackageSpec{
+			"mypkg": {
+				Name:    "mypkg",
+				Version: "1.0.0",
+				Resources: map[string]schema.ResourceSpec{
+					"mypkg:index/customRole:CustomRole": {
+						ObjectTypeSpec: schema.ObjectTypeSpec{
+							Type: "object",
+						},
+						InputProperties: map[string]schema.PropertySpec{
+							"displayName": {TypeSpec: schema.TypeSpec{Type: "string"}},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	program, diags, err := pcl.BindProgram(parser.Files, pcl.Loader(loader))
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "unexpected bind diagnostics: %v", diags)
+
+	files, diags, err := GenerateProgram(program)
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "unexpected gen diagnostics: %v", diags)
+
+	programFile, ok := files["Program.cs"]
+	require.True(t, ok, "Program.cs should be generated")
+	programText := string(programFile)
+
+	require.NotContains(t, programText, ".Index.", "index module should not appear in generated C# namespace")
+	require.Contains(t, programText, "new Mypkg.CustomRole", "resource in index module should use root package namespace")
+}
+
 // We have to invent an inline loader to produce an import that will cause a namespace collision.
 // In this case, that collision is between `Pulumi.Output` and `Output` in `Pulumi`.
 func bindProgramWithNamespaceCollision(t *testing.T) *pcl.Program {

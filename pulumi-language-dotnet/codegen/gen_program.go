@@ -1118,7 +1118,7 @@ func (g *generator) qualifiedTypeName(pkg, module, member string) (string, strin
 	rootNamespace := namespaceName(namespaces, pkg)
 
 	namespace := namespaceName(namespaces, module)
-	if strings.ToLower(namespace) == "index" {
+	if strings.HasPrefix(strings.ToLower(module), "index") {
 		namespace = ""
 	}
 	namespaceTokens := strings.Split(namespace, "/")
@@ -1187,7 +1187,7 @@ func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
 	namespaces := g.namespaces[pkg]
 	rootNamespace := namespaceName(namespaces, pkg)
 	namespace := namespaceName(namespaces, module)
-	if strings.ToLower(namespace) == "index" {
+	if strings.HasPrefix(strings.ToLower(module), "index") {
 		namespace = ""
 	}
 	if g.compatibilities[pkg] == "kubernetes20" && module != "" {

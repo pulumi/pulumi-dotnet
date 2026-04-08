@@ -1269,7 +1269,13 @@ func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExp
 			// because list of a union is mapped to InputList<object>
 			// which means new[] will not work because type-inference won't
 			// know the type of the array beforehand
-			g.Fgenf(w, "%s", g.listInitializer)
+			if g.allElementsAreNull(expr) {
+				// When all elements are null, C# cannot infer the array element type
+				// from `new[] { null }`, so we must use an explicit type annotation.
+				g.Fgenf(w, "new object?[]")
+			} else {
+				g.Fgenf(w, "%s", g.listInitializer)
+			}
 		}
 
 		g.Fgenf(w, "\n%s{", g.Indent)
@@ -1281,6 +1287,24 @@ func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExp
 		})
 		g.Fgenf(w, "\n%s}", g.Indent)
 	}
+}
+
+// allElementsAreNull returns true if every expression in the tuple is a null literal.
+func (g *generator) allElementsAreNull(expr *model.TupleConsExpression) bool {
+	for _, e := range expr.Expressions {
+		lit, ok := e.(*model.LiteralValueExpression)
+		if !ok {
+			return false
+		}
+		typ := lit.Type()
+		if cns, ok := typ.(*model.ConstType); ok {
+			typ = cns.Type
+		}
+		if typ != model.NoneType {
+			return false
+		}
+	}
+	return true
 }
 
 func (g *generator) GenUnaryOpExpression(w io.Writer, expr *model.UnaryOpExpression) {

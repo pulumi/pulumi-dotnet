@@ -597,6 +597,22 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 		g.Fgenf(w, "NotImplemented(%v)", expr.Args[0])
 	case "singleOrNone":
 		g.Fgenf(w, "Enumerable.Single(%v)", expr.Args[0])
+	case pcl.Call:
+		self := expr.Args[0]
+		method := expr.Args[1].(*model.TemplateExpression).Parts[0].(*model.LiteralValueExpression).Value.AsString()
+		validMethod := propertyName(method)
+
+		g.Fgenf(w, "%v.%s(", self, validMethod)
+		if g.methodSchemaHasArgs(self, method) {
+			if converted, objectArgs, _ := pcl.RecognizeTypedObjectCons(expr.Args[2]); converted {
+				g.genObjectConsExpressionWithTypeName(w, objectArgs, "Irrelevant", true, nil)
+			} else if objectArgs, ok := expr.Args[2].(*model.ObjectConsExpression); ok {
+				g.genObjectConsExpressionWithTypeName(w, objectArgs, "Irrelevant", true, nil)
+			} else {
+				g.Fgenf(w, "%v", expr.Args[2])
+			}
+		}
+		g.Fprint(w, ")")
 	case pcl.Invoke:
 		_, fullFunctionName := g.functionName(expr.Args[0])
 		functionParts := strings.Split(fullFunctionName, ".")
@@ -1070,6 +1086,37 @@ func (g *generator) withinFunctionInvoke(run func()) {
 		run()
 		g.insideFunctionInvoke = false
 	}
+}
+
+// methodSchemaHasArgs returns true if the method accepts arguments other than __self__.
+// If schema metadata is unavailable, this conservatively returns true.
+func (g *generator) methodSchemaHasArgs(self model.Expression, methodName string) bool {
+	objectType, ok := self.Type().(*model.ObjectType)
+	if !ok {
+		return true
+	}
+
+	annotation, ok := model.GetObjectTypeAnnotation[*pcl.ResourceAnnotation](objectType)
+	if !ok || annotation == nil || annotation.Node == nil || annotation.Node.Schema == nil {
+		return true
+	}
+
+	for _, method := range annotation.Node.Schema.Methods {
+		if method.Name != methodName {
+			continue
+		}
+		if method.Function.Inputs == nil {
+			return false
+		}
+		for _, property := range method.Function.Inputs.Properties {
+			if property.Name != "__self__" {
+				return true
+			}
+		}
+		return false
+	}
+
+	return true
 }
 
 func (g *generator) isDeferredOutputVariable(expr *model.ScopeTraversalExpression) bool {

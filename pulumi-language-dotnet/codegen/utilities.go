@@ -191,15 +191,22 @@ func LowerCamelCase(s string) string {
 
 func extractNugetPackageNameAndVersion(nugetFilePath string) (string, string, bool) {
 	filename := filepath.Base(nugetFilePath)
-	parts := strings.Split(filename, ".")
-	if len(parts) >= 5 {
-		patch := parts[len(parts)-2]
-		minor := parts[len(parts)-3]
-		major := parts[len(parts)-4]
-		version := fmt.Sprintf("%s.%s.%s", major, minor, patch)
-		pkg := strings.TrimSuffix(filename, fmt.Sprintf(".%s.nupkg", version))
-		return pkg, version, true
+	// NuGet package filenames are "{PackageId}.{Version}.nupkg" where the version
+	// is a SemVer string starting with a digit. The package ID segments always start
+	// with a letter, so we find the first dot-separated segment starting with a digit
+	// to split the package name from the version.
+	withoutExt := strings.TrimSuffix(filename, ".nupkg")
+	parts := strings.Split(withoutExt, ".")
+	for i, part := range parts {
+		if len(part) > 0 && part[0] >= '0' && part[0] <= '9' {
+			if i == 0 {
+				// No package name before the version
+				return "", "", false
+			}
+			pkg := strings.Join(parts[:i], ".")
+			version := strings.Join(parts[i:], ".")
+			return pkg, version, true
+		}
 	}
-
 	return "", "", false
 }

@@ -104,9 +104,7 @@ var expectedFailures = map[string]string{
 	"l2-resource-provider-inheritance":      "No best type found for implicitly-typed array",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
-	"l2-resource-config": "sdk packing for config: build error before pack",
-	"l2-resource-alpha": "" +
-		"wrong package reference Include=Pulumi.Alpha.3.0 Version=0-alpha.1.internal",
+	"l2-resource-config":                    "sdk packing for config: build error before pack",
 	"l1-output-null":                        "dotnet build failed",
 	"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
 	"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
@@ -135,7 +133,6 @@ var expectedFailures = map[string]string{
 	"l2-resource-option-hide-diffs": "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
 	"l2-parameterized-invoke": "dotnet build failed: " +
 		"DoHelloWorld does not exist in namespace Pulumi.Subpackage",
-	"l2-parallel-resources":                        "testdata not yet generated for .NET",
 	"l2-parameterized-resource-twice":              "testdata not yet generated for .NET",
 	"l2-resource-option-replacement-trigger":       "not yet implemented",
 	"l2-resource-option-replace-with":              "not yet implemented",

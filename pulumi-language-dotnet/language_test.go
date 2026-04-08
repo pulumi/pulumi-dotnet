@@ -103,7 +103,6 @@ var expectedFailures = map[string]string{
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config":                    "sdk packing for config: build error before pack",
-	"l1-output-null":                        "dotnet build failed",
 	"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
 	"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
 	"l2-resource-primitives":                "Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",

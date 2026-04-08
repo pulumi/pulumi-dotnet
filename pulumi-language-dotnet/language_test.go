@@ -100,7 +100,6 @@ var expectedFailures = map[string]string{
 	"l1-builtin-stash":                      "testdata not yet generated for .NET",
 	"l1-keyword-overlap":                    "#493 update to pulumi 1.50 conformance failure",
 	"l1-proxy-index":                        "dotnet build failed",
-	"l2-component-call-simple":              "#491 update to pulumi 1.50 conformance failure",
 	"l2-resource-option-replace-on-changes": "not yet implemented",
 	"l2-resource-provider-inheritance":      "No best type found for implicitly-typed array",
 	"l2-resource-asset-archive": "" +
@@ -114,8 +113,6 @@ var expectedFailures = map[string]string{
 	"l1-stack-reference":                    "TODO: call getOutput",
 	"l2-resource-primitives":                "Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",
 	"l2-failed-create-continue-on-error":    "build error before pack: exit status 1",
-	"l2-provider-call":                      "invalid token",
-	"l2-provider-call-explicit":             "invalid token",
 	"l2-provider-grpc-config":               "dotnet build failed",
 	"l2-provider-grpc-config-secret":        "dotnet build failed",
 	"l2-provider-grpc-config-schema":        "dotnet build failed",

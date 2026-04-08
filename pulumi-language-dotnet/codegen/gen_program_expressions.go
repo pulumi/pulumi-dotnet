@@ -605,9 +605,9 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 		g.Fgenf(w, "%v.%s(", self, validMethod)
 		if g.methodSchemaHasArgs(self, method) {
 			if converted, objectArgs, _ := pcl.RecognizeTypedObjectCons(expr.Args[2]); converted {
-				g.genObjectConsExpressionWithTypeName(w, objectArgs, "" /* unused */, true, nil)
+				g.genObjectConsExpressionWithTypeName(w, objectArgs, "Irrelevant", true, nil)
 			} else if objectArgs, ok := expr.Args[2].(*model.ObjectConsExpression); ok {
-				g.genObjectConsExpressionWithTypeName(w, objectArgs, "" /* unused */, true, nil)
+				g.genObjectConsExpressionWithTypeName(w, objectArgs, "Irrelevant", true, nil)
 			} else {
 				g.Fgenf(w, "%v", expr.Args[2])
 			}
@@ -647,7 +647,8 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 			switch arg := expr.Args[1].(type) {
 			case *model.ObjectConsExpression:
 				useImplicitTypeName := true
-				g.genObjectConsExpressionWithTypeName(w, arg, "" /* unused */, useImplicitTypeName,
+				destTypeName := "Irrelevant"
+				g.genObjectConsExpressionWithTypeName(w, arg, destTypeName, useImplicitTypeName,
 					pcl.SortedFunctionParameters(expr))
 			default:
 				g.genIntrensic(w, expr.Args[0], expr.Signature.ReturnType)

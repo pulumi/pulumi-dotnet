@@ -16,9 +16,6 @@ return await Deployment.RunAsync(() =>
     var withV26 = new Simple.Resource("withV26", new()
     {
         Value = false,
-    }, new CustomResourceOptions
-    {
-        Version = "26.0.0",
     });
 
     var withDefault = new Simple.Resource("withDefault", new()

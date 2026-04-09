@@ -10,6 +10,9 @@ return await Deployment.RunAsync(() =>
     var withV2 = new Simple.Resource("withV2", new()
     {
         Value = true,
+    }, new CustomResourceOptions
+    {
+        Version = "2.0.0",
     });
 
 });

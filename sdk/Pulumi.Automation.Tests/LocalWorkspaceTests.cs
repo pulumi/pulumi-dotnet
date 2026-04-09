@@ -737,6 +737,59 @@ namespace Pulumi.Automation.Tests
         }
 
         [Fact]
+        public async Task InlineProgramRunProgramRefreshAndDestroyUseAutomationClient()
+        {
+            var program = PulumiFn.Create(() => { });
+            Assert.IsType<PulumiFnInline>(program);
+
+            var projectName = "inline_dotnet_run_program";
+            var stackName = $"{RandomStackName()}";
+            var missingProjectDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(missingProjectDir);
+
+            try
+            {
+                var args = new InlineProgramArgs(projectName, stackName, program)
+                {
+                    EnvironmentVariables = new Dictionary<string, string?>
+                    {
+                        ["PULUMI_CONFIG_PASSPHRASE"] = "test",
+                    }
+                };
+                args.ProjectSettings!.Main = missingProjectDir;
+
+                using var stack = await LocalWorkspace.CreateStackAsync(args);
+                try
+                {
+                    var upResult = await stack.UpAsync();
+                    Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
+
+                    var refreshResult = await stack.RefreshAsync(new RefreshOptions
+                    {
+                        RunProgram = true,
+                    });
+                    Assert.Equal(UpdateKind.Refresh, refreshResult.Summary.Kind);
+                    Assert.Equal(UpdateState.Succeeded, refreshResult.Summary.Result);
+
+                    var destroyResult = await stack.DestroyAsync(new DestroyOptions
+                    {
+                        RunProgram = true,
+                    });
+                    Assert.Equal(UpdateKind.Destroy, destroyResult.Summary.Kind);
+                    Assert.Equal(UpdateState.Succeeded, destroyResult.Summary.Result);
+                }
+                finally
+                {
+                    await stack.Workspace.RemoveStackAsync(stackName);
+                }
+            }
+            finally
+            {
+                Directory.Delete(missingProjectDir, true);
+            }
+        }
+
+        [Fact]
         public async Task PreviewDestroy()
         {
             var program = PulumiFn.Create(() => { });

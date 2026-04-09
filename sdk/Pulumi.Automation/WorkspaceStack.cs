@@ -628,15 +628,37 @@ namespace Pulumi.Automation
             args.Add("--exec-kind");
             args.Add(execKind);
 
-            var result = await this.RunCommandAsync(args, options?.OnStandardOutput, options?.OnStandardError, options?.OnEvent, cancellationToken).ConfigureAwait(false);
-            // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
-            // load the project file.
-            var showSecrets = Remote ? false : options?.ShowSecrets;
-            var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
-            return new UpdateResult(
-                result.StandardOutput,
-                result.StandardError,
-                summary!);
+            var program = this.Workspace.Program;
+            var logger = this.Workspace.Logger;
+            InlineLanguageHost? inlineHost = null;
+
+            try
+            {
+                if (options?.RunProgram is true && program != null)
+                {
+                    inlineHost = new InlineLanguageHost(program, logger, cancellationToken);
+                    await inlineHost.StartAsync().ConfigureAwait(false);
+                    var port = await inlineHost.GetPortAsync().ConfigureAwait(false);
+                    args.Add($"--client=127.0.0.1:{port}");
+                }
+
+                var result = await this.RunCommandAsync(args, options?.OnStandardOutput, options?.OnStandardError, options?.OnEvent, cancellationToken).ConfigureAwait(false);
+                // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
+                // load the project file.
+                var showSecrets = Remote ? false : options?.ShowSecrets;
+                var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
+                return new UpdateResult(
+                    result.StandardOutput,
+                    result.StandardError,
+                    summary!);
+            }
+            finally
+            {
+                if (inlineHost != null)
+                {
+                    await inlineHost.DisposeAsync().ConfigureAwait(false);
+                }
+            }
         }
 
         /// <summary>
@@ -695,15 +717,38 @@ namespace Pulumi.Automation
             args.Add("--exec-kind");
             args.Add(execKind);
 
-            var result = await this.RunCommandAsync(args, options?.OnStandardOutput, options?.OnStandardError, options?.OnEvent, cancellationToken).ConfigureAwait(false);
-            // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
-            // load the project file.
-            var showSecrets = Remote ? false : options?.ShowSecrets;
-            var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
-            return new UpdateResult(
-                result.StandardOutput,
-                result.StandardError,
-                summary!);
+            var program = this.Workspace.Program;
+            var logger = this.Workspace.Logger;
+            InlineLanguageHost? inlineHost = null;
+
+            try
+            {
+                if (options?.RunProgram is true && program != null)
+                {
+                    execKind = ExecKind.Inline;
+                    inlineHost = new InlineLanguageHost(program, logger, cancellationToken);
+                    await inlineHost.StartAsync().ConfigureAwait(false);
+                    var port = await inlineHost.GetPortAsync().ConfigureAwait(false);
+                    args.Add($"--client=127.0.0.1:{port}");
+                }
+
+                var result = await this.RunCommandAsync(args, options?.OnStandardOutput, options?.OnStandardError, options?.OnEvent, cancellationToken).ConfigureAwait(false);
+                // If it's a remote workspace, explicitly set showSecrets to false to prevent attempting to
+                // load the project file.
+                var showSecrets = Remote ? false : options?.ShowSecrets;
+                var summary = await this.GetInfoAsync(showSecrets, cancellationToken).ConfigureAwait(false);
+                return new UpdateResult(
+                    result.StandardOutput,
+                    result.StandardError,
+                    summary!);
+            }
+            finally
+            {
+                if (inlineHost != null)
+                {
+                    await inlineHost.DisposeAsync().ConfigureAwait(false);
+                }
+            }
         }
 
         /// <summary>

@@ -45,7 +45,7 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Setup mise and install tools
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.3
       - name: Run `make format_check`
         run: make format_check
 
@@ -59,7 +59,7 @@ jobs:
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.3
       - name: Run `make lint_language_host`
         run: make lint_language_host GOLANGCI_LINT_ARGS=--output.text.path=stdout
       - name: Run `make lint_integration_tests`
@@ -75,7 +75,7 @@ jobs:
         uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.3
       - name: Check if folder is empty
         id: folder_check
         run: |
@@ -165,7 +165,7 @@ jobs:
         with:
           submodules: recursive
       - name: Setup mise and install tools
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.3
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Create global.json
@@ -218,7 +218,7 @@ jobs:
         with:
           submodules: recursive
       - name: Setup mise and install tools
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.3
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
@@ -249,7 +249,7 @@ jobs:
         with:
           submodules: recursive
       - name: Setup mise and install tools
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.3
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
@@ -274,7 +274,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Setup mise and install tools
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.3
       - name: Get version info
         id: version
         run: |

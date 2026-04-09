@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/hashicorp/hcl/v2"
@@ -1306,7 +1307,7 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 		}
 
 		switch name {
-		case "IgnoreChanges", "HideDiffs", "ReplaceOnChanges":
+		case "IgnoreChanges", "HideDiffs", "ReplaceOnChanges", "AdditionalSecretOutputs":
 			// IgnoreChanges, HideDiffs, and ReplaceOnChanges need to be special cased because
 			// new [] { "field" } cannot be implicitly casted to List<string>
 			// which is the type of IgnoreChanges, HideDiffs, and ReplaceOnChanges
@@ -1342,6 +1343,28 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 				} else {
 					g.Fgenf(&result, "\n%s%s = %v,", g.Indent, name, g.lowerExpression(value, value.Type()))
 				}
+			} else {
+				g.Fgenf(&result, "\n%s%s = %v,", g.Indent, name, g.lowerExpression(value, value.Type()))
+			}
+		case "CustomTimeouts":
+			// CustomTimeouts is an object with optional create, update, delete string fields
+			// containing Go-style durations. We generate:
+			//   new CustomTimeouts { Create = System.TimeSpan.FromSeconds(300), ... }
+			if obj, isObj := value.(*model.ObjectConsExpression); isObj {
+				g.Fgenf(&result, "\n%sCustomTimeouts = new CustomTimeouts", g.Indent)
+				g.Fgenf(&result, "\n%s{", g.Indent)
+				g.Indented(func() {
+					for _, item := range obj.Items {
+						keyStr := extractStringValue(item.Key)
+						valStr := extractStringValue(item.Value)
+						dur, err := time.ParseDuration(valStr)
+						contract.AssertNoErrorf(err, "failed to parse duration %q", valStr)
+						propName := Title(keyStr)
+						totalSeconds := dur.Seconds()
+						g.Fgenf(&result, "\n%s%s = System.TimeSpan.FromSeconds(%v),", g.Indent, propName, totalSeconds)
+					}
+				})
+				g.Fgenf(&result, "\n%s},", g.Indent)
 			} else {
 				g.Fgenf(&result, "\n%s%s = %v,", g.Indent, name, g.lowerExpression(value, value.Type()))
 			}
@@ -1440,6 +1463,18 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 	if opts.ReplacementTrigger != nil {
 		appendOption("ReplacementTrigger", opts.ReplacementTrigger)
 	}
+	if opts.AdditionalSecretOutputs != nil {
+		appendOption("AdditionalSecretOutputs", opts.AdditionalSecretOutputs)
+	}
+	if opts.Version != nil {
+		appendOption("Version", opts.Version)
+	}
+	if opts.PluginDownloadURL != nil {
+		appendOption("PluginDownloadURL", opts.PluginDownloadURL)
+	}
+	if opts.CustomTimeouts != nil {
+		appendOption("CustomTimeouts", opts.CustomTimeouts)
+	}
 	if opts.EnvVarMappings != nil {
 		appendOption("EnvVarMappings", opts.EnvVarMappings)
 	}
@@ -1451,6 +1486,24 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 	}
 
 	return result.String()
+}
+
+// extractStringValue extracts a string from a model expression that is either a
+// LiteralValueExpression or a TemplateExpression containing a single literal part.
+func extractStringValue(expr model.Expression) string {
+	switch e := expr.(type) {
+	case *model.LiteralValueExpression:
+		return e.Value.AsString()
+	case *model.TemplateExpression:
+		if len(e.Parts) == 1 {
+			if lit, ok := e.Parts[0].(*model.LiteralValueExpression); ok {
+				return lit.Value.AsString()
+			}
+		}
+	}
+	val, diags := expr.Evaluate(nil)
+	contract.Assertf(!diags.HasErrors(), "failed to evaluate expression to string: %v", diags)
+	return val.AsString()
 }
 
 func AnnotateComponentInputs(component *pcl.Component) {

@@ -1,0 +1,6 @@
+kind: bug-fixes
+body: Add missing `System` namespace import for `sha1` builtin, fixing `BitConverter` not found error
+time: 2026-04-10T00:00:00Z
+custom:
+  PR: "961"
+component: runtime

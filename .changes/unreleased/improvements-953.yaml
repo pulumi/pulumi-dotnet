@@ -1,0 +1,6 @@
+kind: Improvements
+body: Add codegen support for AdditionalSecretOutputs, Version, and PluginDownloadURL resource options
+time: 2026-04-09T00:00:00Z
+custom:
+  PR: "953"
+component: runtime

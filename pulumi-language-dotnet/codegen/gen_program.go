@@ -1293,7 +1293,9 @@ func (g *generator) makeResourceName(baseName, count string) string {
 	return fmt.Sprintf("$\"%s-{%s}\"", baseName, count)
 }
 
-func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOptionsType string) string {
+func (g *generator) genResourceOptions(
+	opts *pcl.ResourceOptions, resourceOptionsType string, resourceSchema *schema.Resource,
+) string {
 	if opts == nil {
 		return ""
 	}
@@ -1306,7 +1308,7 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 		}
 
 		switch name {
-		case "IgnoreChanges", "HideDiffs", "ReplaceOnChanges":
+		case "IgnoreChanges", "HideDiffs", "ReplaceOnChanges", "AdditionalSecretOutputs":
 			// IgnoreChanges, HideDiffs, and ReplaceOnChanges need to be special cased because
 			// new [] { "field" } cannot be implicitly casted to List<string>
 			// which is the type of IgnoreChanges, HideDiffs, and ReplaceOnChanges
@@ -1439,6 +1441,15 @@ func (g *generator) genResourceOptions(opts *pcl.ResourceOptions, resourceOption
 	}
 	if opts.ReplacementTrigger != nil {
 		appendOption("ReplacementTrigger", opts.ReplacementTrigger)
+	}
+	if opts.AdditionalSecretOutputs != nil {
+		appendOption("AdditionalSecretOutputs", opts.AdditionalSecretOutputs)
+	}
+	if opts.Version != nil && pcl.NeedsVersionResourceOption(opts.Version, resourceSchema) {
+		appendOption("Version", opts.Version)
+	}
+	if opts.PluginDownloadURL != nil && pcl.NeedsPluginDownloadURLResourceOption(opts.PluginDownloadURL, resourceSchema) {
+		appendOption("PluginDownloadURL", opts.PluginDownloadURL)
 	}
 	if opts.EnvVarMappings != nil {
 		appendOption("EnvVarMappings", opts.EnvVarMappings)
@@ -1591,7 +1602,7 @@ func (g *generator) genResource(w io.Writer, r *pcl.Resource) {
 				resourceOptionsType = "ComponentResourceOptions"
 			}
 
-			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, resourceOptionsType))
+			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, resourceOptionsType, r.Schema))
 		}
 	}
 
@@ -1680,7 +1691,7 @@ func (g *generator) genComponent(w io.Writer, r *pcl.Component) {
 			g.Fgenf(w, "new %s(%s%s)",
 				qualifiedMemberName,
 				resName,
-				g.genResourceOptions(r.Options, "ComponentResourceOptions"))
+				g.genResourceOptions(r.Options, "ComponentResourceOptions", nil))
 
 			return
 		}
@@ -1703,7 +1714,7 @@ func (g *generator) genComponent(w io.Writer, r *pcl.Component) {
 					g.Fgenf(w, " %.v,\n", value)
 				}
 			})
-			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, "ComponentResourceOptions"))
+			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, "ComponentResourceOptions", nil))
 		}
 	}
 

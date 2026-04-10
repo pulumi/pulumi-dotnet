@@ -1244,9 +1244,19 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 
 	destination := filepath.Join(req.DestinationDirectory, filepath.Base(projectFile))
 
+	// Pack into a temporary directory first so that the Walk below only finds the nupkg
+	// from this specific pack operation. Without this, multiple versions of the same
+	// package (e.g. Pulumi.Simple 2.0.0 and 27.0.0) would all output to the same
+	// destination directory, and the Walk would pick the wrong nupkg.
+	packDir, err := os.MkdirTemp("", "dotnet-pack-*")
+	if err != nil {
+		return nil, fmt.Errorf("create temp pack dir: %w", err)
+	}
+	defer os.RemoveAll(packDir)
+
 	cmd := exec.CommandContext( //nolint:gosec // intentionally running dynamic program name.
 		ctx,
-		opts.dotnetExec, "pack", "-c", "Release", "-o", destination, "-p:IncludeSource", "-p:SymbolPackageFormat=snupkg")
+		opts.dotnetExec, "pack", "-c", "Release", "-o", packDir, "-p:IncludeSource", "-p:SymbolPackageFormat=snupkg")
 	cmd.Dir = req.PackageDirectory
 
 	output, err := cmd.CombinedOutput()
@@ -1254,8 +1264,9 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 		return nil, fmt.Errorf("failed to pack: %w. Dotnet pack output:\n%s", err, string(output))
 	}
 
+	// Find the nupkg in the temp directory, then move it to the real destination.
 	var nugetFilePath string
-	err = filepath.Walk(destination, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(packDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -1269,8 +1280,21 @@ func (host *dotnetLanguageHost) Pack(ctx context.Context, req *pulumirpc.PackReq
 		return nil, fmt.Errorf("couldn't find packed nuget: %w", err)
 	}
 
+	// Copy the nupkg to the destination directory so it's available as a NuGet restore source.
+	if err := os.MkdirAll(destination, 0o755); err != nil {
+		return nil, fmt.Errorf("create destination dir: %w", err)
+	}
+	finalPath := filepath.Join(destination, filepath.Base(nugetFilePath))
+	data, err := os.ReadFile(nugetFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("read packed nupkg: %w", err)
+	}
+	if err := os.WriteFile(finalPath, data, 0o600); err != nil {
+		return nil, fmt.Errorf("write nupkg to destination: %w", err)
+	}
+
 	return &pulumirpc.PackResponse{
-		ArtifactPath: nugetFilePath,
+		ArtifactPath: finalPath,
 	}, nil
 }
 

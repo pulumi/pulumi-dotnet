@@ -5,14 +5,22 @@ using Simple = Pulumi.Simple;
 
 return await Deployment.RunAsync(() => 
 {
-    // Check that withV2 is generated against the v2 SDK and not against the V26 SDK,
-    // and that the version resource option is elided.
     var withV2 = new Simple.Resource("withV2", new()
     {
         Value = true,
     }, new CustomResourceOptions
     {
         Version = "2.0.0",
+    });
+
+    var withV26 = new Simple.Resource("withV26", new()
+    {
+        Value = false,
+    });
+
+    var withDefault = new Simple.Resource("withDefault", new()
+    {
+        Value = true,
     });
 
 });

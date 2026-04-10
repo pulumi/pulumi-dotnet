@@ -55,6 +55,7 @@ namespace Pulumi
         /// <summary>
         /// The value to store in the stash resource.
         /// </summary>
+        [Input("input", required: true)]
         public Input<object> Input { get; set; } = null!;
     }
 }

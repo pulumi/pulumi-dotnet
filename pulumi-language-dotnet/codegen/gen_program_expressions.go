@@ -338,7 +338,7 @@ var functionNamespaces = map[string][]string{
 	"toJSON":           {"System.Text.Json", "System.Collections.Generic"},
 	"toBase64":         {"System"},
 	"fromBase64":       {"System"},
-	"sha1":             {"System.Security.Cryptography", "System.Text"},
+	"sha1":             {"System", "System.Security.Cryptography", "System.Text"},
 	"singleOrNone":     {"System.Linq"},
 }
 

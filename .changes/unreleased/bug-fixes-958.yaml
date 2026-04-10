@@ -1,0 +1,6 @@
+kind: bug-fixes
+body: Fix `ResourceTransforms` being silently dropped when `CustomResourceOptions.Merge` is called (affects all generated SDK resources using the `MakeResourceOptions` pattern)
+time: 2026-04-10T00:00:00Z
+custom:
+  PR: "958"
+component: sdk

@@ -1,5 +1,8 @@
 // Copyright 2016-2022, Pulumi Corporation
 
+using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using System.Collections.Generic;
 
@@ -7,6 +10,85 @@ namespace Pulumi.Tests.Resources
 {
     public class MergeResourceOptionsTests
     {
+        // Regression test for https://github.com/pulumi/pulumi-dotnet/issues/957
+        // ResourceTransforms must survive CustomResourceOptions.Merge (used by all generated SDK resources
+        // via their MakeResourceOptions pattern).
+
+        [Fact]
+        public void MergeCustom_ResourceTransforms_FromOptions2_ArePropagated()
+        {
+            ResourceTransform transform = (_, _) => Task.FromResult<ResourceTransformResult?>(null);
+
+            var o1 = new CustomResourceOptions();
+            var o2 = new CustomResourceOptions { ResourceTransforms = { transform } };
+
+            var result = CustomResourceOptions.Merge(o1, o2);
+
+            Assert.Single(result.ResourceTransforms);
+            Assert.Contains(transform, result.ResourceTransforms);
+        }
+
+        [Fact]
+        public void MergeCustom_ResourceTransforms_FromBothOptions_AreCombined()
+        {
+            ResourceTransform transform1 = (_, _) => Task.FromResult<ResourceTransformResult?>(null);
+            ResourceTransform transform2 = (_, _) => Task.FromResult<ResourceTransformResult?>(null);
+
+            var o1 = new CustomResourceOptions { ResourceTransforms = { transform1 } };
+            var o2 = new CustomResourceOptions { ResourceTransforms = { transform2 } };
+
+            var result = CustomResourceOptions.Merge(o1, o2);
+
+            Assert.Equal(2, result.ResourceTransforms.Count);
+            Assert.Contains(transform1, result.ResourceTransforms);
+            Assert.Contains(transform2, result.ResourceTransforms);
+        }
+
+        [Fact]
+        public void MergeCustom_ResourceTransforms_FromOptions1_ArePreservedWhenOptions2IsEmpty()
+        {
+            ResourceTransform transform = (_, _) => Task.FromResult<ResourceTransformResult?>(null);
+
+            var o1 = new CustomResourceOptions { ResourceTransforms = { transform } };
+            var o2 = new CustomResourceOptions();
+
+            var result = CustomResourceOptions.Merge(o1, o2);
+
+            Assert.Single(result.ResourceTransforms);
+            Assert.Contains(transform, result.ResourceTransforms);
+        }
+
+        [Fact]
+        public void MergeComponent_ResourceTransforms_FromOptions2_ArePropagated()
+        {
+            ResourceTransform transform = (_, _) => Task.FromResult<ResourceTransformResult?>(null);
+
+            var o1 = new ComponentResourceOptions();
+            var o2 = new ComponentResourceOptions { ResourceTransforms = { transform } };
+
+            var result = ComponentResourceOptions.Merge(o1, o2);
+
+            Assert.Single(result.ResourceTransforms);
+            Assert.Contains(transform, result.ResourceTransforms);
+        }
+
+        [Fact]
+        public void MergeComponent_ResourceTransforms_FromBothOptions_AreCombined()
+        {
+            ResourceTransform transform1 = (_, _) => Task.FromResult<ResourceTransformResult?>(null);
+            ResourceTransform transform2 = (_, _) => Task.FromResult<ResourceTransformResult?>(null);
+
+            var o1 = new ComponentResourceOptions { ResourceTransforms = { transform1 } };
+            var o2 = new ComponentResourceOptions { ResourceTransforms = { transform2 } };
+
+            var result = ComponentResourceOptions.Merge(o1, o2);
+
+            Assert.Equal(2, result.ResourceTransforms.Count);
+            Assert.Contains(transform1, result.ResourceTransforms);
+            Assert.Contains(transform2, result.ResourceTransforms);
+        }
+
+
         [Fact]
         public void MergeCustom()
         {

@@ -732,7 +732,7 @@ func (g *generator) genDictionaryOrTuple(w io.Writer, expr model.Expression) {
 	case *model.ObjectConsExpression:
 		g.genDictionary(w, expr, "object?")
 	case *model.TupleConsExpression:
-		if g.isListOfDifferentTypes(expr) {
+		if g.isListOfDifferentTypes(expr) || g.hasNoneTypeElement(expr) {
 			g.Fgen(w, "new object?[]\n")
 		} else {
 			g.Fgen(w, "new[]\n")
@@ -1259,6 +1259,19 @@ func (g *generator) isListOfDifferentObjectTypes(expr *model.TupleConsExpression
 	return false
 }
 
+func (g *generator) hasNoneTypeElement(expr *model.TupleConsExpression) bool {
+	for _, v := range expr.Expressions {
+		typ := v.Type()
+		if cns, ok := typ.(*model.ConstType); ok {
+			typ = cns.Type
+		}
+		if typ == model.NoneType {
+			return true
+		}
+	}
+	return false
+}
+
 func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExpression) {
 	switch len(expr.Expressions) {
 	case 0:
@@ -1269,7 +1282,13 @@ func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExp
 			// because list of a union is mapped to InputList<object>
 			// which means new[] will not work because type-inference won't
 			// know the type of the array beforehand
-			g.Fgenf(w, "%s", g.listInitializer)
+			if g.listInitializer == "new[]" && g.hasNoneTypeElement(expr) {
+				// When elements include null, C# cannot infer the array element type
+				// from `new[] { null }`, so we must use an explicit type.
+				g.Fgen(w, "new object?[]")
+			} else {
+				g.Fgenf(w, "%s", g.listInitializer)
+			}
 		}
 
 		g.Fgenf(w, "\n%s{", g.Indent)

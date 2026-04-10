@@ -172,10 +172,11 @@ var expectedFailures = map[string]string{
 	"l1-builtin-to-json":  "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",
 	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
 
-	"l2-resource-config-primitives": "dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",                //nolint:lll
-	"l2-resource-config-objects":    "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
-	"l3-rewrite-conversions":        "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
-	"l3-range-ref":                  "Fail after updating to 3.230: dotnet build failed: List<Target> missing K1/Name members",                  //nolint:lll
+	"l2-resource-config-primitives":      "dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",                //nolint:lll
+	"l2-resource-config-objects":         "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
+	"l3-rewrite-conversions":             "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
+	"l3-range-ref":                       "Fail after updating to 3.230: dotnet build failed: List<Target> missing K1/Name members",                  //nolint:lll
+	"l2-resource-option-custom-timeouts": "https://github.com/pulumi/pulumi-dotnet/issues/822",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

@@ -180,7 +180,9 @@ class TransformsStack : Stack
                     if (tfArgs.Type == "testprovider:index:Random")
                     {
                         var resultArgs = tfArgs.Args;
-                        resultArgs = resultArgs.SetItem("prefix", "make-options-transform");
+                        // Use length (not prefix) because the stack transform (Scenario #3) sets
+                        // prefix="stackDefault" last and would overwrite a prefix change here.
+                        resultArgs = resultArgs.SetItem("length", 100);
                         return new ResourceTransformResult(resultArgs, tfArgs.Options);
                     }
                     return null;

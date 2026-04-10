@@ -204,13 +204,14 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 		}
 		// "res10" uses RandomWithMakeOptions which calls CustomResourceOptions.Merge in its
 		// constructor (matching the MakeResourceOptions pattern in all generated SDK resources).
-		// The transform should survive the merge and set the prefix.
+		// The transform sets length=100 (not prefix, because the stack transform overwrites
+		// prefix="stackDefault" last). Verifying length confirms the transform survived Merge.
 		if res.URN.Name() == "res10" {
 			foundRes10 = true
 			assert.Equal(t, res.Type, tokens.Type(randomResName))
-			prefix := res.Inputs["prefix"]
-			assert.NotNil(t, prefix)
-			assert.Equal(t, "make-options-transform", prefix.(string))
+			length := res.Inputs["length"]
+			assert.NotNil(t, length)
+			assert.Equal(t, 100.0, length.(float64))
 		}
 	}
 	assert.True(t, foundRes1)

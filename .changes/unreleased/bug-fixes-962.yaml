@@ -1,0 +1,6 @@
+kind: bug-fixes
+body: Fix codegen for arrays containing null literals by using explicit `new object?[]` instead of `new[]`
+time: 2026-04-10T00:00:00Z
+custom:
+  PR: "962"
+component: runtime

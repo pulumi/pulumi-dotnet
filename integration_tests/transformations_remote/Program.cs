@@ -166,6 +166,27 @@ class TransformsStack : Stack
         args.Prefix = "hello";
         args.Length = 135;
         res9.Invoke(args);
+
+        // Scenario #10 - ResourceTransforms survive a MakeResourceOptions-style Merge call.
+        // All generated Pulumi SDK resources call CustomResourceOptions.Merge in their MakeResourceOptions
+        // helper before passing options to the base Resource constructor. This test uses
+        // RandomWithMakeOptions, which replicates that pattern, to verify transforms are not dropped.
+        var res10 = new RandomWithMakeOptions("res10", new RandomArgs { Length = 5 }, new CustomResourceOptions
+        {
+            ResourceTransforms =
+            {
+                async (tfArgs, _) =>
+                {
+                    if (tfArgs.Type == "testprovider:index:Random")
+                    {
+                        var resultArgs = tfArgs.Args;
+                        resultArgs = resultArgs.SetItem("prefix", "make-options-transform");
+                        return new ResourceTransformResult(resultArgs, tfArgs.Options);
+                    }
+                    return null;
+                }
+            }
+        });
     }
 
     // Scenario #3 - apply a transformation to the Stack to transform all (future) resources in the stack

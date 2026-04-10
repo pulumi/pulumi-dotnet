@@ -124,6 +124,7 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 	foundRes6 := false
 	foundRes7 := false
 	foundRes8 := false
+	foundRes10 := false
 	for _, res := range stack.Deployment.Resources {
 		// "res1" has a transformation which adds additionalSecretOutputs
 		if res.URN.Name() == "res1" {
@@ -201,6 +202,16 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 			assert.Equal(t, res.Type, tokens.Type(randomResName))
 			assert.NotContains(t, res.Provider, "default")
 		}
+		// "res10" uses RandomWithMakeOptions which calls CustomResourceOptions.Merge in its
+		// constructor (matching the MakeResourceOptions pattern in all generated SDK resources).
+		// The transform should survive the merge and set the prefix.
+		if res.URN.Name() == "res10" {
+			foundRes10 = true
+			assert.Equal(t, res.Type, tokens.Type(randomResName))
+			prefix := res.Inputs["prefix"]
+			assert.NotNil(t, prefix)
+			assert.Equal(t, "make-options-transform", prefix.(string))
+		}
 	}
 	assert.True(t, foundRes1)
 	assert.True(t, foundRes2Child)
@@ -210,4 +221,5 @@ func Validator(t *testing.T, stack integration.RuntimeValidationStackInfo) {
 	assert.True(t, foundRes6)
 	assert.True(t, foundRes7)
 	assert.True(t, foundRes8)
+	assert.True(t, foundRes10)
 }

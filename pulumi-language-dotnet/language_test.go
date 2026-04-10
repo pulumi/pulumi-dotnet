@@ -97,7 +97,6 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 var expectedFailures = map[string]string{
 	"l1-builtin-can":                   "#489 codegen not implemented",
 	"l1-builtin-try":                   "#490 codegen not implemented",
-	"l1-builtin-stash":                 "testdata not yet generated for .NET",
 	"l1-keyword-overlap":               "#493 update to pulumi 1.50 conformance failure",
 	"l1-proxy-index":                   "dotnet build failed",
 	"l2-resource-provider-inheritance": "No best type found for implicitly-typed array",

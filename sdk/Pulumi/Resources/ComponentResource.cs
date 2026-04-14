@@ -44,7 +44,13 @@ namespace Pulumi
         /// <param name="name">The unique name of the resource.</param>
         /// <param name="args">The arguments to use to populate the new resource.</param>
         /// <param name="options">A bag of options that control this resource's behavior.</param>
-        /// <param name="remote">True if this is a remote component resource.</param>
+        /// <param name="remote">
+        /// This parameter is intended for use by code-generated component SDKs;
+        /// end users authoring their own <see cref="ComponentResource"/> subclasses
+        /// should leave this at its default (<c>false</c>). When <c>true</c>, the
+        /// component's children are constructed by the engine rather than in this
+        /// process, and the constructor skips local child registration accordingly.
+        /// </param>
         public ComponentResource(
             string type, string name, ResourceArgs? args, ComponentResourceOptions? options = null, bool remote = false)
             : this(type, name, args ?? ResourceArgs.Empty, options ?? new ComponentResourceOptions(), remote, registerPackageRequest: null)
@@ -63,7 +69,13 @@ namespace Pulumi
         /// <param name="name">The unique name of the resource.</param>
         /// <param name="args">The arguments to use to populate the new resource.</param>
         /// <param name="options">A bag of options that control this resource's behavior.</param>
-        /// <param name="remote">True if this is a remote component resource.</param>
+        /// <param name="remote">
+        /// This parameter is intended for use by code-generated component SDKs;
+        /// end users authoring their own <see cref="ComponentResource"/> subclasses
+        /// should leave this at its default (<c>false</c>). When <c>true</c>, the
+        /// component's children are constructed by the engine rather than in this
+        /// process, and the constructor skips local child registration accordingly.
+        /// </param>
         /// <param name="registerPackageRequest">Package parameterization options.</param>
 #pragma warning disable RS0022 // Constructor make noninheritable base class inheritable
         public ComponentResource(

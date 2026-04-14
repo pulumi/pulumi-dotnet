@@ -122,7 +122,13 @@ namespace Pulumi
         /// <param name="custom">True to indicate that this is a custom resource, managed by a plugin.</param>
         /// <param name="args">The arguments to use to populate the new resource.</param>
         /// <param name="options">A bag of options that control this resource's behavior.</param>
-        /// <param name="remote">True if this is a remote component resource.</param>
+        /// <param name="remote">
+        /// This parameter is intended for use by code-generated component SDKs;
+        /// end users authoring their own <see cref="ComponentResource"/> subclasses
+        /// should leave this at its default (<c>false</c>). When <c>true</c>, the
+        /// component's children are constructed by the engine rather than in this
+        /// process, and the constructor skips local child registration accordingly.
+        /// </param>
         /// <param name="dependency">True if this is a synthetic resource used internally for dependency tracking.</param>
         /// <param name="registerPackageRequest">Options for package parameterization.</param>
         private protected Resource(

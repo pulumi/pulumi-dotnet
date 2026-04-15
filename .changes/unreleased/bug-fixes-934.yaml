@@ -1,6 +1,0 @@
-kind: bug-fixes
-body: Fix property paths in resource options (IgnoreChanges, ReplaceOnChanges, HideDiffs) being incorrectly prefixed with @ for C# reserved words
-time: 2026-04-03T00:00:00Z
-custom:
-  PR: 934
-component: runtime

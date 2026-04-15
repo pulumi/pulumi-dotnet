@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Support call methods in program generation
-time: 2026-04-08T12:02:31.121856+01:00
-custom:
-    PR: "946"

@@ -1,6 +1,0 @@
-component: sdk/auto
-kind: bug-fixes
-body: Fix running inline programs with refresh/destroy and --run-program
-time: 2026-04-09T13:07:39.260892+01:00
-custom:
-    PR: "725"

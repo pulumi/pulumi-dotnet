@@ -1,6 +1,0 @@
-kind: bug-fixes
-body: Fix NuGet package name and version extraction for packages with prerelease versions (e.g. `3.0.0-alpha.1.internal`)
-time: 2026-04-08T00:00:00Z
-custom:
-  PR: "947"
-component: runtime

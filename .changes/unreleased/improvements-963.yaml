@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Clarify docs on the `remote` parameter of `ComponentResource` / `Resource`
-time: 2026-04-14T13:45:00.000000-04:00
-custom:
-    PR: "963"

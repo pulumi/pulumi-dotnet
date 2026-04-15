@@ -559,6 +559,29 @@ func TestSlnMultipleNested(t *testing.T) {
 	})
 }
 
+// TestSlnMainEntrypoint tests that an explicit csproj "main" entrypoint is honored
+// when a sibling .sln file is present.
+//
+//nolint:paralleltest // ProgramTest calls testing.T.Parallel
+func TestSlnMainEntrypoint(t *testing.T) {
+	validation := func(t *testing.T, stack integration.RuntimeValidationStackInfo) {
+		var foundStdout int
+		for _, ev := range stack.Events {
+			if de := ev.DiagnosticEvent; de != nil {
+				if strings.Contains(de.Message, "With sln main") {
+					foundStdout++
+				}
+			}
+		}
+		assert.Equal(t, 1, foundStdout)
+	}
+	testDotnetProgram(t, &integration.ProgramTestOptions{
+		Dir:                    "sln_main_entrypoint",
+		Quick:                  true,
+		ExtraRuntimeValidation: validation,
+	})
+}
+
 //nolint:paralleltest // ProgramTest calls testing.T.Parallel
 func TestProvider(t *testing.T) {
 	testDotnetProgram(t, &integration.ProgramTestOptions{

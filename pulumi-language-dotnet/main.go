@@ -256,7 +256,7 @@ func (host *dotnetLanguageHost) GetRequiredPackages(ctx context.Context,
 
 	// now, introspect the user project to see which pulumi resource packages it references.
 	possiblePulumiPackages, err := host.DeterminePossiblePulumiPackages(
-		ctx, opts.dotnetExec, engineClient, req.Info.ProgramDirectory)
+		ctx, opts.dotnetExec, engineClient, req.Info.ProgramDirectory, req.Info.EntryPoint)
 	if err != nil {
 		return nil, err
 	}
@@ -302,6 +302,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	dotnetExec string,
 	engineClient pulumirpc.EngineClient,
 	programDirectory string,
+	entryPoint string,
 ) ([][]string, error) {
 	logging.V(5).Infof("GetRequiredPlugins: Determining pulumi packages")
 
@@ -309,7 +310,8 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	// stream with the extra steps we're performing. This is just so we can determine the required
 	// plugins.  And, after the first time we do this, subsequent runs will see that the plugin is
 	// installed locally and not need to do anything.
-	args := []string{"list", "package", "--include-transitive"}
+	project := resolveProjectPath(programDirectory, entryPoint)
+	args := []string{"list", project, "package", "--include-transitive"}
 	commandStr := strings.Join(args, " ")
 	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory)
 	if err != nil {
@@ -509,7 +511,8 @@ func DeterminePackageDependency(packageDir, packageName, packageVersion string) 
 func (host *dotnetLanguageHost) DotnetBuild(
 	ctx context.Context, dotnetExec string, req *pulumirpc.GetRequiredPackagesRequest, engineClient pulumirpc.EngineClient,
 ) error {
-	args := []string{"build", "-nologo"}
+	project := resolveProjectPath(req.Info.ProgramDirectory, req.Info.EntryPoint)
+	args := []string{"build", "-nologo", project}
 
 	// Run the `dotnet build` command.  Importantly, report the output of this to the user
 	// (ephemerally) as it is happening so they're aware of what's going on and can see the progress
@@ -595,6 +598,14 @@ func RunDotnetCommand(
 
 	_, err = infoWriter.LogToUser(fmt.Sprintf("'dotnet %v' completed successfully", commandStr))
 	return infoBuffer.String(), err
+}
+
+func resolveProjectPath(programDirectory string, entryPoint string) string {
+	if entryPoint == "" || entryPoint == "." {
+		return programDirectory
+	}
+
+	return filepath.Join(programDirectory, entryPoint)
 }
 
 type logWriter struct {
@@ -732,6 +743,9 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		if host.dotnetBuildSucceeded {
 			args = append(args, "--no-build")
 		}
+
+		project := resolveProjectPath(req.Info.ProgramDirectory, req.Info.EntryPoint)
+		args = append(args, "--project", project)
 	}
 
 	if logging.V(5) {
@@ -929,7 +943,8 @@ func (host *dotnetLanguageHost) InstallDependencies(
 		return err
 	}
 
-	cmd := exec.CommandContext(server.Context(), dotnetbin, "build")
+	project := resolveProjectPath(req.Info.ProgramDirectory, req.Info.EntryPoint)
+	cmd := exec.CommandContext(server.Context(), dotnetbin, "build", project)
 	cmd.Dir = req.Info.ProgramDirectory
 	cmd.Stdout, cmd.Stderr = stdout, stderr
 
@@ -1001,7 +1016,8 @@ func (host *dotnetLanguageHost) GetProgramDependencies(
 	if err != nil {
 		return nil, err
 	}
-	cmdArgs := []string{"list", "package"}
+	project := resolveProjectPath(req.Info.ProgramDirectory, req.Info.EntryPoint)
+	cmdArgs := []string{"list", project, "package"}
 	if req.TransitiveDependencies {
 		cmdArgs = append(cmdArgs, "--include-transitive")
 	}
@@ -1090,10 +1106,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 		// Build from source and then run. We build separately so that we can elide the build output from the
 		// user unless there's an error. You would think you could pass something like `-v=q` to `dotnet run`
 		// to get the same effect, but it doesn't work.
-		project := req.Info.ProgramDirectory
-		if req.Info.EntryPoint != "" {
-			project = filepath.Join(project, req.Info.EntryPoint)
-		}
+		project := resolveProjectPath(req.Info.ProgramDirectory, req.Info.EntryPoint)
 
 		buildArgs := []string{"build", project}
 

@@ -1,0 +1,4 @@
+name: sln_main_entrypoint
+description: A Pulumi program with an .sln file and explicit main csproj entrypoint.
+runtime: dotnet
+main: Sln.csproj

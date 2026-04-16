@@ -264,3 +264,15 @@ func TestBuildDll(t *testing.T) {
 		})
 	}
 }
+
+func TestResolveProjectPath(t *testing.T) {
+	t.Parallel()
+
+	programDirectory := filepath.Join("tmp", "program")
+
+	assert.Equal(t, programDirectory, resolveProjectPath(programDirectory, ""))
+	assert.Equal(t, programDirectory, resolveProjectPath(programDirectory, "."))
+	assert.Equal(t,
+		filepath.Join(programDirectory, "Infra.csproj"),
+		resolveProjectPath(programDirectory, "Infra.csproj"))
+}

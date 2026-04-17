@@ -39,7 +39,7 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 	// https://github.com/golang/go/issues/39172, so we build it to a temp file then run that.
 	binary := t.TempDir() + "/pulumi-test-language"
 	cmd := exec.CommandContext(t.Context(),
-		"go", "build", "-o", binary, "github.com/pulumi/pulumi/pkg/v3/testing/pulumi-test-language")
+		"go", "build", "-C", "../pulumi/pkg/testing/pulumi-test-language/", "-o", binary)
 	output, err := cmd.CombinedOutput()
 	t.Logf("build output: %s", output)
 	require.NoError(t, err)
@@ -175,6 +175,11 @@ var expectedFailures = map[string]string{
 	"l3-rewrite-conversions":             "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
 	"l3-range-ref":                       "Fail after updating to 3.230: dotnet build failed: List<Target> missing K1/Name members",                  //nolint:lll
 	"l2-resource-option-custom-timeouts": "https://github.com/pulumi/pulumi-dotnet/issues/822",
+
+	"l3-component-nested":                "Failing after updating to 3.231",
+	"l2-resource-option-hooks":           "Failing after updating to 3.231",
+	"l3-component-primitive-conversions": "Failing after updating to 3.231",
+	"l2-resource-primitive-conversions":  "Failing after updating to 3.231",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

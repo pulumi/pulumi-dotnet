@@ -7257,48 +7257,6 @@
         <member name="T:Pulumirpc.RunPluginResponse.OutputOneofCase">
             <summary>Enum of possible cases for the "output" oneof.</summary>
         </member>
-        <member name="T:Pulumirpc.RunPlugin2Request">
-            <summary>
-            `RunPlugin2Request` is the type of requests streamed by a [](pulumirpc.LanguageRuntime.RunPlugin2) call.
-            The first message must contain a `start` request with the plugin configuration. Subsequent messages may contain
-            a `cancel` request to signal graceful shutdown of the plugin.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.RunPlugin2Request.StartFieldNumber">
-            <summary>Field number for the "start" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.RunPlugin2Request.Start">
-            <summary>
-            The initial request to start the plugin.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.RunPlugin2Request.CancelFieldNumber">
-            <summary>Field number for the "cancel" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.RunPlugin2Request.Cancel">
-            <summary>
-            A request to cancel the running plugin.
-            </summary>
-        </member>
-        <member name="T:Pulumirpc.RunPlugin2Request.RequestOneofCase">
-            <summary>Enum of possible cases for the "request" oneof.</summary>
-        </member>
-        <member name="T:Pulumirpc.RunPluginCancelRequest">
-            <summary>
-            `RunPluginCancelRequest` is sent on a [](pulumirpc.LanguageRuntime.RunPlugin2) stream to request shutdown of the
-            running plugin. By default (`force` = false), the plugin receives a graceful shutdown signal (e.g. SIGINT). If
-            `force` is true, the plugin is killed immediately (e.g. SIGKILL).
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.RunPluginCancelRequest.ForceFieldNumber">
-            <summary>Field number for the "force" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.RunPluginCancelRequest.Force">
-            <summary>
-            If true, forcefully kill the plugin process immediately.
-            If false (default), send a graceful shutdown signal.
-            </summary>
-        </member>
         <member name="T:Pulumirpc.GenerateProgramRequest">
             <summary>
             `GenerateProgramRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.GenerateProgram)
@@ -7824,18 +7782,6 @@
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
             <returns>The response to send back to the client (wrapped by a task).</returns>
-        </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.RunPlugin2(Grpc.Core.IAsyncStreamReader{Pulumirpc.RunPlugin2Request},Grpc.Core.IServerStreamWriter{Pulumirpc.RunPluginResponse},Grpc.Core.ServerCallContext)">
-            <summary>
-            `RunPlugin2` is a bidirectional streaming version of [](pulumirpc.LanguageRuntime.RunPlugin) that supports
-            in-band cancellation. The client sends an initial [](pulumirpc.RunPlugin2Request) with a `start` message
-            containing the plugin configuration, and can later send a `cancel` message to request graceful shutdown of
-            the plugin. The server streams [](pulumirpc.RunPluginResponse) messages as with `RunPlugin`.
-            </summary>
-            <param name="requestStream">Used for reading requests from the client.</param>
-            <param name="responseStream">Used for sending responses back to the client.</param>
-            <param name="context">The context of the server-side call handler being invoked.</param>
-            <returns>A task indicating completion of the handler.</returns>
         </member>
         <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeBase.Cancel(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
             <summary>
@@ -8573,28 +8519,6 @@
             user on how to use the linked package in the project.
             </summary>
             <param name="request">The request to send to the server.</param>
-            <param name="options">The options for the call.</param>
-            <returns>The call object.</returns>
-        </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RunPlugin2(Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
-            <summary>
-            `RunPlugin2` is a bidirectional streaming version of [](pulumirpc.LanguageRuntime.RunPlugin) that supports
-            in-band cancellation. The client sends an initial [](pulumirpc.RunPlugin2Request) with a `start` message
-            containing the plugin configuration, and can later send a `cancel` message to request graceful shutdown of
-            the plugin. The server streams [](pulumirpc.RunPluginResponse) messages as with `RunPlugin`.
-            </summary>
-            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-            <param name="cancellationToken">An optional token for canceling the call.</param>
-            <returns>The call object.</returns>
-        </member>
-        <member name="M:Pulumirpc.LanguageRuntime.LanguageRuntimeClient.RunPlugin2(Grpc.Core.CallOptions)">
-            <summary>
-            `RunPlugin2` is a bidirectional streaming version of [](pulumirpc.LanguageRuntime.RunPlugin) that supports
-            in-band cancellation. The client sends an initial [](pulumirpc.RunPlugin2Request) with a `start` message
-            containing the plugin configuration, and can later send a `cancel` message to request graceful shutdown of
-            the plugin. The server streams [](pulumirpc.RunPluginResponse) messages as with `RunPlugin`.
-            </summary>
             <param name="options">The options for the call.</param>
             <returns>The call object.</returns>
         </member>
@@ -12639,6 +12563,84 @@
         <member name="P:Pulumirpc.ResourceReflection.Descriptor">
             <summary>File descriptor for pulumi/resource.proto</summary>
         </member>
+        <member name="T:Pulumirpc.ResourceMonitorFeature">
+             <summary>
+             ResourceMonitorFeature is a strongly typed monitor capability identifier.
+            
+             The string IDs used by SupportsFeature are preserved for compatibility; new
+             clients should prefer these enum values from DeploymentInfo.
+             </summary>
+        </member>
+        <member name="T:Pulumirpc.DeploymentInfo">
+            <summary>
+            DeploymentInfo returns monitor execution state currently sent to programs
+            and/or providers through other channels.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.ProjectFieldNumber">
+            <summary>Field number for the "project" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.Project">
+            <summary>
+            The project name.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.StackFieldNumber">
+            <summary>Field number for the "stack" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.Stack">
+            <summary>
+            The stack name.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.OrganizationFieldNumber">
+            <summary>Field number for the "organization" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.Organization">
+            <summary>
+            The organization name.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.ConfigFieldNumber">
+            <summary>Field number for the "config" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.Config">
+            <summary>
+            The stack configuration values.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.ConfigSecretKeysFieldNumber">
+            <summary>Field number for the "configSecretKeys" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.ConfigSecretKeys">
+            <summary>
+            Configuration keys whose values are secret.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.DryRunFieldNumber">
+            <summary>Field number for the "dryRun" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.DryRun">
+            <summary>
+            True if the current execution is preview/dry-run.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.ParallelFieldNumber">
+            <summary>Field number for the "parallel" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.Parallel">
+            <summary>
+            Requested operation parallelism (&lt;=1 for serial execution).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.DeploymentInfo.SupportedFeaturesFieldNumber">
+            <summary>Field number for the "supportedFeatures" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.DeploymentInfo.SupportedFeatures">
+            <summary>
+            The set of monitor-supported protocol features.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.SupportsFeatureRequest">
             <summary>
             SupportsFeatureRequest allows a client to test if the resource monitor supports a certain feature, which it may use
@@ -13601,6 +13603,93 @@
         <member name="F:Pulumirpc.TransformResourceOptions.ReplacementTriggerFieldNumber">
             <summary>Field number for the "replacement_trigger" field.</summary>
         </member>
+        <member name="T:Pulumirpc.ResourceOptions">
+            <summary>
+            ResourceOptions is a subset of all resource options that are relevant to
+            hook callbacks.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.DependsOnFieldNumber">
+            <summary>Field number for the "depends_on" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ProtectFieldNumber">
+            <summary>Field number for the "protect" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceOptions.HasProtect">
+            <summary>Gets whether the "protect" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceOptions.ClearProtect">
+            <summary>Clears the value of the "protect" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.IgnoreChangesFieldNumber">
+            <summary>Field number for the "ignore_changes" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ReplaceOnChangesFieldNumber">
+            <summary>Field number for the "replace_on_changes" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.AliasesFieldNumber">
+            <summary>Field number for the "aliases" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.CustomTimeoutsFieldNumber">
+            <summary>Field number for the "custom_timeouts" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.PluginDownloadUrlFieldNumber">
+            <summary>Field number for the "plugin_download_url" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.RetainOnDeleteFieldNumber">
+            <summary>Field number for the "retain_on_delete" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceOptions.HasRetainOnDelete">
+            <summary>Gets whether the "retain_on_delete" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceOptions.ClearRetainOnDelete">
+            <summary>Clears the value of the "retain_on_delete" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.DeletedWithFieldNumber">
+            <summary>Field number for the "deleted_with" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.DeleteBeforeReplaceFieldNumber">
+            <summary>Field number for the "delete_before_replace" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceOptions.HasDeleteBeforeReplace">
+            <summary>Gets whether the "delete_before_replace" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ResourceOptions.ClearDeleteBeforeReplace">
+            <summary>Clears the value of the "delete_before_replace" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.AdditionalSecretOutputsFieldNumber">
+            <summary>Field number for the "additional_secret_outputs" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ProvidersFieldNumber">
+            <summary>Field number for the "providers" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.PluginChecksumsFieldNumber">
+            <summary>Field number for the "plugin_checksums" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.HooksFieldNumber">
+            <summary>Field number for the "hooks" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ImportFieldNumber">
+            <summary>Field number for the "import" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.HideDiffFieldNumber">
+            <summary>Field number for the "hide_diff" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ReplaceWithFieldNumber">
+            <summary>Field number for the "replace_with" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ReplacementTriggerFieldNumber">
+            <summary>Field number for the "replacement_trigger" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceOptions.ParentFieldNumber">
+            <summary>Field number for the "parent" field.</summary>
+        </member>
         <member name="F:Pulumirpc.TransformRequest.TypeFieldNumber">
             <summary>Field number for the "type" field.</summary>
         </member>
@@ -13801,6 +13890,22 @@
             the optional old outputs of the resource.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.OldOptionsFieldNumber">
+            <summary>Field number for the "old_options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.OldOptions">
+            <summary>
+            optional old resource options for the resource. Old engines may not set this.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceHookRequest.NewOptionsFieldNumber">
+            <summary>Field number for the "new_options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceHookRequest.NewOptions">
+            <summary>
+            optional new resource options for the resource. Old engines may not set this.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceHookResponse">
             <summary>
             ResourceHookResponse is the response object for resource hook callbacks in CallbackInvokeResponse.
@@ -13889,6 +13994,22 @@
         <member name="P:Pulumirpc.ErrorHookRequest.Errors">
             <summary>
             the errors that have been seen so far (newest-first).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.OldOptionsFieldNumber">
+            <summary>Field number for the "old_options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.OldOptions">
+            <summary>
+            optional old resource options for the resource. Old engines may not set this.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ErrorHookRequest.NewOptionsFieldNumber">
+            <summary>Field number for the "new_options" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ErrorHookRequest.NewOptions">
+            <summary>
+            optional new resource options for the resource. Old engines may not set this.
             </summary>
         </member>
         <member name="T:Pulumirpc.ErrorHookResponse">
@@ -14039,6 +14160,22 @@
         <member name="T:Pulumirpc.ResourceMonitor.ResourceMonitorBase">
             <summary>Base class for server-side implementations of ResourceMonitor</summary>
         </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.GetDeploymentInfo(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.ServerCallContext)">
+             <summary>
+             GetDeploymentInfo returns the execution context associated with this monitor instance.
+            
+             This is an additive API intended to reduce duplicated state passed through
+             environment variables and per-request protobuf fields. New clients should
+             prefer this over piecemeal feature probing via SupportsFeature.
+            
+             Backward compatibility:
+             - Older monitors may not implement this RPC and will return UNIMPLEMENTED.
+             - Clients should fall back to existing request fields/env vars/SupportsFeature.
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorBase.RegisterStackTransform(Pulumirpc.Callback,Grpc.Core.ServerCallContext)">
             <summary>
             Register a resource transform for the stack
@@ -14113,6 +14250,74 @@
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
             <summary>Protected constructor to allow creation of configured clients.</summary>
             <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.GetDeploymentInfo(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             GetDeploymentInfo returns the execution context associated with this monitor instance.
+            
+             This is an additive API intended to reduce duplicated state passed through
+             environment variables and per-request protobuf fields. New clients should
+             prefer this over piecemeal feature probing via SupportsFeature.
+            
+             Backward compatibility:
+             - Older monitors may not implement this RPC and will return UNIMPLEMENTED.
+             - Clients should fall back to existing request fields/env vars/SupportsFeature.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.GetDeploymentInfo(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+             <summary>
+             GetDeploymentInfo returns the execution context associated with this monitor instance.
+            
+             This is an additive API intended to reduce duplicated state passed through
+             environment variables and per-request protobuf fields. New clients should
+             prefer this over piecemeal feature probing via SupportsFeature.
+            
+             Backward compatibility:
+             - Older monitors may not implement this RPC and will return UNIMPLEMENTED.
+             - Clients should fall back to existing request fields/env vars/SupportsFeature.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.GetDeploymentInfoAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             GetDeploymentInfo returns the execution context associated with this monitor instance.
+            
+             This is an additive API intended to reduce duplicated state passed through
+             environment variables and per-request protobuf fields. New clients should
+             prefer this over piecemeal feature probing via SupportsFeature.
+            
+             Backward compatibility:
+             - Older monitors may not implement this RPC and will return UNIMPLEMENTED.
+             - Clients should fall back to existing request fields/env vars/SupportsFeature.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.GetDeploymentInfoAsync(Google.Protobuf.WellKnownTypes.Empty,Grpc.Core.CallOptions)">
+             <summary>
+             GetDeploymentInfo returns the execution context associated with this monitor instance.
+            
+             This is an additive API intended to reduce duplicated state passed through
+             environment variables and per-request protobuf fields. New clients should
+             prefer this over piecemeal feature probing via SupportsFeature.
+            
+             Backward compatibility:
+             - Older monitors may not implement this RPC and will return UNIMPLEMENTED.
+             - Clients should fall back to existing request fields/env vars/SupportsFeature.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
         </member>
         <member name="M:Pulumirpc.ResourceMonitor.ResourceMonitorClient.RegisterStackTransform(Pulumirpc.Callback,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
             <summary>

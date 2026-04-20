@@ -52,5 +52,10 @@ namespace Pulumi.Automation
         /// Show resources that are being read in, alongside those being managed directly in the stack.
         /// </summary>
         public bool? ShowReads { get; set; }
+
+        /// <summary>
+        /// Runs the program to determine up-to-date state for providers to refresh resources, this only applies if <see cref="Refresh"/> is set
+        /// </summary>
+        public bool? RunProgram { get; set; }
     }
 }

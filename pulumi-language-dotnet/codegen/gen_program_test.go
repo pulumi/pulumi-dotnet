@@ -362,6 +362,70 @@ func TestGenerateProgramWithFunctionNamespaceCollision(t *testing.T) {
 		"generated code should use PulumiOutput alias for function")
 }
 
+// Regression test for https://github.com/pulumi/pulumi-dotnet/issues/833.
+//
+// A property typed as Map(Map(T)) previously generated nested collection
+// initializers with no type annotation on the inner map, producing code that
+// did not compile. The generator must now emit `new InputMap<T>` in front of
+// the nested map literal.
+func TestGenerateProgramWithNestedMapInput(t *testing.T) {
+	t.Parallel()
+
+	source := `
+resource "r" "nested:index:Resource" {
+    tableConfigurations = {
+        "COST_AND_USAGE_REPORT" = {
+            "TIME_GRANULARITY" = "HOURLY"
+            "INCLUDE_RESOURCES" = "FALSE"
+        }
+    }
+}
+`
+
+	parser := syntax.NewParser()
+	err := parser.ParseFile(strings.NewReader(source), "main.pp")
+	require.NoError(t, err)
+	require.False(t, parser.Diagnostics.HasErrors(), "parse diagnostics: %v", parser.Diagnostics)
+
+	stringType := schema.TypeSpec{Type: "string"}
+	innerMap := schema.TypeSpec{Type: "object", AdditionalProperties: &stringType}
+	outerMap := schema.TypeSpec{Type: "object", AdditionalProperties: &innerMap}
+
+	loader := &inlineLoader{
+		schemas: map[string]schema.PackageSpec{
+			"nested": {
+				Name:    "nested",
+				Version: "1.0.0",
+				Resources: map[string]schema.ResourceSpec{
+					"nested:index:Resource": {
+						InputProperties: map[string]schema.PropertySpec{
+							"tableConfigurations": {TypeSpec: outerMap},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	program, diags, err := pcl.BindProgram(parser.Files, pcl.Loader(loader))
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "bind diagnostics: %v", diags)
+	require.NotNil(t, program)
+
+	files, diags, err := GenerateProgram(program)
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "codegen diagnostics: %v", diags)
+
+	programFile, ok := files["Program.cs"]
+	require.True(t, ok, "Program.cs should be generated")
+	programText := string(programFile)
+	t.Logf("Generated Program.cs:\n%s", programText)
+
+	require.Contains(t, programText, `{ "COST_AND_USAGE_REPORT", new InputMap<string>`,
+		"nested map literal must be prefixed with an explicit InputMap<T> type annotation "+
+			"immediately before the nested initializer")
+}
+
 type inlineLoader struct {
 	schemas map[string]schema.PackageSpec
 }

@@ -1020,11 +1020,51 @@ func (g *generator) genObjectConsExpressionWithTypeName(
 		g.Fgenf(w, "\n%s{\n", g.Indent)
 		g.Indented(func() {
 			for _, item := range expr.Items {
-				g.Fgenf(w, "%s{ %.v, %.v },\n", g.Indent, item.Key, item.Value)
+				if mapT, ok := nestedMapLiteralType(item.Value); ok {
+					elem := componentInputElementType(mapT.ElementType)
+					g.Fgenf(w, "%s{ %.v, new InputMap<%s>%.v },\n", g.Indent, item.Key, elem, item.Value)
+				} else {
+					g.Fgenf(w, "%s{ %.v, %.v },\n", g.Indent, item.Key, item.Value)
+				}
 			}
 		})
 		g.Fgenf(w, "%s}", g.Indent)
 	}
+}
+
+// nestedMapLiteralType returns the MapType of a value expression when it is a
+// nested map literal (e.g. a value inside a Map(Map(T)) initializer). C# cannot
+// infer the type of an anonymous collection initializer nested inside another
+// collection initializer, so callers prefix the value with `new InputMap<T>` in
+// that case.
+func nestedMapLiteralType(value model.Expression) (*model.MapType, bool) {
+	if _, ok := unwrapIntrinsicConvert(value).(*model.ObjectConsExpression); !ok {
+		return nil, false
+	}
+	return findMapType(value.Type())
+}
+
+// findMapType searches a PCL model type for a MapType, peeling off output
+// wrappers and option/union members. Nested map literals are bound with their
+// target type carrying the outer container's shape (e.g. `union(map(T), none)`
+// for an optional map input), so we resolve through those wrappers to find it.
+//
+// When a union contains multiple MapType variants (e.g. both `map(T)` and
+// `output(map(T))`), they share an element type in every bound input we emit,
+// so returning the first match is safe.
+func findMapType(t model.Type) (*model.MapType, bool) {
+	t = pcl.UnwrapOption(model.ResolveOutputs(t))
+	switch t := t.(type) {
+	case *model.MapType:
+		return t, true
+	case *model.UnionType:
+		for _, elem := range t.ElementTypes {
+			if mapT, ok := findMapType(elem); ok {
+				return mapT, true
+			}
+		}
+	}
+	return nil, false
 }
 
 func (g *generator) genRelativeTraversal(w io.Writer,

@@ -134,12 +134,12 @@ var expectedFailures = map[string]string{
 	"l2-parameterized-resource-twice":        "testdata not yet generated for .NET",
 	"l2-resource-option-replacement-trigger": "dotnet build failed: Pulumi.Output namespace conflict",
 	"l2-resource-option-replace-with":        "not yet implemented",
-	"l3-range-resource-output-traversal":     "dotnet build failed: Output<ImmutableArray> missing Select extension method",        //nolint:lll
-	"l1-config-types-object":                 "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
-	"l1-elide-index":                         "https://github.com/pulumi/pulumi-dotnet/issues/865",
-	"l2-elide-index":                         "https://github.com/pulumi/pulumi-dotnet/issues/868",
-	"l2-discriminated-union":                 "https://github.com/pulumi/pulumi-dotnet/issues/866",
-	"l2-module-format":                       "https://github.com/pulumi/pulumi-dotnet/issues/867",
+	//"l3-range-resource-output-traversal":     "dotnet build failed: Output<ImmutableArray> missing Select extension method",        //nolint:lll
+	"l1-config-types-object": "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
+	"l1-elide-index":         "https://github.com/pulumi/pulumi-dotnet/issues/865",
+	"l2-elide-index":         "https://github.com/pulumi/pulumi-dotnet/issues/868",
+	"l2-discriminated-union": "https://github.com/pulumi/pulumi-dotnet/issues/866",
+	"l2-module-format":       "https://github.com/pulumi/pulumi-dotnet/issues/867",
 
 	// TODO: This is a codegen bug, we're translating {} to null
 	"l2-plain": "System.ArgumentNullException: [Input] Pulumi.Plain.Inputs.DataArgs._stringMap is required but was not given a value (Parameter '_stringMap')", //nolint:lll

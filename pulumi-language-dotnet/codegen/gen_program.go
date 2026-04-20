@@ -1612,28 +1612,52 @@ func (g *generator) genResource(w io.Writer, r *pcl.Resource) {
 
 		g.Fgenf(w, "%svar %s = new List<%s>();\n", g.Indent, variableName, qualifiedMemberName)
 
-		resKey := "Key"
-		if model.InputType(model.NumberType).ConversionFrom(rangeExpr.Type()) != model.NoConversion {
-			g.Fgenf(w, "%sfor (var rangeIndex = 0; rangeIndex < %.12o; rangeIndex++)\n", g.Indent, rangeExpr)
-			g.Fgenf(w, "%s{\n", g.Indent)
-			g.Fgenf(w, "%s    var range = new { Value = rangeIndex };\n", g.Indent)
-			resKey = "Value"
-		} else {
-			rangeExpr := &model.FunctionCallExpression{
-				Name: "entries",
-				Args: []model.Expression{rangeExpr},
+		emitLoop := func(rangeExpr model.Expression) {
+			resKey := "Key"
+			if model.InputType(model.NumberType).ConversionFrom(rangeExpr.Type()) != model.NoConversion {
+				g.Fgenf(w, "%sfor (var rangeIndex = 0; rangeIndex < %.12o; rangeIndex++)\n", g.Indent, rangeExpr)
+				g.Fgenf(w, "%s{\n", g.Indent)
+				g.Fgenf(w, "%s    var range = new { Value = rangeIndex };\n", g.Indent)
+				resKey = "Value"
+			} else {
+				rangeExpr := &model.FunctionCallExpression{
+					Name: "entries",
+					Args: []model.Expression{rangeExpr},
+				}
+				g.Fgenf(w, "%sforeach (var range in %.v)\n", g.Indent, rangeExpr)
+				g.Fgenf(w, "%s{\n", g.Indent)
 			}
-			g.Fgenf(w, "%sforeach (var range in %.v)\n", g.Indent, rangeExpr)
-			g.Fgenf(w, "%s{\n", g.Indent)
+
+			resName := g.makeResourceName(name, "range."+resKey)
+			g.Indented(func() {
+				g.Fgenf(w, "%s%s.Add(", g.Indent, variableName)
+				instantiate(resName)
+				g.Fgenf(w, ");\n")
+			})
+			g.Fgenf(w, "%s}\n", g.Indent)
 		}
 
-		resName := g.makeResourceName(name, "range."+resKey)
-		g.Indented(func() {
-			g.Fgenf(w, "%s%s.Add(", g.Indent, variableName)
-			instantiate(resName)
-			g.Fgenf(w, ");\n")
-		})
-		g.Fgenf(w, "%s}\n", g.Indent)
+		// When asyncInit is true, promise-returning invokes are awaited to produce plain
+		// values at runtime, so only genuine outputs need to be lifted with .Apply. When
+		// asyncInit is false, outputInvokes wraps promise results in Output<T>, so promises
+		// also need lifting.
+		containsOutputs, containsPromises := model.ContainsEventuals(r.Options.Range.Type())
+		if containsOutputs || (!g.asyncInit && containsPromises) {
+			outerRangeExpr := g.lowerExpression(r.Options.Range, r.Options.Range.Type())
+			g.Fgenf(w, "%s%.20v.Apply(rangeBody =>\n", g.Indent, outerRangeExpr)
+			g.Fgenf(w, "%s{\n", g.Indent)
+			g.Indented(func() {
+				innerRangeExpr := model.VariableReference(&model.Variable{
+					Name:         "rangeBody",
+					VariableType: rangeType,
+				})
+				emitLoop(innerRangeExpr)
+				g.Fgenf(w, "%sreturn 0;\n", g.Indent)
+			})
+			g.Fgenf(w, "%s});\n", g.Indent)
+		} else {
+			emitLoop(rangeExpr)
+		}
 	} else {
 		g.Fgenf(w, "%svar %s = ", g.Indent, variableName)
 		instantiate(g.makeResourceName(name, ""))
@@ -1724,29 +1748,53 @@ func (g *generator) genComponent(w io.Writer, r *pcl.Component) {
 
 		g.Fgenf(w, "%svar %s = new List<%s>();\n", g.Indent, variableName, qualifiedMemberName)
 
-		resKey := "Key"
-		if model.InputType(model.NumberType).ConversionFrom(rangeExpr.Type()) != model.NoConversion {
-			g.Fgenf(w, "%sfor (var rangeIndex = 0; rangeIndex < %.12o; rangeIndex++)\n", g.Indent, rangeExpr)
-			g.Fgenf(w, "%s{\n", g.Indent)
-			g.Fgenf(w, "%s    var range = new { Value = rangeIndex };\n", g.Indent)
-			resKey = "Value"
-		} else {
-			rangeExpr := &model.FunctionCallExpression{
-				Name: "entries",
-				Args: []model.Expression{rangeExpr},
+		emitLoop := func(rangeExpr model.Expression) {
+			resKey := "Key"
+			if model.InputType(model.NumberType).ConversionFrom(rangeExpr.Type()) != model.NoConversion {
+				g.Fgenf(w, "%sfor (var rangeIndex = 0; rangeIndex < %.12o; rangeIndex++)\n", g.Indent, rangeExpr)
+				g.Fgenf(w, "%s{\n", g.Indent)
+				g.Fgenf(w, "%s    var range = new { Value = rangeIndex };\n", g.Indent)
+				resKey = "Value"
+			} else {
+				rangeExpr := &model.FunctionCallExpression{
+					Name: "entries",
+					Args: []model.Expression{rangeExpr},
+				}
+				g.Fgenf(w, "%sforeach (var range in %.v)\n", g.Indent, rangeExpr)
+				g.Fgenf(w, "%s{\n", g.Indent)
 			}
-			g.Fgenf(w, "%sforeach (var range in %.v)\n", g.Indent, rangeExpr)
-			g.Fgenf(w, "%s{\n", g.Indent)
+
+			resName := g.makeResourceName(name, "range."+resKey)
+			g.Indented(func() {
+				declareDeferredOutputVariables()
+				g.Fgenf(w, "%s%s.Add(", g.Indent, variableName)
+				instantiate(resName)
+				g.Fgenf(w, ");\n")
+			})
+			g.Fgenf(w, "%s}\n", g.Indent)
 		}
 
-		resName := g.makeResourceName(name, "range."+resKey)
-		g.Indented(func() {
-			declareDeferredOutputVariables()
-			g.Fgenf(w, "%s%s.Add(", g.Indent, variableName)
-			instantiate(resName)
-			g.Fgenf(w, ");\n")
-		})
-		g.Fgenf(w, "%s}\n", g.Indent)
+		// When asyncInit is true, promise-returning invokes are awaited to produce plain
+		// values at runtime, so only genuine outputs need to be lifted with .Apply. When
+		// asyncInit is false, outputInvokes wraps promise results in Output<T>, so promises
+		// also need lifting.
+		containsOutputs, containsPromises := model.ContainsEventuals(r.Options.Range.Type())
+		if containsOutputs || (!g.asyncInit && containsPromises) {
+			outerRangeExpr := g.lowerExpression(r.Options.Range, r.Options.Range.Type())
+			g.Fgenf(w, "%s%.20v.Apply(rangeBody =>\n", g.Indent, outerRangeExpr)
+			g.Fgenf(w, "%s{\n", g.Indent)
+			g.Indented(func() {
+				innerRangeExpr := model.VariableReference(&model.Variable{
+					Name:         "rangeBody",
+					VariableType: rangeType,
+				})
+				emitLoop(innerRangeExpr)
+				g.Fgenf(w, "%sreturn 0;\n", g.Indent)
+			})
+			g.Fgenf(w, "%s});\n", g.Indent)
+		} else {
+			emitLoop(rangeExpr)
+		}
 	} else {
 		declareDeferredOutputVariables()
 		g.Fgenf(w, "%svar %s = ", g.Indent, variableName)

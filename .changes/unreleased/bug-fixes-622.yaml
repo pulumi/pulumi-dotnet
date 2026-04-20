@@ -1,0 +1,6 @@
+component: runtime
+kind: bug-fixes
+body: Generate compilable C# for resources whose range is an Output-typed expression such as `length(someInvoke.result)`. The loop is now wrapped in `.Apply(rangeBody => { ... })` so the loop bound sees a plain `int`, and `length` on an `Output<ImmutableArray<T>>` is emitted as the extension method `.Length()` (with parentheses) rather than as a property.
+time: 2026-04-19T00:00:00.000000+01:00
+custom:
+    PR: "969"

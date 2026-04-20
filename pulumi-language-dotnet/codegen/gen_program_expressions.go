@@ -677,7 +677,16 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "join":
 		g.Fgenf(w, "string.Join(%v, %v)", expr.Args[0], expr.Args[1])
 	case "length":
-		g.Fgenf(w, "%.20v.Length", expr.Args[0])
+		containsOutputs, containsPromises := model.ContainsEventuals(expr.Args[0].Type())
+		// Length on Output<ImmutableArray<T>> is provided as an extension method by Pulumi.OutputExtensions,
+		// so it must be invoked with parentheses rather than referenced as a property. When asyncInit is false,
+		// promise-returning invokes are wrapped in Output<T> at emit time (see outputInvokes), so promise-typed
+		// args render as outputs too. When asyncInit is true, promises are awaited to plain values.
+		if containsOutputs || (!g.asyncInit && containsPromises) {
+			g.Fgenf(w, "%.20v.Length()", expr.Args[0])
+		} else {
+			g.Fgenf(w, "%.20v.Length", expr.Args[0])
+		}
 	case "lookup":
 		g.Fgenf(w, "%v[%v]", expr.Args[0], expr.Args[1])
 		if len(expr.Args) == 3 {

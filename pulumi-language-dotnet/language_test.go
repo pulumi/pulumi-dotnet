@@ -134,7 +134,6 @@ var expectedFailures = map[string]string{
 	"l2-parameterized-resource-twice":        "testdata not yet generated for .NET",
 	"l2-resource-option-replacement-trigger": "dotnet build failed: Pulumi.Output namespace conflict",
 	"l2-resource-option-replace-with":        "not yet implemented",
-	//"l3-range-resource-output-traversal":     "dotnet build failed: Output<ImmutableArray> missing Select extension method",        //nolint:lll
 	"l1-config-types-object": "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
 	"l1-elide-index":         "https://github.com/pulumi/pulumi-dotnet/issues/865",
 	"l2-elide-index":         "https://github.com/pulumi/pulumi-dotnet/issues/868",

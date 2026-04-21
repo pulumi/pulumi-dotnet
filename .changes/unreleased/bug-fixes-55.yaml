@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Ensure that 'main' is always respected for selecting projects to run
-time: 2026-04-15T20:19:01.497071+01:00
-custom:
-    PR: "55"

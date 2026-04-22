@@ -764,6 +764,14 @@ namespace Pulumi.Automation.Tests
                     var upResult = await stack.UpAsync();
                     Assert.Equal(UpdateState.Succeeded, upResult.Summary.Result);
 
+                    var upRefreshResult = await stack.UpAsync(new UpOptions
+                    {
+                        RunProgram = true,
+                        Refresh = true,
+                    });
+                    Assert.Equal(UpdateKind.Update, upRefreshResult.Summary.Kind);
+                    Assert.Equal(UpdateState.Succeeded, upRefreshResult.Summary.Result);
+
                     var refreshResult = await stack.RefreshAsync(new RefreshOptions
                     {
                         RunProgram = true,

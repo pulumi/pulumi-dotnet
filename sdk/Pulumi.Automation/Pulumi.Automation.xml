@@ -1632,6 +1632,11 @@
             Show resources that are being read in, alongside those being managed directly in the stack.
             </summary>
         </member>
+        <member name="P:Pulumi.Automation.UpOptions.RunProgram">
+            <summary>
+            Runs the program to determine up-to-date state for providers to refresh resources, this only applies if <see cref="P:Pulumi.Automation.UpOptions.Refresh"/> is set
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Workspace">
             <summary>
             Workspace is the execution context containing a single Pulumi project, a program, and multiple stacks.

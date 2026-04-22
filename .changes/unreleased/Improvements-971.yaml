@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Add --run-programm to UpOptions
+time: 2026-04-20T09:26:56.0145707+02:00
+custom:
+    PR: "971"

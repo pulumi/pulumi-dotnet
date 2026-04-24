@@ -15,8 +15,8 @@ namespace Pulumi.Example
         [Output("provider")]
         public Output<Pulumi.Kubernetes.Provider?> Provider { get; private set; } = null!;
 
-        [Output("securityGroup")]
-        public Output<Pulumi.Aws.Ec2.SecurityGroup> SecurityGroup { get; private set; } = null!;
+        [Output("res")]
+        public Output<Pulumi.Goalias.Mod1.V1.Res> Res { get; private set; } = null!;
 
         [Output("storageClasses")]
         public Output<ImmutableDictionary<string, Pulumi.Kubernetes.Storage.V1.StorageClass>?> StorageClasses { get; private set; } = null!;

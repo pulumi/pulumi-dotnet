@@ -562,8 +562,7 @@ func (g *generator) usingStatements(program *pcl.Program) programUsings {
 	preambleHelperMethods := codegen.NewStringSet()
 	for _, n := range program.Nodes {
 		if r, isResource := n.(*pcl.Resource); isResource {
-			pcl.FixupPulumiPackageTokens(r)
-			pkg, _, _, _ := r.DecomposeToken()
+			pkg, _, _, _ := pcl.DecomposeToken(r.GetToken())
 			var pkgRef schema.PackageReference
 			if r.Schema != nil && r.Schema.PackageReference != nil {
 				pkgRef = r.Schema.PackageReference
@@ -1146,9 +1145,8 @@ func (g *generator) qualifiedTypeName(pkg, module, member string) (string, strin
 
 // resourceTypeName computes the C# class name for the given resource.
 func (g *generator) resourceTypeName(r *pcl.Resource) string {
-	pcl.FixupPulumiPackageTokens(r)
 	// Compute the resource type from the Pulumi type token.
-	pkg, module, member, diags := r.DecomposeToken()
+	pkg, module, member, diags := pcl.DecomposeToken(r.GetToken())
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
 
 	if r.Schema != nil {
@@ -1181,7 +1179,7 @@ func (g *generator) extractInputPropertyNameMap(r *pcl.Resource) map[string]stri
 // resourceArgsTypeName computes the C# arguments class name for the given resource.
 func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
 	// Compute the resource type from the Pulumi type token.
-	pkg, module, member, diags := r.DecomposeToken()
+	pkg, module, member, diags := pcl.DecomposeToken(r.GetToken())
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
 
 	namespaces := g.namespaces[pkg]

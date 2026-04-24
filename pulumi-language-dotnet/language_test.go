@@ -174,6 +174,13 @@ var expectedFailures = map[string]string{
 	"l3-rewrite-conversions":             "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
 	"l3-range-ref":                       "Fail after updating to 3.230: dotnet build failed: List<Target> missing K1/Name members",                  //nolint:lll
 	"l2-resource-option-custom-timeouts": "https://github.com/pulumi/pulumi-dotnet/issues/822",
+
+	"l3-component-nested":                "Fail after updating to 3.232",
+	"l1-builtin-min-max":                 "Fail after updating to 3.232",
+	"l2-resource-primitive-conversions":  "Fail after updating to 3.232",
+	"l3-component-primitive-conversions": "Fail after updating to 3.232",
+	"l2-resource-option-hooks":           "Fail after updating to 3.232",
+	"l2-id-type":                         "Fail after updating to 3.232",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

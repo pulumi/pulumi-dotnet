@@ -534,7 +534,7 @@ func RunDotnetCommand(
 	programDirectory string,
 ) (string, error) {
 	commandStr := strings.Join(args, " ")
-	if logging.V(5) {
+	if logging.V(5).Enabled() {
 		logging.V(5).Infoln("Language host launching process: ", dotnetExec, commandStr)
 	}
 
@@ -748,7 +748,7 @@ func (host *dotnetLanguageHost) Run(ctx context.Context, req *pulumirpc.RunReque
 		args = append(args, "--project", project)
 	}
 
-	if logging.V(5) {
+	if logging.V(5).Enabled() {
 		commandStr := strings.Join(args, " ")
 		logging.V(5).Infoln("Language host launching process: ", opts.dotnetExec, commandStr)
 	}
@@ -1110,7 +1110,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 
 		buildArgs := []string{"build", project}
 
-		if logging.V(5) {
+		if logging.V(5).Enabled() {
 			commandStr := strings.Join(buildArgs, " ")
 			logging.V(5).Infoln("Language host launching process: ", executable, " ", commandStr)
 		}
@@ -1146,7 +1146,7 @@ func (host *dotnetLanguageHost) RunPlugin(
 	// Add on all the request args to start this plugin
 	args = append(args, req.Args...)
 
-	if logging.V(5) {
+	if logging.V(5).Enabled() {
 		commandStr := strings.Join(args, " ")
 		logging.V(5).Infoln("Language host launching process: ", executable, " ", commandStr)
 	}

@@ -569,6 +569,8 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 			g.Fgenf(w, "Output.Create(%.v)", expr.Args[0])
 		}
 
+	case "getOutput":
+		g.Fgenf(w, "%.20v.GetOutput(%.v)", expr.Args[0], expr.Args[1])
 	case "element":
 		g.Fgenf(w, "%.20v[%.v]", expr.Args[0], expr.Args[1])
 	case "entries":

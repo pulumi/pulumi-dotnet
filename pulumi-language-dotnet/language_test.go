@@ -123,7 +123,6 @@ var expectedFailures = map[string]string{
 		"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
 	"l2-map-keys":                   "dotnet build failed",
 	"l2-resource-secret":            "test hanging",
-	"l1-builtin-project-root":       "#466",
 	"l2-rtti":                       "codegen not implemented",
 	"l2-namespaced-provider":        "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
 	"l2-union":                      "dotnet build failed",

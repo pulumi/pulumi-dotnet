@@ -743,7 +743,7 @@ func (g *generator) genDictionaryOrTuple(w io.Writer, expr model.Expression) {
 	case *model.ObjectConsExpression:
 		g.genDictionary(w, expr, "object?")
 	case *model.TupleConsExpression:
-		if g.isListOfDifferentTypes(expr) {
+		if g.isListOfDifferentTypes(expr) || g.tupleContainsNull(expr) {
 			g.Fgen(w, "new object?[]\n")
 		} else {
 			g.Fgen(w, "new[]\n")
@@ -1310,6 +1310,26 @@ func (g *generator) isListOfDifferentObjectTypes(expr *model.TupleConsExpression
 	return false
 }
 
+func (g *generator) tupleContainsNull(expr *model.TupleConsExpression) bool {
+	for _, e := range expr.Expressions {
+		if isNullExpression(e) {
+			return true
+		}
+	}
+	return false
+}
+
+// isNullExpression returns true if the expression is a null literal, unwrapping intrinsic converts.
+func isNullExpression(expr model.Expression) bool {
+	if lit, ok := expr.(*model.LiteralValueExpression); ok && lit.Value.IsNull() {
+		return true
+	}
+	if call, ok := expr.(*model.FunctionCallExpression); ok && call.Name == pcl.IntrinsicConvert {
+		return isNullExpression(call.Args[0])
+	}
+	return false
+}
+
 func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExpression) {
 	switch len(expr.Expressions) {
 	case 0:
@@ -1320,7 +1340,12 @@ func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExp
 			// because list of a union is mapped to InputList<object>
 			// which means new[] will not work because type-inference won't
 			// know the type of the array beforehand
-			g.Fgenf(w, "%s", g.listInitializer)
+			listInit := g.listInitializer
+			if listInit == "new[]" && g.tupleContainsNull(expr) {
+				// C# can't infer the element type of an array containing a null literal.
+				listInit = "new object?[]"
+			}
+			g.Fgenf(w, "%s", listInit)
 		}
 
 		g.Fgenf(w, "\n%s{", g.Indent)

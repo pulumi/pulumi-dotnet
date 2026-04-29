@@ -1,6 +1,0 @@
-component: runtime
-kind: Improvements
-body: Support the `getOutput` pcl intrinsic in codegen
-time: 2026-04-26T20:04:27.393048+01:00
-custom:
-    PR: "977"

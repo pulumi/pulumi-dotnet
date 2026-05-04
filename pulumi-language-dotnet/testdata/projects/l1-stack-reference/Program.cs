@@ -13,6 +13,7 @@ return await Deployment.RunAsync(() =>
     {
         ["plain"] = @ref.GetOutput("plain"),
         ["secret"] = @ref.GetOutput("secret"),
+        ["secret_unsecret"] = Output.Unsecret(@ref.GetOutput("secret")),
     };
 });
 

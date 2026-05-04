@@ -20,6 +20,18 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!--
+    NU1902: Suppress the moderate-severity advisory on OpenTelemetry.Exporter.OpenTelemetryProtocol 1.9.0
+    (CVE-2026-42191, GHSA-4625-4j76-fww9). The fix is in 1.15.3, but that version's transitive
+    dependencies (Microsoft.Extensions.Logging.Configuration 10.0.0) require runtimes newer than our
+    net6.0 target. The advisory only affects programs that opt into the experimental OTLP disk-retry
+    feature without setting OTEL_DOTNET_EXPERIMENTAL_OTLP_DISK_RETRY_DIRECTORY_PATH; the SDK never
+    enables that path.
+    -->
+    <NoWarn>$(NoWarn);NU1902</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

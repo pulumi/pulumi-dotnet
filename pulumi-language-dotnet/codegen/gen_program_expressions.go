@@ -1148,11 +1148,15 @@ func (g *generator) methodSchemaHasArgs(self model.Expression, methodName string
 	}
 
 	annotation, ok := model.GetObjectTypeAnnotation[*pcl.ResourceAnnotation](objectType)
-	if !ok || annotation == nil || annotation.Node == nil || annotation.Node.Schema == nil {
+	if !ok || annotation == nil || annotation.Node == nil {
+		return true
+	}
+	schemaResource := annotation.Node.GetSchema()
+	if schemaResource == nil {
 		return true
 	}
 
-	for _, method := range annotation.Node.Schema.Methods {
+	for _, method := range schemaResource.Methods {
 		if method.Name != methodName {
 			continue
 		}

@@ -1116,6 +1116,13 @@ func (g *generator) qualifiedTypeName(pkg, module, member string) (string, strin
 	namespaces := g.namespaces[pkg]
 	rootNamespace := namespaceName(namespaces, pkg)
 
+	// Built-in pulumi resources (e.g. pulumi:pulumi:StackReference) live directly under the
+	// root Pulumi namespace. The binder reports their module as "pulumi" so the canonical
+	// token round-trips, but it should not contribute another namespace segment here.
+	if pkg == "pulumi" && strings.EqualFold(module, "pulumi") {
+		module = ""
+	}
+
 	namespace := namespaceName(namespaces, module)
 	if strings.ToLower(namespace) == "index" {
 		namespace = ""
@@ -1181,6 +1188,12 @@ func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
 	// Compute the resource type from the Pulumi type token.
 	pkg, module, member, diags := pcl.DecomposeToken(r.GetToken())
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
+
+	// Built-in pulumi resources live directly under the root Pulumi namespace; see
+	// qualifiedTypeName for the matching adjustment.
+	if pkg == "pulumi" && strings.EqualFold(module, "pulumi") {
+		module = ""
+	}
 
 	namespaces := g.namespaces[pkg]
 	rootNamespace := namespaceName(namespaces, pkg)

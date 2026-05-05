@@ -151,7 +151,6 @@ var expectedFailures = map[string]string{
 	"l3-range": "Fail after updating to 3.225",
 
 	"l1-config-types-primitive": "Fail after updating to 3.229: GenLiteralValueExpression panic on number literals",
-	"l1-output-number":          "Fail after updating to 3.229: GenLiteralValueExpression panic on number literals",
 	"l2-primitive-ref":          "Fail after updating to 3.229: dotnet build failed",
 	"l2-ref-ref":                "Fail after updating to 3.229: dotnet build failed",
 

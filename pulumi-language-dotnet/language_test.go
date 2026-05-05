@@ -150,9 +150,8 @@ var expectedFailures = map[string]string{
 
 	"l3-range": "Fail after updating to 3.225",
 
-	"l1-config-types-primitive": "Fail after updating to 3.229: GenLiteralValueExpression panic on number literals",
-	"l2-primitive-ref":          "Fail after updating to 3.229: dotnet build failed",
-	"l2-ref-ref":                "Fail after updating to 3.229: dotnet build failed",
+	"l2-primitive-ref": "Fail after updating to 3.229: dotnet build failed",
+	"l2-ref-ref":       "Fail after updating to 3.229: dotnet build failed",
 
 	"l2-resource-optional":           "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
 	"l3-component-config-objects":    "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll

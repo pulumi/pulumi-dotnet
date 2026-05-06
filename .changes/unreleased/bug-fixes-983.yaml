@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Bump minimum .NET version to 8.0, to help fix a security vulnerability
+time: 2026-05-06T10:28:28.019697168+02:00
+custom:
+    PR: "983"

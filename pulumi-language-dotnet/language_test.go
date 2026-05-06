@@ -107,7 +107,6 @@ var expectedFailures = map[string]string{
 	"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
 	"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
 	"l2-resource-primitives":                "Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",
-	"l2-failed-create-continue-on-error":    "build error before pack: exit status 1",
 	"l2-provider-grpc-config":               "dotnet build failed",
 	"l2-provider-grpc-config-secret":        "dotnet build failed",
 	"l2-provider-grpc-config-schema":        "dotnet build failed",

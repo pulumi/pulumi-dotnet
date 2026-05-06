@@ -44,7 +44,7 @@ namespace Pulumi
             task.ContinueWith(_onTaskCompleted);
         }
 
-        private IEnumerable<Exception> Flush()
+        private ImmutableArray<Exception> Flush()
         {
             // It is possible for multiple tasks to complete with the
             // same exception. This is happening in the test suite. It
@@ -101,7 +101,7 @@ namespace Pulumi
             {
                 if (_exceptions.Count > 0)
                 {
-                    return Task.FromResult(Flush());
+                    return Task.FromResult<IEnumerable<Exception>>(Flush());
                 }
                 else if (_activeTasks == 0)
                 {

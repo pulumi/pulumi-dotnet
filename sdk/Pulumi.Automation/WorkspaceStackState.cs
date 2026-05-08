@@ -10,7 +10,6 @@ namespace Pulumi.Automation
     /// </summary>
     public sealed class WorkspaceStackState
     {
-        private static readonly string[] _unprotectAllArgs = new[] { "state", "unprotect", "--all" };
         private readonly WorkspaceStack _workspaceStack;
 
         internal WorkspaceStackState(WorkspaceStack workspaceStack)
@@ -62,7 +61,7 @@ namespace Pulumi.Automation
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task UnprotectAllAsync(CancellationToken cancellationToken = default)
         {
-            var args = _unprotectAllArgs.ToList();
+            var args = new string[] { "state", "unprotect", "--all", }.ToList();
             return this._workspaceStack.RunCommandAsync(args, null, null, null, cancellationToken);
         }
     }

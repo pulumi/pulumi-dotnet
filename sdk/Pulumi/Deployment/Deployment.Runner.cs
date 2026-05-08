@@ -60,7 +60,10 @@ namespace Pulumi
 
             Task<int> IRunner.RunAsync<TStack>(IServiceProvider serviceProvider)
             {
-                ArgumentNullException.ThrowIfNull(serviceProvider);
+                if (serviceProvider == null)
+                {
+                    throw new ArgumentNullException(nameof(serviceProvider));
+                }
 
                 return RunAsync(() => serviceProvider.GetService(typeof(TStack)) as TStack
                     ?? throw new InvalidOperationException($"Failed to resolve instance of type {typeof(TStack)} from service provider. Register the type with the service provider before calling {nameof(RunAsync)}."));

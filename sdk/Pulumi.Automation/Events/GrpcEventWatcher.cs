@@ -105,7 +105,7 @@ namespace Pulumi.Automation.Events
                 }
             }, cancellationToken);
 
-            _ = _portTcs.Task.Wait(TimeSpan.FromSeconds(10), cancellationToken);
+            _ = _portTcs.Task.Wait(TimeSpan.FromSeconds(10));
         }
 
         public async Task StopAsync()

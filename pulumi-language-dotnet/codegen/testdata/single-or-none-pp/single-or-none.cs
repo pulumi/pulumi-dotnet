@@ -6,7 +6,7 @@ return await Deployment.RunAsync(() =>
 {
     return new Dictionary<string, object?>
     {
-        ["result"] = Enumerable.Single(new[]
+        ["result"] = Enumerable.SingleOrDefault(new[]
         {
             1,
         }),

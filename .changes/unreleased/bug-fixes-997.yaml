@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: 'Revert #983, restoring the framework version to v6'
+time: 2026-05-08T14:55:15.337699+02:00
+custom:
+    PR: "997"

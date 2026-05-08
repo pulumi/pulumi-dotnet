@@ -15,8 +15,11 @@ namespace Pulumi.Automation
             IServiceProvider serviceProvider,
             Type stackType)
         {
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-            ArgumentNullException.ThrowIfNull(stackType);
+            if (serviceProvider is null)
+                throw new ArgumentNullException(nameof(serviceProvider));
+
+            if (stackType is null)
+                throw new ArgumentNullException(nameof(stackType));
 
             var pulumiStackType = typeof(Stack);
             if (!pulumiStackType.IsAssignableFrom(stackType) || pulumiStackType == stackType)

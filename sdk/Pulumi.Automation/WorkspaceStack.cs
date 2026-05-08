@@ -45,11 +45,6 @@ namespace Pulumi.Automation
     public sealed class WorkspaceStack : IDisposable
 #pragma warning restore CA1711 // Identifiers should not have incorrect suffix
     {
-        private static readonly JsonSerializerOptions _importJsonOptions = new JsonSerializerOptions
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
         private readonly Task _readyTask;
 
         /// <summary>
@@ -355,7 +350,7 @@ namespace Pulumi.Automation
                     args.Add(options.Plan);
                 }
 
-                if (options.Replace?.Count > 0)
+                if (options.Replace?.Any() == true)
                 {
                     foreach (var item in options.Replace)
                     {
@@ -479,7 +474,7 @@ namespace Pulumi.Automation
                     args.Add(options.Plan);
                 }
 
-                if (options.Replace?.Count > 0)
+                if (options.Replace?.Any() == true)
                 {
                     foreach (var item in options.Replace)
                     {
@@ -603,7 +598,7 @@ namespace Pulumi.Automation
                 if (options.ClearPendingCreates is true)
                     args.Add("--clear-pending-creates");
 
-                if (options.ImportPendingCreates?.Count > 0)
+                if (options.ImportPendingCreates?.Any() == true)
                 {
                     foreach (var item in options.ImportPendingCreates)
                     {
@@ -783,7 +778,7 @@ namespace Pulumi.Automation
                 // we the output file to read the generated code and return it to the user
                 tempDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-                if (options.Resources?.Count > 0)
+                if (options.Resources?.Any() == true)
                 {
                     Directory.CreateDirectory(tempDirectoryPath);
                     var importPath = Path.Combine(tempDirectoryPath, "import.json");
@@ -793,7 +788,11 @@ namespace Pulumi.Automation
                         resources = options.Resources,
                     };
 
-                    var importJson = JsonSerializer.Serialize(importContent, _importJsonOptions);
+                    var importJson = JsonSerializer.Serialize(importContent, new JsonSerializerOptions
+                    {
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
 
                     await File.WriteAllTextAsync(importPath, importJson, cancellationToken);
                     args.Add("--file");
@@ -821,7 +820,7 @@ namespace Pulumi.Automation
                     // if the user specifies a converter, pass it to `--from <converter>` argument of import.
                     args.Add("--from");
                     args.Add(options.Converter);
-                    if (options.ConverterArgs?.Count > 0)
+                    if (options.ConverterArgs?.Any() == true)
                     {
                         // pass any additional arguments to the converter
                         args.Add("--");
@@ -1094,7 +1093,7 @@ namespace Pulumi.Automation
                 args.Add(options.Message);
             }
 
-            if (options.Exclude?.Count > 0)
+            if (options.Exclude?.Any() == true)
             {
                 foreach (var item in options.Exclude)
                 {
@@ -1103,7 +1102,7 @@ namespace Pulumi.Automation
                 }
             }
 
-            if (options.Target?.Count > 0)
+            if (options.Target?.Any() == true)
             {
                 foreach (var item in options.Target)
                 {
@@ -1112,7 +1111,7 @@ namespace Pulumi.Automation
                 }
             }
 
-            if (options.PolicyPacks?.Count > 0)
+            if (options.PolicyPacks?.Any() == true)
             {
                 foreach (var item in options.PolicyPacks)
                 {
@@ -1121,7 +1120,7 @@ namespace Pulumi.Automation
                 }
             }
 
-            if (options.PolicyPackConfigs?.Count > 0)
+            if (options.PolicyPackConfigs?.Any() == true)
             {
                 foreach (var item in options.PolicyPackConfigs)
                 {

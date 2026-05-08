@@ -46,7 +46,6 @@ namespace Pulumi.Automation.Commands
     public class LocalPulumiCommand : PulumiCommand
     {
         private static readonly SemVersion _minimumVersion = new SemVersion(3, 1, 0);
-        private static readonly string[] _nonInteractiveArgs = new[] { "--non-interactive" };
         private readonly string _command;
         public const string SkipVersionCheckVar = "PULUMI_AUTOMATION_API_SKIP_VERSION_CHECK";
 
@@ -396,7 +395,7 @@ namespace Pulumi.Automation.Commands
             // this causes commands to fail rather than prompting for input (and thus hanging indefinitely)
             if (!args.Contains("--non-interactive"))
             {
-                args = args.Concat(_nonInteractiveArgs).ToList();
+                args = args.Concat(new[] { "--non-interactive" }).ToList();
             }
 
             if (eventLogPath != null)

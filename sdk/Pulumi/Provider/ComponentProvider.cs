@@ -17,12 +17,6 @@ namespace Pulumi.Experimental.Provider
     /// </summary>
     public class ComponentProvider : Provider
     {
-        private static readonly JsonSerializerOptions s_schemaSerializerOptions = new()
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
-
         private readonly Assembly componentAssembly;
         private readonly Metadata metadata;
         private readonly Type[]? componentTypes;
@@ -59,7 +53,11 @@ namespace Pulumi.Experimental.Provider
                 : ComponentAnalyzer.GenerateSchema(metadata, componentAssembly);
 
             // Serialize to JSON
-            var jsonSchema = JsonSerializer.Serialize(schema, s_schemaSerializerOptions);
+            var jsonSchema = JsonSerializer.Serialize(schema, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
 
             return Task.FromResult(new GetSchemaResponse
             {

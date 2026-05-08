@@ -92,7 +92,7 @@ namespace Pulumi
             var nulls = (from kv in outputs
                          where kv.Value == null
                          select kv.Key).ToList();
-            if (nulls.Count > 0)
+            if (nulls.Any())
             {
                 var message = $"Output(s) '{string.Join(", ", nulls)}' have no value assigned. [Output] attributed properties must be assigned inside Stack constructor.";
                 throw new RunException(message);
@@ -104,7 +104,7 @@ namespace Pulumi
                               let isOutput = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Output<>)
                               where !isOutput
                               select kv.Key).ToList();
-            if (wrongTypes.Count > 0)
+            if (wrongTypes.Any())
             {
                 throw RunException.OutputsHaveIncorrectType(wrongTypes);
             }

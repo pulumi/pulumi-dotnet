@@ -91,7 +91,7 @@ namespace Pulumi
                 }
             }
 
-            while (assembliesToCheck.Count > 0)
+            while (assembliesToCheck.Any())
             {
                 var assemblyToCheck = assembliesToCheck.Dequeue();
                 if (yieldedAssemblies.Contains(assemblyToCheck.FullName!))

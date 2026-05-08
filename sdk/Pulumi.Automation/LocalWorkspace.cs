@@ -33,10 +33,6 @@ namespace Pulumi.Automation
     /// </summary>
     public sealed class LocalWorkspace : Workspace
     {
-        private static readonly string[] _whoAmIJsonArgs = new[] { "whoami", "--json" };
-        private static readonly string[] _whoAmIArgs = new[] { "whoami" };
-        private static readonly string[] _stackLsJsonArgs = new[] { "stack", "ls", "--json" };
-        private static readonly string[] _pluginLsJsonArgs = new[] { "plugin", "ls", "--json" };
         private readonly LocalSerializer _serializer = new LocalSerializer();
         private readonly bool _ownsWorkingDir;
         private readonly RemoteGitProgramArgs? _remoteGitProgramArgs;
@@ -679,13 +675,13 @@ namespace Pulumi.Automation
             if (SupportsCommand(new SemVersion(3, 58)))
             {
                 // Use the new --json style
-                var result = await this.RunCommandAsync(_whoAmIJsonArgs, cancellationToken).ConfigureAwait(false);
+                var result = await this.RunCommandAsync(new[] { "whoami", "--json" }, cancellationToken).ConfigureAwait(false);
                 return this._serializer.DeserializeJson<WhoAmIResult>(result.StandardOutput);
             }
             else
             {
                 // Fallback to the old just a name style
-                var result = await this.RunCommandAsync(_whoAmIArgs, cancellationToken).ConfigureAwait(false);
+                var result = await this.RunCommandAsync(new[] { "whoami", }, cancellationToken).ConfigureAwait(false);
                 return new WhoAmIResult(result.StandardOutput.Trim(), null, ImmutableArray<string>.Empty);
             }
         }
@@ -735,7 +731,7 @@ namespace Pulumi.Automation
         /// <inheritdoc/>
         public override async Task<ImmutableList<StackSummary>> ListStacksAsync(CancellationToken cancellationToken = default)
         {
-            var result = await this.RunCommandAsync(_stackLsJsonArgs, cancellationToken).ConfigureAwait(false);
+            var result = await this.RunCommandAsync(new[] { "stack", "ls", "--json" }, cancellationToken).ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(result.StandardOutput))
                 return ImmutableList<StackSummary>.Empty;
 
@@ -818,7 +814,7 @@ namespace Pulumi.Automation
         /// <inheritdoc/>
         public override async Task<ImmutableList<PluginInfo>> ListPluginsAsync(CancellationToken cancellationToken = default)
         {
-            var result = await this.RunCommandAsync(_pluginLsJsonArgs, cancellationToken).ConfigureAwait(false);
+            var result = await this.RunCommandAsync(new[] { "plugin", "ls", "--json" }, cancellationToken).ConfigureAwait(false);
             var plugins = this._serializer.DeserializeJson<List<PluginInfo>>(result.StandardOutput);
             return plugins.ToImmutableList();
         }

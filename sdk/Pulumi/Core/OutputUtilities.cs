@@ -48,8 +48,15 @@ namespace Pulumi.Utilities
         /// </summary>
         public static Output<T> WithDependency<T>(Output<T> output, Resource resource)
         {
-            ArgumentNullException.ThrowIfNull(output);
-            ArgumentNullException.ThrowIfNull(resource);
+            if (output is null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            if (resource is null)
+            {
+                throw new ArgumentNullException(nameof(resource));
+            }
 
             var newTask = output.DataTask.ContinueWith(t =>
             {

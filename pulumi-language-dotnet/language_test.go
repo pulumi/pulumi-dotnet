@@ -177,8 +177,6 @@ var expectedFailures = map[string]string{
 
 	"l2-resource-read":        "Fail after updating to 3.234: read resource codegen not implemented",
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
-
-	"l1-builtin-string": "https://github.com/pulumi/pulumi-dotnet/issues/995",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

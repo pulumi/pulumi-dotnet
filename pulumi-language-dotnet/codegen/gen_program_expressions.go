@@ -598,8 +598,6 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "notImplemented":
 		g.Fgenf(w, "NotImplemented(%v)", expr.Args[0])
 	case "singleOrNone":
-		// PCL's singleOrNone returns null on empty input, the single element when there is one, and
-		// errors on multi-element input. SingleOrDefault matches; Single throws on empty.
 		g.Fgenf(w, "Enumerable.SingleOrDefault(%v)", expr.Args[0])
 	case pcl.Call:
 		self := expr.Args[0]

@@ -376,6 +376,9 @@ namespace Pulumi.Automation
                 if (options.Refresh is true)
                     args.Add("--refresh");
 
+                if (options.RunProgram is true)
+                    args.Add("--run-program");
+
                 ApplyUpdateOptions(options, args);
             }
 

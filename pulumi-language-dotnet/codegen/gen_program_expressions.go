@@ -680,11 +680,24 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 		g.Fgenf(w, "string.Join(%v, %v)", expr.Args[0], expr.Args[1])
 	case "length":
 		containsOutputs, containsPromises := model.ContainsEventuals(expr.Args[0].Type())
+		isOutput := containsOutputs || (!g.asyncInit && containsPromises)
+		// PCL's length() on strings returns the number of Unicode grapheme clusters, not UTF-16 code
+		// units. .NET's StringInfo.LengthInTextElements implements UAX #29 grapheme cluster boundaries,
+		// matching PCL semantics for multi-byte Latin, emoji with variation selectors, and ZWJ sequences.
+		if model.ResolveOutputs(expr.Args[0].Type()).Equals(model.StringType) {
+			if isOutput {
+				g.Fgenf(w, "%.20v.Apply(s => new System.Globalization.StringInfo(s).LengthInTextElements)",
+					expr.Args[0])
+			} else {
+				g.Fgenf(w, "new System.Globalization.StringInfo(%.v).LengthInTextElements", expr.Args[0])
+			}
+			return
+		}
 		// Length on Output<ImmutableArray<T>> is provided as an extension method by Pulumi.OutputExtensions,
 		// so it must be invoked with parentheses rather than referenced as a property. When asyncInit is false,
 		// promise-returning invokes are wrapped in Output<T> at emit time (see outputInvokes), so promise-typed
 		// args render as outputs too. When asyncInit is true, promises are awaited to plain values.
-		if containsOutputs || (!g.asyncInit && containsPromises) {
+		if isOutput {
 			g.Fgenf(w, "%.20v.Length()", expr.Args[0])
 		} else {
 			g.Fgenf(w, "%.20v.Length", expr.Args[0])

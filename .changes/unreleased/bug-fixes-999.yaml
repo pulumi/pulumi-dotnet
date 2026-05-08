@@ -1,0 +1,6 @@
+component: runtime
+kind: bug-fixes
+body: 'Translate PCL `length()` on strings to `StringInfo.LengthInTextElements` so it returns Unicode grapheme clusters rather than UTF-16 code units'
+time: 2026-05-08T16:00:00.000000+02:00
+custom:
+    PR: "999"

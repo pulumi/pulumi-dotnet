@@ -81,7 +81,7 @@ func csharpIdentifier(s string) string {
 		return "@" + s
 
 	default:
-		return s
+		return cgstrings.Unhyphenate(s)
 	}
 }
 
@@ -739,7 +739,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 
 	// Generate the constructor parameters.
 	for i, prop := range pt.properties {
-		paramName := cgstrings.Unhyphenate(csharpIdentifier(prop.Name))
+		paramName := csharpIdentifier(prop.Name)
 		typ := prop.Type
 		if !prop.IsRequired() && pt.mod.isK8sCompatMode() {
 			typ = codegen.RequiredType(prop)
@@ -762,7 +762,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 	// Generate the constructor body.
 	fmt.Fprintf(w, "%s    {\n", indent)
 	for _, prop := range pt.properties {
-		paramName := cgstrings.Unhyphenate(csharpIdentifier(prop.Name))
+		paramName := csharpIdentifier(prop.Name)
 		fieldName := pt.mod.propertyName(prop)
 		if fieldName == paramName {
 			// Avoid a no-op in case of field and property name collision.

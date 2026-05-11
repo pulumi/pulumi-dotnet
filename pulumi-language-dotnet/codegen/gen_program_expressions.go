@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/cgstrings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
@@ -556,7 +557,7 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 								// in .NET SDK the field is PluginDownloadURL so we have to special-case it
 								g.Fgenf(w, "%sPluginDownloadURL = %v,\n", g.Indent, item.Value)
 							default:
-								g.Fgenf(w, "%s%s = %v,\n", g.Indent, Title(key), item.Value)
+								g.Fgenf(w, "%s%s = %v,\n", g.Indent, cgstrings.UppercaseFirst(key), item.Value)
 							}
 						}
 					})
@@ -668,7 +669,7 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 							// in .NET SDK the field is PluginDownloadURL so we have to special-case it
 							g.Fgenf(w, "%sPluginDownloadURL = %v,\n", g.Indent, item.Value)
 						default:
-							g.Fgenf(w, "%s%s = %v,\n", g.Indent, Title(key), item.Value)
+							g.Fgenf(w, "%s%s = %v,\n", g.Indent, cgstrings.UppercaseFirst(key), item.Value)
 						}
 					}
 				})
@@ -1135,7 +1136,7 @@ func (g *generator) GenRelativeTraversalExpression(w io.Writer, expr *model.Rela
 func (g *generator) schemaTypeName(schemaType *schema.ObjectType) string {
 	fullyQualifiedTypeName := schemaType.Token
 	nameParts := strings.Split(fullyQualifiedTypeName, ":")
-	return Title(nameParts[len(nameParts)-1])
+	return cgstrings.UppercaseFirst(nameParts[len(nameParts)-1])
 }
 
 func (g *generator) withinFunctionInvoke(run func()) {
@@ -1217,7 +1218,7 @@ func (g *generator) GenScopeTraversalExpression(w io.Writer, expr *model.ScopeTr
 
 		if _, isConfig := configVars[expr.RootName]; isConfig {
 			if _, configReference := expr.Parts[0].(*pcl.ConfigVariable); configReference {
-				rootName = "args." + Title(expr.RootName)
+				rootName = "args." + cgstrings.UppercaseFirst(expr.RootName)
 			}
 		}
 	}

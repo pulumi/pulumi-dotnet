@@ -161,7 +161,7 @@ func (mod *modContext) propertyName(p *schema.Property) string {
 	if n, ok := mod.propertyNames[p]; ok {
 		return n
 	}
-	return cgstrings.UppercaseFirst(p.Name)
+	return cgstrings.UppercaseFirst(cgstrings.Unhyphenate(p.Name))
 }
 
 func (mod *modContext) details(t *schema.ObjectType) *typeDetails {
@@ -763,7 +763,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 	fmt.Fprintf(w, "%s    {\n", indent)
 	for _, prop := range pt.properties {
 		paramName := cgstrings.Unhyphenate(csharpIdentifier(prop.Name))
-		fieldName := cgstrings.Unhyphenate(pt.mod.propertyName(prop))
+		fieldName := pt.mod.propertyName(prop)
 		if fieldName == paramName {
 			// Avoid a no-op in case of field and property name collision.
 			fieldName = "this." + fieldName

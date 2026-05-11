@@ -31,10 +31,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"unicode"
 
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/cgstrings"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/diag"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
@@ -51,16 +51,6 @@ type typeDetails struct {
 	stateType                         bool
 	plainType                         bool
 	usedInFunctionOutputVersionInputs bool
-}
-
-// Title converts the input string to a title case
-// where only the initial letter is upper-cased.
-func Title(s string) string {
-	if s == "" {
-		return ""
-	}
-	runes := []rune(s)
-	return string(append([]rune{unicode.ToUpper(runes[0])}, runes[1:]...))
 }
 
 func csharpIdentifier(s string) string {
@@ -91,7 +81,7 @@ func csharpIdentifier(s string) string {
 		return "@" + s
 
 	default:
-		return s
+		return cgstrings.Unhyphenate(s)
 	}
 }
 
@@ -126,7 +116,7 @@ func namespaceName(namespaces map[string]string, name string) string {
 	for i, part := range parts {
 		names := strings.Split(part, "-")
 		for j, name := range names {
-			names[j] = Title(name)
+			names[j] = cgstrings.UppercaseFirst(name)
 		}
 		parts[i] = strings.Join(names, "")
 	}
@@ -171,7 +161,7 @@ func (mod *modContext) propertyName(p *schema.Property) string {
 	if n, ok := mod.propertyNames[p]; ok {
 		return n
 	}
-	return Title(p.Name)
+	return cgstrings.UppercaseFirst(cgstrings.Unhyphenate(p.Name))
 }
 
 func (mod *modContext) details(t *schema.ObjectType) *typeDetails {
@@ -189,7 +179,7 @@ func tokenToName(tok string) string {
 
 	components := strings.Split(tok, ":")
 	contract.Assertf(len(components) == 3, "malformed token %v", tok)
-	return Title(components[2])
+	return cgstrings.UppercaseFirst(components[2])
 }
 
 func resourceName(r *schema.Resource) string {
@@ -200,7 +190,7 @@ func resourceName(r *schema.Resource) string {
 	if val1, ok := r.Language["csharp"]; ok {
 		val2, ok := val1.(CSharpResourceInfo)
 		contract.Assertf(ok, "dotnet specific settings for resources should be of type CSharpResourceInfo")
-		return Title(val2.Name)
+		return cgstrings.UppercaseFirst(val2.Name)
 	}
 
 	return tokenToName(r.Token)
@@ -1143,7 +1133,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 
 	// Generate methods.
 	genMethod := func(method *schema.Method) {
-		methodName := Title(method.Name)
+		methodName := cgstrings.UppercaseFirst(method.Name)
 		fun := method.Function
 
 		var objectReturnType *schema.ObjectType
@@ -1263,7 +1253,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 
 	// Generate method types.
 	genMethodTypes := func(method *schema.Method) error {
-		methodName := Title(method.Name)
+		methodName := cgstrings.UppercaseFirst(method.Name)
 		fun := method.Function
 
 		// Generate args type.
@@ -2425,7 +2415,11 @@ func getLogo(pkg *schema.Package) ([]byte, error) {
 func computePropertyNames(props []*schema.Property, names map[*schema.Property]string) {
 	for _, p := range props {
 		if info, ok := p.Language["csharp"].(CSharpPropertyInfo); ok && info.Name != "" {
+			// Schema defined custom property mapping
 			names[p] = info.Name
+		} else {
+			// Sanitize in case property contains hyphens
+			names[p] = cgstrings.UppercaseFirst(cgstrings.Unhyphenate(p.Name))
 		}
 	}
 }

@@ -22,6 +22,7 @@ import (
 	"unicode"
 
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/cgstrings"
 )
 
 // isReservedWord returns true if s is a C# reserved word as per
@@ -110,7 +111,7 @@ func makeSafePulumiNamespace(name string) string {
 
 // propertyName returns a name as a valid identifier in title case.
 func propertyName(name string) string {
-	return makeValidIdentifier(Title(name))
+	return makeValidIdentifier(cgstrings.UppercaseFirst(name))
 }
 
 func makeSafeEnumName(name, typeName string) (string, error) {

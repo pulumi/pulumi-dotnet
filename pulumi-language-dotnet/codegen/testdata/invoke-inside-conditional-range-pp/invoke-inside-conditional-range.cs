@@ -50,12 +50,12 @@ return await Deployment.RunAsync(async() =>
             EnableDns64 = enableIpv6 && publicSubnetEnableDns64,
             EnableResourceNameDnsAaaaRecordOnLaunch = enableIpv6 && publicSubnetEnableResourceNameDnsAaaaRecordOnLaunch,
             EnableResourceNameDnsARecordOnLaunch = !publicSubnetIpv6Native && publicSubnetEnableResourceNameDnsARecordOnLaunch,
-            Ipv6CidrBlock = enableIpv6 && publicSubnetIpv6Prefixes.Length > 0 ? currentVpc.Ipv6CidrBlock.Apply(ipv6CidrBlock => Std.Cidrsubnet.Invoke(new()
+            Ipv6CidrBlock = enableIpv6 && publicSubnetIpv6Prefixes.Length > 0 ? Std.Cidrsubnet.Invoke(new()
             {
-                Input = ipv6CidrBlock,
+                Input = currentVpc.Ipv6CidrBlock,
                 Newbits = 8,
                 Netnum = publicSubnetIpv6Prefixes[range.Value],
-            })).Apply(invoke => invoke.Result) : null,
+            }).Apply(invoke => invoke.Result) : null,
             Ipv6Native = enableIpv6 && publicSubnetIpv6Native,
             VpcId = currentVpc.Id,
         }));

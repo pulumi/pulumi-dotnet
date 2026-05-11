@@ -27,6 +27,7 @@ import (
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/cgstrings"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/model"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/model/format"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/syntax"
@@ -617,7 +618,7 @@ func (g *generator) usingStatements(program *pcl.Program) programUsings {
 }
 
 func configObjectTypeName(variableName string) string {
-	return Title(variableName) + "Args"
+	return cgstrings.UppercaseFirst(variableName) + "Args"
 }
 
 func componentInputElementType(pclType model.Type) string {
@@ -766,7 +767,7 @@ func collectComponentObjectTypedConfigVariables(component *pcl.Component) map[st
 func collectObjectTypedConfigVariables(program *pcl.Program) map[string]*model.ObjectType {
 	objectTypes := map[string]*model.ObjectType{}
 	for _, config := range program.ConfigVariables() {
-		typeName := Title(makeValidIdentifier(config.Name()))
+		typeName := cgstrings.UppercaseFirst(makeValidIdentifier(config.Name()))
 		switch configType := pcl.UnwrapOption(config.Type()).(type) {
 		case *model.ObjectType:
 			objectTypes[typeName] = configType
@@ -826,7 +827,7 @@ func (g *generator) genComponentPreamble(w io.Writer, componentName string, comp
 							g.Fprintf(w, "%spublic %s? %s { get; set; }\n",
 								g.Indent,
 								inputType,
-								Title(propertyName))
+								cgstrings.UppercaseFirst(propertyName))
 						}
 					})
 					g.Fprintf(w, "%s}\n\n", g.Indent)
@@ -866,7 +867,7 @@ func (g *generator) genComponentPreamble(w io.Writer, componentName string, comp
 					g.Fprintf(w, "%spublic %s %s { get; set; } = ",
 						g.Indent,
 						inputType,
-						Title(configVar.Name()))
+						cgstrings.UppercaseFirst(configVar.Name()))
 
 					if configVar.DefaultValue != nil {
 						g.Fprintf(w, "%v;\n", g.lowerExpression(configVar.DefaultValue, configVar.DefaultValue.Type()))
@@ -900,7 +901,7 @@ func (g *generator) genComponentPreamble(w io.Writer, componentName string, comp
 				g.Fprintf(w, "%spublic %s %s { get; private set; }\n",
 					g.Indent,
 					outputType,
-					Title(outputVar.Name()))
+					cgstrings.UppercaseFirst(outputVar.Name()))
 			}
 
 			// If we collected any helper methods that should be added, write them
@@ -941,7 +942,7 @@ func (g *generator) genComponentPostamble(w io.Writer, component *pcl.Component)
 				} else {
 					// Emit component resource output assignment
 					for _, output := range outputVars {
-						outputProperty := Title(output.Name())
+						outputProperty := cgstrings.UppercaseFirst(output.Name())
 						switch expr := output.Value.(type) {
 						case *model.ScopeTraversalExpression:
 							_, ok := expr.Parts[0].(*pcl.Resource)
@@ -1129,7 +1130,7 @@ func (g *generator) qualifiedTypeName(pkg, module, member string) (string, strin
 	}
 	namespaceTokens := strings.Split(namespace, "/")
 	for i, name := range namespaceTokens {
-		namespaceTokens[i] = Title(name)
+		namespaceTokens[i] = cgstrings.UppercaseFirst(name)
 	}
 	namespace = strings.Join(namespaceTokens, ".")
 
@@ -1139,14 +1140,14 @@ func (g *generator) qualifiedTypeName(pkg, module, member string) (string, strin
 		if namespace != "" {
 			typePrefix = fmt.Sprintf("%s.%s", alias, namespace)
 		}
-		return alias, fmt.Sprintf("%s.%s", typePrefix, Title(member))
+		return alias, fmt.Sprintf("%s.%s", typePrefix, cgstrings.UppercaseFirst(member))
 	}
 
 	if namespace != "" {
 		namespace = "." + namespace
 	}
 
-	qualifiedMemberName := fmt.Sprintf("%s%s.%s", rootNamespace, namespace, Title(member))
+	qualifiedMemberName := fmt.Sprintf("%s%s.%s", rootNamespace, namespace, cgstrings.UppercaseFirst(member))
 	return rootNamespace, qualifiedMemberName
 }
 
@@ -1209,7 +1210,7 @@ func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
 		namespace = "." + namespace
 	}
 
-	return fmt.Sprintf("%s%s.%sArgs", rootNamespace, namespace, Title(member))
+	return fmt.Sprintf("%s%s.%sArgs", rootNamespace, namespace, cgstrings.UppercaseFirst(member))
 }
 
 // functionName computes the C# namespace and class name for the given function token.
@@ -1283,7 +1284,7 @@ func (g *generator) argumentTypeNameWithSuffix(expr model.Expression, destType m
 	}
 	member = member + suffix
 
-	return fmt.Sprintf("%s%s.%s", rootNamespace, namespace, Title(member))
+	return fmt.Sprintf("%s%s.%s", rootNamespace, namespace, cgstrings.UppercaseFirst(member))
 }
 
 // makeResourceName returns the expression that should be emitted for a resource's "name" parameter given its base name
@@ -1830,7 +1831,7 @@ func (g *generator) genComponent(w io.Writer, r *pcl.Component) {
 }
 
 func computeConfigTypeParam(configName string, configType model.Type) string {
-	typeName := Title(makeValidIdentifier(configName))
+	typeName := cgstrings.UppercaseFirst(makeValidIdentifier(configName))
 	configType = pcl.UnwrapOption(configType)
 	switch configType {
 	case model.StringType:

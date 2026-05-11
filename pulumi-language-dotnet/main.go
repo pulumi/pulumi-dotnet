@@ -35,6 +35,7 @@ import (
 	"github.com/pkg/errors"
 	dotnetcodegen "github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/codegen"
 	"github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/cgstrings"
 	hclsyntax "github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/syntax"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/pcl"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
@@ -1558,7 +1559,7 @@ func (host *dotnetLanguageHost) Link(
 func csharpPackageName(pkgName string) string {
 	parts := strings.Split(pkgName, "-")
 	for i, part := range parts {
-		parts[i] = dotnetcodegen.Title(part)
+		parts[i] = cgstrings.UppercaseFirst(part)
 	}
 	return strings.Join(parts, "")
 }

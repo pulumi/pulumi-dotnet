@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/cgstrings"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 )
 
@@ -103,7 +104,7 @@ func (d DocLanguageHelper) GetResourceFunctionResultName(modName string, f *sche
 }
 
 func (d DocLanguageHelper) GetMethodName(m *schema.Method) string {
-	return Title(m.Name)
+	return cgstrings.UppercaseFirst(m.Name)
 }
 
 func (d DocLanguageHelper) GetModuleName(pkg schema.PackageReference, module string) string {

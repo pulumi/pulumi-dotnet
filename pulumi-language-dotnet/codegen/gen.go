@@ -35,6 +35,7 @@ import (
 
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/cgstrings"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/diag"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/plugin"
@@ -749,7 +750,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 
 	// Generate the constructor parameters.
 	for i, prop := range pt.properties {
-		paramName := csharpIdentifier(prop.Name)
+		paramName := cgstrings.Unhyphenate(csharpIdentifier(prop.Name))
 		typ := prop.Type
 		if !prop.IsRequired() && pt.mod.isK8sCompatMode() {
 			typ = codegen.RequiredType(prop)
@@ -772,8 +773,8 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 	// Generate the constructor body.
 	fmt.Fprintf(w, "%s    {\n", indent)
 	for _, prop := range pt.properties {
-		paramName := csharpIdentifier(prop.Name)
-		fieldName := pt.mod.propertyName(prop)
+		paramName := cgstrings.Unhyphenate(csharpIdentifier(prop.Name))
+		fieldName := cgstrings.Unhyphenate(pt.mod.propertyName(prop))
 		if fieldName == paramName {
 			// Avoid a no-op in case of field and property name collision.
 			fieldName = "this." + fieldName
@@ -2425,7 +2426,11 @@ func getLogo(pkg *schema.Package) ([]byte, error) {
 func computePropertyNames(props []*schema.Property, names map[*schema.Property]string) {
 	for _, p := range props {
 		if info, ok := p.Language["csharp"].(CSharpPropertyInfo); ok && info.Name != "" {
+			// Schema defined custom property mapping
 			names[p] = info.Name
+		} else {
+			// Sanitize in case property contains hyphens
+			names[p] = cgstrings.UppercaseFirst(cgstrings.Unhyphenate(p.Name))
 		}
 	}
 }

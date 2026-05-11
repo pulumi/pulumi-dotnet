@@ -14292,6 +14292,14 @@
             whether to run the hook on dry runs.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceHookRequest.IgnoreErrorsFieldNumber">
+            <summary>Field number for the "ignore_errors" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceHookRequest.IgnoreErrors">
+            <summary>
+            If true, errors from this hook are logged as warnings instead of failing the program.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.RegisterErrorHookRequest.NameFieldNumber">
             <summary>Field number for the "name" field.</summary>
         </member>

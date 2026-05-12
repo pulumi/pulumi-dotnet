@@ -98,7 +98,6 @@ var expectedFailures = map[string]string{
 	"l1-builtin-can":                   "#489 codegen not implemented",
 	"l1-builtin-try":                   "#490 codegen not implemented",
 	"l1-keyword-overlap":               "#493 update to pulumi 1.50 conformance failure",
-	"l1-proxy-index":                   "dotnet build failed",
 	"l2-resource-provider-inheritance": "No best type found for implicitly-typed array",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",

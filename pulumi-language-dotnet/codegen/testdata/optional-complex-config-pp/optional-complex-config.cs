@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Pulumi;
 using Aws = Pulumi.Aws;
 
@@ -31,13 +32,17 @@ return await Deployment.RunAsync(() =>
 
 public class ComplexUserdata
 {
-    public string content { get; set; }
-    public string path { get; set; }
+    [JsonPropertyName("content")]
+    public string Content { get; set; }
+    [JsonPropertyName("path")]
+    public string Path { get; set; }
 }
 
 public class Userdata
 {
-    public string content { get; set; }
-    public string path { get; set; }
+    [JsonPropertyName("content")]
+    public string Content { get; set; }
+    [JsonPropertyName("path")]
+    public string Path { get; set; }
 }
 

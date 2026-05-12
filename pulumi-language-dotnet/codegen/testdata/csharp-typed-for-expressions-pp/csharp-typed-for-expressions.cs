@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Pulumi;
 using Aws = Pulumi.Aws;
 
@@ -43,7 +44,9 @@ return await Deployment.RunAsync(() =>
 
 public class Egress
 {
+    [JsonPropertyName("FromPort")]
     public int FromPort { get; set; }
+    [JsonPropertyName("ToPort")]
     public int ToPort { get; set; }
 }
 

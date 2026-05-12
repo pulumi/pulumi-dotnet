@@ -715,6 +715,18 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "readDir":
 		g.Fgenf(w, "Directory.GetFiles(%.v).Select(Path.GetFileName)", expr.Args[0])
 	case "secret":
+		// A bare object literal (`{ { "k", v } }`) is only valid as a collection
+		// initializer of a known type. `Output.CreateSecret(...)` is generic, so
+		// the literal must carry its own type — emit an anonymous record whose
+		// PascalCased properties line up with the traversal codegen.
+		if obj, ok := expr.Args[0].(*model.ObjectConsExpression); ok {
+			if _, hasSchema := g.toSchemaType(obj.Type()); !hasSchema {
+				g.Fgen(w, "Output.CreateSecret(")
+				g.genAnonymousRecord(w, obj)
+				g.Fgen(w, ")")
+				return
+			}
+		}
 		g.Fgenf(w, "Output.CreateSecret(%v)", expr.Args[0])
 	case "unsecret":
 		g.Fgenf(w, "Output.Unsecret(%v)", expr.Args[0])
@@ -779,6 +791,23 @@ func (g *generator) genDictionaryOrTuple(w io.Writer, expr model.Expression) {
 
 func (g *generator) genRootDirectory(w io.Writer) {
 	g.Fgenf(w, "Pulumi.Deployment.Instance.RootDirectory")
+}
+
+// genAnonymousRecord emits an ObjectConsExpression as a C# anonymous record
+// (`new { Key = value, ... }`). This is the standalone-expression form,
+// suitable for function arguments where a bare collection initializer would
+// not compile. PascalCased field names line up with the traversal codegen,
+// which already uppercases the first character of every property name.
+func (g *generator) genAnonymousRecord(w io.Writer, expr *model.ObjectConsExpression) {
+	g.Fgen(w, "new\n")
+	g.Fgenf(w, "%s{\n", g.Indent)
+	g.Indented(func() {
+		for _, item := range expr.Items {
+			key := objectKey(item)
+			g.Fgenf(w, "%s%s = %.v,\n", g.Indent, propertyName(key), item.Value)
+		}
+	})
+	g.Fgenf(w, "%s}", g.Indent)
 }
 
 func (g *generator) genDictionary(w io.Writer, expr *model.ObjectConsExpression, valueType string) {
@@ -1092,8 +1121,12 @@ func findMapType(t model.Type) (*model.MapType, bool) {
 	return nil, false
 }
 
+// genRelativeTraversal emits a traversal sequence. The rootIsJSONElement flag
+// indicates whether the root value is a JsonElement (i.e. derived from a config
+// `any`). When set, attribute access compiles to `.GetProperty("name")` instead
+// of `.PropertyName`.
 func (g *generator) genRelativeTraversal(w io.Writer,
-	traversal hcl.Traversal, parts []model.Traversable, objType *schema.ObjectType,
+	traversal hcl.Traversal, parts []model.Traversable, objType *schema.ObjectType, rootIsJSONElement bool,
 ) {
 	for i, part := range traversal {
 		var key cty.Value
@@ -1113,12 +1146,29 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 			contract.Failf("unexpected traversal part of type %T (%v)", part, part.SourceRange())
 		}
 
+		// The traversal source's static type drives the C# accessor we emit. PCL
+		// allows `.field` and `["key"]` interchangeably for maps and objects, but
+		// in C# only MapType sources need indexer syntax. Sources derived from a
+		// JsonElement-typed config bind to JsonElement, whose API exposes
+		// `.GetProperty("name")` for attribute access; flow that through nested
+		// traversals since `GetProperty` itself returns a JsonElement.
+		sourceType := pcl.UnwrapOption(model.ResolveOutputs(model.GetTraversableType(parts[i])))
+		_, sourceIsDictionary := sourceType.(*model.MapType)
+		sourceIsDynamic := rootIsJSONElement && sourceType == model.DynamicType
+
 		switch key.Type() {
 		case cty.String:
 			if model.IsOptionalType(model.GetTraversableType(parts[i])) {
 				g.Fgen(w, "?")
 			}
-			g.Fgenf(w, ".%s", propertyName(key.AsString()))
+			switch {
+			case sourceIsDynamic:
+				g.Fgenf(w, ".GetProperty(\"%s\")", key.AsString())
+			case sourceIsDictionary:
+				g.Fgenf(w, "[\"%s\"]", key.AsString())
+			default:
+				g.Fgenf(w, ".%s", propertyName(key.AsString()))
+			}
 		case cty.Number:
 			idx, _ := key.AsBigFloat().Int64()
 			g.Fgenf(w, "[%d]", idx)
@@ -1130,7 +1180,7 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 
 func (g *generator) GenRelativeTraversalExpression(w io.Writer, expr *model.RelativeTraversalExpression) {
 	g.Fgenf(w, "%.20v", expr.Source)
-	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil)
+	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil, g.referencesJSONElementVariable(expr.Source))
 }
 
 func (g *generator) schemaTypeName(schemaType *schema.ObjectType) string {
@@ -1249,7 +1299,8 @@ func (g *generator) GenScopeTraversalExpression(w io.Writer, expr *model.ScopeTr
 			objType, _ = schemaType.(*schema.ObjectType)
 		}
 	}
-	g.genRelativeTraversal(w, expr.Traversal.SimpleSplit().Rel, expr.Parts, objType)
+	g.genRelativeTraversal(w, expr.Traversal.SimpleSplit().Rel, expr.Parts, objType,
+		g.jsonElementVars[expr.RootName])
 
 	if isFunctionInvoke && !g.asyncInit && len(expr.Parts) > 1 {
 		g.Fgenf(w, ")")

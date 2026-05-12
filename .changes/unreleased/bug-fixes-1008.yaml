@@ -1,0 +1,6 @@
+component: runtime
+kind: bug-fixes
+body: Fix codegen for the l1-proxy-index conformance test so map literals, config object classes, and config `any` traversals produce compilable .NET code
+time: 2026-05-12T14:30:00.000000+00:00
+custom:
+    PR: "1008"

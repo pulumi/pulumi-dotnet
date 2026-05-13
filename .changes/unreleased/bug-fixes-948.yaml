@@ -1,6 +1,0 @@
-kind: bug-fixes
-body: Fix programgen for arrays containing only null literals by generating explicit `new object?[]` type annotation
-time: 2026-04-08T00:00:00Z
-custom:
-  PR: "948"
-component: sdk

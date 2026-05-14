@@ -27,7 +27,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - id: set-matrix
         run: |
           os="${{ contains(github.event.pull_request.labels.*.name, 'ci/test') && 'ubuntu-latest macos-latest windows-latest' || 'ubuntu-latest' }}"
@@ -39,7 +39,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -56,7 +56,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
@@ -72,7 +72,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
@@ -101,7 +101,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -153,7 +153,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - name: Set TARGET_FRAMEWORK
         shell: bash
         run: |
@@ -210,7 +210,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - name: Set TARGET_FRAMEWORK
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
@@ -241,7 +241,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - name: Set TARGET_FRAMEWORK
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
@@ -270,7 +270,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Setup mise and install tools
@@ -307,7 +307,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@6cf9520e68354d86f81c455e8d43eabd58f5c9f5 # v1
+        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
       - name: Build failed
         if: ${{ needs.build.result != 'success' }}
         run: exit 1

@@ -176,6 +176,11 @@ namespace Pulumi
         /// Run the hook during dry-run (<c>preview</c>) operations. Defaults to false.
         /// </summary>
         public bool? OnDryRun { get; set; }
+
+        /// <summary>
+        /// If true, errors from this hook are logged as warnings instead of failing the deployment. Defaults to false.
+        /// </summary>
+        public bool? IgnoreErrors { get; set; }
     }
 
     /// <summary>

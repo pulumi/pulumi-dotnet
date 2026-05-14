@@ -25,7 +25,7 @@ class ResourceHooksStack : Stack
                 {
                     new("afterCreate", async (args, cancellationToken) => {
                         throw new Exception("AfterCreate hook failed");
-                    }),
+                    }, new ResourceHookOptions { IgnoreErrors = true }),
                 },
             },
         });

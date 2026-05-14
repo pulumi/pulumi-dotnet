@@ -44,6 +44,7 @@ namespace Pulumi
                 Name = hook.Name,
                 Callback = callback,
                 OnDryRun = hook.Options.OnDryRun ?? false,
+                IgnoreErrors = hook.Options.IgnoreErrors ?? false,
             };
 
             await Monitor.RegisterResourceHookAsync(request).ConfigureAwait(false);

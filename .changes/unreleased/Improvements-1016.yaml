@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Generate .NET projects targeting net8.0 instead of net6.0
+time: 2026-05-19T00:00:00.000000-04:00
+custom:
+    PR: "1016"

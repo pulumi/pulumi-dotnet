@@ -2,13 +2,13 @@
   "emittedFiles": [
     ".gitattributes",
     ".gitignore",
-    "Outputs/Bar.cs",
     "Foo.cs",
-    "logo.png",
+    "Outputs/Bar.cs",
     "Provider.cs",
     "Pulumi.Repro.csproj",
-    "pulumi-plugin.json",
     "README.md",
-    "Utilities.cs"
+    "Utilities.cs",
+    "logo.png",
+    "pulumi-plugin.json"
   ]
 }

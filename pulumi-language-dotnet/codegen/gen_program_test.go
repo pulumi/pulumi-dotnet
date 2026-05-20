@@ -49,7 +49,7 @@ func TestGenerateProgram(t *testing.T) {
 			continue
 		}
 		if tc.Directory == "hyphenated-symbols" {
-			tc.Skip = codegen.NewStringSet("dotnet")
+			tc.Skip = codegen.NewStringSet("dotnet/any")
 		}
 		tc.PluginHost = nil
 		test.PulumiPulumiProgramTests[i] = tc

@@ -300,7 +300,7 @@ jobs:
     secrets: inherit
 
   check-pr:
-    needs: ["build", "integration-tests", "format"]
+    needs: ["build", "integration-tests", "format", "conformance-tests", "codegen-tests"]
     runs-on: ubuntu-latest
     if: always() # always report a status
     steps:
@@ -316,6 +316,12 @@ jobs:
         run: exit 1
       - name: Format failed
         if: ${{ needs.format.result != 'success' }}
+        run: exit 1
+      - name: Conformance tests failed
+        if: ${{ needs.conformance-tests.result != 'success' }}
+        run: exit 1
+      - name: Codegen tests failed
+        if: ${{ needs.codegen-tests.result != 'success' }}
         run: exit 1
       - name: CI succeeded
         run: exit 0

@@ -48,9 +48,6 @@ func TestGenerateProgram(t *testing.T) {
 		if tc.Directory != "azure-native-v2-eventgrid" {
 			continue
 		}
-		if tc.Directory == "hyphenated-symbols" {
-			tc.Skip = codegen.NewStringSet("dotnet/any")
-		}
 		tc.PluginHost = nil
 		test.PulumiPulumiProgramTests[i] = tc
 	}

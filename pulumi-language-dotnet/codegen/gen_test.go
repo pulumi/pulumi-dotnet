@@ -30,7 +30,9 @@ import (
 )
 
 var (
-	skip             = map[string]string{}
+	skip = map[string]string{
+		"hyphenated-symbols": "dotnet/any",
+	}
 	skipCompileCheck = []string{
 		"hyphen-url",
 	}

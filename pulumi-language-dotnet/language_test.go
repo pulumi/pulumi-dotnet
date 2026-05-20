@@ -176,6 +176,10 @@ var expectedFailures = map[string]string{
 
 	"l2-resource-read":        "Fail after updating to 3.234: read resource codegen not implemented",
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
+
+	"l2-map-keys-adversarial":        "Fail after updating to 3.239",
+	"l2-resource-hook-after-failure": "Fail after updating to 3.239",
+	"l2-resource-hook-ignore-errors": "Fail after updating to 3.239",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

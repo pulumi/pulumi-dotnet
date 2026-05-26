@@ -5757,6 +5757,87 @@
             any diagnostics from code generation.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.FilenameFieldNumber">
+            <summary>Field number for the "filename" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Filename">
+            <summary>
+            The name of the source file. This is used for diagnostics.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.SourceFieldNumber">
+            <summary>Field number for the "source" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Source">
+            <summary>
+            The raw bytes of the source file.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.TargetLoaderFieldNumber">
+            <summary>Field number for the "target_loader" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.TargetLoader">
+            <summary>
+            The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.PackageFieldNumber">
+            <summary>Field number for the "package" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Package">
+            <summary>
+            The package description to load which contains the token.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Token">
+            <summary>
+            The token to use when converting the snippet. This may be a provider token, such as `pulumi:providers:pkg`,
+            a function token, or a resource token.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.AttributesFieldNumber">
+            <summary>Field number for the "attributes" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Attributes">
+            <summary>
+            any extra attributes to convert.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetResponse.DiagnosticsFieldNumber">
+            <summary>Field number for the "diagnostics" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetResponse.Diagnostics">
+            <summary>
+            Any diagnostics raised by code generation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetResponse.FilenameFieldNumber">
+            <summary>Field number for the "filename" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetResponse.Filename">
+            <summary>
+            The generated PCL filename.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetResponse.SourceFieldNumber">
+            <summary>Field number for the "source" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetResponse.Source">
+            <summary>
+            The generated PCL source code.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetResponse.AttributesFieldNumber">
+            <summary>Field number for the "attributes" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetResponse.Attributes">
+            <summary>
+            any extra attributes to merge into the final pcl result.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.Converter">
             <summary>
             Converter is a service for converting between other ecosystems and Pulumi.
@@ -5780,6 +5861,15 @@
         <member name="M:Pulumirpc.Converter.ConverterBase.ConvertProgram(Pulumirpc.ConvertProgramRequest,Grpc.Core.ServerCallContext)">
             <summary>
             ConvertProgram converts a program from the target ecosystem into a form that can be used with Pulumi.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterBase.ConvertSnippet(Pulumirpc.ConvertSnippetRequest,Grpc.Core.ServerCallContext)">
+            <summary>
+            ConvertSnippet generates a single PCL file from a single source file in the target ecosystem. It is used when
+            callers need to convert a small source fragment, such as an input file, rather than a full Pulumi program.
             </summary>
             <param name="request">The request received from the client.</param>
             <param name="context">The context of the server-side call handler being invoked.</param>
@@ -5870,6 +5960,46 @@
         <member name="M:Pulumirpc.Converter.ConverterClient.ConvertProgramAsync(Pulumirpc.ConvertProgramRequest,Grpc.Core.CallOptions)">
             <summary>
             ConvertProgram converts a program from the target ecosystem into a form that can be used with Pulumi.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertSnippet(Pulumirpc.ConvertSnippetRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            ConvertSnippet generates a single PCL file from a single source file in the target ecosystem. It is used when
+            callers need to convert a small source fragment, such as an input file, rather than a full Pulumi program.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertSnippet(Pulumirpc.ConvertSnippetRequest,Grpc.Core.CallOptions)">
+            <summary>
+            ConvertSnippet generates a single PCL file from a single source file in the target ecosystem. It is used when
+            callers need to convert a small source fragment, such as an input file, rather than a full Pulumi program.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertSnippetAsync(Pulumirpc.ConvertSnippetRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            ConvertSnippet generates a single PCL file from a single source file in the target ecosystem. It is used when
+            callers need to convert a small source fragment, such as an input file, rather than a full Pulumi program.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.Converter.ConverterClient.ConvertSnippetAsync(Pulumirpc.ConvertSnippetRequest,Grpc.Core.CallOptions)">
+            <summary>
+            ConvertSnippet generates a single PCL file from a single source file in the target ecosystem. It is used when
+            callers need to convert a small source fragment, such as an input file, rather than a full Pulumi program.
             </summary>
             <param name="request">The request to send to the server.</param>
             <param name="options">The options for the call.</param>
@@ -6875,6 +7005,14 @@
         <member name="P:Pulumirpc.RunRequest.AttachDebugger">
             <summary>
             True if and only if the host should start the program under a debugger.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RunRequest.MapperTargetFieldNumber">
+            <summary>Field number for the "mapper_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RunRequest.MapperTarget">
+            <summary>
+            The target of a codegen.MapperServer to use for getting mappings from other ecosystems to Pulumi.
             </summary>
         </member>
         <member name="T:Pulumirpc.RunResponse">

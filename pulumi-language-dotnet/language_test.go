@@ -181,6 +181,8 @@ var expectedFailures = map[string]string{
 	"l2-resource-hook-after-failure": "Fail after updating to 3.239",
 	"l2-resource-hook-ignore-errors": "Fail after updating to 3.239",
 	"l1-config-types-optional":       "Fail after updating to 3.239",
+
+	"l1-expand-final": "Fail after updating to 3.243",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

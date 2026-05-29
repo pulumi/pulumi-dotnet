@@ -27,7 +27,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - id: set-matrix
         run: |
           os="${{ contains(github.event.pull_request.labels.*.name, 'ci/test') && 'ubuntu-latest macos-latest windows-latest' || 'ubuntu-latest' }}"
@@ -39,7 +39,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -56,7 +56,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
@@ -72,7 +72,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
@@ -101,7 +101,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -121,7 +121,7 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6
+        uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7
         with:
           pulumi-version: dev
       - name: Build Pulumi SDK
@@ -153,7 +153,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - name: Set TARGET_FRAMEWORK
         shell: bash
         run: |
@@ -210,7 +210,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - name: Set TARGET_FRAMEWORK
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
@@ -222,7 +222,7 @@ jobs:
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
-        uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6
+        uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7
         with:
           pulumi-version: dev
       - name: Dotnet version
@@ -241,7 +241,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - name: Set TARGET_FRAMEWORK
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
@@ -253,7 +253,7 @@ jobs:
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
-        uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6
+        uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7
         with:
           pulumi-version: dev
       - name: Dotnet version
@@ -270,7 +270,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Setup mise and install tools
@@ -307,7 +307,7 @@ jobs:
       - name: Fetch secrets from ESC
         id: esc-secrets
         continue-on-error: true
-        uses: pulumi/esc-action@197ccaa42ab49560ce838a3010eb8345ce086896 # v1
+        uses: pulumi/esc-action@f3cfbabf37488463817366338165b92b5f99117e # v2
       - name: Build failed
         if: ${{ needs.build.result != 'success' }}
         run: exit 1

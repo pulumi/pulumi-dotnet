@@ -462,3 +462,7 @@ pulumi-resource-testprovider
 # Ignore user-provided go.work files.
 /go.work
 /go.work.sum
+
+# Pulumi.Esc.Sdk is synced from pulumi/pulumi at build time via `dotnet run
+# sync-esc-sdk` (see build/EscSdk.fs); the generated source is not committed here.
+/sdk/Pulumi.Esc.Sdk/

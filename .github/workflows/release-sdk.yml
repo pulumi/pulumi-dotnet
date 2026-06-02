@@ -67,6 +67,10 @@ jobs:
         uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7
         with:
           pulumi-version: dev
+      - name: Sync ESC SDK from pulumi/pulumi
+        # Copies the generated Pulumi.Esc.Sdk into sdk/ so it can be packed and
+        # published alongside the other SDKs (see build/EscSdk.fs).
+        run: dotnet run --project Build.fsproj sync-esc-sdk
       - name: Build Pulumi SDK
         run: make build_sdk
       - name: Test Pulumi SDK

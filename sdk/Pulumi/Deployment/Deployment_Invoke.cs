@@ -144,7 +144,19 @@ namespace Pulumi
             // `Invoke`.
 
             var keepResources = await this.MonitorSupportsResourceReferences().ConfigureAwait(false);
-            var serializedArgs = await SerializeInvokeArgs(token, args, keepResources);
+            RawSerializationResult serializedArgs;
+            try
+            {
+                serializedArgs = await SerializeInvokeArgs(token, args, keepResources);
+            }
+            catch (Exception ex)
+            {
+                // The output-returning invoke variants resolve a serialization failure into the returned
+                // Output rather than surfacing it directly, so log it here to keep it visible even if the
+                // caller never observes the Output.
+                await _logger.ErrorAsync($"Error serializing arguments for invoke {token}: {ex}").ConfigureAwait(false);
+                throw;
+            }
 
             // Short-circuit actually invoking if `Unknowns` are
             // present in `args`, otherwise preview can break.

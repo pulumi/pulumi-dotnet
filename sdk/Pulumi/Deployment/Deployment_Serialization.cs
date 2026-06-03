@@ -87,8 +87,18 @@ namespace Pulumi
                 {
                     // We treat properties with null values as if they do not exist.
                     var serializer = new Serializer(_excessiveDebugOutput);
-                    var v = await serializer.SerializeAsync($"{label}.{key}", val, keepResources, keepOutputValues,
-                        excludeResourceReferencesFromDependencies).ConfigureAwait(false);
+                    object? v;
+                    try
+                    {
+                        v = await serializer.SerializeAsync($"{label}.{key}", val, keepResources, keepOutputValues,
+                            excludeResourceReferencesFromDependencies).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Augment the error with the name of the property that failed to serialize
+                        throw new InvalidOperationException(
+                            $"error serializing property \"{key}\": {ex.Message}", ex);
+                    }
                     if (v != null)
                     {
                         result[key] = v;

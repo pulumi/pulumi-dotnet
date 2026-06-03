@@ -1,6 +1,7 @@
 // Copyright 2016-2021, Pulumi Corporation
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
@@ -84,12 +85,25 @@ namespace Pulumi
                 argsDict = argsDict.SetItem(SelfArg, self);
             }
 
-            var (serialized, argDependencies) = await SerializeFilteredPropertiesAsync(
-                    $"call:{token}",
-                    argsDict, _ => true,
-                    keepResources: true,
-                    keepOutputValues: await MonitorSupportsOutputValues().ConfigureAwait(false),
-                    excludeResourceReferencesFromDependencies: true).ConfigureAwait(false);
+            Struct serialized;
+            ImmutableDictionary<string, HashSet<Resource>> argDependencies;
+            try
+            {
+                (serialized, argDependencies) = await SerializeFilteredPropertiesAsync(
+                        $"call:{token}",
+                        argsDict, _ => true,
+                        keepResources: true,
+                        keepOutputValues: await MonitorSupportsOutputValues().ConfigureAwait(false),
+                        excludeResourceReferencesFromDependencies: true).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // The call variants resolve a serialization failure into the returned Output rather than
+                // surfacing it directly, so log it here to keep it visible even if the caller never
+                // observes the Output.
+                await _logger.ErrorAsync($"Error serializing arguments for call {token}: {ex}", self).ConfigureAwait(false);
+                throw;
+            }
             Log.Debug($"Call RPC prepared: token={token}" +
                 (_excessiveDebugOutput ? $", obj={serialized}" : ""));
 

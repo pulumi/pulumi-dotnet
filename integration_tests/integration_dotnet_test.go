@@ -724,7 +724,7 @@ outer:
 	// We don't care about the actual command, and the `thread-info` command just works.
 	in := strings.NewReader("1-thread-info")
 
-	cmd := exec.Command( //nolint:gosec // This is a test
+	cmd := exec.CommandContext(t.Context(), //nolint:gosec // This is a test
 		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
 	cmd.Stdin = in
 	out, err := cmd.CombinedOutput()
@@ -787,7 +787,7 @@ outer:
 	// We don't care about the actual command, and the `thread-info` command just works.
 	in := strings.NewReader("1-thread-info")
 
-	cmd := exec.Command( //nolint:gosec // This is a test
+	cmd := exec.CommandContext(t.Context(), //nolint:gosec // This is a test
 		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
 	cmd.Stdin = in
 	out, err := cmd.CombinedOutput()

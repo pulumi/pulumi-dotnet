@@ -341,40 +341,6 @@ func TestFailingTransfomationExitsProgram(t *testing.T) {
 	assert.Contains(t, stderr.String(), "Boom!")
 }
 
-// Test remote component construction with a child resource that takes a long time to be created, ensuring it's created.
-//func TestConstructSlowDotnet(t *testing.T) {
-//	localProvider := testComponentSlowLocalProvider(t)
-//
-//	// TODO[pulumi/pulumi#5455]: Dynamic providers fail to load when used from multi-lang components.
-//	// Until we've addressed this, set PULUMI_TEST_YARN_LINK_PULUMI, which tells the integration test
-//	// module to run `yarn install && yarn link @pulumi/pulumi` in the .NET program's directory, allowing
-//	// the Node.js dynamic provider plugin to load.
-//	// When the underlying issue has been fixed, the use of this environment variable inside the integration
-//	// test module should be removed.
-//	const testYarnLinkPulumiEnv = "PULUMI_TEST_YARN_LINK_PULUMI=true"
-//
-//	testDir := "construct_component_slow"
-//	runComponentSetup(t, testDir)
-//
-//	opts := &integration.ProgramTestOptions{
-//		Env:            []string{testYarnLinkPulumiEnv},
-//		Dir:            filepath.Join(testDir, "dotnet"),
-//		Dependencies:   []string{"Pulumi"},
-//		LocalProviders: []integration.LocalDependency{localProvider},
-//		Quick:          true,
-//		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
-//			assert.NotNil(t, stackInfo.Deployment)
-//			if assert.Equal(t, 5, len(stackInfo.Deployment.Resources)) {
-//				stackRes := stackInfo.Deployment.Resources[0]
-//				assert.NotNil(t, stackRes)
-//				assert.Equal(t, resource.RootStackType, stackRes.Type)
-//				assert.Equal(t, "", string(stackRes.Parent))
-//			}
-//		},
-//	}
-//	integration.ProgramTest(t, opts)
-//}
-
 // Test remote component construction with prompt inputs.
 //
 //nolint:paralleltest // ProgramTest calls testing.T.Parallel

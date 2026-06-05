@@ -237,6 +237,7 @@ namespace Pulumi.Experimental.Provider
 
     public sealed class ConfigureRequest
     {
+        [Obsolete("Variables is deprecated; use Args instead wherever possible.")]
         public ImmutableDictionary<string, string> Variables { get; }
         public ImmutableDictionary<string, PropertyValue> Args { get; }
         public bool AcceptSecrets { get; }
@@ -251,7 +252,9 @@ namespace Pulumi.Experimental.Provider
             bool sendsOldInputs,
             bool sendsOldInputsToDelete)
         {
+#pragma warning disable CS0618 // Variables is obsolete: still populated for backwards compatibility.
             Variables = variables;
+#pragma warning restore CS0618
             Args = args;
             AcceptSecrets = acceptSecrets;
             AcceptResources = acceptResources;
@@ -946,7 +949,10 @@ namespace Pulumi.Experimental.Provider
         {
             return WrapProviderCall(async () =>
                 {
-                    var domRequest = new ConfigureRequest(request.Variables.ToImmutableDictionary(), Unmarshal(request.Args), request.AcceptSecrets,
+#pragma warning disable CS0612 // 'ConfigureRequest.Variables' is obsolete: still forwarded to the domain model for backwards compatibility.
+                    var variables = request.Variables.ToImmutableDictionary();
+#pragma warning restore CS0612
+                    var domRequest = new ConfigureRequest(variables, Unmarshal(request.Args), request.AcceptSecrets,
                     request.AcceptResources, request.SendsOldInputs, request.SendsOldInputsToDelete);
                     using var cts = GetToken(context);
                     var domResponse = await Implementation.Configure(domRequest, cts.Token);

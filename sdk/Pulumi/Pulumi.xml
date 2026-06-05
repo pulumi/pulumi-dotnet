@@ -6866,6 +6866,16 @@
             The packages required by the program specified by the request.
             </summary>
         </member>
+        <member name="F:Pulumirpc.GetRequiredPackagesResponse.SpecsFieldNumber">
+            <summary>Field number for the "specs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GetRequiredPackagesResponse.Specs">
+             <summary>
+             The package specs required by the program specified by the request.
+            
+             Only specs not included in packages should be included.
+             </summary>
+        </member>
         <member name="T:Pulumirpc.RunRequest">
             <summary>
             `RunRequest` is the type of requests sent as part of a [](pulumirpc.LanguageRuntime.Run) call.
@@ -8881,6 +8891,54 @@
         <member name="P:Pulumirpc.PackageDependency.Parameterization">
             <summary>
             The optional parameterization for this package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackageSpec.SourceFieldNumber">
+            <summary>Field number for the "source" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackageSpec.Source">
+             <summary>
+             The "name" of the plugin.
+            
+             Source may be one of:
+             - A simple name, like "pkg"
+             - A registry double or triple: "org/pkg", "source/org/pkg"
+             - A git URL, "git://github.com/pulumi/pulumi-example/path"
+             - An un-prefixed URL, like github.com/pulumi/pulumi-example/path
+             - A local path, like /usr/bin/pkg
+             </summary>
+        </member>
+        <member name="F:Pulumirpc.PackageSpec.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackageSpec.Version">
+            <summary>
+            The version of the provider, may be Semver 2.0 or a git hash.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackageSpec.ParametersFieldNumber">
+            <summary>Field number for the "parameters" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackageSpec.Parameters">
+            <summary>
+            Any parameters needed to configure the package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackageSpec.ChecksumsFieldNumber">
+            <summary>Field number for the "checksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackageSpec.Checksums">
+            <summary>
+            if set will be used to validate the plugin downloaded matches. This is keyed by
+            "$os-$arch", e.g. "linux-x64".
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackageSpec.ServerFieldNumber">
+            <summary>Field number for the "server" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackageSpec.Server">
+            <summary>
+            the URL of a server that can be used to download this plugin, if needed.
             </summary>
         </member>
         <member name="T:Pulumirpc.ProviderReflection">

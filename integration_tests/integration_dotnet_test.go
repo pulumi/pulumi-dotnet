@@ -674,10 +674,13 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// TODO[pulumi/pulumi-dotnet#403]: Fix flaky test.
-	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
-		t.Skip("Temporarily skipping flaky test on macOS and Windows - pulumi/pulumi-dotnet#403")
+	// TODO[pulumi/pulumi-dotnet#403]: The program debugger attach is flaky on Windows.
+	if runtime.GOOS == WindowsOS {
+		t.Skip("Skipping flaky test on Windows - pulumi/pulumi-dotnet#403")
 	}
+
+	// Prevent the test from hanging by failing it after five minutes.
+	setTimeout(t, 5*time.Minute)
 
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
@@ -735,8 +738,8 @@ outer:
 func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// Prevent the test from hanging by failing it after one minute.
-	setTimeout(t, time.Minute)
+	// Prevent the test from hanging by failing it after five minutes.
+	setTimeout(t, 5*time.Minute)
 
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()

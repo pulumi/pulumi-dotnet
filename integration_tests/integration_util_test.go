@@ -29,6 +29,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -41,11 +42,24 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
 	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 const WindowsOS = "windows"
+
+func setTimeout(t *testing.T, duration time.Duration) {
+	go func() {
+		select {
+		case <-time.After(duration):
+			t.Logf("Timed out after %s", duration)
+			t.Fail()
+		case <-t.Context().Done():
+			return
+		}
+	}()
+}
 
 // assertPerfBenchmark implements the integration.TestStatsReporter interface, and reports test
 // failures when a scenario exceeds the provided threshold.
@@ -122,6 +136,34 @@ func prepareDotnetProjectAtCwd(cwd string) error {
 	return err
 }
 
+var (
+	languagePluginOnce sync.Once
+	languagePluginDir  string
+	languagePluginErr  error
+)
+
+// The path to a built pulumi-language-dotnet.
+func languagePluginPath(t *testing.T) string {
+	languagePluginOnce.Do(func() {
+		dir, err := filepath.Abs("../pulumi-language-dotnet")
+		if err != nil {
+			languagePluginErr = err
+			return
+		}
+		cmd := exec.Command("go", "build", "-ldflags",
+			"-X github.com/pulumi/pulumi-dotnet/pulumi-language-dotnet/v3/version.Version=3.0.0-dev.0",
+			"-o", "pulumi-language-dotnet", ".")
+		cmd.Dir = dir
+		if out, err := cmd.CombinedOutput(); err != nil {
+			languagePluginErr = fmt.Errorf("building pulumi-language-dotnet: %w\n%s", err, out)
+			return
+		}
+		languagePluginDir = dir
+	})
+	require.NoError(t, languagePluginErr)
+	return languagePluginDir
+}
+
 func getProviderPath(providerDir string) string {
 	environ := os.Environ()
 	for _, env := range environ {
@@ -141,18 +183,14 @@ func getProviderPath(providerDir string) string {
 }
 
 func newEnvironmentDotnet(t *testing.T) *ptesting.Environment {
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	assert.NoError(t, err)
 	e := ptesting.NewEnvironment(t)
-	e.Env = append(e.Env, getProviderPath(languagePluginPath))
+	e.Env = append(e.Env, getProviderPath(languagePluginPath(t)))
 	return e
 }
 
 func testDotnetProgram(t *testing.T, options *integration.ProgramTestOptions) {
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	assert.NoError(t, err)
 	options.PrepareProject = prepareDotnetProject
-	options.Env = append(options.Env, getProviderPath(languagePluginPath))
+	options.Env = append(options.Env, getProviderPath(languagePluginPath(t)))
 	integration.ProgramTest(t, options)
 }
 

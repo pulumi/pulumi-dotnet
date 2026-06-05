@@ -487,14 +487,11 @@ func TestGetResourceDotnet(t *testing.T) {
 func TestAboutDotnet(t *testing.T) {
 	t.Parallel()
 
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
-
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("about")
 
-	e.Env = append(e.Env, getProviderPath(languagePluginPath))
+	e.Env = append(e.Env, getProviderPath(languagePluginPath(t)))
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
 	stdout, stderr := e.RunCommand("pulumi", "about")
 	// There should be no "unknown" plugin versions.
@@ -716,14 +713,11 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 		t.Skip("Temporarily skipping flaky test on macOS and Windows - pulumi/pulumi-dotnet#403")
 	}
 
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
-
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("printf")
 
-	err = prepareDotnetProjectAtCwd(e.RootPath)
+	err := prepareDotnetProjectAtCwd(e.RootPath)
 	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
@@ -732,7 +726,7 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath(t)))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		e.RunCommand("pulumi", "preview", "--attach-debugger",
@@ -775,19 +769,14 @@ outer:
 func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// TODO[pulumi/pulumi-dotnet#705]: Fix disabled test on MacOS..
-	if runtime.GOOS == "darwin" {
-		t.Skip("Skipping test due to broken netcoredbg on MacOS - pulumi/pulumi-dotnet#705")
-	}
-
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
+	// Prevent the test from hanging by failing it after one minute.
+	setTimeout(t, time.Minute)
 
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("debug-plugin")
 
-	err = prepareDotnetProjectAtCwd(filepath.Join(e.RootPath, "dotnet-plugin"))
+	err := prepareDotnetProjectAtCwd(filepath.Join(e.RootPath, "dotnet-plugin"))
 	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
@@ -799,7 +788,7 @@ func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath(t)))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		stdout, _ := e.RunCommandExpectError("pulumi", "preview", "--attach-debugger=plugins",

@@ -12,22 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// The linter doesn't see the uses since the consumers are conditionally compiled tests.
-//
-//nolint:unused,deadcode,varcheck
 package integrationtests
 
 import (
-	"bufio"
 	"bytes"
-	"context"
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -36,15 +29,10 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/engine"
 
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/util/rpcutil"
-	pulumirpc "github.com/pulumi/pulumi/sdk/v3/proto/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const WindowsOS = "windows"
@@ -59,14 +47,6 @@ func setTimeout(t *testing.T, duration time.Duration) {
 			return
 		}
 	}()
-}
-
-// assertPerfBenchmark implements the integration.TestStatsReporter interface, and reports test
-// failures when a scenario exceeds the provided threshold.
-type assertPerfBenchmark struct {
-	T                  *testing.T
-	MaxPreviewDuration time.Duration
-	MaxUpdateDuration  time.Duration
 }
 
 func prepareDotnetProject(projInfo *engine.Projinfo) error {
@@ -194,100 +174,6 @@ func testDotnetProgram(t *testing.T, options *integration.ProgramTestOptions) {
 	integration.ProgramTest(t, options)
 }
 
-func (t assertPerfBenchmark) ReportCommand(stats integration.TestCommandStats) {
-	var maxDuration *time.Duration
-	if strings.HasPrefix(stats.StepName, "pulumi-preview") {
-		maxDuration = &t.MaxPreviewDuration
-	}
-	if strings.HasPrefix(stats.StepName, "pulumi-update") {
-		maxDuration = &t.MaxUpdateDuration
-	}
-
-	if maxDuration != nil && *maxDuration != 0 {
-		if stats.ElapsedSeconds < maxDuration.Seconds() {
-			t.T.Logf(
-				"Test step %q was under threshold. %.2fs (max %.2fs)",
-				stats.StepName, stats.ElapsedSeconds, maxDuration.Seconds())
-		} else {
-			t.T.Errorf(
-				"Test step %q took longer than expected. %.2fs vs. max %.2fs",
-				stats.StepName, stats.ElapsedSeconds, maxDuration.Seconds())
-		}
-	}
-}
-
-func testComponentSlowLocalProvider(t *testing.T) integration.LocalDependency {
-	return integration.LocalDependency{
-		Package: "testcomponent",
-		Path:    filepath.Join("construct_component_slow", "testcomponent"),
-	}
-}
-
-func testComponentProviderSchema(t *testing.T, path string) {
-	t.Parallel()
-
-	tests := []struct {
-		name          string
-		env           []string
-		version       int32
-		expected      string
-		expectedError string
-	}{
-		{
-			name:     "Default",
-			expected: "{}",
-		},
-		{
-			name:     "Schema",
-			env:      []string{"INCLUDE_SCHEMA=true"},
-			expected: `{"hello": "world"}`,
-		},
-		{
-			name:          "Invalid Version",
-			version:       15,
-			expectedError: "unsupported schema version 15",
-		},
-	}
-	for _, test := range tests {
-		test := test
-		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
-			// Start the plugin binary.
-			cmd := exec.Command(path, "ignored")
-			cmd.Env = append(os.Environ(), test.env...)
-			stdout, err := cmd.StdoutPipe()
-			assert.NoError(t, err)
-			err = cmd.Start()
-			assert.NoError(t, err)
-			defer func() {
-				// Ignore the error as it may fail with access denied on Windows.
-				cmd.Process.Kill() //nolint:errcheck
-			}()
-
-			// Read the port from standard output.
-			reader := bufio.NewReader(stdout)
-			bytes, err := reader.ReadBytes('\n')
-			assert.NoError(t, err)
-			port := strings.TrimSpace(string(bytes))
-
-			// Create a connection to the server.
-			conn, err := grpc.NewClient(
-				"127.0.0.1:"+port, grpc.WithTransportCredentials(insecure.NewCredentials()), rpcutil.GrpcChannelOptions())
-			assert.NoError(t, err)
-			client := pulumirpc.NewResourceProviderClient(conn)
-
-			// Call GetSchema and verify the results.
-			resp, err := client.GetSchema(context.Background(), &pulumirpc.GetSchemaRequest{Version: test.version})
-			if test.expectedError != "" {
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), test.expectedError)
-			} else {
-				assert.Equal(t, test.expected, resp.GetSchema())
-			}
-		})
-	}
-}
-
 // Test remote component inputs properly handle unknowns.
 func testConstructUnknown(t *testing.T, lang string) {
 	const testDir = "construct_component_unknown"
@@ -332,39 +218,6 @@ func testConstructMethodsUnknown(t *testing.T, lang string) {
 	})
 }
 
-// Test methods that create resources.
-func testConstructMethodsResources(t *testing.T, lang string) {
-	const testDir = "construct_component_methods_resources"
-	componentDir := "testcomponent-go"
-
-	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: "testprovider"},
-		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
-	}
-
-	testDotnetProgram(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join(testDir, lang),
-		LocalProviders: localProviders,
-		Quick:          true,
-		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
-			assert.NotNil(t, stackInfo.Deployment)
-			assert.Equal(t, 6, len(stackInfo.Deployment.Resources))
-			var hasExpectedResource bool
-			var result string
-			for _, res := range stackInfo.Deployment.Resources {
-				if res.URN.Name() == "myrandom" {
-					hasExpectedResource = true
-					result = res.Outputs["result"].(string)
-					assert.Equal(t, float64(10), res.Inputs["length"])
-					assert.Equal(t, 10, len(result))
-				}
-			}
-			assert.True(t, hasExpectedResource)
-			assert.Equal(t, result, stackInfo.Outputs["result"])
-		},
-	})
-}
-
 // Test failures returned from methods are observed.
 func testConstructMethodsErrors(t *testing.T, lang string) {
 	const testDir = "construct_component_methods_errors"
@@ -387,37 +240,6 @@ func testConstructMethodsErrors(t *testing.T, lang string) {
 			assert.Contains(t, output, expectedError)
 		},
 	})
-}
-
-func testConstructOutputValues(t *testing.T, lang string, dependencies ...string) {
-	t.Parallel()
-
-	const testDir = "construct_component_output_values"
-	componentDir := "testcomponent-go"
-
-	localProviders := []integration.LocalDependency{
-		{Package: "testprovider", Path: "testprovider"},
-		{Package: "testcomponent", Path: filepath.Join(testDir, componentDir)},
-	}
-
-	integration.ProgramTest(t, &integration.ProgramTestOptions{
-		Dir:            filepath.Join(testDir, lang),
-		Dependencies:   dependencies,
-		LocalProviders: localProviders,
-		Quick:          true,
-	})
-}
-
-var previewSummaryRegex = regexp.MustCompile(
-	`{\s+"steps": \[[\s\S]+],\s+"duration": \d+,\s+"changeSummary": {[\s\S]+}\s+}`)
-
-func assertOutputContainsEvent(t *testing.T, evt apitype.EngineEvent, output string) {
-	evtJSON := bytes.Buffer{}
-	encoder := json.NewEncoder(&evtJSON)
-	encoder.SetEscapeHTML(false)
-	err := encoder.Encode(evt)
-	assert.NoError(t, err)
-	assert.Contains(t, output, evtJSON.String())
 }
 
 // printfTestValidation is used by the TestPrintfXYZ test cases in the language-specific test

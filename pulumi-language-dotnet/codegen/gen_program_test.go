@@ -37,10 +37,17 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/executable"
 )
 
-// PulumiDotnetSDKVersion is the version of the Pulumi .NET SDK to use in program-gen tests
-//
-// It should be kept up to date with this repo's released version.
-const PulumiDotnetSDKVersion = "3.102.1"
+// localPulumiSDKCsproj returns the absolute path to this repo's Pulumi SDK csproj,
+// so program-gen tests always exercise the current source tree instead of a
+// pinned NuGet release.
+func localPulumiSDKCsproj(t *testing.T) string {
+	t.Helper()
+	// Tests run with the package directory as cwd (pulumi-language-dotnet/codegen),
+	// so the SDK lives two levels up at sdk/Pulumi/Pulumi.csproj.
+	path, err := filepath.Abs(filepath.Join("..", "..", "sdk", "Pulumi", "Pulumi.csproj"))
+	require.NoError(t, err, "Failed to resolve local Pulumi SDK csproj path")
+	return path
+}
 
 func TestGenerateProgram(t *testing.T) {
 	t.Parallel()
@@ -500,18 +507,16 @@ func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
 		require.NoError(t, err)
 	}
 
-	// Add dependencies
-	pkgs := dotnetDependencies(dependencies)
-	if len(pkgs) != 0 {
-		for _, pkg := range pkgs {
-			pkg.install(t, ex, dir)
-		}
-		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir)
-	} else {
-		// We would like this regardless of other dependencies, but dotnet
-		// packages do not play well with package references.
-		dep{"Pulumi", PulumiDotnetSDKVersion}.install(t, ex, dir)
+	// Add dependencies. Non-Pulumi-core packages still come from NuGet, but the
+	// core Pulumi SDK is referenced as a local project so the test always builds
+	// against the current source tree (no manual version bumps required).
+	for _, pkg := range dotnetDependencies(dependencies) {
+		pkg.install(t, ex, dir)
 	}
+	sdkCsproj := localPulumiSDKCsproj(t)
+	err = integration.RunCommand(t, "Add Pulumi SDK project reference",
+		[]string{ex, "add", "reference", sdkCsproj}, dir, &integration.ProgramTestOptions{})
+	require.NoError(t, err, "Failed to add Pulumi SDK project reference")
 
 	// Clean up build result
 	defer func() {
@@ -530,8 +535,11 @@ func typeCheckDotnet(t *testing.T, path string, dependencies codegen.StringSet) 
 	ex, err := executable.FindExecutable("dotnet")
 	require.NoError(t, err)
 
+	// Disable NuGet audit: this test verifies that generated code compiles, not
+	// that the dependency graph is free of CVEs (which is the job of dedicated
+	// audit/build jobs in CI).
 	err = integration.RunCommand(t, "dotnet build",
-		[]string{ex, "build", "--nologo"}, dir, &integration.ProgramTestOptions{})
+		[]string{ex, "build", "--nologo", "-p:NuGetAudit=false"}, dir, &integration.ProgramTestOptions{})
 	require.NoError(t, err, "Failed to build dotnet project")
 }
 

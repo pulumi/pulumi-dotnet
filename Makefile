@@ -69,6 +69,22 @@ format_integration_tests_check:
 format_integration_tests:
 	gofumpt -w integration_tests
 
+## Generates the Pulumi CLI specification consumed by the Automation API code
+## generator. Requires the pulumi submodule to be initialized.
+.PHONY: generate_cli_spec
+generate_cli_spec:
+	cd pulumi/pkg && ${GO} run ./cmd/pulumi generate-cli-spec \
+		--overrides ../tools/automation/automation-overrides.json \
+		> ../../sdk/Pulumi.Automation.Codegen/specification.json
+
+## Runs the Automation API code generator against the CLI specification of the
+## pinned pulumi submodule.
+.PHONY: generate_automation_api
+generate_automation_api: generate_cli_spec
+	cd sdk && dotnet run --project Pulumi.Automation.Codegen -- \
+		Pulumi.Automation.Codegen/specification.json \
+		Pulumi.Automation.Codegen/output
+
 .PHONY: install
 install:
 	cd pulumi-language-dotnet && ${GO} install \
@@ -103,10 +119,10 @@ lint_integration_tests_fix: format_integration_tests
 	cd integration_tests && golangci-lint run $(GOLANGCI_LINT_ARGS) --fix --config ../.golangci.yml --timeout 5m --path-prefix integration_tests
 
 .PHONY: test
-test: test_conformance test_codegen test_integration test_sdk test_sdk_automation
+test: test_conformance test_codegen test_integration test_sdk test_sdk_automation test_automation_codegen
 
 .PHONY: test_fast
-test_fast: test_sdk test_sdk_automation
+test_fast: test_sdk test_sdk_automation test_automation_codegen
 
 .PHONY: test_conformance
 test_conformance: build
@@ -129,6 +145,10 @@ test_sdk_automation:
 	cd sdk/Pulumi.Automation.Tests && \
 		dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG) \
 			-p:PulumiSdkVersion=$(SDK_VERSION)
+
+.PHONY: test_automation_codegen
+test_automation_codegen:
+	cd sdk/Pulumi.Automation.Codegen.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG)
 
 .PHONY: test_coverage
 test_coverage: test_sdk_coverage test_sdk_automation_coverage

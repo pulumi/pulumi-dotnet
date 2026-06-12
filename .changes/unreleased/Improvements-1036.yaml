@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Add the Automation API code generator, which produces option types for CLI commands from the Pulumi CLI specification
+time: 2026-06-12T12:20:51.500763+02:00
+custom:
+    PR: "1036"

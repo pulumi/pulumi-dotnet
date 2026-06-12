@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Add the Pulumi.Esc.Sdk package, synced from pulumi/pulumi at build time via GitSync
+time: 2026-06-02T11:01:16.684158+02:00
+custom:
+  PR: 0

@@ -24,6 +24,7 @@ let pulumiSdkTests = Path.Combine(sdk, "Pulumi.Tests")
 let pulumiAutomationSdk = Path.Combine(sdk, "Pulumi.Automation")
 let pulumiAutomationSdkTests = Path.Combine(sdk, "Pulumi.Automation.Tests")
 let pulumiFSharp = Path.Combine(sdk, "Pulumi.FSharp")
+let pulumiEscSdk = Path.Combine(sdk, "Pulumi.Esc.Sdk")
 let integrationTests = Path.Combine(repositoryRoot, "integration_tests")
 let pulumiLanguageDotnet = Path.Combine(repositoryRoot, "pulumi-language-dotnet")
 
@@ -97,6 +98,7 @@ let publishSdks() =
         pulumiSdk;
         pulumiAutomationSdk;
         pulumiFSharp;
+        pulumiEscSdk;
     ]
     // perform the publishing (idempotent)
     let publishResults = publishSdks projectDirs pulumiLanguageDotnet
@@ -183,6 +185,7 @@ let main(args: string[]) : int =
     | [| "test-automation-sdk" |] -> testPulumiAutomationSdk false
     | [| "test-automation-sdk"; "coverage" |] -> testPulumiAutomationSdk true
     | [| "publish-sdks" |] -> publishSdks()
+    | [| "generate-esc-sdk" |] -> EscSdk.generateEscSdk repositoryRoot
     | [| "integration"; "test"; testName |] -> runSpecificIntegrationTest testName
     | [| "all-integration-tests" |] -> runAllIntegrationTests()
 

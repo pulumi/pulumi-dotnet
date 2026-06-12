@@ -147,7 +147,7 @@ test_sdk_automation:
 			-p:PulumiSdkVersion=$(SDK_VERSION)
 
 .PHONY: test_automation_codegen
-test_automation_codegen:
+test_automation_codegen: generate_automation_api
 	cd sdk/Pulumi.Automation.Codegen.Tests && dotnet test --configuration Release $(DOTNET_TEST_FILTER_FLAG)
 
 .PHONY: test_coverage

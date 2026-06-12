@@ -183,6 +183,12 @@ var expectedFailures = map[string]string{
 	"l1-config-types-optional":       "Fail after updating to 3.239",
 
 	"l1-expand-final": "Fail after updating to 3.243",
+
+	"l2-primitive-ref-optional":     "Fail after updating to 3.246: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
+	"l2-resource-any":               "Fail after updating to 3.246: dotnet build failed: CS0826 no best type found for implicitly-typed array",                 //nolint:lll
+	"l2-resource-schema-secret":     "Fail after updating to 3.246: dotnet build failed: Pulumi.Output namespace conflict",                                     //nolint:lll
+	"l2-provider-config-enum":       "Fail after updating to 3.246: run bailed",
+	"l2-config-default-from-invoke": "Fail after updating to 3.246: stack output \"result\" missing",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

@@ -44,13 +44,6 @@ const PulumiDotnetSDKVersion = "3.106.2"
 
 func TestGenerateProgram(t *testing.T) {
 	t.Parallel()
-	for i, tc := range test.PulumiPulumiProgramTests {
-		if tc.Directory != "azure-native-v2-eventgrid" {
-			continue
-		}
-		tc.PluginHost = nil
-		test.PulumiPulumiProgramTests[i] = tc
-	}
 	test.TestProgramCodegen(t, test.ProgramCodegenOptions{
 		Language:   "dotnet",
 		Extension:  "cs",
@@ -562,8 +555,6 @@ func dotnetDependencies(deps codegen.StringSet) []dep {
 		switch d {
 		case "aws":
 			result[i] = dep{"Pulumi.Aws", test.AwsSchema}
-		case "azure-native":
-			result[i] = dep{"Pulumi.AzureNative", test.AzureNativeSchema}
 		case "azure":
 			// TODO: update constant in test.AzureSchema to v5.x
 			// because it has output-versioned function invokes
@@ -572,10 +563,6 @@ func dotnetDependencies(deps codegen.StringSet) []dep {
 			result[i] = dep{"Pulumi.Kubernetes", test.KubernetesSchema}
 		case "random":
 			result[i] = dep{"Pulumi.Random", test.RandomSchema}
-		case "aws-static-website":
-			result[i] = dep{"Pulumi.AwsStaticWebsite", test.AwsStaticWebsiteSchema}
-		case "aws-native":
-			result[i] = dep{"Pulumi.AwsNative", test.AwsNativeSchema}
 		default:
 			runes := []rune(d)
 			titlecase := append([]rune{unicode.ToUpper(runes[0])}, runes[1:]...)

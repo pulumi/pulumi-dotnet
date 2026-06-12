@@ -4314,6 +4314,14 @@
             The delete resource timeout in seconds.
             </summary>
         </member>
+        <member name="F:Pulumirpc.AnalyzerResourceOptions.Types.CustomTimeouts.ReadFieldNumber">
+            <summary>Field number for the "read" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.AnalyzerResourceOptions.Types.CustomTimeouts.Read">
+            <summary>
+            The read resource timeout in seconds.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.AnalyzerProviderResource">
             <summary>
             AnalyzerProviderResource provides information about a resource's provider.
@@ -10262,6 +10270,14 @@
             [](pulumirpc.ResourceProvider.Read) call is being made as part of a refresh operation.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ReadRequest.TimeoutFieldNumber">
+            <summary>Field number for the "timeout" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadRequest.Timeout">
+            <summary>
+            A timeout in seconds that the caller is prepared to wait for the operation to complete.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ReadResponse">
             <summary>
             `ReadResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Read) call. A `ReadResponse` contains
@@ -10972,6 +10988,15 @@
         <member name="P:Pulumirpc.ConstructRequest.Types.CustomTimeouts.Delete">
             <summary>
             How long a caller is prepared to wait for a nested resource's [](pulumirpc.ResourceProvider.Delete) operation
+            to complete.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConstructRequest.Types.CustomTimeouts.ReadFieldNumber">
+            <summary>Field number for the "read" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConstructRequest.Types.CustomTimeouts.Read">
+            <summary>
+            How long a caller is prepared to wait for a nested resource's [](pulumirpc.ResourceProvider.Read) operation
             to complete.
             </summary>
         </member>
@@ -13567,6 +13592,14 @@
         <member name="P:Pulumirpc.RegisterResourceRequest.Types.CustomTimeouts.Delete">
             <summary>
             The delete resource timeout represented as a string e.g. 5m.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.Types.CustomTimeouts.ReadFieldNumber">
+            <summary>Field number for the "read" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.Types.CustomTimeouts.Read">
+            <summary>
+            The read resource timeout represented as a string e.g. 5m.
             </summary>
         </member>
         <member name="F:Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding.BeforeCreateFieldNumber">

@@ -314,7 +314,7 @@ func (host *dotnetLanguageHost) DeterminePossiblePulumiPackages(
 	project := resolveProjectPath(programDirectory, entryPoint)
 	args := []string{"list", project, "package", "--include-transitive"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory)
+	commandOutput, err := runDiscoveryCommand(ctx, dotnetExec, engineClient, args, programDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -383,7 +383,7 @@ func (host *dotnetLanguageHost) DetermineDotnetPackageDirectory(
 	// plugin is installed locally and not need to do anything.
 	args := []string{"nuget", "locals", "global-packages", "--list"}
 	commandStr := strings.Join(args, " ")
-	commandOutput, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory)
+	commandOutput, err := runDiscoveryCommand(ctx, dotnetExec, engineClient, args, programDirectory)
 	if err != nil {
 		return "", err
 	}
@@ -525,6 +525,29 @@ func (host *dotnetLanguageHost) DotnetBuild(
 
 	host.dotnetBuildSucceeded = true
 	return nil
+}
+
+// runDiscoveryCommand runs a read-only, idempotent dotnet command used for package
+// discovery, retrying on failure. These commands are occasionally killed on
+// resource-starved machines (for example, OOM-killed on CI runners), and since they
+// have no side effects it is safe to run them again.
+func runDiscoveryCommand(
+	ctx context.Context,
+	dotnetExec string,
+	engineClient pulumirpc.EngineClient,
+	args []string,
+	programDirectory string,
+) (string, error) {
+	const tries = 3
+	for attempt := 1; ; attempt++ {
+		output, err := RunDotnetCommand(ctx, dotnetExec, engineClient, args, false /*logToUser*/, programDirectory)
+		if err == nil || attempt == tries || ctx.Err() != nil {
+			return output, err
+		}
+		logging.V(5).Infof("'dotnet %v' failed (attempt %d of %d), retrying: %v",
+			strings.Join(args, " "), attempt, tries, err)
+		time.Sleep(time.Duration(attempt) * time.Second)
+	}
 }
 
 func RunDotnetCommand(

@@ -17,16 +17,14 @@ env:
   ESC_ACTION_OIDC_REQUESTED_TOKEN_TYPE: urn:pulumi:token-type:access_token:organization
   ESC_ACTION_ENVIRONMENT: github-secrets/pulumi-pulumi-dotnet
   ESC_ACTION_EXPORT_ENVIRONMENT_VARIABLES: PULUMI_ACCESS_TOKEN=PULUMI_ACCESS_TOKEN_PRODUCTION
-  # Pin the mise binary: recent releases regressed `vfox:dotnet` on Windows.
-  #   * 2026.6.10 fails inside the plugin ("Illegal characters in path" running
-  #     dotnet-install.ps1), before the postinstall hook even runs.
-  #   * 2026.6.9 installs the SDK but then fails the .mise.toml `postinstall`
-  #     hook (PowerShell `$env:*` left unexpanded; the bash fallback can't detect
-  #     the OS under Git Bash).
-  # 2026.3.8 predates both regressions (the postinstall hook was added 2026-02).
-  # Remove this pin (and the `version:` inputs below) once fixed upstream.
+  # Pin the mise binary to 2026.6.9: the latest (2026.6.10) regressed the
+  # vfox:dotnet plugin install on Windows ("Illegal characters in path" running
+  # dotnet-install.ps1). 2026.6.9 installs the plugin cleanly; the dotnet
+  # `postinstall` hook in .mise.toml is fixed alongside this to run correctly
+  # under Git Bash on Windows. Remove this pin (and the `version:` inputs below)
+  # once the plugin regression is fixed upstream.
   # See https://github.com/jdx/mise/releases
-  PINNED_MISE_VERSION: 2026.3.8
+  PINNED_MISE_VERSION: 2026.6.9
 
 jobs:
   setup_matrix:

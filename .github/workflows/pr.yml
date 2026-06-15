@@ -17,6 +17,14 @@ env:
   ESC_ACTION_OIDC_REQUESTED_TOKEN_TYPE: urn:pulumi:token-type:access_token:organization
   ESC_ACTION_ENVIRONMENT: github-secrets/pulumi-pulumi-dotnet
   ESC_ACTION_EXPORT_ENVIRONMENT_VARIABLES: PULUMI_ACCESS_TOKEN=PULUMI_ACCESS_TOKEN_PRODUCTION
+  # Pin the mise binary to 2026.6.9: the latest (2026.6.10) regressed the
+  # vfox:dotnet plugin install on Windows ("Illegal characters in path" running
+  # dotnet-install.ps1). 2026.6.9 installs the plugin cleanly; the dotnet
+  # `postinstall` hook in .mise.toml is fixed alongside this to run correctly
+  # under Git Bash on Windows. Remove this pin (and the `version:` inputs below)
+  # once the plugin regression is fixed upstream.
+  # See https://github.com/jdx/mise/releases
+  PINNED_MISE_VERSION: 2026.6.9
 
 jobs:
   setup_matrix:
@@ -46,6 +54,8 @@ jobs:
           submodules: 'recursive'
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          version: ${{ env.PINNED_MISE_VERSION }}
       - name: Run `make format_check`
         run: make format_check
 
@@ -60,6 +70,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          version: ${{ env.PINNED_MISE_VERSION }}
       - name: Run `make lint_language_host`
         run: make lint_language_host GOLANGCI_LINT_ARGS=--output.text.path=stdout
       - name: Run `make lint_integration_tests`
@@ -76,6 +88,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          version: ${{ env.PINNED_MISE_VERSION }}
       - name: Check if folder is empty
         id: folder_check
         run: |
@@ -168,6 +182,8 @@ jobs:
           submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          version: ${{ env.PINNED_MISE_VERSION }}
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Create global.json
@@ -221,6 +237,8 @@ jobs:
           submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          version: ${{ env.PINNED_MISE_VERSION }}
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
@@ -252,6 +270,8 @@ jobs:
           submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          version: ${{ env.PINNED_MISE_VERSION }}
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
@@ -277,6 +297,8 @@ jobs:
         uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          version: ${{ env.PINNED_MISE_VERSION }}
       - name: Get version info
         id: version
         run: |

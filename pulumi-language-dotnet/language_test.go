@@ -189,6 +189,8 @@ var expectedFailures = map[string]string{
 	"l2-resource-schema-secret":     "Fail after updating to 3.246: dotnet build failed: Pulumi.Output namespace conflict",                                     //nolint:lll
 	"l2-provider-config-enum":       "Fail after updating to 3.246: run bailed",
 	"l2-config-default-from-invoke": "Fail after updating to 3.246: stack output \"result\" missing",
+
+	"l2-docs": "dotnet codegen does not resolve '{{% ref %}}' doc cross-references in generated comments",
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

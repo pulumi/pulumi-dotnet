@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Retry package discovery commands ('dotnet list package', 'dotnet nuget locals') when they are killed on resource-starved machines
-time: 2026-06-12T11:50:52.723079+02:00
-custom:
-    PR: "1035"

@@ -46,6 +46,9 @@ jobs:
           submodules: 'recursive'
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          # Pin mise: 2026.6.10 broke the vfox:dotnet install on Windows (jdx/mise#10323).
+          version: 2026.6.9
       - name: Run `make format_check`
         run: make format_check
 
@@ -60,6 +63,9 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          # Pin mise: 2026.6.10 broke the vfox:dotnet install on Windows (jdx/mise#10323).
+          version: 2026.6.9
       - name: Run `make lint_language_host`
         run: make lint_language_host GOLANGCI_LINT_ARGS=--output.text.path=stdout
       - name: Run `make lint_integration_tests`
@@ -76,6 +82,9 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          # Pin mise: 2026.6.10 broke the vfox:dotnet install on Windows (jdx/mise#10323).
+          version: 2026.6.9
       - name: Check if folder is empty
         id: folder_check
         run: |
@@ -168,6 +177,9 @@ jobs:
           submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          # Pin mise: 2026.6.10 broke the vfox:dotnet install on Windows (jdx/mise#10323).
+          version: 2026.6.9
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Create global.json
@@ -221,6 +233,9 @@ jobs:
           submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          # Pin mise: 2026.6.10 broke the vfox:dotnet install on Windows (jdx/mise#10323).
+          version: 2026.6.9
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
@@ -252,6 +267,9 @@ jobs:
           submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          # Pin mise: 2026.6.10 broke the vfox:dotnet install on Windows (jdx/mise#10323).
+          version: 2026.6.9
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
@@ -277,6 +295,9 @@ jobs:
         uses: actions/checkout@v6
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          # Pin mise: 2026.6.10 broke the vfox:dotnet install on Windows (jdx/mise#10323).
+          version: 2026.6.9
       - name: Get version info
         id: version
         run: |

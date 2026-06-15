@@ -341,40 +341,6 @@ func TestFailingTransfomationExitsProgram(t *testing.T) {
 	assert.Contains(t, stderr.String(), "Boom!")
 }
 
-// Test remote component construction with a child resource that takes a long time to be created, ensuring it's created.
-//func TestConstructSlowDotnet(t *testing.T) {
-//	localProvider := testComponentSlowLocalProvider(t)
-//
-//	// TODO[pulumi/pulumi#5455]: Dynamic providers fail to load when used from multi-lang components.
-//	// Until we've addressed this, set PULUMI_TEST_YARN_LINK_PULUMI, which tells the integration test
-//	// module to run `yarn install && yarn link @pulumi/pulumi` in the .NET program's directory, allowing
-//	// the Node.js dynamic provider plugin to load.
-//	// When the underlying issue has been fixed, the use of this environment variable inside the integration
-//	// test module should be removed.
-//	const testYarnLinkPulumiEnv = "PULUMI_TEST_YARN_LINK_PULUMI=true"
-//
-//	testDir := "construct_component_slow"
-//	runComponentSetup(t, testDir)
-//
-//	opts := &integration.ProgramTestOptions{
-//		Env:            []string{testYarnLinkPulumiEnv},
-//		Dir:            filepath.Join(testDir, "dotnet"),
-//		Dependencies:   []string{"Pulumi"},
-//		LocalProviders: []integration.LocalDependency{localProvider},
-//		Quick:          true,
-//		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
-//			assert.NotNil(t, stackInfo.Deployment)
-//			if assert.Equal(t, 5, len(stackInfo.Deployment.Resources)) {
-//				stackRes := stackInfo.Deployment.Resources[0]
-//				assert.NotNil(t, stackRes)
-//				assert.Equal(t, resource.RootStackType, stackRes.Type)
-//				assert.Equal(t, "", string(stackRes.Parent))
-//			}
-//		},
-//	}
-//	integration.ProgramTest(t, opts)
-//}
-
 // Test remote component construction with prompt inputs.
 //
 //nolint:paralleltest // ProgramTest calls testing.T.Parallel
@@ -487,14 +453,11 @@ func TestGetResourceDotnet(t *testing.T) {
 func TestAboutDotnet(t *testing.T) {
 	t.Parallel()
 
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
-
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("about")
 
-	e.Env = append(e.Env, getProviderPath(languagePluginPath))
+	e.Env = append(e.Env, getProviderPath(languagePluginPath(t)))
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
 	stdout, stderr := e.RunCommand("pulumi", "about")
 	// There should be no "unknown" plugin versions.
@@ -711,19 +674,19 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// TODO[pulumi/pulumi-dotnet#403]: Fix flaky test.
-	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
-		t.Skip("Temporarily skipping flaky test on macOS and Windows - pulumi/pulumi-dotnet#403")
+	// TODO[pulumi/pulumi-dotnet#403]: The program debugger attach is flaky on Windows.
+	if runtime.GOOS == WindowsOS {
+		t.Skip("Skipping flaky test on Windows - pulumi/pulumi-dotnet#403")
 	}
 
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
+	// Prevent the test from hanging by failing it after five minutes.
+	setTimeout(t, 5*time.Minute)
 
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("printf")
 
-	err = prepareDotnetProjectAtCwd(e.RootPath)
+	err := prepareDotnetProjectAtCwd(e.RootPath)
 	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
@@ -732,7 +695,7 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath(t)))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		e.RunCommand("pulumi", "preview", "--attach-debugger",
@@ -775,19 +738,14 @@ outer:
 func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// TODO[pulumi/pulumi-dotnet#705]: Fix disabled test on MacOS..
-	if runtime.GOOS == "darwin" {
-		t.Skip("Skipping test due to broken netcoredbg on MacOS - pulumi/pulumi-dotnet#705")
-	}
-
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
+	// Prevent the test from hanging by failing it after five minutes.
+	setTimeout(t, 5*time.Minute)
 
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("debug-plugin")
 
-	err = prepareDotnetProjectAtCwd(filepath.Join(e.RootPath, "dotnet-plugin"))
+	err := prepareDotnetProjectAtCwd(filepath.Join(e.RootPath, "dotnet-plugin"))
 	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
@@ -799,7 +757,7 @@ func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath(t)))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		stdout, _ := e.RunCommandExpectError("pulumi", "preview", "--attach-debugger=plugins",

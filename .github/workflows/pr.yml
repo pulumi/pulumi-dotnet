@@ -175,31 +175,7 @@ jobs:
           echo '{"sdk":{"version": "${{ matrix.dotnet-version }}"}}' > ./global.json
       - name: Dotnet version
         run: dotnet --version
-      - name: Install netcoredbg (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-linux-amd64.tar.gz -o netcoredbg.tar.gz
-          tar xzf netcoredbg.tar.gz
-          sudo cp netcoredbg/* /usr/bin/
-      - name: Install netcoredbg (Windows)
-        if: startsWith(matrix.os, 'windows')
-        shell: bash
-        run: |
-          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-win64.zip -o netcoredbg.zip
-          unzip netcoredbg.zip
-          echo "$(pwd)/netcoredbg" >> $GITHUB_PATH
-      - name: Install netcoredbg (MacOS)
-        if: startsWith(matrix.os, 'macos')
-        id: netcoredbg
-        run: |
-          curl -sSL https://github.com/Samsung/netcoredbg/releases/download/3.1.1-1042/netcoredbg-osx-amd64.tar.gz -o netcoredbg.tar.gz
-          tar xzf netcoredbg.tar.gz
-          echo "netcoredbgpath=$(pwd)/netcoredbg/" >> ${GITHUB_OUTPUT}
       - name: Integration tests
-        if: startsWith(matrix.os, 'macos')
-        run: PATH="${{ steps.netcoredbg.outputs.netcoredbgpath}}":"$PATH" make test_integration
-      - name: Integration tests
-        if: startsWith(matrix.os, 'macos') != true
         run: make test_integration
   conformance-tests:
     strategy:

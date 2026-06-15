@@ -13,3 +13,17 @@ golangci-lint = "2.9.0"
 gotestsum = "latest"
 pulumi = "latest"
 "vfox:dotnet" = { version = "8.0", postinstall = "powershell -Command \"Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile '$env:TEMP\\dotnet-install.ps1'; & '$env:TEMP\\dotnet-install.ps1' -Version 6.0.427 -InstallDir '$env:MISE_TOOL_INSTALL_PATH' -NoPath -SkipNonVersionedFiles\" || curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --version 6.0.427 --install-dir \"$MISE_TOOL_INSTALL_PATH\" --no-path --skip-non-versioned-files" }
+
+# netcoredbg is the .NET debugger used by the debugger-attach integration tests.  Samsung does not publish an osx-arm64
+# build (https://github.com/Samsung/netcoredbg/issues/174), so on Apple Silicon we pull a community-built arm64
+# binary.
+[tools."http:netcoredbg"]
+version = "3.1.2-1054"
+bin_path = "netcoredbg"
+
+[tools."http:netcoredbg".platforms]
+linux-x64 = { url = "https://github.com/Samsung/netcoredbg/releases/download/3.1.2-1054/netcoredbg-linux-amd64.tar.gz" }
+linux-arm64 = { url = "https://github.com/Samsung/netcoredbg/releases/download/3.1.2-1054/netcoredbg-linux-arm64.tar.gz" }
+macos-x64 = { url = "https://github.com/Samsung/netcoredbg/releases/download/3.1.2-1054/netcoredbg-osx-amd64.tar.gz" }
+macos-arm64 = { url = "https://github.com/Cliffback/netcoredbg-macOS-arm64.nvim/releases/download/3.1.2-1054/netcoredbg-osx-arm64.tar.gz" }
+windows-x64 = { url = "https://github.com/Samsung/netcoredbg/releases/download/3.1.2-1054/netcoredbg-win64.zip" }

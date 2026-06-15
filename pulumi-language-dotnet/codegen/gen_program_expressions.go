@@ -478,6 +478,29 @@ func (g *generator) withinAwaitBlock(run func()) {
 	}
 }
 
+// genMultiArgumentInvokeArgs spreads an invoke's single argument bag into the
+// positional arguments required by a function declaring multiArgumentInputs. It
+// returns false when the invoke does not use multi-argument inputs, leaving the
+// caller to emit the args object normally.
+func (g *generator) genMultiArgumentInvokeArgs(w io.Writer, invoke *model.FunctionCallExpression) bool {
+	if !invoke.Signature.MultiArgumentInputs || len(invoke.Args) < 2 {
+		return false
+	}
+
+	var invokeArgs *model.ObjectConsExpression
+	if converted, objectArgs, _ := pcl.RecognizeTypedObjectCons(invoke.Args[1]); converted {
+		// the invoke args are wrapped in __convert(objectCons(..))
+		invokeArgs = objectArgs
+	} else if objectArgs, ok := invoke.Args[1].(*model.ObjectConsExpression); ok {
+		invokeArgs = objectArgs
+	} else {
+		return false
+	}
+
+	pcl.GenerateMultiArguments(g.Formatter, w, "null", invokeArgs, pcl.SortedFunctionParameters(invoke))
+	return true
+}
+
 func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionCallExpression) {
 	switch expr.Name {
 	case pcl.IntrinsicConvert:
@@ -518,31 +541,33 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 			g.Fprintf(w, "%s.Invoke(", fullFunctionName)
 			functionParts := strings.Split(fullFunctionName, ".")
 			functionName := functionParts[len(functionParts)-1]
-			innerFunc, isFunc := funcExpr.Args[1].(*model.FunctionCallExpression)
-			if isFunc && innerFunc.Name == pcl.IntrinsicConvert {
-				switch arg := innerFunc.Args[0].(type) {
-				case *model.ObjectConsExpression:
-					g.withinFunctionInvoke(func() {
-						useImplicitTypeName := g.generateOptions.implicitResourceArgsTypeName
-						inputTypeName := functionName + "InvokeArgs"
-						destTypeName := strings.ReplaceAll(fullFunctionName, functionName, inputTypeName)
-						g.genObjectConsExpressionWithTypeName(w, arg, destTypeName, useImplicitTypeName,
-							pcl.SortedFunctionParameters(funcExpr))
-					})
-				default:
-					g.genIntrensic(w, funcExpr.Args[0], expr.Signature.ReturnType)
-				}
-			} else {
-				if objectExpr, ok := funcExpr.Args[1].(*model.ObjectConsExpression); ok {
-					g.withinFunctionInvoke(func() {
-						useImplicitTypeName := g.generateOptions.implicitResourceArgsTypeName
-						inputTypeName := functionName + "InvokeArgs"
-						destTypeName := strings.ReplaceAll(fullFunctionName, functionName, inputTypeName)
-						g.genObjectConsExpressionWithTypeName(w, objectExpr, destTypeName, useImplicitTypeName,
-							pcl.SortedFunctionParameters(funcExpr))
-					})
+			if !g.genMultiArgumentInvokeArgs(w, funcExpr) {
+				innerFunc, isFunc := funcExpr.Args[1].(*model.FunctionCallExpression)
+				if isFunc && innerFunc.Name == pcl.IntrinsicConvert {
+					switch arg := innerFunc.Args[0].(type) {
+					case *model.ObjectConsExpression:
+						g.withinFunctionInvoke(func() {
+							useImplicitTypeName := g.generateOptions.implicitResourceArgsTypeName
+							inputTypeName := functionName + "InvokeArgs"
+							destTypeName := strings.ReplaceAll(fullFunctionName, functionName, inputTypeName)
+							g.genObjectConsExpressionWithTypeName(w, arg, destTypeName, useImplicitTypeName,
+								pcl.SortedFunctionParameters(funcExpr))
+						})
+					default:
+						g.genIntrensic(w, funcExpr.Args[0], expr.Signature.ReturnType)
+					}
 				} else {
-					g.Fgenf(w, "%v", funcExpr.Args[1])
+					if objectExpr, ok := funcExpr.Args[1].(*model.ObjectConsExpression); ok {
+						g.withinFunctionInvoke(func() {
+							useImplicitTypeName := g.generateOptions.implicitResourceArgsTypeName
+							inputTypeName := functionName + "InvokeArgs"
+							destTypeName := strings.ReplaceAll(fullFunctionName, functionName, inputTypeName)
+							g.genObjectConsExpressionWithTypeName(w, objectExpr, destTypeName, useImplicitTypeName,
+								pcl.SortedFunctionParameters(funcExpr))
+						})
+					} else {
+						g.Fgenf(w, "%v", funcExpr.Args[1])
+					}
 				}
 			}
 
@@ -626,35 +651,37 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 			g.Fprintf(w, "%s.Invoke(", fullFunctionName)
 		}
 
-		innerFunc, isFunc := expr.Args[1].(*model.FunctionCallExpression)
-		if isFunc && innerFunc.Name == pcl.IntrinsicConvert {
-			// function has been "lowered" i.e. rewritten with __convert
-			switch arg := innerFunc.Args[0].(type) {
-			case *model.ObjectConsExpression:
-				g.withinFunctionInvoke(func() {
-					useImplicitTypeName := g.generateOptions.implicitResourceArgsTypeName
-					inputTypeName := functionName + "InvokeArgs"
-					if g.insideAwait {
-						inputTypeName = functionName + "Args"
-					}
+		if !g.genMultiArgumentInvokeArgs(w, expr) {
+			innerFunc, isFunc := expr.Args[1].(*model.FunctionCallExpression)
+			if isFunc && innerFunc.Name == pcl.IntrinsicConvert {
+				// function has been "lowered" i.e. rewritten with __convert
+				switch arg := innerFunc.Args[0].(type) {
+				case *model.ObjectConsExpression:
+					g.withinFunctionInvoke(func() {
+						useImplicitTypeName := g.generateOptions.implicitResourceArgsTypeName
+						inputTypeName := functionName + "InvokeArgs"
+						if g.insideAwait {
+							inputTypeName = functionName + "Args"
+						}
 
-					destTypeName := strings.ReplaceAll(fullFunctionName, functionName, inputTypeName)
+						destTypeName := strings.ReplaceAll(fullFunctionName, functionName, inputTypeName)
+						g.genObjectConsExpressionWithTypeName(w, arg, destTypeName, useImplicitTypeName,
+							pcl.SortedFunctionParameters(expr))
+					})
+				default:
+					g.genIntrensic(w, expr.Args[0], expr.Signature.ReturnType)
+				}
+			} else {
+				// function has not been rewritten
+				switch arg := expr.Args[1].(type) {
+				case *model.ObjectConsExpression:
+					useImplicitTypeName := true
+					destTypeName := "Irrelevant"
 					g.genObjectConsExpressionWithTypeName(w, arg, destTypeName, useImplicitTypeName,
 						pcl.SortedFunctionParameters(expr))
-				})
-			default:
-				g.genIntrensic(w, expr.Args[0], expr.Signature.ReturnType)
-			}
-		} else {
-			// function has not been rewritten
-			switch arg := expr.Args[1].(type) {
-			case *model.ObjectConsExpression:
-				useImplicitTypeName := true
-				destTypeName := "Irrelevant"
-				g.genObjectConsExpressionWithTypeName(w, arg, destTypeName, useImplicitTypeName,
-					pcl.SortedFunctionParameters(expr))
-			default:
-				g.genIntrensic(w, expr.Args[0], expr.Signature.ReturnType)
+				default:
+					g.genIntrensic(w, expr.Args[0], expr.Signature.ReturnType)
+				}
 			}
 		}
 

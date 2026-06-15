@@ -9035,6 +9035,21 @@
             If true the engine will send `preview` to `Invoke` methods to let them know if the current operation is a preview or up.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.MapperTargetFieldNumber">
+            <summary>Field number for the "mapper_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.MapperTarget">
+            <summary>
+            The target of a [](codegen.Mapper) service the provider can use to retrieve mappings from other ecosystems to
+            Pulumi. May be empty on older engines.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.HasMapperTarget">
+            <summary>Gets whether the "mapper_target" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ProviderHandshakeRequest.ClearMapperTarget">
+            <summary>Clears the value of the "mapper_target" field</summary>
+        </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>
             `ProviderHandshakeResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Handshake) call.

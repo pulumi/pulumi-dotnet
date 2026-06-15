@@ -13,13 +13,13 @@ namespace Pulumi.Example
     public partial class Component : global::Pulumi.CustomResource
     {
         [Output("provider")]
-        public Output<Pulumi.Kubernetes.Provider?> Provider { get; private set; } = null!;
+        public Output<Pulumi.Other.Provider?> Provider { get; private set; } = null!;
 
         [Output("res")]
         public Output<Pulumi.Goalias.Mod1.V1.Res> Res { get; private set; } = null!;
 
         [Output("storageClasses")]
-        public Output<ImmutableDictionary<string, Pulumi.Kubernetes.Storage.V1.StorageClass>?> StorageClasses { get; private set; } = null!;
+        public Output<ImmutableDictionary<string, ThirdParty.Other.Thing>?> StorageClasses { get; private set; } = null!;
 
 
         /// <summary>
@@ -67,40 +67,40 @@ namespace Pulumi.Example
     public sealed class ComponentArgs : global::Pulumi.ResourceArgs
     {
         [Input("metadata")]
-        public Input<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>? Metadata { get; set; }
+        public Input<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>? Metadata { get; set; }
 
         [Input("metadataArray")]
-        private InputList<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>? _metadataArray;
-        public InputList<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs> MetadataArray
+        private InputList<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>? _metadataArray;
+        public InputList<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs> MetadataArray
         {
-            get => _metadataArray ?? (_metadataArray = new InputList<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>());
+            get => _metadataArray ?? (_metadataArray = new InputList<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>());
             set => _metadataArray = value;
         }
 
         [Input("metadataMap")]
-        private InputMap<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>? _metadataMap;
-        public InputMap<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs> MetadataMap
+        private InputMap<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>? _metadataMap;
+        public InputMap<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs> MetadataMap
         {
-            get => _metadataMap ?? (_metadataMap = new InputMap<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>());
+            get => _metadataMap ?? (_metadataMap = new InputMap<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>());
             set => _metadataMap = value;
         }
 
         [Input("requiredMetadata", required: true)]
-        public Input<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs> RequiredMetadata { get; set; } = null!;
+        public Input<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs> RequiredMetadata { get; set; } = null!;
 
         [Input("requiredMetadataArray", required: true)]
-        private InputList<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>? _requiredMetadataArray;
-        public InputList<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs> RequiredMetadataArray
+        private InputList<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>? _requiredMetadataArray;
+        public InputList<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs> RequiredMetadataArray
         {
-            get => _requiredMetadataArray ?? (_requiredMetadataArray = new InputList<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>());
+            get => _requiredMetadataArray ?? (_requiredMetadataArray = new InputList<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>());
             set => _requiredMetadataArray = value;
         }
 
         [Input("requiredMetadataMap", required: true)]
-        private InputMap<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>? _requiredMetadataMap;
-        public InputMap<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs> RequiredMetadataMap
+        private InputMap<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>? _requiredMetadataMap;
+        public InputMap<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs> RequiredMetadataMap
         {
-            get => _requiredMetadataMap ?? (_requiredMetadataMap = new InputMap<Pulumi.Kubernetes.Types.Inputs.Meta.V1.ObjectMetaArgs>());
+            get => _requiredMetadataMap ?? (_requiredMetadataMap = new InputMap<ThirdParty.Other.Module.Sub.Inputs.ConfigArgs>());
             set => _requiredMetadataMap = value;
         }
 

@@ -560,7 +560,7 @@ func dotnetDependencies(deps codegen.StringSet) []dep {
 			// because it has output-versioned function invokes
 			result[i] = dep{"Pulumi.Azure", "5.12.0"}
 		case "kubernetes":
-			result[i] = dep{"Pulumi.Kubernetes", test.KubernetesSchema}
+			result[i] = dep{"Pulumi.Kubernetes", "3.7.0"}
 		case "random":
 			result[i] = dep{"Pulumi.Random", test.RandomSchema}
 		default:

@@ -47,10 +47,12 @@ namespace Pulumi
                 if (value == null) continue;
 
                 var targetType = value.GetType();
-                if (value is IOutput)
+                if (value is IOutput || value is IInput)
                 {
                     var type = value.GetType();
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Output<>))
+                    if (type.IsGenericType &&
+                        (type.GetGenericTypeDefinition() == typeof(Output<>) ||
+                         type.GetGenericTypeDefinition() == typeof(Input<>)))
                     {
                         targetType = type.GenericTypeArguments[0];
                     }

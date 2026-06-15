@@ -134,6 +134,8 @@ jobs:
         run: make test_sdk_coverage
       - name: Test Pulumi Automation SDK
         run: make test_sdk_automation_coverage
+      - name: Test Automation API codegen
+        run: make test_automation_codegen
       - name: Upload coverage data
         uses: codecov/codecov-action@v5
         with:

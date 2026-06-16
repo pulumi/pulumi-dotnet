@@ -21,6 +21,7 @@ namespace Pulumi.Tests.Resources
                     { "int", 123 },
                     { "dictionary", new Dictionary<string, object?> { {"foo", "bar"} }.ToImmutableDictionary() },
                     { "output", Output.CreateSecret("secret") },
+                    { "input", (Input<string>)"foo" },
                 };
                 var dictionary = new DictionaryInvokeArgs(dict.ToImmutableDictionary());
             }

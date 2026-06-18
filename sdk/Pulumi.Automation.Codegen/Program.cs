@@ -1,6 +1,7 @@
 // Copyright 2016-2026, Pulumi Corporation
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -36,29 +37,39 @@ namespace Pulumi.Automation.Codegen
             var namespaceName = args.Length >= 3 ? args[2] : DefaultNamespace;
 
             var root = Specification.Load(specificationPath);
-            var source = OptionsGenerator.Generate(root, namespaceName);
-
-            // Fail fast if the generated source is not syntactically valid C#
-            // rather than letting a broken file reach a consuming project.
-            var errors = CSharpSyntaxTree.ParseText(source)
-                .GetDiagnostics()
-                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
-                .ToList();
-            if (errors.Count > 0)
+            var files = new Dictionary<string, string>
             {
-                Console.Error.WriteLine("The generated source is not valid C#:");
-                foreach (var error in errors)
-                {
-                    Console.Error.WriteLine($"  {error}");
-                }
+                ["Options.cs"] = OptionsGenerator.Generate(root, namespaceName),
+                ["Commands.cs"] = CommandsGenerator.Generate(root, namespaceName),
+            };
 
-                return 1;
+            // Fail fast if any generated source is not syntactically valid C#
+            // rather than letting a broken file reach a consuming project.
+            foreach (var (name, source) in files)
+            {
+                var errors = CSharpSyntaxTree.ParseText(source)
+                    .GetDiagnostics()
+                    .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                    .ToList();
+                if (errors.Count > 0)
+                {
+                    Console.Error.WriteLine($"The generated {name} is not valid C#:");
+                    foreach (var error in errors)
+                    {
+                        Console.Error.WriteLine($"  {error}");
+                    }
+
+                    return 1;
+                }
             }
 
             Directory.CreateDirectory(outputDirectory);
-            var outputPath = Path.Combine(outputDirectory, "Options.cs");
-            File.WriteAllText(outputPath, source);
-            Console.WriteLine($"Wrote {outputPath}");
+            foreach (var (name, source) in files)
+            {
+                var outputPath = Path.Combine(outputDirectory, name);
+                File.WriteAllText(outputPath, source);
+                Console.WriteLine($"Wrote {outputPath}");
+            }
 
             return 0;
         }

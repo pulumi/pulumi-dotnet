@@ -1,0 +1,127 @@
+// Copyright 2016-2026, Pulumi Corporation
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Pulumi.Automation.Codegen;
+
+namespace Pulumi.Automation.Codegen.Tests
+{
+    /// <summary>
+    /// Test helpers for compiling and exercising the generated source.
+    /// </summary>
+    internal static class GeneratedCode
+    {
+        public const string Namespace = "Pulumi.Automation.Interface";
+
+        /// <summary>
+        /// Compiles the given C# sources into an in-memory assembly, asserting
+        /// that the compilation produces no errors.
+        /// </summary>
+        public static Compilation Compile(params string[] sources)
+        {
+            var trees = sources.Select(source => CSharpSyntaxTree.ParseText(source));
+            return CSharpCompilation.Create(
+                "Pulumi.Automation.Codegen.Generated",
+                trees,
+                References(),
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        }
+
+        /// <summary>
+        /// Generates and compiles the options and command sources for a
+        /// specification, then loads the result so its types can be invoked.
+        /// </summary>
+        public static Assembly Build(CommandTreeNode specification)
+        {
+            var compilation = Compile(
+                OptionsGenerator.Generate(specification, Namespace),
+                CommandsGenerator.Generate(specification, Namespace));
+
+            using var stream = new MemoryStream();
+            var result = compilation.Emit(stream);
+            if (!result.Success)
+            {
+                var errors = result.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+                throw new InvalidOperationException(
+                    "The generated source did not compile:\n" + string.Join("\n", errors));
+            }
+
+            return Assembly.Load(stream.ToArray());
+        }
+
+        /// <summary>
+        /// The metadata references needed to compile the generated source: the
+        /// core runtime assemblies.
+        /// </summary>
+        public static IReadOnlyList<MetadataReference> References()
+        {
+            var trustedAssemblies = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
+            var wanted = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "System.Private.CoreLib",
+                "System.Runtime",
+                "System.Collections",
+                "netstandard",
+            };
+
+            return trustedAssemblies.Split(Path.PathSeparator)
+                .Where(path => wanted.Contains(Path.GetFileNameWithoutExtension(path)))
+                .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
+                .ToList();
+        }
+    }
+
+    /// <summary>
+    /// A thin reflection wrapper over a compiled generated <c>API</c> instance,
+    /// so tests can invoke the generated command methods.
+    /// </summary>
+    internal sealed class GeneratedApi
+    {
+        private readonly Assembly _assembly;
+        private readonly Type _apiType;
+        private readonly object _api;
+
+        public GeneratedApi(CommandTreeNode specification)
+        {
+            _assembly = GeneratedCode.Build(specification);
+            _apiType = _assembly.GetType($"{GeneratedCode.Namespace}.API")
+                ?? throw new InvalidOperationException("The generated source does not define an API class.");
+            _api = Activator.CreateInstance(_apiType)!;
+        }
+
+        /// <summary>
+        /// Builds an options bag of the named type with the given properties
+        /// set.
+        /// </summary>
+        public object Options(string typeName, params (string Name, object? Value)[] properties)
+        {
+            var type = _assembly.GetType($"{GeneratedCode.Namespace}.{typeName}")
+                ?? throw new InvalidOperationException($"The generated source does not define {typeName}.");
+            var instance = Activator.CreateInstance(type)!;
+            foreach (var (name, value) in properties)
+            {
+                var property = type.GetProperty(name)
+                    ?? throw new InvalidOperationException($"{typeName} has no property {name}.");
+                property.SetValue(instance, value);
+            }
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Invokes the named command method with the given arguments and
+        /// returns the argument vector it builds.
+        /// </summary>
+        public IReadOnlyList<string> Invoke(string method, params object?[] arguments)
+        {
+            var methodInfo = _apiType.GetMethod(method)
+                ?? throw new InvalidOperationException($"The generated API has no method {method}.");
+            return (IReadOnlyList<string>)methodInfo.Invoke(_api, arguments)!;
+        }
+    }
+}

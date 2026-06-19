@@ -2076,8 +2076,8 @@ func (mod *modContext) genUtilities() (string, error) {
 	}
 
 	if def.Parameterization != nil {
-		templateData.BaseProviderName = def.Parameterization.BaseProvider.Name
-		templateData.BaseProviderVersion = def.Parameterization.BaseProvider.Version.String()
+		templateData.BaseProviderName = def.Parameterization.BasePlugin.Name
+		templateData.BaseProviderVersion = def.Parameterization.BasePlugin.Version.String()
 		templateData.BaseProviderPluginDownloadURL = def.PluginDownloadURL
 		templateData.ParameterValue = base64.StdEncoding.EncodeToString(def.Parameterization.Parameter)
 	}
@@ -2314,8 +2314,8 @@ func genPackageMetadata(pkg *schema.Package,
 			Version: pulumiPlugin.Version,
 			Value:   pkg.Parameterization.Parameter,
 		}
-		pulumiPlugin.Name = pkg.Parameterization.BaseProvider.Name
-		pulumiPlugin.Version = pkg.Parameterization.BaseProvider.Version.String()
+		pulumiPlugin.Name = pkg.Parameterization.BasePlugin.Name
+		pulumiPlugin.Version = pkg.Parameterization.BasePlugin.Version.String()
 	}
 
 	plugin, err := (pulumiPlugin).JSON()

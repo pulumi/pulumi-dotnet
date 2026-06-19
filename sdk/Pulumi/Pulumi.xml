@@ -8898,7 +8898,15 @@
         </member>
         <member name="P:Pulumirpc.PackageDependency.Parameterization">
             <summary>
-            The optional parameterization for this package.
+            The optional replacement parameterization for this package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.PackageDependency.ExtensionFieldNumber">
+            <summary>Field number for the "extension" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.PackageDependency.Extension">
+            <summary>
+            The optional extension parameterization for this package.
             </summary>
         </member>
         <member name="F:Pulumirpc.PackageSpec.SourceFieldNumber">
@@ -14480,6 +14488,14 @@
         <member name="P:Pulumirpc.RegisterPackageRequest.Parameterization">
             <summary>
             the optional parameterization for this package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterPackageRequest.ExtensionFieldNumber">
+            <summary>Field number for the "extension" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterPackageRequest.Extension">
+            <summary>
+            the optional extension parameterization for this package.
             </summary>
         </member>
         <member name="F:Pulumirpc.RegisterPackageResponse.RefFieldNumber">

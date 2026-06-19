@@ -94,7 +94,7 @@ func parseAndBindProgram(t *testing.T,
 	}
 
 	// Prepend the default host so that we can override if necessary.
-	options = append([]pcl.BindOption{pcl.PluginHost(utils.NewHost(testdataPath))}, options...)
+	options = append([]pcl.BindOption{pcl.PluginHost(utils.NewContext(testdataPath))}, options...)
 	return pcl.BindProgram(parser.Files, options...)
 }
 

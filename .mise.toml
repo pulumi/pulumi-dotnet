@@ -11,9 +11,5 @@ go = "1.25"
 gofumpt = "0.9.1"
 golangci-lint = "2.9.0"
 gotestsum = "latest"
-# Install pulumi via the GitHub backend instead of the default (aqua). Aqua verifies
-# downloads against checksums pinned in its own registry, which break when a release is
-# re-published; the GitHub backend verifies against the release's own signed checksums,
-# so `latest` keeps resolving even when aqua's registry is out of sync.
 "github:pulumi/pulumi" = "latest"
 "vfox:dotnet" = { version = "8.0", postinstall = "powershell -File {{config_root}}/scripts/install-dotnet-runtime.ps1 || bash {{config_root}}/scripts/install-dotnet-runtime.sh" }

@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Allow Input-wrapped values in DictionaryInvokeArgs, as produced by output-versioned invokes of functions with multiArgumentInputs
-time: 2026-06-15T13:29:52-07:00
-custom:
-    PR: "1039"

@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Generate positional invoke calls for functions that declare multiArgumentInputs, matching the SDK-generated signatures
-time: 2026-06-15T13:29:51-07:00
-custom:
-    PR: "1039"

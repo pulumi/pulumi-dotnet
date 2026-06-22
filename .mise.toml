@@ -11,5 +11,5 @@ go = "1.25"
 gofumpt = "0.9.1"
 golangci-lint = "2.9.0"
 gotestsum = "latest"
-pulumi = "latest"
+"github:pulumi/pulumi" = "latest"
 "vfox:dotnet" = { version = "8.0", postinstall = "powershell -File {{config_root}}/scripts/install-dotnet-runtime.ps1 || bash {{config_root}}/scripts/install-dotnet-runtime.sh" }

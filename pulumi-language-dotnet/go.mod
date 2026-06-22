@@ -13,8 +13,8 @@ require (
 	github.com/deckarep/golang-set/v2 v2.5.0
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.247.0
-	github.com/pulumi/pulumi/sdk/v3 v3.247.0
+	github.com/pulumi/pulumi/pkg/v3 v3.247.1-0.20260622152826-d883bcdbeccf
+	github.com/pulumi/pulumi/sdk/v3 v3.247.1-0.20260622152826-d883bcdbeccf
 	github.com/stretchr/testify v1.11.1
 	github.com/zclconf/go-cty v1.16.3
 	go.opentelemetry.io/otel v1.44.0

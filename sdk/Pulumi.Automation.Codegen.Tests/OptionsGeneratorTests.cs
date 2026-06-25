@@ -43,14 +43,8 @@ namespace Pulumi.Automation.Codegen.Tests
         [Fact]
         public void Generate_ProducesCompilableSource()
         {
-            var tree = CSharpSyntaxTree.ParseText(GenerateFromFixture());
-            var compilation = CSharpCompilation.Create(
-                "Pulumi.Automation.Codegen.Generated",
-                new[] { tree },
-                References(),
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-            var errors = compilation.GetDiagnostics()
+            var errors = GeneratedCode.Compile(GenerateFromFixture())
+                .GetDiagnostics()
                 .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
                 .ToList();
             Assert.Empty(errors);
@@ -215,23 +209,6 @@ namespace Pulumi.Automation.Codegen.Tests
             Assert.True(start >= 0, $"Expected to find class {className} in the generated source.");
             var end = source.IndexOf("    }", start, StringComparison.Ordinal);
             return source[start..end];
-        }
-
-        private static IReadOnlyList<MetadataReference> References()
-        {
-            var trustedAssemblies = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
-            var wanted = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "System.Private.CoreLib",
-                "System.Runtime",
-                "System.Collections",
-                "netstandard",
-            };
-
-            return trustedAssemblies.Split(Path.PathSeparator)
-                .Where(path => wanted.Contains(Path.GetFileNameWithoutExtension(path)))
-                .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
-                .ToList();
         }
     }
 }

@@ -1449,15 +1449,12 @@ func (host *dotnetLanguageHost) GenerateProgram(
 		}
 	}
 
-	bindOptions := []pcl.BindOption{
-		pcl.Loader(schema.NewCachedLoader(loader)),
-	}
-
+	var bindOptions []pcl.BindOption
 	if !req.Strict {
 		bindOptions = append(bindOptions, pcl.NonStrictBindOptions()...)
 	}
 
-	program, diags, err := pcl.BindProgram(parser.Files, bindOptions...)
+	program, diags, err := pcl.BindProgram(parser.Files, schema.NewCachedLoader(loader), bindOptions...)
 	if err != nil {
 		return nil, err
 	}

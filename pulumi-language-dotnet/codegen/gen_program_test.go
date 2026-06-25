@@ -93,9 +93,8 @@ func parseAndBindProgram(t *testing.T,
 		t.Fatalf("failed to parse files: %v", parser.Diagnostics)
 	}
 
-	// Prepend the default host so that we can override if necessary.
-	options = append([]pcl.BindOption{pcl.PluginHost(utils.NewContext(testdataPath))}, options...)
-	return pcl.BindProgram(parser.Files, options...)
+	loader := schema.NewPluginLoader(utils.NewContext(testdataPath))
+	return pcl.BindProgram(parser.Files, loader, options...)
 }
 
 func bindProgramWithParameterizedDependencies(t *testing.T) *pcl.Program {
@@ -257,7 +256,7 @@ resource "test-resource" "output:index:Resource" {
 		},
 	}
 
-	program, diags, err := pcl.BindProgram(parser.Files, pcl.Loader(loader))
+	program, diags, err := pcl.BindProgram(parser.Files, loader)
 	require.NoError(t, err)
 	require.False(t, diags.HasErrors(), "unexpected diags: %v", diags)
 	require.NotNil(t, program)
@@ -326,7 +325,7 @@ result = invoke("output:index:Output", {
 		},
 	}
 
-	program, diags, err := pcl.BindProgram(parser.Files, pcl.Loader(loader))
+	program, diags, err := pcl.BindProgram(parser.Files, loader)
 	require.NoError(t, err)
 	require.False(t, diags.HasErrors(), "unexpected diags: %v", diags)
 	require.NotNil(t, program)
@@ -400,7 +399,7 @@ resource "r" "nested:index:Resource" {
 		},
 	}
 
-	program, diags, err := pcl.BindProgram(parser.Files, pcl.Loader(loader))
+	program, diags, err := pcl.BindProgram(parser.Files, loader)
 	require.NoError(t, err)
 	require.False(t, diags.HasErrors(), "bind diagnostics: %v", diags)
 	require.NotNil(t, program)

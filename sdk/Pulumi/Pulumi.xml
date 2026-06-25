@@ -8957,6 +8957,97 @@
             the URL of a server that can be used to download this plugin, if needed.
             </summary>
         </member>
+        <member name="T:Pulumirpc.PackageResolver">
+             <summary>
+             `PackageResolver` resolves a [](pulumirpc.PackageSpec) -- a user-supplied package reference such as a name,
+             registry coordinate, git URL, or local path, optionally carrying a version and parameters -- into a concrete,
+             downloadable [](pulumirpc.PackageDependency). The engine exposes this service to resource providers as part of the
+             provider handshake so they can resolve packages the same way the CLI does.
+            
+             This is currently unstable and experimental.
+             </summary>
+        </member>
+        <member name="P:Pulumirpc.PackageResolver.Descriptor">
+            <summary>Service descriptor</summary>
+        </member>
+        <member name="T:Pulumirpc.PackageResolver.PackageResolverBase">
+            <summary>Base class for server-side implementations of PackageResolver</summary>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverBase.ResolvePackage(Pulumirpc.PackageSpec,Grpc.Core.ServerCallContext)">
+            <summary>
+            `ResolvePackage` resolves the given package specification to a concrete package dependency.
+            </summary>
+            <param name="request">The request received from the client.</param>
+            <param name="context">The context of the server-side call handler being invoked.</param>
+            <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
+        <member name="T:Pulumirpc.PackageResolver.PackageResolverClient">
+            <summary>Client for PackageResolver</summary>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.#ctor(Grpc.Core.ChannelBase)">
+            <summary>Creates a new client for PackageResolver</summary>
+            <param name="channel">The channel to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.#ctor(Grpc.Core.CallInvoker)">
+            <summary>Creates a new client for PackageResolver that uses a custom <c>CallInvoker</c>.</summary>
+            <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.#ctor">
+            <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.#ctor(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Protected constructor to allow creation of configured clients.</summary>
+            <param name="configuration">The client configuration.</param>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.ResolvePackage(Pulumirpc.PackageSpec,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `ResolvePackage` resolves the given package specification to a concrete package dependency.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.ResolvePackage(Pulumirpc.PackageSpec,Grpc.Core.CallOptions)">
+            <summary>
+            `ResolvePackage` resolves the given package specification to a concrete package dependency.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.ResolvePackageAsync(Pulumirpc.PackageSpec,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            `ResolvePackage` resolves the given package specification to a concrete package dependency.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            <param name="cancellationToken">An optional token for canceling the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.ResolvePackageAsync(Pulumirpc.PackageSpec,Grpc.Core.CallOptions)">
+            <summary>
+            `ResolvePackage` resolves the given package specification to a concrete package dependency.
+            </summary>
+            <param name="request">The request to send to the server.</param>
+            <param name="options">The options for the call.</param>
+            <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.PackageResolverClient.NewInstance(Grpc.Core.ClientBase.ClientBaseConfiguration)">
+            <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.BindService(Pulumirpc.PackageResolver.PackageResolverBase)">
+            <summary>Creates service definition that can be registered with a server</summary>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
+        <member name="M:Pulumirpc.PackageResolver.BindService(Grpc.Core.ServiceBinderBase,Pulumirpc.PackageResolver.PackageResolverBase)">
+            <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
+            Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+            <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+            <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+        </member>
         <member name="T:Pulumirpc.ProviderReflection">
             <summary>Holder for reflection information generated from pulumi/provider.proto</summary>
         </member>
@@ -9057,6 +9148,36 @@
         </member>
         <member name="M:Pulumirpc.ProviderHandshakeRequest.ClearMapperTarget">
             <summary>Clears the value of the "mapper_target" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.LoaderTargetFieldNumber">
+            <summary>Field number for the "loader_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.LoaderTarget">
+            <summary>
+            The target of a [](codegen.Loader) service the provider can use to load the schemas of other Pulumi packages.
+            May be empty on older engines.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.HasLoaderTarget">
+            <summary>Gets whether the "loader_target" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ProviderHandshakeRequest.ClearLoaderTarget">
+            <summary>Clears the value of the "loader_target" field</summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.ResolverTargetFieldNumber">
+            <summary>Field number for the "resolver_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.ResolverTarget">
+            <summary>
+            The target of a [](pulumirpc.PackageResolver) service the provider can use to resolve package specifications to
+            concrete package dependencies. May be empty on older engines.
+            </summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.HasResolverTarget">
+            <summary>Gets whether the "resolver_target" field is set</summary>
+        </member>
+        <member name="M:Pulumirpc.ProviderHandshakeRequest.ClearResolverTarget">
+            <summary>Clears the value of the "resolver_target" field</summary>
         </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>

@@ -90,6 +90,10 @@ type generator struct {
 	// `Pulumi`, so programs that import `Pulumi` and `Pulumi.Output` hit name collisions. For this reason, we'll import
 	// the latter as `OutputProvider` rather than `Output`.
 	namespaceAliases map[string]string
+	// Variable identifiers whose C# type is `JsonElement` (config vars declared as
+	// `any`/dynamic and any variables derived from them). Traversal codegen emits
+	// `.GetProperty("name")` for these instead of property/indexer access.
+	jsonElementVars map[string]bool
 }
 
 func (g *generator) resetListInitializer() {
@@ -153,6 +157,7 @@ func GenerateProgramWithOptions(
 		generateOptions:  options,
 		listInitializer:  "new[]",
 		namespaceAliases: map[string]string{},
+		jsonElementVars:  map[string]bool{},
 	}
 
 	g.Formatter = format.NewFormatter(g)
@@ -193,6 +198,7 @@ func GenerateProgramWithOptions(
 			isComponent:      true,
 			listInitializer:  "new[]",
 			namespaceAliases: g.namespaceAliases,
+			jsonElementVars:  map[string]bool{},
 		}
 
 		componentGenerator.Formatter = format.NewFormatter(componentGenerator)
@@ -561,6 +567,19 @@ func (g *generator) usingStatements(program *pcl.Program) programUsings {
 	systemUsings := codegen.NewStringSet("System.Linq", "System.Collections.Generic")
 	pulumiUsings := codegen.NewStringSet()
 	preambleHelperMethods := codegen.NewStringSet()
+	// Object-typed config variables emit C# classes annotated with
+	// [JsonPropertyName] so that PascalCased C# properties round-trip with the
+	// camelCased JSON keys produced by `pulumi config set`. Config "any" types
+	// bind to JsonElement (see mainConfigElementType).
+	if len(collectObjectTypedConfigVariables(program)) > 0 {
+		systemUsings.Add("System.Text.Json.Serialization")
+	}
+	for _, config := range program.ConfigVariables() {
+		if configUsesDynamic(config.Type()) {
+			systemUsings.Add("System.Text.Json")
+			break
+		}
+	}
 	for _, n := range program.Nodes {
 		if r, isResource := n.(*pcl.Resource); isResource {
 			pkg, _, _, _ := pcl.DecomposeToken(r.GetToken())
@@ -692,6 +711,31 @@ func componentOutputElementType(pclType model.Type) string {
 	}
 }
 
+// configUsesDynamic reports whether resolving the config type bottoms out at
+// `any`/dynamic in mainConfigElementType — i.e. the program will reference
+// JsonElement and needs `using System.Text.Json`.
+func configUsesDynamic(pclType model.Type) bool {
+	pclType = pcl.UnwrapOption(model.ResolveOutputs(pclType))
+	switch pclType {
+	case model.BoolType, model.IntType, model.NumberType, model.StringType:
+		return false
+	}
+	switch pclType := pclType.(type) {
+	case *model.ListType:
+		return configUsesDynamic(pclType.ElementType)
+	case *model.MapType:
+		return configUsesDynamic(pclType.ElementType)
+	case *model.ObjectType:
+		for _, prop := range pclType.Properties {
+			if configUsesDynamic(prop) {
+				return true
+			}
+		}
+		return false
+	}
+	return true
+}
+
 func mainConfigElementType(pclType model.Type) string {
 	pclType = pcl.UnwrapOption(pclType)
 	switch pclType {
@@ -712,7 +756,11 @@ func mainConfigElementType(pclType model.Type) string {
 			elementType := mainConfigElementType(pclType.ElementType)
 			return fmt.Sprintf("Dictionary<string, %s>", elementType)
 		default:
-			return dynamicType
+			// `JsonSerializer.Deserialize<dynamic>` returns a `JsonElement` boxed
+			// as `dynamic`, which then refuses dynamic member access. Bind config
+			// `any` to `JsonElement` directly so that `.GetProperty(...)` traversal
+			// (emitted elsewhere in codegen) actually compiles.
+			return "JsonElement"
 		}
 	}
 }
@@ -762,24 +810,37 @@ func collectComponentObjectTypedConfigVariables(component *pcl.Component) map[st
 	return objectTypes
 }
 
+// ProgramConfigClassMarker tags an ObjectType that is realized as a top-level
+// C# class generated for a main-program config variable. Traversal codegen uses
+// this marker to choose property access over indexer access for these types.
+type ProgramConfigClassMarker struct {
+	TypeName string
+}
+
 // collectObjectTypedConfigVariables returns the object types in config variables need to be emitted
 // as classes in the main program
 func collectObjectTypedConfigVariables(program *pcl.Program) map[string]*model.ObjectType {
 	objectTypes := map[string]*model.ObjectType{}
+	markClass := func(typeName string, t *model.ObjectType) {
+		if _, ok := model.GetObjectTypeAnnotation[*ProgramConfigClassMarker](t); !ok {
+			t.Annotate(&ProgramConfigClassMarker{TypeName: typeName})
+		}
+		objectTypes[typeName] = t
+	}
 	for _, config := range program.ConfigVariables() {
 		typeName := cgstrings.UppercaseFirst(makeValidIdentifier(config.Name()))
 		switch configType := pcl.UnwrapOption(config.Type()).(type) {
 		case *model.ObjectType:
-			objectTypes[typeName] = configType
+			markClass(typeName, configType)
 		case *model.ListType:
 			switch elementType := configType.ElementType.(type) {
 			case *model.ObjectType:
-				objectTypes[typeName] = elementType
+				markClass(typeName, elementType)
 			}
 		case *model.MapType:
 			switch elementType := configType.ElementType.(type) {
 			case *model.ObjectType:
-				objectTypes[typeName] = elementType
+				markClass(typeName, elementType)
 			}
 		}
 	}
@@ -1069,11 +1130,14 @@ func (g *generator) genPostamble(w io.Writer, nodes []pcl.Node) {
 		objectType := objectTypedConfigVariables[typeName]
 		g.Fgenf(w, "public class %s\n{\n", typeName)
 		sortedProperties := maputil.SortedKeys(objectType.Properties)
-		for _, propertyName := range sortedProperties {
+		for _, rawName := range sortedProperties {
 			g.Indented(func() {
-				property := objectType.Properties[propertyName]
+				property := objectType.Properties[rawName]
 				propertyType := mainConfigElementType(property)
-				g.Fgenf(w, "%spublic %s %s { get; set; }\n", g.Indent, propertyType, propertyName)
+				// The wire name (rawName) is the JSON key from config; the C# property
+				// is PascalCased to follow conventions and match traversal codegen.
+				g.Fgenf(w, "%s[JsonPropertyName(\"%s\")]\n", g.Indent, rawName)
+				g.Fgenf(w, "%spublic %s %s { get; set; }\n", g.Indent, propertyType, propertyName(rawName))
 			})
 		}
 		g.Fgenf(w, "}\n\n")
@@ -1843,7 +1907,7 @@ func computeConfigTypeParam(configName string, configType model.Type) string {
 	case model.BoolType:
 		return "bool"
 	case model.DynamicType:
-		return "dynamic"
+		return "JsonElement"
 	default:
 		switch complexType := configType.(type) {
 		case *model.ObjectType:
@@ -1855,7 +1919,7 @@ func computeConfigTypeParam(configName string, configType model.Type) string {
 			elementType := computeConfigTypeParam(configName, complexType.ElementType)
 			return fmt.Sprintf("Dictionary<string, %s>", elementType)
 		default:
-			return "dynamic"
+			return "JsonElement"
 		}
 	}
 }
@@ -1927,6 +1991,9 @@ func (g *generator) genConfigVariable(w io.Writer, v *pcl.ConfigVariable) {
 			g.Indent, name, getOrRequire, getType, typeParam, v.LogicalName())
 	}
 	g.Fgenf(w, ";\n")
+	if configUsesDynamic(v.Type()) {
+		g.jsonElementVars[name] = true
+	}
 }
 
 func (g *generator) genLocalVariable(w io.Writer, localVariable *pcl.LocalVariable) {
@@ -1942,6 +2009,31 @@ func (g *generator) genLocalVariable(w io.Writer, localVariable *pcl.LocalVariab
 		result := g.lowerExpression(value, value.Type())
 		g.Fgenf(w, "%svar %s = %v;\n\n", g.Indent, variableName, result)
 	}
+	// Propagate JsonElement flavor through simple wrappers like `secret(x)`. A
+	// local variable derived from a JsonElement-typed config still resolves to
+	// JsonElement at the leaves, so its traversal must use `.GetProperty(...)`.
+	if g.referencesJSONElementVariable(value) {
+		g.jsonElementVars[variableName] = true
+	}
+}
+
+// referencesJSONElementVariable reports whether the expression refers to a
+// variable already known to hold a JsonElement value.
+func (g *generator) referencesJSONElementVariable(expr model.Expression) bool {
+	if len(g.jsonElementVars) == 0 {
+		return false
+	}
+	found := false
+	visitor := func(e model.Expression) (model.Expression, hcl.Diagnostics) {
+		if scope, ok := e.(*model.ScopeTraversalExpression); ok {
+			if g.jsonElementVars[scope.RootName] {
+				found = true
+			}
+		}
+		return e, nil
+	}
+	_, _ = model.VisitExpression(expr, nil, visitor)
+	return found
 }
 
 func (g *generator) genNYI(w io.Writer, reason string, vs ...any) {

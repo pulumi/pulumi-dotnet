@@ -476,7 +476,7 @@ namespace Pulumi
 
         private async Task<string?> ResolvePackageRef(RegisterPackageRequest registerPackageRequest)
         {
-            var key = $"{registerPackageRequest.Name}-{registerPackageRequest.Version}";
+            var key = PackageRefCacheKey(registerPackageRequest);
             if (_registeredPackages.TryGetValue(key, out var packagResolver))
             {
                 return await packagResolver.Value;
@@ -512,6 +512,15 @@ namespace Pulumi
                 (_, _) => new Lazy<Task<string?>>(CreateResolver));
 
             return await resolver.Value;
+        }
+
+        private static string PackageRefCacheKey(RegisterPackageRequest request)
+        {
+            var parameterization = request.Parameterization == null
+                ? ""
+                : $"{request.Parameterization.Name}\0{request.Parameterization.Version}\0" +
+                  global::System.Convert.ToBase64String(request.Parameterization.Value);
+            return string.Join("\0", request.Name, request.Version, request.DownloadUrl, parameterization);
         }
 
         private static async Task<List<Pulumirpc.Alias>> PrepareAliases(

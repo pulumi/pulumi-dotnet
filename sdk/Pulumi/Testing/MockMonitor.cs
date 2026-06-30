@@ -77,7 +77,7 @@ namespace Pulumi.Testing
             return new CallResponse { Return = await SerializeAsync(result).ConfigureAwait(false) };
         }
 
-        public Task<RegisterPackageResponse> RegisterPackageAsync(Pulumirpc.RegisterPackageRequest request)
+        public virtual Task<RegisterPackageResponse> RegisterPackageAsync(Pulumirpc.RegisterPackageRequest request)
         {
             return Task.FromResult(new RegisterPackageResponse
             {
@@ -123,7 +123,7 @@ namespace Pulumi.Testing
             };
         }
 
-        public async Task<RegisterResourceResponse> RegisterResourceAsync(Resource resource, RegisterResourceRequest request)
+        public virtual async Task<RegisterResourceResponse> RegisterResourceAsync(Resource resource, RegisterResourceRequest request)
         {
             lock (this.Resources)
             {

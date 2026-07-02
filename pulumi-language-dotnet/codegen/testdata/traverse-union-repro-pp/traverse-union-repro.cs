@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pulumi;
-using Aws = Pulumi.Aws;
+using Infra = Pulumi.Infra;
 
 return await Deployment.RunAsync(() => 
 {
-    var test = new Aws.Fsx.OpenZfsFileSystem("test", new()
+    var test = new Infra.FileSystem("test", new()
     {
         StorageCapacity = 64,
         SubnetIds = new[]

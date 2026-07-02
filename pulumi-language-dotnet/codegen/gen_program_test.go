@@ -546,14 +546,12 @@ func (pkg dep) install(t *testing.T, ex, dir string) {
 //
 // Example:
 //
-//	"aws" => {"Pulumi.Aws", 4.21.1}
-//	"azure" => {"Pulumi.Azure", 4.21.1}
+//	"azure" => {"Pulumi.Azure", 5.12.0}
+//	"random" => {"Pulumi.Random", 4.11.2}
 func dotnetDependencies(deps codegen.StringSet) []dep {
 	result := make([]dep, len(deps))
 	for i, d := range deps.SortedValues() {
 		switch d {
-		case "aws":
-			result[i] = dep{"Pulumi.Aws", test.AwsSchema}
 		case "azure":
 			// TODO: update constant in test.AzureSchema to v5.x
 			// because it has output-versioned function invokes

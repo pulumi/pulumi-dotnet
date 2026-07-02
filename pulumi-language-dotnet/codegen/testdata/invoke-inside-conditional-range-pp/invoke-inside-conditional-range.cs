@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Pulumi;
-using Aws = Pulumi.Aws;
+using Infra = Pulumi.Infra;
 using Std = Pulumi.Std;
 
 return await Deployment.RunAsync(async() => 
@@ -36,15 +36,15 @@ return await Deployment.RunAsync(async() =>
         },
     })).Result;
 
-    var currentVpc = new Aws.Ec2.Vpc("currentVpc");
+    var currentVpc = new Infra.Vpc("currentVpc");
 
     var createPublicSubnets = true;
 
-    var publicSubnet = new List<Aws.Ec2.Subnet>();
+    var publicSubnet = new List<Infra.Subnet>();
     for (var rangeIndex = 0; rangeIndex < createPublicSubnets && (!oneNatGatewayPerAz || lenPublicSubnets >= azs.Length) ? lenPublicSubnets : 0; rangeIndex++)
     {
         var range = new { Value = rangeIndex };
-        publicSubnet.Add(new Aws.Ec2.Subnet($"publicSubnet-{range.Value}", new()
+        publicSubnet.Add(new Infra.Subnet($"publicSubnet-{range.Value}", new()
         {
             AssignIpv6AddressOnCreation = enableIpv6 && publicSubnetIpv6Native ? true : publicSubnetAssignIpv6AddressOnCreation,
             EnableDns64 = enableIpv6 && publicSubnetEnableDns64,

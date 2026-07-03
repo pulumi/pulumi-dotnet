@@ -135,8 +135,13 @@ test_fast: test_sdk test_sdk_automation test_automation_codegen
 test_conformance: build
 	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m .
 
+## Fetches the codegen test corpus from the pinned pulumi/pulumi version.
+.PHONY: codegen_testdata
+codegen_testdata:
+	./scripts/get_codegen_testdata.sh
+
 .PHONY: test_codegen
-test_codegen: build
+test_codegen: build codegen_testdata
 	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m ./codegen/...
 
 .PHONY: test_integration

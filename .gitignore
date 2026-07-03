@@ -462,3 +462,5 @@ pulumi-resource-testprovider
 # Ignore user-provided go.work files.
 /go.work
 /go.work.sum
+# Codegen test corpus fetched from pulumi/pulumi by scripts/get_codegen_testdata.sh.
+pulumi-language-dotnet/codegen/testdata/upstream/

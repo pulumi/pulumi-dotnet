@@ -54,7 +54,7 @@ func TestGenerateProgram(t *testing.T) {
 		GenProgram: GenerateProgram,
 		TestCases:  test.PulumiPulumiProgramTests,
 
-		InputDirectory:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
+		InputDirectory:  filepath.Join("testdata", "upstream", "codegen"),
 		ResultDirectory: "testdata",
 	})
 }
@@ -73,7 +73,7 @@ func TestGenerateProgramYAML(t *testing.T) {
 		GenProgram: GenerateProgram,
 		TestCases:  test.PulumiPulumiYAMLProgramTests,
 
-		InputDirectory:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
+		InputDirectory:  filepath.Join("testdata", "upstream", "codegen"),
 		ResultDirectory: "testdata",
 	})
 }
@@ -123,7 +123,7 @@ resource "test-organization" "tfe:index/organization:Organization" {
 	program, diags, err := parseAndBindProgram(t,
 		source,
 		"main.pp",
-		filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen", "parameterized-schemas"))
+		filepath.Join("testdata", "upstream", "codegen", "parameterized-schemas"))
 
 	require.NoError(t, err)
 	require.False(t, diags.HasErrors(), "unexpected diags: %v", diags)
@@ -189,7 +189,7 @@ resource "test-organization" "tfe:index/organization:Organization" {
 	program, diags, err := parseAndBindProgram(t,
 		source,
 		"main.pp",
-		filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen", "parameterized-schemas"))
+		filepath.Join("testdata", "upstream", "codegen", "parameterized-schemas"))
 
 	require.NoError(t, err)
 	require.False(t, diags.HasErrors(), "unexpected diags: %v", diags)

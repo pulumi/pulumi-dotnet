@@ -50,14 +50,16 @@ jobs:
         uses: pulumi/esc-action@3af4859af8a73a362fb599b944124097d4bb80c5 # v3
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          submodules: 'recursive'
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
         with:
           version: ${{ env.PINNED_MISE_VERSION }}
       - name: Run `make format_check`
         run: make format_check
+      - name: Check vendored protos match the pinned pulumi/pulumi version
+        run: |
+          make sync_protos
+          git diff --exit-code proto sdk/Pulumi.Automation.Codegen/automation-overrides.json
 
   lint:
     name: Lint Go
@@ -118,8 +120,6 @@ jobs:
         uses: pulumi/esc-action@3af4859af8a73a362fb599b944124097d4bb80c5 # v3
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
       - name: Setup dotnet SDK
         id: setup-dotnet
         uses: actions/setup-dotnet@v5
@@ -178,8 +178,6 @@ jobs:
           echo "TARGET_FRAMEWORK=net${major_minor}" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
         with:
@@ -233,8 +231,6 @@ jobs:
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
         with:
@@ -266,8 +262,6 @@ jobs:
         run: echo "TARGET_FRAMEWORK=net${{ matrix.dotnet-version }}" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
       - name: Setup mise and install tools
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
         with:

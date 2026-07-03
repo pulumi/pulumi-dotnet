@@ -74,7 +74,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf ProtoRoot="..\..\pulumi\proto" Include="..\..\pulumi\proto\**\*.proto" Access="internal" />
+    <Protobuf ProtoRoot="..\..\proto" Include="..\..\proto\**\*.proto" Access="internal" />
   </ItemGroup>
 
   <ItemGroup>

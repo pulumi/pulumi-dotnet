@@ -35,4 +35,4 @@ Codegen and conformance tests use golden files. When you intentionally change ou
 - `testdata/sdks/` — fake SDK packages used by conformance tests
 - `testdata/overrides/` — per-test file overrides applied on top of project templates
 
-The `l1`/`l2`/`l3` prefixes indicate test complexity levels defined by the Pulumi conformance test framework in the `pulumi/` submodule.
+The `l1`/`l2`/`l3` prefixes indicate test complexity levels defined by the Pulumi conformance test framework in pulumi/pulumi (`github.com/pulumi/pulumi/pkg/v3`).

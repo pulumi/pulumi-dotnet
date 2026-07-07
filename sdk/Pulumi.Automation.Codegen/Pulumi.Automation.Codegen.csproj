@@ -16,6 +16,10 @@
          the generator itself; keep it as a template, not project source. -->
     <Compile Remove="boilerplate/**" />
     <None Include="boilerplate/**" />
+    <!-- `make generate_automation_api` writes generated code here. It is not
+         part of the generator and depends on the boilerplate to compile, so
+         keep it out of this project's own compilation. -->
+    <Compile Remove="output/**" />
   </ItemGroup>
 
 </Project>

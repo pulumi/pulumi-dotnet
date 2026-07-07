@@ -96,7 +96,7 @@ namespace {{.Namespace}}
                 name: "{{.BaseProviderName}}",
                 version: "{{.BaseProviderVersion}}",
                 downloadUrl: "{{.BaseProviderPluginDownloadURL}}",
-                parameterization: new global::Pulumi.RegisterPackageRequest.PackageParameterization(
+                {{if .IsExtension}}extension{{else}}parameterization{{end}}: new global::Pulumi.RegisterPackageRequest.PackageParameterization(
                     name: "{{.PackageName}}",
                     version: "{{.PackageVersion}}",
                     value: global::System.Convert.FromBase64String("{{.ParameterValue}}")));
@@ -138,6 +138,7 @@ type csharpUtilitiesTemplateContext struct {
 	Tool                          string
 	PluginDownloadURL             string
 	HasParameterization           bool
+	IsExtension                   bool
 	PackageName                   string
 	PackageVersion                string
 	BaseProviderName              string

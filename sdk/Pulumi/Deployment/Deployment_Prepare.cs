@@ -213,6 +213,16 @@ namespace Pulumi
                 };
             }
 
+            if (request.Extension != null)
+            {
+                registerPackageRequest.Extension = new Pulumirpc.Parameterization
+                {
+                    Name = request.Extension.Name,
+                    Version = request.Extension.Version,
+                    Value = ByteString.CopyFrom(request.Extension.Value),
+                };
+            }
+
             return registerPackageRequest;
         }
 

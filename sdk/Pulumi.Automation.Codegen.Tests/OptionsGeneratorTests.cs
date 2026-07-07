@@ -43,11 +43,22 @@ namespace Pulumi.Automation.Codegen.Tests
         [Fact]
         public void Generate_ProducesCompilableSource()
         {
-            var errors = GeneratedCode.Compile(GenerateFromFixture())
+            // The generated options classes derive from BaseOptions, so they
+            // are compiled against the support boilerplate that defines it.
+            var errors = GeneratedCode.Compile(GeneratedCode.SupportBoilerplate(), GenerateFromFixture())
                 .GetDiagnostics()
                 .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
                 .ToList();
             Assert.Empty(errors);
+        }
+
+        [Fact]
+        public void Generate_OptionsDeriveFromBaseOptions()
+        {
+            // Deriving from BaseOptions lets a single options argument carry
+            // both the command's flags and its invocation configuration.
+            var source = GenerateFromFixture();
+            Assert.Contains("public sealed class PulumiCancelOptions : BaseOptions", source);
         }
 
         [Fact]

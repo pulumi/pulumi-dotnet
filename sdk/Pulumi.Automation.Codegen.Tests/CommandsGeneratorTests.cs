@@ -39,6 +39,33 @@ namespace Pulumi.Automation.Codegen.Tests
             => Assert.Equal(GenerateFromFixture(), GenerateFromFixture());
 
         [Fact]
+        public void Generate_EmitsAPartialClassOfAsyncMethods()
+        {
+            var source = GenerateFromFixture();
+            // The boilerplate provides the other half of the partial class.
+            Assert.Contains("public sealed partial class API", source);
+            // Methods return the command result and delegate to the runner.
+            Assert.Contains(
+                "public Task<CommandResult> Cancel(string? stackName = null, PulumiCancelOptions? options = null, CancellationToken cancellationToken = default)",
+                source);
+            Assert.Contains("return RunAsync(__final, options, cancellationToken);", source);
+        }
+
+        [Fact]
+        public void BaseOptions_FlowThroughToTheRunner()
+        {
+            var options = Fixture.Options(
+                "PulumiCancelOptions",
+                ("WorkingDirectory", "/work"),
+                ("Stack", "prod"));
+            Fixture.Invoke("Cancel", null, options);
+
+            var captured = Fixture.Read("LastOptions");
+            Assert.NotNull(captured);
+            Assert.Equal("/work", captured!.GetType().GetProperty("WorkingDirectory")!.GetValue(captured));
+        }
+
+        [Fact]
         public void Cancel_WithNoArguments_EmitsOnlyTheCommandAndPreset()
             => Assert.Equal(new[] { "cancel", "--yes" }, Fixture.Invoke("Cancel", null, null));
 

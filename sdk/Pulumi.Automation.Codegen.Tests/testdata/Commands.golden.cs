@@ -8,18 +8,20 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pulumi.Automation.Interface
 {
     /// <summary>
-    /// Builds Pulumi CLI invocations, one method per command.
+    /// Runs Pulumi CLI commands, one method per command. The invocation itself is provided by the boilerplate half of this partial class.
     /// </summary>
-    public sealed class API
+    public sealed partial class API
     {
         /// <summary>
-        /// Builds the arguments for the <c>pulumi cancel</c> command.
+        /// Runs the <c>pulumi cancel</c> command.
         /// </summary>
-        public IReadOnlyList<string> Cancel(string? stackName = null, PulumiCancelOptions? options = null)
+        public Task<CommandResult> Cancel(string? stackName = null, PulumiCancelOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -56,13 +58,13 @@ namespace Pulumi.Automation.Interface
                 __final.AddRange(__arguments);
             }
 
-            return __final;
+            return RunAsync(__final, options, cancellationToken);
         }
 
         /// <summary>
-        /// Builds the arguments for the <c>pulumi org</c> command.
+        /// Runs the <c>pulumi org</c> command.
         /// </summary>
-        public IReadOnlyList<string> Org(PulumiOrgOptions? options = null)
+        public Task<CommandResult> Org(PulumiOrgOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -80,13 +82,13 @@ namespace Pulumi.Automation.Interface
                 __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
             }
 
-            return __final;
+            return RunAsync(__final, options, cancellationToken);
         }
 
         /// <summary>
-        /// Builds the arguments for the <c>pulumi org get-default</c> command.
+        /// Runs the <c>pulumi org get-default</c> command.
         /// </summary>
-        public IReadOnlyList<string> OrgGetDefault(PulumiOrgGetDefaultOptions? options = null)
+        public Task<CommandResult> OrgGetDefault(PulumiOrgGetDefaultOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -105,13 +107,13 @@ namespace Pulumi.Automation.Interface
                 __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
             }
 
-            return __final;
+            return RunAsync(__final, options, cancellationToken);
         }
 
         /// <summary>
-        /// Builds the arguments for the <c>pulumi org search</c> command.
+        /// Runs the <c>pulumi org search</c> command.
         /// </summary>
-        public IReadOnlyList<string> OrgSearch(PulumiOrgSearchOptions? options = null)
+        public Task<CommandResult> OrgSearch(PulumiOrgSearchOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -151,13 +153,13 @@ namespace Pulumi.Automation.Interface
                 __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
             }
 
-            return __final;
+            return RunAsync(__final, options, cancellationToken);
         }
 
         /// <summary>
-        /// Builds the arguments for the <c>pulumi org search ai</c> command.
+        /// Runs the <c>pulumi org search ai</c> command.
         /// </summary>
-        public IReadOnlyList<string> OrgSearchAI(PulumiOrgSearchAIOptions? options = null)
+        public Task<CommandResult> OrgSearchAI(PulumiOrgSearchAIOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -195,13 +197,13 @@ namespace Pulumi.Automation.Interface
                 __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
             }
 
-            return __final;
+            return RunAsync(__final, options, cancellationToken);
         }
 
         /// <summary>
-        /// Builds the arguments for the <c>pulumi org set-default</c> command.
+        /// Runs the <c>pulumi org set-default</c> command.
         /// </summary>
-        public IReadOnlyList<string> OrgSetDefault(string name, PulumiOrgSetDefaultOptions? options = null)
+        public Task<CommandResult> OrgSetDefault(string name, PulumiOrgSetDefaultOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -228,13 +230,13 @@ namespace Pulumi.Automation.Interface
                 __final.AddRange(__arguments);
             }
 
-            return __final;
+            return RunAsync(__final, options, cancellationToken);
         }
 
         /// <summary>
-        /// Builds the arguments for the <c>pulumi state move</c> command.
+        /// Runs the <c>pulumi state move</c> command.
         /// </summary>
-        public IReadOnlyList<string> StateMove(IEnumerable<string>? urn = null, PulumiStateMoveOptions? options = null)
+        public Task<CommandResult> StateMove(IEnumerable<string>? urn = null, PulumiStateMoveOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -286,7 +288,7 @@ namespace Pulumi.Automation.Interface
                 __final.AddRange(__arguments);
             }
 
-            return __final;
+            return RunAsync(__final, options, cancellationToken);
         }
     }
 }

@@ -104,6 +104,8 @@ namespace Pulumi.Automation.Codegen
 
             return ClassDeclaration(command.OptionsClassName)
                 .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword)))
+                .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(
+                    SimpleBaseType(ParseTypeName("BaseOptions")))))
                 .WithMembers(List(properties))
                 .WithLeadingTrivia(Emitter.SummaryComment($"Options for the <c>{command.CliCommand}</c> command."));
         }

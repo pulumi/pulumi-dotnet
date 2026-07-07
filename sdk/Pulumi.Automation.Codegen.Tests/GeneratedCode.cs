@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Pulumi.Automation.Codegen;
@@ -19,8 +21,21 @@ namespace Pulumi.Automation.Codegen.Tests
         public const string Namespace = "Pulumi.Automation.Interface";
 
         /// <summary>
-        /// Compiles the given C# sources into an in-memory assembly, asserting
-        /// that the compilation produces no errors.
+        /// The shared support boilerplate (BaseOptions, CommandResult) that
+        /// the generated code compiles against.
+        /// </summary>
+        public static string SupportBoilerplate()
+            => File.ReadAllText(Path.Combine(BoilerplateDirectory(), "Support.cs"));
+
+        /// <summary>
+        /// The testing boilerplate: the half of the API partial class that
+        /// records the argument vector instead of running the CLI.
+        /// </summary>
+        public static string TestingBoilerplate()
+            => File.ReadAllText(Path.Combine(BoilerplateDirectory(), "Testing.cs"));
+
+        /// <summary>
+        /// Compiles the given C# sources into an in-memory assembly.
         /// </summary>
         public static Compilation Compile(params string[] sources)
         {
@@ -34,11 +49,14 @@ namespace Pulumi.Automation.Codegen.Tests
 
         /// <summary>
         /// Generates and compiles the options and command sources for a
-        /// specification, then loads the result so its types can be invoked.
+        /// specification against the testing boilerplate, then loads the
+        /// result so its types can be invoked.
         /// </summary>
         public static Assembly Build(CommandTreeNode specification)
         {
             var compilation = Compile(
+                SupportBoilerplate(),
+                TestingBoilerplate(),
                 OptionsGenerator.Generate(specification, Namespace),
                 CommandsGenerator.Generate(specification, Namespace));
 
@@ -66,6 +84,7 @@ namespace Pulumi.Automation.Codegen.Tests
                 "System.Private.CoreLib",
                 "System.Runtime",
                 "System.Collections",
+                "System.Threading.Tasks",
                 "netstandard",
             };
 
@@ -74,6 +93,10 @@ namespace Pulumi.Automation.Codegen.Tests
                 .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
                 .ToList();
         }
+
+        private static string BoilerplateDirectory([CallerFilePath] string callerFilePath = "")
+            => Path.GetFullPath(Path.Combine(
+                Path.GetDirectoryName(callerFilePath)!, "..", "Pulumi.Automation.Codegen", "boilerplate"));
     }
 
     /// <summary>
@@ -115,13 +138,27 @@ namespace Pulumi.Automation.Codegen.Tests
 
         /// <summary>
         /// Invokes the named command method with the given arguments and
-        /// returns the argument vector it builds.
+        /// returns the argument vector it built (captured by the testing
+        /// boilerplate). A default CancellationToken is appended automatically.
         /// </summary>
         public IReadOnlyList<string> Invoke(string method, params object?[] arguments)
         {
             var methodInfo = _apiType.GetMethod(method)
                 ?? throw new InvalidOperationException($"The generated API has no method {method}.");
-            return (IReadOnlyList<string>)methodInfo.Invoke(_api, arguments)!;
+
+            var withToken = arguments.Append(System.Threading.CancellationToken.None).ToArray();
+            var task = (Task)methodInfo.Invoke(_api, withToken)!;
+            task.GetAwaiter().GetResult();
+
+            var lastArguments = _apiType.GetProperty("LastArguments")!.GetValue(_api);
+            return (IReadOnlyList<string>)lastArguments!;
         }
+
+        /// <summary>
+        /// Reads a public property of the API instance (e.g. the testing
+        /// boilerplate's LastOptions).
+        /// </summary>
+        public object? Read(string property)
+            => _apiType.GetProperty(property)!.GetValue(_api);
     }
 }

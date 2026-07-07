@@ -53,14 +53,19 @@ namespace Pulumi.Automation.Codegen
             }
 
             var api = ClassDeclaration("API")
-                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword)))
+                .WithModifiers(TokenList(
+                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.SealedKeyword),
+                    Token(SyntaxKind.PartialKeyword)))
                 .WithMembers(List<MemberDeclarationSyntax>(commands.Select(EmitMethod)))
                 .WithLeadingTrivia(Emitter.SummaryComment(
-                    "Builds Pulumi CLI invocations, one method per command."));
+                    "Runs Pulumi CLI commands, one method per command. The invocation itself is " +
+                    "provided by the boilerplate half of this partial class."));
 
             var namespaceDeclaration = NamespaceDeclaration(ParseName(namespaceName))
                 .WithMembers(SingletonList<MemberDeclarationSyntax>(api));
 
+            // Kept in alphabetical order to match dotnet format.
             var usings = new List<UsingDirectiveSyntax>
             {
                 UsingDirective(ParseName("System.Collections.Generic")),
@@ -69,6 +74,9 @@ namespace Pulumi.Automation.Codegen
             {
                 usings.Add(UsingDirective(ParseName("System.Globalization")));
             }
+
+            usings.Add(UsingDirective(ParseName("System.Threading")));
+            usings.Add(UsingDirective(ParseName("System.Threading.Tasks")));
 
             var unit = CompilationUnit()
                 .WithUsings(List(usings))
@@ -117,14 +125,22 @@ namespace Pulumi.Automation.Codegen
                         ExpressionStatement(Invoke(Final, "AddRange", IdentifierName(Arguments))))));
             }
 
-            statements.Add(ReturnStatement(IdentifierName(Final)));
+            // return RunAsync(__final, options, cancellationToken);
+            statements.Add(ReturnStatement(InvocationExpression(
+                IdentifierName("RunAsync"),
+                ArgumentList(SeparatedList(new[]
+                {
+                    Argument(IdentifierName(Final)),
+                    Argument(IdentifierName(Options)),
+                    Argument(IdentifierName("cancellationToken")),
+                })))));
 
-            return MethodDeclaration(ParseTypeName("IReadOnlyList<string>"), Identifier(command.Identifier))
+            return MethodDeclaration(ParseTypeName("Task<CommandResult>"), Identifier(command.Identifier))
                 .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
                 .WithParameterList(EmitParameters(command))
                 .WithBody(Block(statements))
                 .WithLeadingTrivia(Emitter.SummaryComment(
-                    $"Builds the arguments for the <c>{command.CliCommand}</c> command."));
+                    $"Runs the <c>{command.CliCommand}</c> command."));
         }
 
         private static ParameterListSyntax EmitParameters(ResolvedCommand command)
@@ -168,6 +184,10 @@ namespace Pulumi.Automation.Codegen
             parameters.Add(Parameter(Identifier(Options))
                 .WithType(ParseTypeName(command.OptionsClassName + "?"))
                 .WithDefault(EqualsValueClause(Null())));
+
+            parameters.Add(Parameter(Identifier("cancellationToken"))
+                .WithType(ParseTypeName("CancellationToken"))
+                .WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.DefaultLiteralExpression))));
 
             return ParameterList(SeparatedList(parameters));
         }

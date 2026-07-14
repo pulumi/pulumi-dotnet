@@ -200,6 +200,8 @@ var expectedFailures = map[string]string{
 
 	"l2-extension-and-base-resource":      "Fail after updating to 3.251: extension-parameterized package SDK generation not implemented (pulumi/pulumi#23579)", //nolint:lll
 	"l2-extension-parameterized-resource": "Fail after updating to 3.251: extension-parameterized package SDK generation not implemented (pulumi/pulumi#23579)", //nolint:lll
+
+	"l2-failed-create-recover-continue-on-error": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

@@ -131,6 +131,7 @@ func GenerateProgramWithOptions(
 		if !hasInfo {
 			csharpInfo = CSharpPackageInfo{}
 		}
+		normalizePackageInfo(&csharpInfo, p.Name, p.Namespace)
 		packageNamespaces := csharpInfo.Namespaces
 		namespaces[p.Name] = packageNamespaces
 		compatibilities[p.Name] = csharpInfo.Compatibility
@@ -344,19 +345,15 @@ func generateProjectFile(program *pcl.Program, localDependencies map[string]stri
 			return nil, err
 		}
 
-		rootNamespace := "Pulumi"
-		if p.Namespace != "" {
-			rootNamespace = namespaceName(nil, p.Namespace)
-		}
-
-		packageName := rootNamespace + "." + namespaceName(map[string]string{}, p.Name)
+		csharpInfo := CSharpPackageInfo{}
 		if langInfo, found := p.Language["csharp"]; found {
-			csharpInfo, ok := langInfo.(CSharpPackageInfo)
-			if ok {
-				namespace := namespaceName(csharpInfo.Namespaces, p.Name)
-				packageName = fmt.Sprintf("%s.%s", csharpInfo.GetRootNamespace(), namespace)
+			if info, ok := langInfo.(CSharpPackageInfo); ok {
+				csharpInfo = info
 			}
 		}
+		normalizePackageInfo(&csharpInfo, p.Name, p.Namespace)
+		namespace := namespaceName(csharpInfo.Namespaces, p.Name)
+		packageName := fmt.Sprintf("%s.%s", csharpInfo.GetRootNamespace(), namespace)
 
 		if isLocalProjectReference {
 			// local project reference
@@ -508,8 +505,6 @@ func (g *generator) setupNamespaceAlias(
 		return
 	}
 
-	pkgNamespace := namespaceName(g.namespaces[pkg], pkg)
-
 	// Get CSharpPackageInfo from the package reference
 	var info CSharpPackageInfo
 	if pkgRef != nil {
@@ -518,9 +513,7 @@ func (g *generator) setupNamespaceAlias(
 			if csharpinfo, ok := def.Language["csharp"].(CSharpPackageInfo); ok {
 				info = csharpinfo
 			}
-			if info.RootNamespace == "" && pkgRef.Namespace() != "" {
-				info.RootNamespace = namespaceName(nil, pkgRef.Namespace())
-			}
+			normalizePackageInfo(&info, pkgRef.Name(), pkgRef.Namespace())
 		}
 	} else {
 		// Look up the package reference from the program
@@ -531,14 +524,15 @@ func (g *generator) setupNamespaceAlias(
 					if csharpinfo, ok := def.Language["csharp"].(CSharpPackageInfo); ok {
 						info = csharpinfo
 					}
-					if info.RootNamespace == "" && ref.Namespace() != "" {
-						info.RootNamespace = namespaceName(nil, ref.Namespace())
-					}
+					normalizePackageInfo(&info, ref.Name(), ref.Namespace())
 				}
 				break
 			}
 		}
 	}
+
+	g.namespaces[pkg] = info.Namespaces
+	pkgNamespace := namespaceName(g.namespaces[pkg], pkg)
 
 	rootNamespace := info.GetRootNamespace()
 	if rootNamespace == "" {
@@ -1156,6 +1150,11 @@ func (g *generator) resourceTypeName(r *pcl.Resource) string {
 	// Compute the resource type from the Pulumi type token.
 	pkg, module, member, diags := pcl.DecomposeToken(r.GetToken())
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
+
+	if pkg == "pulumi" && strings.EqualFold(module, "providers") {
+		_, qualifiedName := g.qualifiedTypeName(member, "", "Provider")
+		return qualifiedName
+	}
 
 	if r.Schema != nil {
 		if val1, ok := r.Schema.Language["csharp"]; ok {

@@ -55,6 +55,23 @@ func (info *CSharpPackageInfo) GetRootNamespace() string {
 	return "Pulumi"
 }
 
+func normalizePackageInfo(info *CSharpPackageInfo, pkgName, pkgNamespace string) {
+	if info.RootNamespace == "" && pkgNamespace != "" {
+		info.RootNamespace = namespaceName(nil, pkgNamespace)
+	}
+
+	if info.GetRootNamespace() != "Pulumi" || pkgName != "config" {
+		return
+	}
+
+	if info.Namespaces == nil {
+		info.Namespaces = map[string]string{}
+	}
+	if _, ok := info.Namespaces[pkgName]; !ok {
+		info.Namespaces[pkgName] = "Config_"
+	}
+}
+
 // Importer implements schema.Language for .NET.
 var Importer schema.Language = importer(0)
 

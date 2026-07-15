@@ -2446,9 +2446,7 @@ func generateModuleContextMap(tool string, pkg *schema.Package) (map[string]*mod
 			info = &csharpInfo
 			infos[def] = info
 		}
-		if info.RootNamespace == "" && pkg.Namespace != "" {
-			info.RootNamespace = namespaceName(nil, pkg.Namespace)
-		}
+		normalizePackageInfo(info, p.Name(), p.Namespace())
 		return info
 	}
 	infos[pkg] = getPackageInfo(pkg.Reference())

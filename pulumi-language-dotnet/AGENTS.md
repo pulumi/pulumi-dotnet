@@ -9,6 +9,7 @@ Go language host for Pulumi .NET. Invoked by the Pulumi CLI to build, run, and g
 - `codegen/gen.go` — code generation from Pulumi schemas to C#
 - `codegen/gen_program.go` — PCL to C# transpilation
 - `codegen/testdata/` — golden files for codegen tests
+- `codegen/testdata/upstream/` — gitignored codegen test corpus (schemas, PCL programs) fetched from the pinned pulumi/pulumi version by `make codegen_testdata`
 - `testdata/` — conformance test fixtures (projects and SDKs)
 - `version/` — version string injected at build time via `-ldflags`
 
@@ -35,4 +36,4 @@ Codegen and conformance tests use golden files. When you intentionally change ou
 - `testdata/sdks/` — fake SDK packages used by conformance tests
 - `testdata/overrides/` — per-test file overrides applied on top of project templates
 
-The `l1`/`l2`/`l3` prefixes indicate test complexity levels defined by the Pulumi conformance test framework in the `pulumi/` submodule.
+The `l1`/`l2`/`l3` prefixes indicate test complexity levels defined by the Pulumi conformance test framework in pulumi/pulumi (`github.com/pulumi/pulumi/pkg/v3`).

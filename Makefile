@@ -70,20 +70,27 @@ format_integration_tests:
 	gofumpt -w integration_tests
 
 ## Generates the Pulumi CLI specification consumed by the Automation API code
-## generator. Requires the pulumi submodule to be initialized.
+## generator. Runs the pulumi CLI at the version pinned in
+## pulumi-language-dotnet/go.mod.
 .PHONY: generate_cli_spec
 generate_cli_spec:
-	cd pulumi/pkg && ${GO} run ./cmd/pulumi generate-cli-spec \
-		--overrides ../tools/automation/automation-overrides.json \
-		> ../../sdk/Pulumi.Automation.Codegen/specification.json
+	cd pulumi-language-dotnet && ${GO} tool pulumi generate-cli-spec \
+		--overrides ../sdk/Pulumi.Automation.Codegen/automation-overrides.json \
+		> ../sdk/Pulumi.Automation.Codegen/specification.json
 
 ## Runs the Automation API code generator against the CLI specification of the
-## pinned pulumi submodule.
+## pinned pulumi version.
 .PHONY: generate_automation_api
 generate_automation_api: generate_cli_spec
 	cd sdk && dotnet run --project Pulumi.Automation.Codegen -- \
 		Pulumi.Automation.Codegen/specification.json \
 		Pulumi.Automation.Codegen/output
+
+## Syncs the vendored protobuf definitions and Automation API overrides from
+## the pulumi/pulumi version pinned in pulumi-language-dotnet/go.mod.
+.PHONY: sync_protos
+sync_protos:
+	./scripts/sync_protos.sh
 
 .PHONY: install
 install:
@@ -128,8 +135,13 @@ test_fast: test_sdk test_sdk_automation test_automation_codegen
 test_conformance: build
 	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m .
 
+## Fetches the codegen test corpus from the pinned pulumi/pulumi version.
+.PHONY: codegen_testdata
+codegen_testdata:
+	./scripts/get_codegen_testdata.sh
+
 .PHONY: test_codegen
-test_codegen: build
+test_codegen: build codegen_testdata
 	cd pulumi-language-dotnet && gotestsum -- $(GO_TEST_FILTER_FLAG) --timeout 60m ./codegen/...
 
 .PHONY: test_integration

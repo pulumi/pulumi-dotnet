@@ -24,16 +24,15 @@ The official .NET SDK for [Pulumi](https://www.pulumi.com), enabling cloud infra
 | `integration_tests/` | Go integration tests (require Pulumi CLI + built language host) |
 | `build/` | F# build helpers (legacy — prefer Makefile targets) |
 | `.changes/` | Changie changelog fragments |
-| `pulumi/` | Git submodule of pulumi/pulumi (pinned version for proto files and test infrastructure) |
+| `proto/` | Vendored gRPC/protobuf definitions from pulumi/pulumi (synced by `make sync_protos`) |
 
 ## Tech stack
-- **Protobuf**: gRPC service definitions live in `pulumi/proto/` (submodule). The C# SDK compiles `.proto` files via `Grpc.Tools` at build time. Uses `Pulumi.Protobuf` (a fork of `Google.Protobuf` with increased recursion limit)
+- **Protobuf**: gRPC service definitions live in `proto/` (vendored from pulumi/pulumi at the version pinned in `pulumi-language-dotnet/go.mod`). The C# SDK compiles `.proto` files via `Grpc.Tools` at build time. Uses `Pulumi.Protobuf` (a fork of `Google.Protobuf` with increased recursion limit)
 - **mise**: Tool version manager — install with `mise install` to get correct Go, dotnet, gofumpt, golangci-lint, changie versions
 - **changie**: Changelog management — every PR needs a changelog fragment
 
 ## Command canon
 - Install tools: `mise install`
-- Init submodule: `git submodule update --init --recursive`
 - Build all: `make build`
 - Build SDK only: `make build_sdk`
 - Build language host only: `make build_language_host`
@@ -51,6 +50,7 @@ The official .NET SDK for [Pulumi](https://www.pulumi.com), enabling cloud infra
 - Single SDK test: `make test_sdk TEST_FILTER=TestName`
 - Single integration test: `make test_integration TEST_FILTER=TestName`
 - Add changelog entry: `make changelog` (runs `changie new`)
+- Sync vendored protos after a pulumi/pulumi version bump: `make sync_protos`
 - Install language host: `make install`
 
 ## Code conventions
@@ -67,7 +67,7 @@ The official .NET SDK for [Pulumi](https://www.pulumi.com), enabling cloud infra
 - Tests use `gotestsum` as the runner
 
 ### Forbidden patterns
-- Never edit files under `pulumi/` — it is a git submodule pointing to pulumi/pulumi
+- Never edit files under `proto/` or `sdk/Pulumi.Automation.Codegen/automation-overrides.json` by hand — they are vendored from pulumi/pulumi via `make sync_protos`
 - Never edit `sdk/Pulumi/Pulumi.xml` by hand — it is generated during build
 - Never commit `bin/` or `obj/` directories
 - Never fabricate test output or skip running tests
@@ -80,7 +80,7 @@ The official .NET SDK for [Pulumi](https://www.pulumi.com), enabling cloud infra
 The SDK is C# targeting `net6.0`. The language host and codegen are Go. Integration tests are Go programs that shell out to `pulumi` CLI with the locally-built language host. These are separate build systems that only connect at test time.
 
 ### Protobuf compilation
-Proto files live in the `pulumi/` submodule under `pulumi/proto/`. The SDK's `.csproj` includes them via `<Protobuf>` items. The generated C# gRPC stubs are compiled at build time — there are no checked-in generated files for protos.
+Proto files live in `proto/`, vendored from pulumi/pulumi at the version pinned in `pulumi-language-dotnet/go.mod` (`make sync_protos` re-syncs them; CI checks they match). The SDK's `.csproj` includes them via `<Protobuf>` items. The generated C# gRPC stubs are compiled at build time — there are no checked-in generated files for protos.
 
 ### SDK internal structure
 - `Core/` — Input/Output types, the reactive programming model
@@ -95,7 +95,7 @@ Proto files live in the `pulumi/` submodule under `pulumi/proto/`. The SDK's `.c
 
 ## Escalate immediately if
 - Tests fail after two debugging attempts
-- A change requires modifying the `pulumi/` submodule
+- A change requires modifying vendored files under `proto/`
 - Requirements are ambiguous or conflicting
 - A change affects the gRPC protocol or proto definitions
 
@@ -103,7 +103,8 @@ Proto files live in the `pulumi/` submodule under `pulumi/proto/`. The SDK's `.c
 | Generated file | Source | Regenerate |
 |---|---|---|
 | `sdk/Pulumi/Pulumi.xml` | XML doc comments in C# source | `make build_sdk` |
-| gRPC C# stubs (in-memory at build) | `pulumi/proto/**/*.proto` | `make build_sdk` |
+| gRPC C# stubs (in-memory at build) | `proto/**/*.proto` | `make build_sdk` |
+| `proto/`, `sdk/Pulumi.Automation.Codegen/automation-overrides.json` | pulumi/pulumi at the version in `pulumi-language-dotnet/go.mod` | `make sync_protos` |
 | Codegen golden files | `pulumi-language-dotnet/codegen/testdata/` | `PULUMI_ACCEPT=1 make test_codegen` |
 | Conformance test snapshots | `pulumi-language-dotnet/testdata/` | `PULUMI_ACCEPT=1 make test_conformance` |
 
@@ -116,7 +117,8 @@ Proto files live in the `pulumi/` submodule under `pulumi/proto/`. The SDK's `.c
 | Any `.go` file in `integration_tests/` | `make format_integration_tests_check && make lint_integration_tests && make test_integration TEST_FILTER=TestName` |
 | `go.mod` or `go.sum` | Run `go mod tidy` in the affected directory |
 | `.changie.yaml` or changelog fragments | `changie batch auto --dry-run` |
-| Proto files (in submodule) | Escalate — do not change submodule content |
+| `github.com/pulumi/pulumi/{pkg,sdk}/v3` in `go.mod` | `make sync_protos` (CI fails if vendored protos drift from the pinned version) |
+| Proto files (vendored) | Escalate — do not change vendored proto content |
 
 ## Nested AGENTS.md files
 - `pulumi-language-dotnet/AGENTS.md` — Go language host, codegen, golden file workflow, conformance tests

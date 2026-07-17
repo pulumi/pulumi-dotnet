@@ -67,7 +67,7 @@ func TestGeneratePackage(t *testing.T) {
 		},
 		TestCases: filterTests(),
 
-		InputDir:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
+		InputDir:  filepath.Join("testdata", "upstream", "codegen"),
 		ResultDir: "testdata",
 	})
 }
@@ -160,5 +160,5 @@ func TestGenerateTypeNames(t *testing.T) {
 		return func(t schema.Type) string {
 			return root.typeString(t, "", false, false, false)
 		}
-	}, filepath.FromSlash("../../pulumi/tests/testdata/codegen"))
+	}, filepath.FromSlash("testdata/upstream/codegen"))
 }

@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Drop the pulumi/pulumi git submodule. Protobuf definitions are vendored under `proto/` and synced from the pulumi/pulumi version pinned in `pulumi-language-dotnet/go.mod` via `make sync_protos`.
+time: 2026-07-03T13:48:13.211016+02:00
+custom:
+    PR: "1065"

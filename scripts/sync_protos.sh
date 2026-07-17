@@ -24,9 +24,7 @@ echo "Syncing vendored files from pulumi/pulumi v$VERSION"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-git -c advice.detachedHead=false clone --quiet --depth 1 --branch "v$VERSION" --filter=blob:none --sparse \
-    https://github.com/pulumi/pulumi.git "$tmp"
-git -C "$tmp" sparse-checkout set --no-cone proto tools/automation
+scripts/checkout_pulumi.sh "$tmp" proto tools/automation
 
 rsync -a --delete "$tmp/proto/" proto/
 cp "$tmp/tools/automation/automation-overrides.json" sdk/Pulumi.Automation.Codegen/automation-overrides.json

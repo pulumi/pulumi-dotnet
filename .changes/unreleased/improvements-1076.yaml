@@ -1,0 +1,6 @@
+component: runtime
+kind: improvements
+body: Generate resource hooks and error hooks in dotnet programs, including the hooks resource option
+time: 2026-07-17T12:20:00+02:00
+custom:
+    PR: "1076"

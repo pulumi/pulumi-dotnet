@@ -175,16 +175,13 @@ var expectedFailures = map[string]string{
 	"l1-builtin-min-max":                 "Fail after updating to 3.232",
 	"l2-resource-primitive-conversions":  "Fail after updating to 3.232",
 	"l3-component-primitive-conversions": "Fail after updating to 3.232",
-	"l2-resource-option-hooks":           "Fail after updating to 3.232",
 	"l2-id-type":                         "Fail after updating to 3.232",
 
 	"l2-resource-read":        "Fail after updating to 3.234: read resource codegen not implemented",
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
 
-	"l2-map-keys-adversarial":        "Fail after updating to 3.239",
-	"l2-resource-hook-after-failure": "Fail after updating to 3.239",
-	"l2-resource-hook-ignore-errors": "Fail after updating to 3.239",
-	"l1-config-types-optional":       "Fail after updating to 3.239",
+	"l2-map-keys-adversarial":  "Fail after updating to 3.239",
+	"l1-config-types-optional": "Fail after updating to 3.239",
 
 	"l1-expand-final": "Fail after updating to 3.243",
 

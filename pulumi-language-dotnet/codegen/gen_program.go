@@ -604,6 +604,17 @@ func (g *generator) usingStatements(program *pcl.Program) programUsings {
 		contract.Assertf(len(diags) == 0, "unexpected diagnostics: %v", diags)
 	}
 
+	// Hook blocks run their command via System.Diagnostics.Process and return tasks
+	// (and throw System.Exception on failure) from their callbacks.
+	for _, n := range program.Nodes {
+		if _, isHook := n.(*pcl.Hook); isHook {
+			systemUsings.Add("System")
+			systemUsings.Add("System.Diagnostics")
+			systemUsings.Add("System.Threading.Tasks")
+			break
+		}
+	}
+
 	return programUsings{
 		systemUsings:        systemUsings,
 		pulumiUsings:        pulumiUsings,
@@ -1084,9 +1095,127 @@ func (g *generator) genNode(w io.Writer, n pcl.Node) {
 		g.genLocalVariable(w, n)
 	case *pcl.Component:
 		g.genComponent(w, n)
+	case *pcl.Hook:
+		g.genHookNode(w, n)
 	case *pcl.PulumiBlock:
 		g.genPulumi(w, n)
 	}
+}
+
+// genHookNode generates the declaration for a named hook block: an ErrorHook for hook
+// blocks of kind error, and a ResourceHook otherwise. The hook runs its command via
+// System.Diagnostics.Process.
+func (g *generator) genHookNode(w io.Writer, h *pcl.Hook) {
+	variableName := makeValidIdentifier(h.Name())
+	hookName := fmt.Sprintf(`"%s"`, g.escapeString(h.LogicalName(), false, false))
+
+	var cmdExprs []model.Expression
+	if tuple, ok := h.Command.(*model.TupleConsExpression); ok {
+		cmdExprs = tuple.Expressions
+	}
+	for i, expr := range cmdExprs {
+		cmdExprs[i] = g.lowerExpression(expr, expr.Type())
+	}
+
+	genRunCommand := func() {
+		if len(cmdExprs) == 1 {
+			g.Fgenf(w, "%svar process = Process.Start(%.v);\n", g.Indent, cmdExprs[0])
+		} else {
+			g.Fgenf(w, "%svar process = Process.Start(%.v, new[] {", g.Indent, cmdExprs[0])
+			for i, arg := range cmdExprs[1:] {
+				if i > 0 {
+					g.Fgen(w, ",")
+				}
+				g.Fgenf(w, " %.v", arg)
+			}
+			g.Fgen(w, " });\n")
+		}
+		g.Fgenf(w, "%sprocess.WaitForExit();\n", g.Indent)
+	}
+
+	if h.Kind == pcl.HookKindError {
+		// Error hooks return whether the failed operation should be retried: retry if
+		// and only if the command exits successfully.
+		g.Fgenf(w, "%svar %s = new ErrorHook(%s, (args, cancellationToken) =>\n", g.Indent, variableName, hookName)
+		g.Fgenf(w, "%s{\n", g.Indent)
+		g.Indented(func() {
+			if len(cmdExprs) == 0 {
+				g.Fgenf(w, "%sreturn Task.FromResult(false);\n", g.Indent)
+				return
+			}
+			g.Fgenf(w, "%stry\n", g.Indent)
+			g.Fgenf(w, "%s{\n", g.Indent)
+			g.Indented(func() {
+				genRunCommand()
+				g.Fgenf(w, "%sreturn Task.FromResult(process.ExitCode == 0);\n", g.Indent)
+			})
+			g.Fgenf(w, "%s}\n", g.Indent)
+			g.Fgenf(w, "%scatch\n", g.Indent)
+			g.Fgenf(w, "%s{\n", g.Indent)
+			g.Indented(func() {
+				g.Fgenf(w, "%sreturn Task.FromResult(false);\n", g.Indent)
+			})
+			g.Fgenf(w, "%s}\n", g.Indent)
+		})
+		g.Fgenf(w, "%s});\n", g.Indent)
+		return
+	}
+
+	g.Fgenf(w, "%svar %s = new ResourceHook(%s, (args, cancellationToken) =>\n", g.Indent, variableName, hookName)
+	g.Fgenf(w, "%s{\n", g.Indent)
+	g.Indented(func() {
+		if len(cmdExprs) > 0 {
+			genRunCommand()
+			g.Fgenf(w, "%sif (process.ExitCode != 0)\n", g.Indent)
+			g.Fgenf(w, "%s{\n", g.Indent)
+			g.Indented(func() {
+				g.Fgenf(w, "%sthrow new Exception($\"Hook command exited with code {process.ExitCode}.\");\n", g.Indent)
+			})
+			g.Fgenf(w, "%s}\n", g.Indent)
+		}
+		g.Fgenf(w, "%sreturn Task.CompletedTask;\n", g.Indent)
+	})
+	if h.OnDryRun != nil || h.IgnoreErrors != nil {
+		g.Fgenf(w, "%s}, new ResourceHookOptions\n", g.Indent)
+		g.Fgenf(w, "%s{\n", g.Indent)
+		g.Indented(func() {
+			if h.OnDryRun != nil {
+				g.Fgenf(w, "%sOnDryRun = %.v,\n", g.Indent, g.lowerExpression(h.OnDryRun, h.OnDryRun.Type()))
+			}
+			if h.IgnoreErrors != nil {
+				g.Fgenf(w, "%sIgnoreErrors = %.v,\n", g.Indent, g.lowerExpression(h.IgnoreErrors, h.IgnoreErrors.Type()))
+			}
+		})
+		g.Fgenf(w, "%s});\n", g.Indent)
+	} else {
+		g.Fgenf(w, "%s});\n", g.Indent)
+	}
+}
+
+// collectHookBindings collects the hook variables bound to each hook type in the
+// resource's hooks option.
+func (g *generator) collectHookBindings(r *pcl.Resource) map[string][]string {
+	hookVars := map[string][]string{}
+	obj, ok := r.Options.Hooks.(*model.ObjectConsExpression)
+	if !ok {
+		return hookVars
+	}
+	for _, item := range obj.Items {
+		key, diags := item.Key.Evaluate(&hcl.EvalContext{})
+		contract.Assertf(!diags.HasErrors(), "expected no diagnostics evaluating hook type key, got %v", diags)
+		hookType := key.AsString()
+		hooks, ok := item.Value.(*model.TupleConsExpression)
+		if !ok {
+			continue
+		}
+		for _, hookExpr := range hooks.Expressions {
+			// Hooks must be references to named hook blocks.
+			if trav, ok := hookExpr.(*model.ScopeTraversalExpression); ok {
+				hookVars[hookType] = append(hookVars[hookType], makeValidIdentifier(trav.RootName))
+			}
+		}
+	}
+	return hookVars
 }
 
 func (g *generator) genPulumi(w io.Writer, v *pcl.PulumiBlock) {
@@ -1306,17 +1435,21 @@ func (g *generator) makeResourceName(baseName, count string) string {
 
 func (g *generator) genResourceOptions(
 	opts *pcl.ResourceOptions, resourceOptionsType string, resourceSchema *schema.Resource,
+	hookVars map[string][]string,
 ) string {
 	if opts == nil {
 		return ""
 	}
 	var result bytes.Buffer
-	appendOption := func(name string, value model.Expression) {
+	ensureOptionsHeader := func() {
 		if result.Len() == 0 {
 			_, err := fmt.Fprintf(&result, ", new %s\n%s{", resourceOptionsType, g.Indent)
 			g.Indent += "    "
 			contract.IgnoreError(err)
 		}
+	}
+	appendOption := func(name string, value model.Expression) {
+		ensureOptionsHeader()
 
 		switch name {
 		case "IgnoreChanges", "HideDiffs", "ReplaceOnChanges", "AdditionalSecretOutputs":
@@ -1465,6 +1598,18 @@ func (g *generator) genResourceOptions(
 	if opts.EnvVarMappings != nil {
 		appendOption("EnvVarMappings", opts.EnvVarMappings)
 	}
+	if len(hookVars) > 0 {
+		ensureOptionsHeader()
+		g.Fgenf(&result, "\n%sHooks = new ResourceHookBinding\n", g.Indent)
+		g.Fgenf(&result, "%s{", g.Indent)
+		g.Indented(func() {
+			for _, hookType := range maputil.SortedKeys(hookVars) {
+				g.Fgenf(&result, "\n%s%s = { %s },", g.Indent, propertyName(hookType),
+					strings.Join(hookVars[hookType], ", "))
+			}
+		})
+		g.Fgenf(&result, "\n%s},", g.Indent)
+	}
 
 	if result.Len() != 0 {
 		g.Indent = g.Indent[:len(g.Indent)-4]
@@ -1576,6 +1721,10 @@ func (g *generator) genResource(w io.Writer, r *pcl.Resource) {
 	name := r.LogicalName()
 	variableName := makeValidIdentifier(r.Name())
 	argsName := g.resourceArgsTypeName(r)
+	var hookVars map[string][]string
+	if r.Options != nil && r.Options.Hooks != nil {
+		hookVars = g.collectHookBindings(r)
+	}
 	g.genTrivia(w, r.Definition.Tokens.GetType(""))
 	for _, l := range r.Definition.Tokens.GetLabels(nil) {
 		g.genTrivia(w, l)
@@ -1613,7 +1762,7 @@ func (g *generator) genResource(w io.Writer, r *pcl.Resource) {
 				resourceOptionsType = "ComponentResourceOptions"
 			}
 
-			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, resourceOptionsType, r.Schema))
+			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, resourceOptionsType, r.Schema, hookVars))
 		}
 	}
 
@@ -1726,7 +1875,7 @@ func (g *generator) genComponent(w io.Writer, r *pcl.Component) {
 			g.Fgenf(w, "new %s(%s%s)",
 				qualifiedMemberName,
 				resName,
-				g.genResourceOptions(r.Options, "ComponentResourceOptions", nil))
+				g.genResourceOptions(r.Options, "ComponentResourceOptions", nil, nil))
 
 			return
 		}
@@ -1749,7 +1898,7 @@ func (g *generator) genComponent(w io.Writer, r *pcl.Component) {
 					g.Fgenf(w, " %.v,\n", value)
 				}
 			})
-			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, "ComponentResourceOptions", nil))
+			g.Fgenf(w, "%s}%s)", g.Indent, g.genResourceOptions(r.Options, "ComponentResourceOptions", nil, nil))
 		}
 	}
 

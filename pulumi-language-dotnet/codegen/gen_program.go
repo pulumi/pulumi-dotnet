@@ -18,9 +18,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -36,7 +38,6 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/encoding"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/slice"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/util/maputil"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/workspace"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -297,7 +298,7 @@ func generateProjectFile(program *pcl.Program, localDependencies map[string]stri
 	csproj.WriteString("	<ItemGroup>\n")
 
 	// Add local package references
-	pkgs := maputil.SortedKeys(localDependencies)
+	pkgs := slices.Sorted(maps.Keys(localDependencies))
 	for _, pkg := range pkgs {
 		isLocalNugetPackage := strings.HasSuffix(localDependencies[pkg], ".nupkg")
 		if !isLocalNugetPackage {
@@ -816,7 +817,7 @@ func (g *generator) genComponentPreamble(w io.Writer, componentName string, comp
 			g.Fprintf(w, "%s{\n", g.Indent)
 			g.Indented(func() {
 				objectTypedConfigVars := collectComponentObjectTypedConfigVariables(component)
-				variableNames := maputil.SortedKeys(objectTypedConfigVars)
+				variableNames := slices.Sorted(maps.Keys(objectTypedConfigVars))
 				// generate resource args for this component
 				for _, variableName := range variableNames {
 					objectType := objectTypedConfigVars[variableName]
@@ -824,7 +825,7 @@ func (g *generator) genComponentPreamble(w io.Writer, componentName string, comp
 					g.Fprintf(w, "%spublic class %s : global::Pulumi.ResourceArgs\n", g.Indent, objectTypeName)
 					g.Fprintf(w, "%s{\n", g.Indent)
 					g.Indented(func() {
-						propertyNames := maputil.SortedKeys(objectType.Properties)
+						propertyNames := slices.Sorted(maps.Keys(objectType.Properties))
 						for _, propertyName := range propertyNames {
 							propertyType := objectType.Properties[propertyName]
 							inputType := componentInputType(propertyType)
@@ -1069,11 +1070,11 @@ func (g *generator) genPostamble(w io.Writer, nodes []pcl.Node) {
 	// those are referenced in config.GetObject<T> where T is one of these generated types
 	// they must be generated after the top-level statement call to Deployment.RunAsync
 	objectTypedConfigVariables := collectObjectTypedConfigVariables(g.program)
-	objectTypeKeys := maputil.SortedKeys(objectTypedConfigVariables)
+	objectTypeKeys := slices.Sorted(maps.Keys(objectTypedConfigVariables))
 	for _, typeName := range objectTypeKeys {
 		objectType := objectTypedConfigVariables[typeName]
 		g.Fgenf(w, "public class %s\n{\n", typeName)
-		sortedProperties := maputil.SortedKeys(objectType.Properties)
+		sortedProperties := slices.Sorted(maps.Keys(objectType.Properties))
 		for _, propertyName := range sortedProperties {
 			g.Indented(func() {
 				property := objectType.Properties[propertyName]
@@ -1603,7 +1604,7 @@ func (g *generator) genResourceOptions(
 		g.Fgenf(&result, "\n%sHooks = new ResourceHookBinding\n", g.Indent)
 		g.Fgenf(&result, "%s{", g.Indent)
 		g.Indented(func() {
-			for _, hookType := range maputil.SortedKeys(hookVars) {
+			for _, hookType := range slices.Sorted(maps.Keys(hookVars)) {
 				g.Fgenf(&result, "\n%s%s = { %s },", g.Indent, propertyName(hookType),
 					strings.Join(hookVars[hookType], ", "))
 			}

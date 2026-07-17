@@ -7,8 +7,8 @@ replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.8.3
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/golang/protobuf v1.5.4
-	github.com/pulumi/pulumi/pkg/v3 v3.253.0
-	github.com/pulumi/pulumi/sdk/v3 v3.253.0
+	github.com/pulumi/pulumi/pkg/v3 v3.253.1-0.20260717102922-cd588358a197
+	github.com/pulumi/pulumi/sdk/v3 v3.253.1-0.20260717102922-cd588358a197
 	github.com/stretchr/testify v1.11.1
 	google.golang.org/grpc v1.82.0
 )
@@ -39,7 +39,6 @@ require (
 	github.com/ProtonMail/go-crypto v1.4.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
-	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.41.11 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.12 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.32.20 // indirect

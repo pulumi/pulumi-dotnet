@@ -507,6 +507,12 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 		switch arg := expr.Args[0].(type) {
 		case *model.ObjectConsExpression:
 			g.genObjectConsExpression(w, arg, expr.Type())
+		case *model.TupleConsExpression:
+			if isListOfUnion(expr.Type()) {
+				g.genTupleAsCollectionInitializer(w, arg)
+				return
+			}
+			g.genIntrensic(w, expr.Args[0], expr.Signature.ReturnType)
 		default:
 			g.genIntrensic(w, expr.Args[0], expr.Signature.ReturnType)
 		}
@@ -1355,12 +1361,48 @@ func (g *generator) isListOfDifferentObjectTypes(expr *model.TupleConsExpression
 	return false
 }
 
+// isListOfUnion reports whether t resolves to a list/tuple whose element type is a union.
+// Used to detect assignments like `InputList<Union<A, B>> = [...]` where a strongly-typed
+// `new[]` array literal would fail to convert to the union element type.
+func isListOfUnion(t model.Type) bool {
+	t = pcl.UnwrapOption(model.ResolveOutputs(t))
+	var elem model.Type
+	switch tt := t.(type) {
+	case *model.ListType:
+		elem = tt.ElementType
+	case *model.TupleType:
+		if len(tt.ElementTypes) == 0 {
+			return false
+		}
+		elem = tt.ElementTypes[0]
+	default:
+		return false
+	}
+	elem = pcl.UnwrapOption(model.ResolveOutputs(elem))
+	_, ok := elem.(*model.UnionType)
+	return ok
+}
+
+func (g *generator) genTupleAsCollectionInitializer(w io.Writer, expr *model.TupleConsExpression) {
+	if len(expr.Expressions) == 0 {
+		g.Fgenf(w, "%s {}", g.listInitializer)
+		return
+	}
+	g.Fgenf(w, "\n%s{", g.Indent)
+	g.Indented(func() {
+		for _, v := range expr.Expressions {
+			g.Fgenf(w, "\n%s%.v,", g.Indent, v)
+		}
+	})
+	g.Fgenf(w, "\n%s}", g.Indent)
+}
+
 func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExpression) {
 	switch len(expr.Expressions) {
 	case 0:
 		g.Fgenf(w, "%s {}", g.listInitializer)
 	default:
-		if !g.isListOfDifferentObjectTypes(expr) {
+		if !g.isListOfDifferentObjectTypes(expr) && !isListOfUnion(expr.Type()) {
 			// only generate a list initializer when we don't have a list of union types
 			// because list of a union is mapped to InputList<object>
 			// which means new[] will not work because type-inference won't

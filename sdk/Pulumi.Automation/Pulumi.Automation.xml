@@ -22,6 +22,11 @@
             Runs the <c>pulumi cancel</c> command.
             </summary>
         </member>
+        <member name="M:Pulumi.Automation.Commands.API.ImportAsync(System.Collections.Generic.IEnumerable{System.String},Pulumi.Automation.Commands.PulumiImportOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi import</c> command.
+            </summary>
+        </member>
         <member name="M:Pulumi.Automation.Commands.API.NewAsync(System.String,Pulumi.Automation.Commands.PulumiNewOptions,System.Threading.CancellationToken)">
             <summary>
             Runs the <c>pulumi new</c> command.
@@ -186,6 +191,181 @@
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiCancelOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiImportOptions">
+            <summary>
+            Options for the <c>pulumi import</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.ConfigFile">
+            <summary>
+            Use the configuration values in the specified file rather than detecting the file name
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Debug">
+            <summary>
+            Print detailed debugging output during resource operations
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Diff">
+            <summary>
+            Display operation as a rich diff showing the overall change
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.File">
+            <summary>
+            The path to a JSON-encoded file containing a list of resources to import
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.From">
+            <summary>
+            Invoke a converter to import the resources
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.GenerateCode">
+            <summary>
+            Generate resource declaration code for the imported resources
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.GenerateResources">
+            <summary>
+            When used with --from, always write a JSON-encoded file containing a list of importable resources discovered by conversion to the specified path
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Json">
+            <summary>
+            Serialize the import diffs, operations, and overall output as JSON
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Message">
+            <summary>
+            Optional message to associate with the update operation
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Out">
+            <summary>
+            The path to the file that will contain the generated resource declarations
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Output">
+            <summary>
+            Output format. Supported values are: default, json
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Parallel">
+            <summary>
+            Allow P resource operations to run in parallel at once (1 for no parallelism).
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Parent">
+            <summary>
+            The name and URN of the parent resource in the format name=urn, where name is the variable name of the parent resource
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.PreviewOnly">
+            <summary>
+            Only show a preview of the import, but don't perform the import itself
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Properties">
+            <summary>
+            The property names to use for the import in the format name1,name2
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Protect">
+            <summary>
+            Allow resources to be imported with protection from deletion enabled
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Provider">
+            <summary>
+            The name and URN of the provider to use for the import in the format name=urn, where name is the variable name for the provider resource
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.SkipPluginPreInstall">
+            <summary>
+            Skip the up-front provider plugin install step; missing plugins are installed lazily by the engine
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Stack">
+            <summary>
+            The name of the stack to operate on. Defaults to the current stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.SuppressOutputs">
+            <summary>
+            Suppress display of stack outputs (in case they contain sensitive values)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.SuppressPermalink">
+            <summary>
+            Suppress display of the state permalink
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.SuppressProgress">
+            <summary>
+            Suppress display of periodic progress dots
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Urns">
+            <summary>
+            Display full URNs instead of short resource names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Verbose">
             <summary>
             Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
             </summary>

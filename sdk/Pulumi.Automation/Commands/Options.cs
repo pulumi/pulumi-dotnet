@@ -77,6 +77,186 @@ namespace Pulumi.Automation.Commands
     }
 
     /// <summary>
+    /// Options for the <c>pulumi import</c> command.
+    /// </summary>
+    public sealed class PulumiImportOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Print detailed debugging output during resource operations
+        /// </summary>
+        public bool? Debug { get; set; }
+
+        /// <summary>
+        /// Display operation as a rich diff showing the overall change
+        /// </summary>
+        public bool? Diff { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        public string? ExecAgent { get; set; }
+
+        public string? ExecKind { get; set; }
+
+        /// <summary>
+        /// The path to a JSON-encoded file containing a list of resources to import
+        /// </summary>
+        public string? File { get; set; }
+
+        /// <summary>
+        /// Invoke a converter to import the resources
+        /// </summary>
+        public string? From { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Generate resource declaration code for the imported resources
+        /// </summary>
+        public bool? GenerateCode { get; set; }
+
+        /// <summary>
+        /// When used with --from, always write a JSON-encoded file containing a list of importable resources discovered by conversion to the specified path
+        /// </summary>
+        public string? GenerateResources { get; set; }
+
+        /// <summary>
+        /// Serialize the import diffs, operations, and overall output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Optional message to associate with the update operation
+        /// </summary>
+        public string? Message { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// The path to the file that will contain the generated resource declarations
+        /// </summary>
+        public string? Out { get; set; }
+
+        /// <summary>
+        /// Output format. Supported values are: default, json
+        /// </summary>
+        public string? Output { get; set; }
+
+        /// <summary>
+        /// Allow P resource operations to run in parallel at once (1 for no parallelism).
+        /// </summary>
+        public int? Parallel { get; set; }
+
+        /// <summary>
+        /// The name and URN of the parent resource in the format name=urn, where name is the variable name of the parent resource
+        /// </summary>
+        public string? Parent { get; set; }
+
+        /// <summary>
+        /// Only show a preview of the import, but don't perform the import itself
+        /// </summary>
+        public bool? PreviewOnly { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// The property names to use for the import in the format name1,name2
+        /// </summary>
+        public List<string>? Properties { get; set; }
+
+        /// <summary>
+        /// Allow resources to be imported with protection from deletion enabled
+        /// </summary>
+        public bool? Protect { get; set; }
+
+        /// <summary>
+        /// The name and URN of the provider to use for the import in the format name=urn, where name is the variable name for the provider resource
+        /// </summary>
+        public string? Provider { get; set; }
+
+        /// <summary>
+        /// Skip the up-front provider plugin install step; missing plugins are installed lazily by the engine
+        /// </summary>
+        public bool? SkipPluginPreInstall { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Suppress display of stack outputs (in case they contain sensitive values)
+        /// </summary>
+        public bool? SuppressOutputs { get; set; }
+
+        /// <summary>
+        /// Suppress display of the state permalink
+        /// </summary>
+        public string? SuppressPermalink { get; set; }
+
+        /// <summary>
+        /// Suppress display of periodic progress dots
+        /// </summary>
+        public bool? SuppressProgress { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Display full URNs instead of short resource names
+        /// </summary>
+        public bool? Urns { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
     /// Options for the <c>pulumi new</c> command.
     /// </summary>
     public sealed class PulumiNewOptions : BaseOptions

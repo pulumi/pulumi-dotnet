@@ -112,6 +112,240 @@ namespace Pulumi.Automation.Commands
         }
 
         /// <summary>
+        /// Runs the <c>pulumi import</c> command.
+        /// </summary>
+        public Task<CommandResult> ImportAsync(IEnumerable<string>? arg = null, PulumiImportOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "import"
+            };
+            __final.Add("--skip-preview");
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.ConfigFile is { } __valueConfigFile)
+            {
+                __final.Add("--config-file");
+                __final.Add(__valueConfigFile);
+            }
+
+            if (options?.Debug is true)
+            {
+                __final.Add("--debug");
+            }
+
+            if (options?.Diff is true)
+            {
+                __final.Add("--diff");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.ExecAgent is { } __valueExecAgent)
+            {
+                __final.Add("--exec-agent");
+                __final.Add(__valueExecAgent);
+            }
+
+            if (options?.ExecKind is { } __valueExecKind)
+            {
+                __final.Add("--exec-kind");
+                __final.Add(__valueExecKind);
+            }
+
+            if (options?.File is { } __valueFile)
+            {
+                __final.Add("--file");
+                __final.Add(__valueFile);
+            }
+
+            if (options?.From is { } __valueFrom)
+            {
+                __final.Add("--from");
+                __final.Add(__valueFrom);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.GenerateCode is true)
+            {
+                __final.Add("--generate-code");
+            }
+
+            if (options?.GenerateResources is { } __valueGenerateResources)
+            {
+                __final.Add("--generate-resources");
+                __final.Add(__valueGenerateResources);
+            }
+
+            if (options?.Json is true)
+            {
+                __final.Add("--json");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Message is { } __valueMessage)
+            {
+                __final.Add("--message");
+                __final.Add(__valueMessage);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Out is { } __valueOut)
+            {
+                __final.Add("--out");
+                __final.Add(__valueOut);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Parallel is { } __valueParallel)
+            {
+                __final.Add("--parallel");
+                __final.Add(__valueParallel.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Parent is { } __valueParent)
+            {
+                __final.Add("--parent");
+                __final.Add(__valueParent);
+            }
+
+            if (options?.PreviewOnly is true)
+            {
+                __final.Add("--preview-only");
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Properties is { } __valueProperties)
+            {
+                foreach (var __item in __valueProperties)
+                {
+                    __final.Add("--properties");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Protect is true)
+            {
+                __final.Add("--protect");
+            }
+
+            if (options?.Provider is { } __valueProvider)
+            {
+                __final.Add("--provider");
+                __final.Add(__valueProvider);
+            }
+
+            if (options?.SkipPluginPreInstall is true)
+            {
+                __final.Add("--skip-plugin-pre-install");
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.SuppressOutputs is true)
+            {
+                __final.Add("--suppress-outputs");
+            }
+
+            if (options?.SuppressPermalink is { } __valueSuppressPermalink)
+            {
+                __final.Add("--suppress-permalink");
+                __final.Add(__valueSuppressPermalink);
+            }
+
+            if (options?.SuppressProgress is true)
+            {
+                __final.Add("--suppress-progress");
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Urns is true)
+            {
+                __final.Add("--urns");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (arg != null)
+            {
+                foreach (var __item in arg)
+                {
+                    __arguments.Add(__item);
+                }
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
         /// Runs the <c>pulumi new</c> command.
         /// </summary>
         public Task<CommandResult> NewAsync(string? templateOrUrl = null, PulumiNewOptions? options = null, CancellationToken cancellationToken = default)

@@ -42,14 +42,14 @@ namespace Pulumi.Automation.Codegen
             var byName = new Dictionary<string, ResolvedCommand>(StringComparer.Ordinal);
             foreach (var command in commands)
             {
-                if (byName.TryGetValue(command.Identifier, out var existing))
+                if (byName.TryGetValue(command.MethodName, out var existing))
                 {
                     throw new InvalidOperationException(
                         $"The commands `{existing.CliCommand}` and `{command.CliCommand}` both produce " +
-                        $"a method named {command.Identifier}.");
+                        $"a method named {command.MethodName}.");
                 }
 
-                byName.Add(command.Identifier, command);
+                byName.Add(command.MethodName, command);
             }
 
             var api = ClassDeclaration("API")
@@ -77,6 +77,9 @@ namespace Pulumi.Automation.Codegen
 
             usings.Add(UsingDirective(ParseName("System.Threading")));
             usings.Add(UsingDirective(ParseName("System.Threading.Tasks")));
+
+            // Commands return the SDK's own CommandResult.
+            usings.Add(UsingDirective(ParseName("Pulumi.Automation.Commands")));
 
             var unit = CompilationUnit()
                 .WithUsings(List(usings))
@@ -135,7 +138,7 @@ namespace Pulumi.Automation.Codegen
                     Argument(IdentifierName("cancellationToken")),
                 })))));
 
-            return MethodDeclaration(ParseTypeName("Task<CommandResult>"), Identifier(command.Identifier))
+            return MethodDeclaration(ParseTypeName("Task<CommandResult>"), Identifier(command.MethodName))
                 .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
                 .WithParameterList(EmitParameters(command))
                 .WithBody(Block(statements))

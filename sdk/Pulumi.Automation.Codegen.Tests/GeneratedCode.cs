@@ -88,10 +88,16 @@ namespace Pulumi.Automation.Codegen.Tests
                 "netstandard",
             };
 
-            return trustedAssemblies.Split(Path.PathSeparator)
+            var references = trustedAssemblies.Split(Path.PathSeparator)
                 .Where(path => wanted.Contains(Path.GetFileNameWithoutExtension(path)))
                 .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
                 .ToList();
+
+            // The generated commands return the SDK's CommandResult.
+            references.Add(MetadataReference.CreateFromFile(
+                typeof(global::Pulumi.Automation.Commands.CommandResult).Assembly.Location));
+
+            return references;
         }
 
         private static string BoilerplateDirectory([CallerFilePath] string callerFilePath = "")

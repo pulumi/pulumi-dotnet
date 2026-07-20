@@ -4,6 +4,10 @@
 // API interface, whether it executes commands for real (Standard.cs) or
 // captures them for testing (Testing.cs). It is compiled alongside the
 // generated Options.cs and Commands.cs, not by the generator project itself.
+//
+// Commands return the SDK's existing Pulumi.Automation.Commands.CommandResult
+// rather than a copy of it, so results from the generated API and from the
+// hand-written one are the same type.
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +26,7 @@ namespace Pulumi.Automation.Interface
         /// The working directory in which to run the CLI. Defaults to the
         /// current process directory when null.
         /// </summary>
-        public string? WorkingDirectory { get; set; }
+        public string? WorkDir { get; set; }
 
         /// <summary>
         /// Environment variables to set for the CLI process, merged over the
@@ -39,36 +43,5 @@ namespace Pulumi.Automation.Interface
         /// A callback invoked with each line the CLI writes to standard error.
         /// </summary>
         public Action<string>? OnStandardError { get; set; }
-    }
-
-    /// <summary>
-    /// The result of running a CLI command.
-    /// </summary>
-    public sealed class CommandResult
-    {
-        /// <summary>
-        /// Everything the command wrote to standard output.
-        /// </summary>
-        public string StandardOutput { get; }
-
-        /// <summary>
-        /// Everything the command wrote to standard error.
-        /// </summary>
-        public string StandardError { get; }
-
-        /// <summary>
-        /// The process exit code of the command.
-        /// </summary>
-        public int ExitCode { get; }
-
-        /// <summary>
-        /// Creates a command result.
-        /// </summary>
-        public CommandResult(string standardOutput, string standardError, int exitCode)
-        {
-            this.StandardOutput = standardOutput;
-            this.StandardError = standardError;
-            this.ExitCode = exitCode;
-        }
     }
 }

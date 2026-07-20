@@ -26,21 +26,17 @@ namespace Pulumi.Automation.Interface
             this._command = command ?? throw new ArgumentNullException(nameof(command));
         }
 
-        private async Task<CommandResult> RunAsync(
+        private Task<CommandResult> RunAsync(
             IReadOnlyList<string> arguments,
             BaseOptions? options,
             CancellationToken cancellationToken)
-        {
-            var result = await this._command.RunAsync(
+            => this._command.RunAsync(
                 arguments.ToList(),
-                options?.WorkingDirectory ?? Environment.CurrentDirectory,
+                options?.WorkDir ?? Environment.CurrentDirectory,
                 options?.EnvironmentVariables ?? new Dictionary<string, string?>(),
                 options?.OnStandardOutput,
                 options?.OnStandardError,
                 onEngineEvent: null,
-                cancellationToken).ConfigureAwait(false);
-
-            return new CommandResult(result.StandardOutput, result.StandardError, result.Code);
-        }
+                cancellationToken);
     }
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Pulumi.Automation.Commands;
 
 namespace Pulumi.Automation.Interface
 {
@@ -21,7 +22,7 @@ namespace Pulumi.Automation.Interface
         /// <summary>
         /// Runs the <c>pulumi cancel</c> command.
         /// </summary>
-        public Task<CommandResult> Cancel(string? stackName = null, PulumiCancelOptions? options = null, CancellationToken cancellationToken = default)
+        public Task<CommandResult> CancelAsync(string? stackName = null, PulumiCancelOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -64,7 +65,7 @@ namespace Pulumi.Automation.Interface
         /// <summary>
         /// Runs the <c>pulumi org</c> command.
         /// </summary>
-        public Task<CommandResult> Org(PulumiOrgOptions? options = null, CancellationToken cancellationToken = default)
+        public Task<CommandResult> OrgAsync(PulumiOrgOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -88,7 +89,7 @@ namespace Pulumi.Automation.Interface
         /// <summary>
         /// Runs the <c>pulumi org get-default</c> command.
         /// </summary>
-        public Task<CommandResult> OrgGetDefault(PulumiOrgGetDefaultOptions? options = null, CancellationToken cancellationToken = default)
+        public Task<CommandResult> OrgGetDefaultAsync(PulumiOrgGetDefaultOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -113,7 +114,7 @@ namespace Pulumi.Automation.Interface
         /// <summary>
         /// Runs the <c>pulumi org search</c> command.
         /// </summary>
-        public Task<CommandResult> OrgSearch(PulumiOrgSearchOptions? options = null, CancellationToken cancellationToken = default)
+        public Task<CommandResult> OrgSearchAsync(PulumiOrgSearchOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -159,7 +160,7 @@ namespace Pulumi.Automation.Interface
         /// <summary>
         /// Runs the <c>pulumi org search ai</c> command.
         /// </summary>
-        public Task<CommandResult> OrgSearchAI(PulumiOrgSearchAIOptions? options = null, CancellationToken cancellationToken = default)
+        public Task<CommandResult> OrgSearchAIAsync(PulumiOrgSearchAIOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -203,7 +204,7 @@ namespace Pulumi.Automation.Interface
         /// <summary>
         /// Runs the <c>pulumi org set-default</c> command.
         /// </summary>
-        public Task<CommandResult> OrgSetDefault(string name, PulumiOrgSetDefaultOptions? options = null, CancellationToken cancellationToken = default)
+        public Task<CommandResult> OrgSetDefaultAsync(string name, PulumiOrgSetDefaultOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {
@@ -236,7 +237,7 @@ namespace Pulumi.Automation.Interface
         /// <summary>
         /// Runs the <c>pulumi state move</c> command.
         /// </summary>
-        public Task<CommandResult> StateMove(IEnumerable<string>? urn = null, PulumiStateMoveOptions? options = null, CancellationToken cancellationToken = default)
+        public Task<CommandResult> StateMoveAsync(IEnumerable<string>? urn = null, PulumiStateMoveOptions? options = null, CancellationToken cancellationToken = default)
         {
             var __final = new List<string>
             {

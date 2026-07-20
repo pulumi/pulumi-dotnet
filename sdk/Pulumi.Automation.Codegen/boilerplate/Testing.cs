@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Pulumi.Automation.Commands;
 
 namespace Pulumi.Automation.Interface
 {
@@ -30,7 +31,7 @@ namespace Pulumi.Automation.Interface
         {
             this.LastArguments = arguments;
             this.LastOptions = options;
-            return Task.FromResult(new CommandResult(string.Empty, string.Empty, 0));
+            return Task.FromResult(new CommandResult(0, string.Empty, string.Empty));
         }
     }
 }

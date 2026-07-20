@@ -50,6 +50,13 @@ namespace Pulumi.Automation.Codegen
         public string OptionsClassName => "Pulumi" + Identifier + "Options";
 
         /// <summary>
+        /// The name of the generated method for this command, e.g.
+        /// <c>OrgSearchAIAsync</c>. Task-returning methods carry the Async
+        /// suffix, as every method on the hand-written Automation API does.
+        /// </summary>
+        public string MethodName => Identifier + "Async";
+
+        /// <summary>
         /// The flags exposed to users, sorted by name: every resolved flag
         /// that is not omitted.
         /// </summary>

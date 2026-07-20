@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pulumi.Automation.Codegen\Pulumi.Automation.Codegen.csproj" />
+    <!-- The generated code returns the SDK's CommandResult, so compiling it
+         in these tests needs Pulumi.Automation on the reference set. -->
+    <ProjectReference Include="..\Pulumi.Automation\Pulumi.Automation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

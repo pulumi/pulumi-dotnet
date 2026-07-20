@@ -14,7 +14,7 @@ namespace Pulumi.Automation.Codegen
         private const string Usage =
             "Usage: Pulumi.Automation.Codegen <specification.json> [output-dir] [namespace]";
 
-        private const string DefaultNamespace = "Pulumi.Automation.Interface";
+        private const string DefaultNamespace = "Pulumi.Automation.Commands";
 
         internal static int Main(string[] args)
         {

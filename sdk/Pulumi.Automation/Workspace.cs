@@ -25,9 +25,17 @@ namespace Pulumi.Automation
     {
         internal readonly PulumiCommand _cmd;
 
+        /// <summary>
+        /// The low-level, generated interface to the Pulumi CLI. The
+        /// hand-written operations on this workspace and its stacks are
+        /// implemented in terms of it.
+        /// </summary>
+        internal API CliApi { get; }
+
         internal Workspace(PulumiCommand cmd)
         {
             this._cmd = cmd;
+            this.CliApi = new API(cmd);
         }
 
         /// <summary>
@@ -450,6 +458,17 @@ namespace Pulumi.Automation
             string? stdIn,
             CancellationToken cancellationToken)
         {
+            return this._cmd.RunInputAsync(args, this.WorkDir, this.BuildEnvironment(), onStandardOutput, onStandardError, stdIn, onEngineEvent, cancellationToken);
+        }
+
+        /// <summary>
+        /// The environment every CLI invocation from this workspace runs with.
+        /// Shared by <see cref="RunCommandAsync(IList{string}, CancellationToken)"/>
+        /// and the calls that go through <see cref="CliApi"/>, so both paths
+        /// see the same environment.
+        /// </summary>
+        internal IDictionary<string, string?> BuildEnvironment()
+        {
             var env = new Dictionary<string, string?>();
             if (!string.IsNullOrWhiteSpace(this.PulumiHome))
                 env["PULUMI_HOME"] = this.PulumiHome;
@@ -463,7 +482,7 @@ namespace Pulumi.Automation
                     env[pair.Key] = pair.Value;
             }
 
-            return this._cmd.RunInputAsync(args, this.WorkDir, env, onStandardOutput, onStandardError, stdIn, onEngineEvent, cancellationToken);
+            return env;
         }
 
         protected virtual void Dispose(bool disposing)

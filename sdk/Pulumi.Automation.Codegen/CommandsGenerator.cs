@@ -78,8 +78,6 @@ namespace Pulumi.Automation.Codegen
             usings.Add(UsingDirective(ParseName("System.Threading")));
             usings.Add(UsingDirective(ParseName("System.Threading.Tasks")));
 
-            // Commands return the SDK's own CommandResult.
-            usings.Add(UsingDirective(ParseName("Pulumi.Automation.Commands")));
 
             var unit = CompilationUnit()
                 .WithUsings(List(usings))

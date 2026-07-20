@@ -140,7 +140,12 @@ jobs:
           pulumi-version: dev
       - name: Build Pulumi SDK
         run: make build_sdk
-      - name: Workspace clean (are xml doc file updates committed?)
+      - name: Test Automation API codegen
+        # Regenerates the Automation API interface from the pinned submodule's
+        # CLI specification, so the workspace check below also catches
+        # generated code that was not regenerated after a submodule bump.
+        run: make test_automation_codegen
+      - name: Workspace clean (are xml doc and generated file updates committed?)
         uses: pulumi/git-status-check-action@0d90c81496aa8d6a31d9c6a0d6297feea2f54057 # v2
         with:
           allowed-changes: ./global.json
@@ -148,8 +153,6 @@ jobs:
         run: make test_sdk_coverage
       - name: Test Pulumi Automation SDK
         run: make test_sdk_automation_coverage
-      - name: Test Automation API codegen
-        run: make test_automation_codegen
       - name: Upload coverage data
         uses: codecov/codecov-action@v5
         with:

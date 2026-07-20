@@ -28,6 +28,8 @@ namespace Pulumi.Automation.Tests.Mocks
             CancellationToken cancellationToken = default)
         {
             this.RecordedArgs = args;
+            this.RecordedWorkingDir = workingDir;
+            this.RecordedEnv = additionalEnv;
             return Task.FromResult(this.CommandResult);
         }
 
@@ -42,11 +44,17 @@ namespace Pulumi.Automation.Tests.Mocks
             CancellationToken cancellationToken = default)
         {
             this.RecordedArgs = args;
+            this.RecordedWorkingDir = workingDir;
+            this.RecordedEnv = additionalEnv;
             return Task.FromResult(this.CommandResult);
         }
 
         public override SemVersion? Version { get; }
 
         public IList<string> RecordedArgs { get; private set; } = new List<string>();
+
+        public string? RecordedWorkingDir { get; private set; }
+
+        public IDictionary<string, string?>? RecordedEnv { get; private set; }
     }
 }

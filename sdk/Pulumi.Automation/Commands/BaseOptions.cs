@@ -1,18 +1,12 @@
 // Copyright 2016-2026, Pulumi Corporation
 
-// This is boilerplate shared by every consumer of the generated Automation
-// API interface, whether it executes commands for real (Standard.cs) or
-// captures them for testing (Testing.cs). It is compiled alongside the
-// generated Options.cs and Commands.cs, not by the generator project itself.
-//
-// Commands return the SDK's existing Pulumi.Automation.Commands.CommandResult
-// rather than a copy of it, so results from the generated API and from the
-// hand-written one are the same type.
+// Hand-written half of the generated Automation API interface, compiled
+// alongside the generated Options.cs and Commands.cs in this directory.
 
 using System;
 using System.Collections.Generic;
 
-namespace Pulumi.Automation.Interface
+namespace Pulumi.Automation.Commands
 {
     /// <summary>
     /// The invocation configuration shared by every command: where to run the

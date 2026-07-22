@@ -503,6 +503,12 @@ func DeterminePackageDependency(packageDir, packageName, packageVersion string) 
 			Version: pulumiPlugin.Parameterization.Version,
 			Value:   pulumiPlugin.Parameterization.Value,
 		}
+	} else if pulumiPlugin.ExtensionParameterization != nil {
+		result.Extension = &pulumirpc.PackageParameterization{
+			Name:    pulumiPlugin.ExtensionParameterization.Name,
+			Version: pulumiPlugin.ExtensionParameterization.Version,
+			Value:   pulumiPlugin.ExtensionParameterization.Value,
+		}
 	}
 
 	logging.V(5).Infof("GetRequiredPackages: Determining plugin dependency: %#v", result)

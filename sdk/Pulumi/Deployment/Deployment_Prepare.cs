@@ -507,7 +507,7 @@ namespace Pulumi
                 }
                 catch
                 {
-                    if (registerPackageRequest.Parameterization != null)
+                    if (registerPackageRequest.Parameterization != null || registerPackageRequest.Extension != null)
                     {
                         throw;
                     }
@@ -526,11 +526,13 @@ namespace Pulumi
 
         private static string PackageRefCacheKey(RegisterPackageRequest request)
         {
-            var parameterization = request.Parameterization == null
+            // Parameterization (replacement) and Extension are mutually exclusive; key off whichever is set.
+            var parameterization = request.Parameterization ?? request.Extension;
+            var parameterizationKey = parameterization == null
                 ? ""
-                : $"{request.Parameterization.Name}\0{request.Parameterization.Version}\0" +
-                  global::System.Convert.ToBase64String(request.Parameterization.Value);
-            return string.Join("\0", request.Name, request.Version, request.DownloadUrl, parameterization);
+                : $"{parameterization.Name}\0{parameterization.Version}\0" +
+                  global::System.Convert.ToBase64String(parameterization.Value);
+            return string.Join("\0", request.Name, request.Version, request.DownloadUrl, parameterizationKey);
         }
 
         private static async Task<List<Pulumirpc.Alias>> PrepareAliases(

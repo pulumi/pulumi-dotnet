@@ -90,6 +90,36 @@ type generator struct {
 	// `Pulumi`, so programs that import `Pulumi` and `Pulumi.Output` hit name collisions. For this reason, we'll import
 	// the latter as `OutputProvider` rather than `Output`.
 	namespaceAliases map[string]string
+	// tokenPackages maps a fully-qualified token to the name of the package that
+	// owns it. An extension's resource and function tokens live in the base
+	// provider's namespace, but the SDK roots them under the extension's own name,
+	// so the owning package — not the token's package — determines the C# namespace.
+	// The base provider's own resources keep base-provider tokens, so resolving by
+	// token rather than by package prefix is what distinguishes the two.
+	tokenPackages map[string]string
+}
+
+// packageForToken returns the name of the package that owns the given token,
+// falling back to the token's own package prefix when the token is unknown.
+func (g *generator) packageForToken(token, fallback string) string {
+	if owner, ok := g.tokenPackages[canonicalToken(token)]; ok {
+		return owner
+	}
+	return fallback
+}
+
+// canonicalToken normalizes a "pkg:module:member" token so that the default
+// "index" module and an elided module compare equal — schema tokens spell the
+// module "index" while PCL tokens omit it (e.g. "pkg::member").
+func canonicalToken(token string) string {
+	parts := strings.SplitN(token, ":", 3)
+	if len(parts) != 3 {
+		return token
+	}
+	if parts[1] == "index" {
+		parts[1] = ""
+	}
+	return parts[0] + ":" + parts[1] + ":" + parts[2]
 }
 
 func (g *generator) resetListInitializer() {
@@ -118,6 +148,7 @@ func GenerateProgramWithOptions(
 	compatibilities := make(map[string]string)
 	tokenToModules := make(map[string]func(x string) string)
 	functionArgs := make(map[string]string)
+	tokenPackages := make(map[string]string)
 	packages, err := program.PackageSnapshots()
 	if err != nil {
 		return nil, nil, err
@@ -137,6 +168,21 @@ func GenerateProgramWithOptions(
 		compatibilities[p.Name] = csharpInfo.Compatibility
 		tokenToModules[p.Name] = p.TokenToModule
 
+		for _, r := range p.Resources {
+			tokenPackages[canonicalToken(r.Token)] = p.Name
+		}
+		for _, fn := range p.Functions {
+			tokenPackages[canonicalToken(fn.Token)] = p.Name
+		}
+		for _, t := range p.Types {
+			switch typ := t.(type) {
+			case *schema.ObjectType:
+				tokenPackages[canonicalToken(typ.Token)] = p.Name
+			case *schema.EnumType:
+				tokenPackages[canonicalToken(typ.Token)] = p.Name
+			}
+		}
+
 		for _, f := range p.Functions {
 			if f.Inputs != nil {
 				functionArgs[f.Inputs.Token] = f.Token
@@ -154,6 +200,7 @@ func GenerateProgramWithOptions(
 		generateOptions:  options,
 		listInitializer:  "new[]",
 		namespaceAliases: map[string]string{},
+		tokenPackages:    tokenPackages,
 	}
 
 	g.Formatter = format.NewFormatter(g)
@@ -505,6 +552,12 @@ func (g *generator) setupNamespaceAlias(
 		return
 	}
 
+	// For extension packages the token package is the base provider, but the SDK
+	// (and thus its using alias) is rooted under the extension's own name.
+	if pkgRef != nil {
+		pkg = pkgRef.Name()
+	}
+
 	// Get CSharpPackageInfo from the package reference
 	var info CSharpPackageInfo
 	if pkgRef != nil {
@@ -575,7 +628,7 @@ func (g *generator) usingStatements(program *pcl.Program) programUsings {
 									tokenRange := call.Args[0].SyntaxNode().Range()
 									pkg, _, _, diags := pcl.DecomposeToken(token, tokenRange)
 									if len(diags) == 0 {
-										g.setupNamespaceAlias(pkg, nil, program, pulumiUsings)
+										g.setupNamespaceAlias(g.packageForToken(token, pkg), nil, program, pulumiUsings)
 									}
 								}
 							}
@@ -1157,6 +1210,11 @@ func (g *generator) resourceTypeName(r *pcl.Resource) string {
 	}
 
 	if r.Schema != nil {
+		// Extension resources carry the base provider's token but are rooted under
+		// the extension's own package namespace; resolve to the owning package.
+		if r.Schema.PackageReference != nil {
+			pkg = r.Schema.PackageReference.Name()
+		}
 		if val1, ok := r.Schema.Language["csharp"]; ok {
 			val2, ok := val1.(CSharpResourceInfo)
 			contract.Assertf(ok, "dotnet specific settings for resources should be of type CSharpResourceInfo")
@@ -1195,6 +1253,12 @@ func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
 		module = ""
 	}
 
+	// Extension resources carry the base provider's token but are rooted under the
+	// extension's own package namespace; resolve to the package that owns them.
+	if r.Schema != nil && r.Schema.PackageReference != nil {
+		pkg = r.Schema.PackageReference.Name()
+	}
+
 	namespaces := g.namespaces[pkg]
 	rootNamespace := namespaceName(namespaces, pkg)
 	namespace := namespaceName(namespaces, module)
@@ -1220,6 +1284,7 @@ func (g *generator) functionName(tokenArg model.Expression) (string, string) {
 	// Compute the resource type from the Pulumi type token.
 	pkg, module, member, diags := pcl.DecomposeToken(token, tokenRange)
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
+	pkg = g.packageForToken(token, pkg)
 	return g.qualifiedTypeName(pkg, module, member)
 }
 
@@ -1261,6 +1326,7 @@ func (g *generator) argumentTypeNameWithSuffix(expr model.Expression, destType m
 
 	pkg, modName, member, diags := pcl.DecomposeToken(token, tokenRange)
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
+	pkg = g.packageForToken(token, pkg)
 	var module string
 	if getModule, ok := g.tokenToModules[pkg]; ok {
 		module = getModule(token)

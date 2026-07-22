@@ -354,6 +354,7 @@ func (g *generator) genFunctionUsings(x *model.FunctionCallExpression) []string 
 	if len(diags) > 0 {
 		return []string{}
 	}
+	pkg = g.packageForToken(token, pkg)
 
 	pkgNamespace := namespaceName(g.namespaces[pkg], pkg)
 

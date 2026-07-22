@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Extbase;ROOT/artifacts/Pulumi.Myext;$(RestoreSources)</RestoreSources>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Pulumi.Extbase" Version="45.0.0" />
+		<PackageReference Include="Pulumi.Myext" Version="2.0.0" />
+		<PackageReference Include="Pulumi" Version="1.0.0" />
+	</ItemGroup>
+
+</Project>

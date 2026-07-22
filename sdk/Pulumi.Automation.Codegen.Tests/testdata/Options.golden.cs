@@ -8,12 +8,12 @@
 
 using System.Collections.Generic;
 
-namespace Pulumi.Automation.Interface
+namespace Pulumi.Automation.Commands
 {
     /// <summary>
     /// Options for the <c>pulumi cancel</c> command.
     /// </summary>
-    public sealed class PulumiCancelOptions
+    public sealed class PulumiCancelOptions : BaseOptions
     {
         /// <summary>
         /// Colorize output
@@ -34,7 +34,7 @@ namespace Pulumi.Automation.Interface
     /// <summary>
     /// Options for the <c>pulumi org</c> command.
     /// </summary>
-    public sealed class PulumiOrgOptions
+    public sealed class PulumiOrgOptions : BaseOptions
     {
         /// <summary>
         /// Colorize output
@@ -50,7 +50,7 @@ namespace Pulumi.Automation.Interface
     /// <summary>
     /// Options for the <c>pulumi org get-default</c> command.
     /// </summary>
-    public sealed class PulumiOrgGetDefaultOptions
+    public sealed class PulumiOrgGetDefaultOptions : BaseOptions
     {
         /// <summary>
         /// Colorize output
@@ -66,7 +66,7 @@ namespace Pulumi.Automation.Interface
     /// <summary>
     /// Options for the <c>pulumi org search</c> command.
     /// </summary>
-    public sealed class PulumiOrgSearchOptions
+    public sealed class PulumiOrgSearchOptions : BaseOptions
     {
         /// <summary>
         /// Colorize output
@@ -97,7 +97,7 @@ namespace Pulumi.Automation.Interface
     /// <summary>
     /// Options for the <c>pulumi org search ai</c> command.
     /// </summary>
-    public sealed class PulumiOrgSearchAIOptions
+    public sealed class PulumiOrgSearchAIOptions : BaseOptions
     {
         /// <summary>
         /// Colorize output
@@ -128,7 +128,7 @@ namespace Pulumi.Automation.Interface
     /// <summary>
     /// Options for the <c>pulumi org set-default</c> command.
     /// </summary>
-    public sealed class PulumiOrgSetDefaultOptions
+    public sealed class PulumiOrgSetDefaultOptions : BaseOptions
     {
         /// <summary>
         /// Colorize output
@@ -144,7 +144,7 @@ namespace Pulumi.Automation.Interface
     /// <summary>
     /// Options for the <c>pulumi state move</c> command.
     /// </summary>
-    public sealed class PulumiStateMoveOptions
+    public sealed class PulumiStateMoveOptions : BaseOptions
     {
         /// <summary>
         /// Colorize output

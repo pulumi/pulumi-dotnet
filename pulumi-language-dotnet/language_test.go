@@ -132,7 +132,6 @@ var expectedFailures = map[string]string{
 	"l1-config-types-object":                 "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
 	"l1-elide-index":                         "https://github.com/pulumi/pulumi-dotnet/issues/865",
 	"l2-elide-index":                         "https://github.com/pulumi/pulumi-dotnet/issues/868",
-	"l2-discriminated-union":                 "https://github.com/pulumi/pulumi-dotnet/issues/866",
 	"l2-module-format":                       "https://github.com/pulumi/pulumi-dotnet/issues/867",
 
 	// TODO: This is a codegen bug, we're translating {} to null
@@ -197,6 +196,11 @@ var expectedFailures = map[string]string{
 	"l2-docs": "dotnet codegen does not resolve '{{% ref %}}' doc cross-references in generated comments",
 
 	"l3-range-invoke-output-traversal": "Fail after updating to 3.250: dotnet build failed: CS0021 cannot index Output<ImmutableArray<string>>", //nolint:lll
+
+	"l2-extension-and-base-resource":      "Fail after updating to 3.251: extension-parameterized package SDK generation not implemented (pulumi/pulumi#23579)", //nolint:lll
+	"l2-extension-parameterized-resource": "Fail after updating to 3.251: extension-parameterized package SDK generation not implemented (pulumi/pulumi#23579)", //nolint:lll
+
+	"l2-failed-create-recover-continue-on-error": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

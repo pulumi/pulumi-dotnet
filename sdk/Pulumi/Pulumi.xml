@@ -5698,6 +5698,84 @@
             true if this is a remote resource. Ignored if is_component is false.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceImport.ParameterizationFieldNumber">
+            <summary>Field number for the "parameterization" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Parameterization">
+            <summary>
+            the replacement parameterization to use for the resource's provider, if any. Set when the resource
+            should be imported under a parameterized (e.g. dynamically bridged) provider rather than a plain one.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.ExtensionFieldNumber">
+            <summary>Field number for the "extension" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Extension">
+            <summary>
+            the extension parameterization to apply to the resource's provider, if any. Unlike a replacement
+            parameterization, the resource's own type is in the base provider's package; the extension is a blob
+            applied on top of that provider. Mutually exclusive with parameterization.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceParameterization">
+            <summary>
+            A ResourceParameterization describes the base plugin that a resource's parameterized provider is built
+            from. The parameterized package name and version are taken from the resource's own type and version.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceParameterization.PluginNameFieldNumber">
+            <summary>Field number for the "plugin_name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceParameterization.PluginName">
+            <summary>
+            the name of the base plugin to parameterize (e.g. "terraform-provider").
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceParameterization.PluginVersionFieldNumber">
+            <summary>Field number for the "plugin_version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceParameterization.PluginVersion">
+            <summary>
+            the version of the base plugin to parameterize.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceParameterization.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceParameterization.Value">
+            <summary>
+            the parameter value to apply to the base plugin.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ResourceExtension">
+            <summary>
+            A ResourceExtension describes an extension parameterization to apply to a resource's (base) provider.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceExtension.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceExtension.Name">
+            <summary>
+            the name of the extension package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceExtension.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceExtension.Version">
+            <summary>
+            the version of the extension package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceExtension.ValueFieldNumber">
+            <summary>Field number for the "value" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceExtension.Value">
+            <summary>
+            the parameter value for the extension.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ConvertStateResponse.ResourcesFieldNumber">
             <summary>Field number for the "resources" field.</summary>
         </member>
@@ -13701,6 +13779,14 @@
             environment variable remappings for provider resources (NEW_KEY -> OLD_KEY)
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.SnippetIdFieldNumber">
+            <summary>Field number for the "snippetId" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.SnippetId">
+            <summary>
+            if set, the UUID of the snippet that issued this registration.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -16133,6 +16219,21 @@
         <member name="P:Codegen.GetMappingRequest.ParameterizationHint">
             <summary>
             An optional parameterization that should be used on the named plugin before asking it for mappings.
+            </summary>
+        </member>
+        <member name="F:Codegen.GetMappingRequest.EcosystemFieldNumber">
+            <summary>Field number for the "ecosystem" field.</summary>
+        </member>
+        <member name="P:Codegen.GetMappingRequest.Ecosystem">
+            <summary>
+            The ecosystem whose mappings are being requested (e.g. "terraform"). This identifies the source ecosystem
+            the caller consumes, which is not necessarily the caller's own name -- the hcl converter, for instance,
+            executes Terraform programs and so requests "terraform" mappings. If left empty, the mapper falls back to
+            the conversion key it was configured with: most mapper instances (those served to `plugin run` and to
+            providers and language runtimes) default to "terraform", while `pulumi convert` and `pulumi import` default
+            it to the source converter's plugin name. Setting this field lets a caller request a specific ecosystem
+            regardless of that configured default, which is particularly useful for `plugin run` and providers
+            accessing the mapper.
             </summary>
         </member>
         <member name="T:Codegen.MapperParameterizationHint">

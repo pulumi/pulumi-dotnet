@@ -13,7 +13,7 @@ namespace Pulumi.Automation.Codegen.Tests
 {
     public class OptionsGeneratorTests
     {
-        private const string Namespace = "Pulumi.Automation.Interface";
+        private const string Namespace = "Pulumi.Automation.Commands";
 
         private static string GenerateFromFixture()
             => OptionsGenerator.Generate(SpecificationTests.LoadFixture(), Namespace);
@@ -43,11 +43,21 @@ namespace Pulumi.Automation.Codegen.Tests
         [Fact]
         public void Generate_ProducesCompilableSource()
         {
+            // BaseOptions comes from the referenced Pulumi.Automation.
             var errors = GeneratedCode.Compile(GenerateFromFixture())
                 .GetDiagnostics()
                 .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
                 .ToList();
             Assert.Empty(errors);
+        }
+
+        [Fact]
+        public void Generate_OptionsDeriveFromBaseOptions()
+        {
+            // Deriving from BaseOptions lets a single options argument carry
+            // both the command's flags and its invocation configuration.
+            var source = GenerateFromFixture();
+            Assert.Contains("public sealed class PulumiCancelOptions : BaseOptions", source);
         }
 
         [Fact]

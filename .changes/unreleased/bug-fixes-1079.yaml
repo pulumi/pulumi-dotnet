@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: bug-fixes
+body: Place CLI flags before the `--` positional separator so commands with positional arguments are not misparsed
+time: 2026-07-20T12:47:52.931873+01:00
+custom:
+    PR: "1079"

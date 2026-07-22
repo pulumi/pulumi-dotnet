@@ -11,4 +11,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Boilerplate is compiled with the generated code by consumers, not by
+         the generator itself; keep it as a template, not project source. -->
+    <Compile Remove="boilerplate/**" />
+    <None Include="boilerplate/**" />
+  </ItemGroup>
+
 </Project>

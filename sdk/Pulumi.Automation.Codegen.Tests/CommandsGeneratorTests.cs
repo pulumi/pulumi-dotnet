@@ -10,7 +10,7 @@ namespace Pulumi.Automation.Codegen.Tests
 {
     public class CommandsGeneratorTests
     {
-        private const string Namespace = "Pulumi.Automation.Interface";
+        private const string Namespace = "Pulumi.Automation.Commands";
 
         // Compiled once and shared: each test exercises the same generated API.
         private static readonly GeneratedApi Fixture = new(SpecificationTests.LoadFixture());
@@ -39,8 +39,35 @@ namespace Pulumi.Automation.Codegen.Tests
             => Assert.Equal(GenerateFromFixture(), GenerateFromFixture());
 
         [Fact]
+        public void Generate_EmitsAPartialClassOfAsyncMethods()
+        {
+            var source = GenerateFromFixture();
+            // The boilerplate provides the other half of the partial class.
+            Assert.Contains("public sealed partial class API", source);
+            // Methods return the command result and delegate to the runner.
+            Assert.Contains(
+                "public Task<CommandResult> CancelAsync(string? stackName = null, PulumiCancelOptions? options = null, CancellationToken cancellationToken = default)",
+                source);
+            Assert.Contains("return RunAsync(__final, options, cancellationToken);", source);
+        }
+
+        [Fact]
+        public void BaseOptions_FlowThroughToTheRunner()
+        {
+            var options = Fixture.Options(
+                "PulumiCancelOptions",
+                ("WorkDir", "/work"),
+                ("Stack", "prod"));
+            Fixture.Invoke("CancelAsync", null, options);
+
+            var captured = Fixture.Read("LastOptions");
+            Assert.NotNull(captured);
+            Assert.Equal("/work", captured!.GetType().GetProperty("WorkDir")!.GetValue(captured));
+        }
+
+        [Fact]
         public void Cancel_WithNoArguments_EmitsOnlyTheCommandAndPreset()
-            => Assert.Equal(new[] { "cancel", "--yes" }, Fixture.Invoke("Cancel", null, null));
+            => Assert.Equal(new[] { "cancel", "--yes" }, Fixture.Invoke("CancelAsync", null, null));
 
         [Fact]
         public void Cancel_EmitsFlagsThenPositionalBehindSeparator()
@@ -48,14 +75,14 @@ namespace Pulumi.Automation.Codegen.Tests
             var options = Fixture.Options("PulumiCancelOptions", ("Stack", "prod"));
             Assert.Equal(
                 new[] { "cancel", "--yes", "--stack", "prod", "--", "dev" },
-                Fixture.Invoke("Cancel", "dev", options));
+                Fixture.Invoke("CancelAsync", "dev", options));
         }
 
         [Fact]
         public void Cancel_IntFlagIsFormattedInvariantly()
         {
             var options = Fixture.Options("PulumiCancelOptions", ("Verbose", 3));
-            Assert.Equal(new[] { "cancel", "--yes", "--verbose", "3" }, Fixture.Invoke("Cancel", null, options));
+            Assert.Equal(new[] { "cancel", "--yes", "--verbose", "3" }, Fixture.Invoke("CancelAsync", null, options));
         }
 
         [Fact]
@@ -68,14 +95,14 @@ namespace Pulumi.Automation.Codegen.Tests
                 ("IncludeParents", true));
             Assert.Equal(
                 new[] { "state", "move", "--yes", "--dest", "d", "--include-parents", "--source", "s" },
-                Fixture.Invoke("StateMove", null, options));
+                Fixture.Invoke("StateMoveAsync", null, options));
         }
 
         [Fact]
         public void BooleanFlag_IsOmittedWhenFalse()
         {
             var options = Fixture.Options("PulumiStateMoveOptions", ("IncludeParents", false));
-            Assert.Equal(new[] { "state", "move", "--yes" }, Fixture.Invoke("StateMove", null, options));
+            Assert.Equal(new[] { "state", "move", "--yes" }, Fixture.Invoke("StateMoveAsync", null, options));
         }
 
         [Fact]
@@ -84,7 +111,7 @@ namespace Pulumi.Automation.Codegen.Tests
             var options = Fixture.Options("PulumiOrgSearchOptions", ("Query", new List<string> { "a", "b" }));
             Assert.Equal(
                 new[] { "org", "search", "--query", "a", "--query", "b" },
-                Fixture.Invoke("OrgSearch", options));
+                Fixture.Invoke("OrgSearchAsync", options));
         }
 
         [Fact]
@@ -93,7 +120,7 @@ namespace Pulumi.Automation.Codegen.Tests
             // `org search` declares --query repeatable; `org search ai` redefines
             // it as a scalar, so the leaf command emits it once.
             var options = Fixture.Options("PulumiOrgSearchAIOptions", ("Query", "q"));
-            Assert.Equal(new[] { "org", "search", "ai", "--query", "q" }, Fixture.Invoke("OrgSearchAI", options));
+            Assert.Equal(new[] { "org", "search", "ai", "--query", "q" }, Fixture.Invoke("OrgSearchAIAsync", options));
         }
 
         [Fact]
@@ -102,16 +129,16 @@ namespace Pulumi.Automation.Codegen.Tests
             var options = Fixture.Options("PulumiStateMoveOptions", ("Dest", "d"));
             Assert.Equal(
                 new[] { "state", "move", "--yes", "--dest", "d", "--", "urn1", "urn2" },
-                Fixture.Invoke("StateMove", new List<string> { "urn1", "urn2" }, options));
+                Fixture.Invoke("StateMoveAsync", new List<string> { "urn1", "urn2" }, options));
         }
 
         [Fact]
         public void Positionals_AreOmittedWhenEmpty()
-            => Assert.Equal(new[] { "state", "move", "--yes" }, Fixture.Invoke("StateMove", null, null));
+            => Assert.Equal(new[] { "state", "move", "--yes" }, Fixture.Invoke("StateMoveAsync", null, null));
 
         [Fact]
         public void RequiredPositional_IsAlwaysEmitted()
-            => Assert.Equal(new[] { "org", "set-default", "--", "acme" }, Fixture.Invoke("OrgSetDefault", "acme", null));
+            => Assert.Equal(new[] { "org", "set-default", "--", "acme" }, Fixture.Invoke("OrgSetDefaultAsync", "acme", null));
 
         [Fact]
         public void OmittedPresetString_IsInjectedUnconditionally()
@@ -148,7 +175,7 @@ namespace Pulumi.Automation.Codegen.Tests
             var api = new GeneratedApi(Specification.Parse(json));
             Assert.Equal(
                 new[] { "deploy", "--tag", "a", "--tag", "b" },
-                api.Invoke("Deploy", new object?[] { null }));
+                api.Invoke("DeployAsync", new object?[] { null }));
         }
 
         [Fact]

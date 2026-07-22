@@ -2466,9 +2466,7 @@ func generateModuleContextMap(tool string, pkg *schema.Package) (map[string]*mod
 			info = &csharpInfo
 			infos[def] = info
 		}
-		if info.RootNamespace == "" && pkg.Namespace != "" {
-			info.RootNamespace = namespaceName(nil, pkg.Namespace)
-		}
+		normalizePackageInfo(info, p.Name(), p.Namespace())
 		return info
 	}
 	infos[pkg] = getPackageInfo(pkg.Reference())
@@ -2693,6 +2691,12 @@ func LanguageResources(tool string, pkg *schema.Package) (map[string]LanguageRes
 func GeneratePackage(
 	tool string, pkg *schema.Package, extraFiles map[string][]byte, localDependencies map[string]string,
 ) (map[string][]byte, error) {
+	if pkg.ExtensionParameterization != nil {
+		// Extension-parameterized packages have no Provider resource and require dedicated
+		// codegen support (see pulumi/pulumi#23579) that .NET does not implement yet.
+		return nil, errors.New("extension-parameterized packages are not supported by the .NET SDK generator")
+	}
+
 	modules, info, err := generateModuleContextMap(tool, pkg)
 	if err != nil {
 		return nil, err

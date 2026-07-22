@@ -389,21 +389,34 @@ namespace Pulumi.Automation.Commands
             return env;
         }
 
-        private static IList<string> PulumiArgs(IList<string> args, string? eventLogPath)
+        internal static IList<string> PulumiArgs(IList<string> args, string? eventLogPath)
         {
+            var flags = new List<string>();
+
             // all commands should be run in non-interactive mode.
             // this causes commands to fail rather than prompting for input (and thus hanging indefinitely)
             if (!args.Contains("--non-interactive"))
             {
-                args = args.Concat(new[] { "--non-interactive" }).ToList();
+                flags.Add("--non-interactive");
             }
 
             if (eventLogPath != null)
             {
-                args = args.Concat(new[] { "--event-log", eventLogPath }).ToList();
+                flags.Add("--event-log");
+                flags.Add(eventLogPath);
             }
 
-            return args;
+            if (flags.Count == 0)
+            {
+                return args;
+            }
+
+            // Flags have to go before the `--` separator: everything after it is
+            // a positional argument as far as the CLI is concerned.
+            var separator = args.IndexOf("--");
+            var result = args.ToList();
+            result.InsertRange(separator < 0 ? result.Count : separator, flags);
+            return result;
         }
 
         private static string SanitizeCommandName(string? firstArgument)

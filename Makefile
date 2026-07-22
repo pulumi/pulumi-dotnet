@@ -83,7 +83,7 @@ generate_cli_spec:
 generate_automation_api: generate_cli_spec
 	cd sdk && dotnet run --project Pulumi.Automation.Codegen -- \
 		Pulumi.Automation.Codegen/specification.json \
-		Pulumi.Automation.Codegen/output
+		Pulumi.Automation/Commands
 
 .PHONY: install
 install:

@@ -1,0 +1,6 @@
+component: runtime
+kind: bug-fixes
+body: Fix codegen for list-of-union input properties so that programs assigning arrays of discriminated-union variants compile
+time: 2026-07-20T08:15:34.748876+01:00
+custom:
+    PR: "1078"

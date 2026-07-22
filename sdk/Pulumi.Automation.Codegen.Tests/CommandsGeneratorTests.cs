@@ -10,7 +10,7 @@ namespace Pulumi.Automation.Codegen.Tests
 {
     public class CommandsGeneratorTests
     {
-        private const string Namespace = "Pulumi.Automation.Interface";
+        private const string Namespace = "Pulumi.Automation.Commands";
 
         // Compiled once and shared: each test exercises the same generated API.
         private static readonly GeneratedApi Fixture = new(SpecificationTests.LoadFixture());

@@ -2548,6 +2548,29 @@ namespace Pulumi.Automation.Tests
         }
 
         [Fact]
+        public async Task CancelRunsThroughTheGeneratedCliApi()
+        {
+            var mockCommand = new PulumiCommandMock(new SemVersion(3, 130, 0), new CommandResult(0, "", ""));
+            var workspace = await LocalWorkspace.CreateAsync(new LocalWorkspaceOptions
+            {
+                PulumiCommand = mockCommand,
+                EnvironmentVariables = new Dictionary<string, string?> { ["PULUMI_TEST_MARKER"] = "1" },
+            });
+            var stack = await WorkspaceStack.SelectAsync("dev", workspace);
+
+            await stack.CancelAsync();
+
+            // Same invocation as the hand-written implementation produced, up to
+            // the generator's flag ordering (presets first, then alphabetical).
+            Assert.Equal(new[] { "cancel", "--yes", "--stack", "dev" }, mockCommand.RecordedArgs);
+
+            // The workspace's working directory and environment must survive the
+            // trip through the generated API.
+            Assert.Equal(workspace.WorkDir, mockCommand.RecordedWorkingDir);
+            Assert.Equal("1", mockCommand.RecordedEnv!["PULUMI_TEST_MARKER"]);
+        }
+
+        [Fact]
         public async Task InstallRequiresSupportedVersion()
         {
             var mockCommand = new PulumiCommandMock(new SemVersion(3, 0, 0), new CommandResult(0, "", ""));

@@ -8,9 +8,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Pulumi.Automation.Commands;
 
-namespace Pulumi.Automation.Interface
+namespace Pulumi.Automation.Commands
 {
     public sealed partial class API
     {

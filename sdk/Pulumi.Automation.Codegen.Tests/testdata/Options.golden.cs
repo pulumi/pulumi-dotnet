@@ -8,7 +8,7 @@
 
 using System.Collections.Generic;
 
-namespace Pulumi.Automation.Interface
+namespace Pulumi.Automation.Commands
 {
     /// <summary>
     /// Options for the <c>pulumi cancel</c> command.

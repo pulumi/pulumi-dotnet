@@ -18,14 +18,7 @@ namespace Pulumi.Automation.Codegen.Tests
     /// </summary>
     internal static class GeneratedCode
     {
-        public const string Namespace = "Pulumi.Automation.Interface";
-
-        /// <summary>
-        /// The shared support boilerplate (BaseOptions, CommandResult) that
-        /// the generated code compiles against.
-        /// </summary>
-        public static string SupportBoilerplate()
-            => File.ReadAllText(Path.Combine(BoilerplateDirectory(), "Support.cs"));
+        public const string Namespace = "Pulumi.Automation.Commands";
 
         /// <summary>
         /// The testing boilerplate: the half of the API partial class that
@@ -54,8 +47,8 @@ namespace Pulumi.Automation.Codegen.Tests
         /// </summary>
         public static Assembly Build(CommandTreeNode specification)
         {
+            // BaseOptions and CommandResult come from the referenced Pulumi.Automation.
             var compilation = Compile(
-                SupportBoilerplate(),
                 TestingBoilerplate(),
                 OptionsGenerator.Generate(specification, Namespace),
                 CommandsGenerator.Generate(specification, Namespace));

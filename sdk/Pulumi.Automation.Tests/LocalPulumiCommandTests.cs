@@ -136,6 +136,28 @@ namespace Pulumi.Automation.Tests
         }
 
         [Fact]
+        public void PulumiArgsPutsFlagsBeforeThePositionalSeparator()
+        {
+            // Without a separator the flags are simply appended.
+            Assert.Equal(
+                new[] { "cancel", "--non-interactive" },
+                LocalPulumiCommand.PulumiArgs(new List<string> { "cancel" }, eventLogPath: null));
+
+            // With one, they have to precede it: the CLI treats everything after
+            // `--` as a positional argument.
+            Assert.Equal(
+                new[] { "new", "--non-interactive", "--event-log", "/tmp/log", "--", "typescript" },
+                LocalPulumiCommand.PulumiArgs(
+                    new List<string> { "new", "--", "typescript" }, eventLogPath: "/tmp/log"));
+
+            // Already non-interactive: nothing is inserted twice.
+            Assert.Equal(
+                new[] { "up", "--non-interactive", "--", "urn" },
+                LocalPulumiCommand.PulumiArgs(
+                    new List<string> { "up", "--non-interactive", "--", "urn" }, eventLogPath: null));
+        }
+
+        [Fact]
         public void PulumiEnvironment()
         {
             // Plain "pulumi" command

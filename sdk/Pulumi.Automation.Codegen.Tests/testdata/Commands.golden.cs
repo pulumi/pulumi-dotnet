@@ -10,9 +10,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Pulumi.Automation.Commands;
 
-namespace Pulumi.Automation.Interface
+namespace Pulumi.Automation.Commands
 {
     /// <summary>
     /// Runs Pulumi CLI commands, one method per command. The invocation itself is provided by the boilerplate half of this partial class.

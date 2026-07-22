@@ -13,7 +13,7 @@ namespace Pulumi.Automation.Codegen.Tests
 {
     public class OptionsGeneratorTests
     {
-        private const string Namespace = "Pulumi.Automation.Interface";
+        private const string Namespace = "Pulumi.Automation.Commands";
 
         private static string GenerateFromFixture()
             => OptionsGenerator.Generate(SpecificationTests.LoadFixture(), Namespace);
@@ -43,9 +43,8 @@ namespace Pulumi.Automation.Codegen.Tests
         [Fact]
         public void Generate_ProducesCompilableSource()
         {
-            // The generated options classes derive from BaseOptions, so they
-            // are compiled against the support boilerplate that defines it.
-            var errors = GeneratedCode.Compile(GeneratedCode.SupportBoilerplate(), GenerateFromFixture())
+            // BaseOptions comes from the referenced Pulumi.Automation.
+            var errors = GeneratedCode.Compile(GenerateFromFixture())
                 .GetDiagnostics()
                 .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
                 .ToList();

@@ -1,18 +1,16 @@
 // Copyright 2016-2026, Pulumi Corporation
 
-// The production half of the generated `API` partial class: it executes the
-// argument vector built by the generated command methods through the SDK's
-// existing PulumiCommand infrastructure. The integration PR compiles this
-// alongside the generated Options.cs and Commands.cs inside Pulumi.Automation.
+// The hand-written half of the `API` partial class: it executes the argument
+// vector built by the generated command methods in Commands.cs through the
+// SDK's existing PulumiCommand infrastructure.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Pulumi.Automation.Commands;
 
-namespace Pulumi.Automation.Interface
+namespace Pulumi.Automation.Commands
 {
     public sealed partial class API
     {

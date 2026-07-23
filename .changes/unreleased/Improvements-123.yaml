@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Bump the `pulumi/pulumi` version
+time: 2026-07-23T15:25:28.062722+01:00
+custom:
+    PR: "1084"

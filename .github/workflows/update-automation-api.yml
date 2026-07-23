@@ -1,0 +1,81 @@
+name: Update Automation API
+
+permissions:
+  contents: read
+  id-token: write
+
+on:
+  repository_dispatch:
+    types:
+      - update-automation-api
+  workflow_dispatch:
+
+env:
+  ESC_ACTION_OIDC_AUTH: true
+  ESC_ACTION_OIDC_ORGANIZATION: pulumi
+  ESC_ACTION_OIDC_REQUESTED_TOKEN_TYPE: urn:pulumi:token-type:access_token:organization
+  ESC_ACTION_ENVIRONMENT: github-secrets/pulumi-pulumi-dotnet
+  ESC_ACTION_EXPORT_ENVIRONMENT_VARIABLES: PULUMI_BOT_TOKEN
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate:
+    name: Regenerate automation API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch secrets from ESC
+        uses: pulumi/esc-action@3af4859af8a73a362fb599b944124097d4bb80c5 # v3
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+          token: ${{ env.PULUMI_BOT_TOKEN }}
+      - name: Setup mise and install tools
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+      - name: Update pulumi submodule
+        env:
+          SHA: ${{ github.event.client_payload.sha }}
+        run: |
+          cd pulumi
+          git fetch origin "${SHA:-master}"
+          git checkout FETCH_HEAD
+      - name: Regenerate
+        run: make generate_automation_api
+      - name: Create or update PR
+        id: pr
+        env:
+          GITHUB_TOKEN: ${{ env.PULUMI_BOT_TOKEN }}
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet -- sdk; then
+            echo "Automation API is up to date."
+            exit 0
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git switch --create automation/update-automation-api
+          git commit -m "Regenerate the automation API from the pulumi CLI specification"
+          git push --force origin HEAD
+          # If a PR is already open for this branch, the force-push above refreshed it; reuse its URL.
+          existing=$(gh pr list --head automation/update-automation-api --state open --json url --jq '.[0].url')
+          if [ -n "$existing" ]; then
+            echo "PR already open: ${existing}; refreshed the branch."
+            echo "url=${existing}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          pr_url=$(gh pr create --draft \
+            --title "Regenerate the automation API" \
+            --body "The pulumi CLI specification no longer matches the generated automation API. This PR updates the pulumi submodule and regenerates the API.")
+          echo "url=${pr_url}" >> "$GITHUB_OUTPUT"
+      - name: Notify Slack
+        if: steps.pr.outputs.url != ''
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.RELEASE_BOT_TOKEN }}
+          payload: |
+            channel: "#team-iac-core"
+            text: "The `pulumi-dotnet` automation API has drifted from the CLI; a regeneration PR is ready for review: ${{ steps.pr.outputs.url }}"

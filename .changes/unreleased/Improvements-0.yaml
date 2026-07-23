@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Update pulumi/pulumi to v3.254.0
+time: 2026-07-23T15:02:13.866244+01:00
+custom:
+    PR: "0"

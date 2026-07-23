@@ -107,6 +107,57 @@ func (d DocLanguageHelper) GetMethodName(m *schema.Method) string {
 	return cgstrings.UppercaseFirst(m.Name)
 }
 
+// ResolveDocRef renders a single doc ref as a .NET name.
+func (d DocLanguageHelper) ResolveDocRef(pkg schema.PackageReference, selfRef, ref schema.DocRef) (string, bool, error) {
+	resourceBase := func() string {
+		if rt, ok := ref.Type.(*schema.ResourceType); ok && rt.Resource != nil {
+			return resourceName(rt.Resource)
+		}
+		return tokenToName(ref.ResourceToken())
+	}
+
+	var base string
+	switch ref.Kind {
+	case schema.DocRefKindResource, schema.DocRefKindResourceProperty:
+		base = resourceBase()
+	case schema.DocRefKindResourceInputProperty:
+		base = resourceBase() + "Args"
+	case schema.DocRefKindFunction:
+		base = tokenToFunctionName(ref.Function.Token)
+	case schema.DocRefKindFunctionInputProperty:
+		base = tokenToName(ref.Function.Token) + "Args"
+	case schema.DocRefKindFunctionOutputProperty:
+		base = tokenToName(ref.Function.Token) + "Result"
+	case schema.DocRefKindType, schema.DocRefKindTypeProperty:
+		base = tokenToName(ref.Type.String())
+	case schema.DocRefKindUnknown:
+		return "", false, nil
+	}
+
+	if base == "" {
+		return "", false, nil
+	}
+
+	var property string
+	switch ref.Kind {
+	case schema.DocRefKindResource, schema.DocRefKindFunction, schema.DocRefKindType:
+		return base, true, nil
+	case schema.DocRefKindUnknown, schema.DocRefKindResourceProperty, schema.DocRefKindResourceInputProperty,
+		schema.DocRefKindFunctionInputProperty, schema.DocRefKindFunctionOutputProperty, schema.DocRefKindTypeProperty:
+		property = cgstrings.UppercaseFirst(ref.Property)
+	}
+
+	if property == "" {
+		return "", false, nil
+	}
+
+	if ref.IsWithin(selfRef) {
+		return property, true, nil
+	}
+
+	return fmt.Sprintf("%s.%s", base, property), true, nil
+}
+
 func (d DocLanguageHelper) GetModuleName(pkg schema.PackageReference, module string) string {
 	a, _ := pkg.Language("csharp")
 	info, _ := a.(CSharpPackageInfo)

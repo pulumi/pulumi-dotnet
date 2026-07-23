@@ -9,10 +9,6 @@ on:
     types:
       - update-automation-api
   workflow_dispatch:
-    inputs:
-      sha:
-        description: "pulumi/pulumi commit to generate from (defaults to master)"
-        required: false
 
 env:
   ESC_ACTION_OIDC_AUTH: true
@@ -40,7 +36,7 @@ jobs:
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
       - name: Update pulumi submodule
         env:
-          SHA: ${{ github.event.client_payload.sha || inputs.sha }}
+          SHA: ${{ github.event.client_payload.sha }}
         run: |
           cd pulumi
           git fetch origin "${SHA:-master}"

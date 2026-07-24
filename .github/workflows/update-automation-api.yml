@@ -47,6 +47,7 @@ jobs:
         id: pr
         env:
           GITHUB_TOKEN: ${{ env.PULUMI_BOT_TOKEN }}
+          REF: ${{ github.event.client_payload.ref }}
         run: |
           set -euo pipefail
           git add -A
@@ -57,7 +58,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git switch --create automation/update-automation-api
-          git commit -m "Regenerate the automation API from the pulumi CLI specification"
+          git commit -m "Regenerate the automation API from the pulumi ${REF:-master} CLI specification"
           git push --force origin HEAD
           # If a PR is already open for this branch, the force-push above refreshed it; reuse its URL.
           existing=$(gh pr list --head automation/update-automation-api --state open --json url --jq '.[0].url')

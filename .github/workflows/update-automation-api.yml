@@ -36,10 +36,10 @@ jobs:
         uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
       - name: Update pulumi submodule
         env:
-          SHA: ${{ github.event.client_payload.sha }}
+          REF: ${{ github.event.client_payload.ref }}
         run: |
           cd pulumi
-          git fetch origin "${SHA:-master}"
+          git fetch origin "${REF:-master}"
           git checkout FETCH_HEAD
       - name: Regenerate
         run: make generate_automation_api

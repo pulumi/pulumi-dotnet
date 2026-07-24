@@ -107,6 +107,12 @@ func (d DocLanguageHelper) GetMethodName(m *schema.Method) string {
 	return cgstrings.UppercaseFirst(m.Name)
 }
 
+// ResolveDocRef is not implemented for .NET; returning false makes the caller fall back to the
+// default rendering of each ref.
+func (d DocLanguageHelper) ResolveDocRef(pkg schema.PackageReference, selfRef, ref schema.DocRef) (string, bool, error) {
+	return "", false, nil
+}
+
 func (d DocLanguageHelper) GetModuleName(pkg schema.PackageReference, module string) string {
 	a, _ := pkg.Language("csharp")
 	info, _ := a.(CSharpPackageInfo)

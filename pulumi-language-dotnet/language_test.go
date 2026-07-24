@@ -183,6 +183,7 @@ var expectedFailures = map[string]string{
 	"l2-map-keys-adversarial":        "Fail after updating to 3.239",
 	"l2-resource-hook-after-failure": "Fail after updating to 3.239",
 	"l2-resource-hook-ignore-errors": "Fail after updating to 3.239",
+	"l2-resource-hook-on-error":      "resource hooks not generated in dotnet programs, so the retrying error hook never runs and create fails (added in 3.254; adopted by #1076)", //nolint:lll
 	"l1-config-types-optional":       "Fail after updating to 3.239",
 
 	"l1-expand-final": "Fail after updating to 3.243",

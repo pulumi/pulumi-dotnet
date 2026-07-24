@@ -14,6 +14,34 @@ namespace Pulumi.Enum
     }
 
     [EnumType]
+    public readonly struct NumberEnum : IEquatable<NumberEnum>
+    {
+        private readonly double _value;
+
+        private NumberEnum(double value)
+        {
+            _value = value;
+        }
+
+        public static NumberEnum ZeroPointOne { get; } = new NumberEnum(0.1);
+        public static NumberEnum One { get; } = new NumberEnum(1);
+
+        public static bool operator ==(NumberEnum left, NumberEnum right) => left.Equals(right);
+        public static bool operator !=(NumberEnum left, NumberEnum right) => !left.Equals(right);
+
+        public static explicit operator double(NumberEnum value) => value._value;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object? obj) => obj is NumberEnum other && Equals(other);
+        public bool Equals(NumberEnum other) => _value == other._value;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => _value.GetHashCode();
+
+        public override string ToString() => _value.ToString();
+    }
+
+    [EnumType]
     public readonly struct StringEnum : IEquatable<StringEnum>
     {
         private readonly string _value;
@@ -34,6 +62,36 @@ namespace Pulumi.Enum
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj) => obj is StringEnum other && Equals(other);
         public bool Equals(StringEnum other) => string.Equals(_value, other._value, StringComparison.Ordinal);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+
+        public override string ToString() => _value;
+    }
+
+    [EnumType]
+    public readonly struct WordyEnum : IEquatable<WordyEnum>
+    {
+        private readonly string _value;
+
+        private WordyEnum(string value)
+        {
+            _value = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        public static WordyEnum A_Value_With_Spaces_ { get; } = new WordyEnum("A Value With Spaces.");
+        public static WordyEnum It_s_got_apostrophes { get; } = new WordyEnum("It's got apostrophes");
+        public static WordyEnum WordyEnum_UNDERSCORE_PREFIX { get; } = new WordyEnum("_UNDERSCORE_PREFIX");
+        public static WordyEnum Named { get; } = new WordyEnum("plain");
+
+        public static bool operator ==(WordyEnum left, WordyEnum right) => left.Equals(right);
+        public static bool operator !=(WordyEnum left, WordyEnum right) => !left.Equals(right);
+
+        public static explicit operator string(WordyEnum value) => value._value;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object? obj) => obj is WordyEnum other && Equals(other);
+        public bool Equals(WordyEnum other) => string.Equals(_value, other._value, StringComparison.Ordinal);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;

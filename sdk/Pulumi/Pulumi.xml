@@ -5709,6 +5709,24 @@
             applied on top of that provider. Mutually exclusive with parameterization.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceImport.ParentFieldNumber">
+            <summary>Field number for the "parent" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Parent">
+            <summary>
+            the name of the resource's parent, if any. Must reference the name of another resource in the same
+            response; resources without a parent are parented to the stack root.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.PropertiesFieldNumber">
+            <summary>Field number for the "properties" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Properties">
+            <summary>
+            the input properties to include when generating code for the resource. Defaults to the resource's
+            required properties.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceParameterization">
             <summary>
             A ResourceParameterization describes the base plugin that a resource's parameterized provider is built

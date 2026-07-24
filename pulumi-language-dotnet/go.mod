@@ -13,8 +13,8 @@ require (
 	github.com/deckarep/golang-set/v2 v2.5.0
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.253.0
-	github.com/pulumi/pulumi/sdk/v3 v3.253.0
+	github.com/pulumi/pulumi/pkg/v3 v3.253.1-0.20260717102922-cd588358a197
+	github.com/pulumi/pulumi/sdk/v3 v3.253.1-0.20260717102922-cd588358a197
 	github.com/stretchr/testify v1.11.1
 	github.com/zclconf/go-cty v1.16.3
 	go.opentelemetry.io/otel v1.44.0
@@ -51,7 +51,6 @@ require (
 	github.com/ProtonMail/go-crypto v1.4.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
-	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.41.11 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.12 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.32.20 // indirect

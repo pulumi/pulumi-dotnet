@@ -46,17 +46,27 @@ public sealed class RegisterPackageRequest
 
     public PackageParameterization? Parameterization { get; }
 
+    /// <summary>
+    /// The optional extension parameterization for this package. An extension is
+    /// layered onto the base provider identified by <see cref="Name"/> rather than
+    /// replacing it, so a package sets either <see cref="Parameterization"/> or
+    /// <see cref="Extension"/>, never both.
+    /// </summary>
+    public PackageParameterization? Extension { get; }
+
     public RegisterPackageRequest(
         string name,
         string version,
         string? downloadUrl,
         Dictionary<string, byte[]>? checksums = null,
-        PackageParameterization? parameterization = null)
+        PackageParameterization? parameterization = null,
+        PackageParameterization? extension = null)
     {
         Name = name;
         Version = version;
         DownloadUrl = downloadUrl ?? "";
         Checksums = checksums ?? new Dictionary<string, byte[]>();
         Parameterization = parameterization;
+        Extension = extension;
     }
 }

@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Support extension-parameterized packages in the .NET SDK generator
+time: 2026-07-07T14:36:04.525456-07:00
+custom:
+    PR: "1068"

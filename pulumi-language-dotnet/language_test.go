@@ -197,9 +197,6 @@ var expectedFailures = map[string]string{
 
 	"l3-range-invoke-output-traversal": "Fail after updating to 3.250: dotnet build failed: CS0021 cannot index Output<ImmutableArray<string>>", //nolint:lll
 
-	"l2-extension-and-base-resource":      "Fail after updating to 3.251: extension-parameterized package SDK generation not implemented (pulumi/pulumi#23579)", //nolint:lll
-	"l2-extension-parameterized-resource": "Fail after updating to 3.251: extension-parameterized package SDK generation not implemented (pulumi/pulumi#23579)", //nolint:lll
-
 	"l2-failed-create-recover-continue-on-error": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
 }
 

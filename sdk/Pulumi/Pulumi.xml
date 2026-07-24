@@ -2562,6 +2562,14 @@
             the optional plugin checksums
             </summary>
         </member>
+        <member name="P:Pulumi.RegisterPackageRequest.Extension">
+            <summary>
+            The optional extension parameterization for this package. An extension is
+            layered onto the base provider identified by <see cref="P:Pulumi.RegisterPackageRequest.Name"/> rather than
+            replacing it, so a package sets either <see cref="P:Pulumi.RegisterPackageRequest.Parameterization"/> or
+            <see cref="P:Pulumi.RegisterPackageRequest.Extension"/>, never both.
+            </summary>
+        </member>
         <member name="T:Pulumi.Resource">
             <summary>
             Resource represents a class whose CRUD operations are implemented by a provider plugin.

@@ -170,6 +170,13 @@ var expectedFailures = map[string]string{
 	"l3-range-bool-ref":                  "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
 	"l2-resource-option-custom-timeouts": "https://github.com/pulumi/pulumi-dotnet/issues/822",
 
+	"l2-raw-string-bytes": "the .NET SDK does not set accepts_byte_string: strings containing non-UTF8 bytes cannot be received from the engine (added in v3.255.0)", //nolint:lll
+	"l3-component-invoke": "dotnet build failed: CS0029 cannot convert Output<string> to Output<dynamic> (added in v3.255.0)",                                        //nolint:lll
+	// Not a v3.255.0 regression: the runner ignored preview errors until pulumi/pulumi#24058. The .NET
+	// SDK serializes an unknown resource-reference ID as "" and the engine's provider-method Call path
+	// builds the provider ref from __self__.id verbatim, yielding the invalid ref 'urn::'.
+	"l2-provider-call-explicit": "provider method calls fail in preview: engine rejects provider ref 'urn::' built from empty __self__.id", //nolint:lll
+
 	"l3-component-nested":                "Fail after updating to 3.232",
 	"l1-builtin-min-max":                 "Fail after updating to 3.232",
 	"l2-resource-primitive-conversions":  "Fail after updating to 3.232",

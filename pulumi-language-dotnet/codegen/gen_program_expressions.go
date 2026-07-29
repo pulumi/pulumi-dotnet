@@ -498,7 +498,7 @@ func (g *generator) genMultiArgumentInvokeArgs(w io.Writer, invoke *model.Functi
 		return false
 	}
 
-	pcl.GenerateMultiArguments(g.Formatter, w, "null", invokeArgs, pcl.SortedFunctionParameters(invoke))
+	pcl.GenerateMultiArguments(g.Formatter, w, "null", invokeArgs, pcl.SortedFunctionParameters(invoke), false)
 	return true
 }
 
@@ -1048,7 +1048,7 @@ func (g *generator) genObjectConsExpressionWithTypeName(
 	}
 
 	if len(multiArguments) > 0 {
-		pcl.GenerateMultiArguments(g.Formatter, w, "null", expr, multiArguments)
+		pcl.GenerateMultiArguments(g.Formatter, w, "null", expr, multiArguments, false)
 		return
 	}
 

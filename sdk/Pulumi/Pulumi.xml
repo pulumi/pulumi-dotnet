@@ -5763,6 +5763,27 @@
             resources without a provider are served by an appropriate default provider.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceImport.InputsFieldNumber">
+            <summary>Field number for the "inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Inputs">
+            <summary>
+            input properties supplied for the resource, if any. Values the provider's Read cannot return
+            (e.g. write-only attributes) are taken from here instead. For a provider declared in the
+            response, inputs is its configuration. Secret values are marked with Pulumi's standard secret
+            signature.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceImport.OutputsFieldNumber">
+            <summary>Field number for the "outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceImport.Outputs">
+            <summary>
+            the resource's full output state, if any. When set, the resource is imported from these values
+            directly and the provider's Read is skipped entirely. Secret values are marked with Pulumi's
+            standard secret signature.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceParameterization">
             <summary>
             A ResourceParameterization describes the base plugin that a resource's parameterized provider is built
@@ -5946,6 +5967,33 @@
             any extra attributes to convert.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.ResourcesFieldNumber">
+            <summary>Field number for the "resources" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Resources">
+            <summary>
+            any external resource references to convert.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ConvertSnippetRequest.Types">
+            <summary>Container for nested types declared in the ConvertSnippetRequest message type.</summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.TokenFieldNumber">
+            <summary>Field number for the "token" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.Token">
+            <summary>
+            The resource token for the referenced resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.PackageFieldNumber">
+            <summary>Field number for the "package" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.Package">
+            <summary>
+            The package description to load for the referenced resource.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ConvertSnippetResponse.DiagnosticsFieldNumber">
             <summary>Field number for the "diagnostics" field.</summary>
         </member>
@@ -5976,6 +6024,15 @@
         <member name="P:Pulumirpc.ConvertSnippetResponse.Attributes">
             <summary>
             any extra attributes to merge into the final pcl result.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertSnippetResponse.ResourceNamesFieldNumber">
+            <summary>Field number for the "resource_names" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertSnippetResponse.ResourceNames">
+            <summary>
+            any external resource names that were rewritten during conversion. The keys are identifiers
+            in the source language and the values are identifiers in the generated PCL.
             </summary>
         </member>
         <member name="T:Pulumirpc.Converter">
@@ -13259,6 +13316,11 @@
             string bytes signature and a base64 encoding of the string's bytes.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceMonitorFeature.InvokeParent">
+            <summary>
+            The monitor resolves an invoke's provider from the `parent` field on `ResourceInvokeRequest`.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.DeploymentInfo">
             <summary>
             DeploymentInfo returns monitor execution state currently sent to programs
@@ -14145,6 +14207,16 @@
             <summary>
             When true operations may return strings containing bytes that are not valid UTF-8, marshaled as objects
             carrying the byte string signature and a base64 encoding of the string's bytes.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.ParentFieldNumber">
+            <summary>Field number for the "parent" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.Parent">
+            <summary>
+            An optional URN of the resource this invoke is parented to. When `provider` is empty, the invoke is served by
+            the provider its parent's `providers` option names for the invoke's package, the same resolution applied to
+            resource registrations. Only respected when the monitor advertises `INVOKE_PARENT`.
             </summary>
         </member>
         <member name="F:Pulumirpc.ResourceCallRequest.TokFieldNumber">

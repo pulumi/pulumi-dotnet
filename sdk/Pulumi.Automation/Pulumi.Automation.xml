@@ -167,7 +167,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiCancelOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiCancelOptions.Profiling">
@@ -277,7 +277,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiImportOptions.Out">
@@ -462,7 +462,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.Profiling">
@@ -547,7 +547,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgOptions.Profiling">
@@ -607,7 +607,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgGetDefaultOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgGetDefaultOptions.Profiling">
@@ -677,7 +677,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgSearchOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgSearchOptions.Output">
@@ -765,7 +765,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgSearchAIOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgSearchAIOptions.Output">
@@ -840,7 +840,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgSetDefaultOptions.OtelTraces">
             <summary>
-            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiOrgSetDefaultOptions.Profiling">

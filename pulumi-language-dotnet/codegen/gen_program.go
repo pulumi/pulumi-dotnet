@@ -1240,6 +1240,9 @@ func (g *generator) genHookNode(w io.Writer, h *pcl.Hook) {
 // resource's hooks option.
 func (g *generator) collectHookBindings(r *pcl.Resource) map[string][]string {
 	hookVars := map[string][]string{}
+	if r.Options == nil || r.Options.Hooks == nil {
+		return hookVars
+	}
 	obj, ok := r.Options.Hooks.(*model.ObjectConsExpression)
 	if !ok {
 		return hookVars
@@ -1803,10 +1806,7 @@ func (g *generator) genResource(w io.Writer, r *pcl.Resource) {
 	name := r.LogicalName()
 	variableName := makeValidIdentifier(r.Name())
 	argsName := g.resourceArgsTypeName(r)
-	var hookVars map[string][]string
-	if r.Options != nil && r.Options.Hooks != nil {
-		hookVars = g.collectHookBindings(r)
-	}
+	hookVars := g.collectHookBindings(r)
 	g.genTrivia(w, r.Definition.Tokens.GetType(""))
 	for _, l := range r.Definition.Tokens.GetLabels(nil) {
 		g.genTrivia(w, l)

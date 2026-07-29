@@ -46,7 +46,7 @@ namespace Pulumi.Automation.Commands
         public int? Memprofilerate { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 
@@ -161,7 +161,7 @@ namespace Pulumi.Automation.Commands
         public string? Message { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 
@@ -347,7 +347,7 @@ namespace Pulumi.Automation.Commands
         public bool? Offline { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 
@@ -433,7 +433,7 @@ namespace Pulumi.Automation.Commands
         public int? Memprofilerate { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 
@@ -494,7 +494,7 @@ namespace Pulumi.Automation.Commands
         public int? Memprofilerate { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 
@@ -565,7 +565,7 @@ namespace Pulumi.Automation.Commands
         public string? Org { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 
@@ -654,7 +654,7 @@ namespace Pulumi.Automation.Commands
         public string? Org { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 
@@ -730,7 +730,7 @@ namespace Pulumi.Automation.Commands
         public int? Memprofilerate { get; set; }
 
         /// <summary>
-        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// for remote collectors
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
         /// </summary>
         public string? OtelTraces { get; set; }
 

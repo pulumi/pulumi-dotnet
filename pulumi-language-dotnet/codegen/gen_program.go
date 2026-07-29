@@ -1189,7 +1189,8 @@ func (g *generator) genHookNode(w io.Writer, h *pcl.Hook) {
 
 	if h.Kind == pcl.HookKindError {
 		// Error hooks return whether the failed operation should be retried: retry if
-		// and only if the command exits successfully.
+		// and only if the command exits successfully. A command that cannot be launched
+		// throws, marking the hook call itself as failed.
 		g.Fgenf(w, "%svar %s = new ErrorHook(%s, (args, cancellationToken) =>\n", g.Indent, variableName, hookName)
 		g.Fgenf(w, "%s{\n", g.Indent)
 		g.Indented(func() {
@@ -1197,19 +1198,8 @@ func (g *generator) genHookNode(w io.Writer, h *pcl.Hook) {
 				g.Fgenf(w, "%sreturn Task.FromResult(false);\n", g.Indent)
 				return
 			}
-			g.Fgenf(w, "%stry\n", g.Indent)
-			g.Fgenf(w, "%s{\n", g.Indent)
-			g.Indented(func() {
-				genRunCommand()
-				g.Fgenf(w, "%sreturn Task.FromResult(process.ExitCode == 0);\n", g.Indent)
-			})
-			g.Fgenf(w, "%s}\n", g.Indent)
-			g.Fgenf(w, "%scatch\n", g.Indent)
-			g.Fgenf(w, "%s{\n", g.Indent)
-			g.Indented(func() {
-				g.Fgenf(w, "%sreturn Task.FromResult(false);\n", g.Indent)
-			})
-			g.Fgenf(w, "%s}\n", g.Indent)
+			genRunCommand()
+			g.Fgenf(w, "%sreturn Task.FromResult(process.ExitCode == 0);\n", g.Indent)
 		})
 		g.Fgenf(w, "%s});\n", g.Indent)
 		return

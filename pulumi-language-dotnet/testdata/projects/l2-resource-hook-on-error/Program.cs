@@ -12,16 +12,9 @@ return await Deployment.RunAsync(() =>
     var hookTestFile = config.Require("hookTestFile");
     var retryHook = new ErrorHook("retryHook", (args, cancellationToken) =>
     {
-        try
-        {
-            var process = Process.Start("touch", new[] { hookTestFile });
-            process.WaitForExit();
-            return Task.FromResult(process.ExitCode == 0);
-        }
-        catch
-        {
-            return Task.FromResult(false);
-        }
+        var process = Process.Start("touch", new[] { hookTestFile });
+        process.WaitForExit();
+        return Task.FromResult(process.ExitCode == 0);
     });
     var res = new Flaky.FlakyCreate("res", new()
     {

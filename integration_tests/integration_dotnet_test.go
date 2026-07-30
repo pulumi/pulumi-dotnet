@@ -706,25 +706,61 @@ func attachDebugger(t *testing.T, debugEvent *apitype.StartDebuggingEvent) {
 	stdout, err := cmd.StdoutPipe()
 	require.NoError(t, err)
 	require.NoError(t, cmd.Start())
+
+	// thread-info confirms the attach completed; exec-continue resumes the
+	// debuggee, which the attach leaves stopped.
+	_, err = io.WriteString(stdin, "1-thread-info\n2-exec-continue\n")
+	require.NoError(t, err)
+
+	// The attach stop is not reported over MI (netcoredbg only emits
+	// *stopped for breakpoint/step/exception/signal/entry-point/exit), so
+	// whether the exec-continue above is processed after the attach stop is
+	// a race — lost deterministically on Windows, occasionally on macOS.
+	// Keep issuing -exec-continue while the debugger is attached: continuing
+	// a running debuggee is a harmless no-op (^running), and a stopped one
+	// is resumed by the next tick.
+	go func() {
+		for token := 3; ; token++ {
+			time.Sleep(200 * time.Millisecond)
+			if _, err := fmt.Fprintf(stdin, "%d-exec-continue\n", token); err != nil {
+				return
+			}
+		}
+	}()
+
+	attached := make(chan bool, 1)
+	readerDone := make(chan struct{})
+	go func() {
+		defer close(readerDone)
+		confirmed := false
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			line := scanner.Text()
+			t.Logf("netcoredbg: %s", line)
+			if !confirmed && strings.Contains(line, "1^done") {
+				confirmed = true
+				attached <- true
+			}
+		}
+		if !confirmed {
+			attached <- false
+		}
+	}()
+	// Waiting for the reader keeps its t.Logf calls from firing after the
+	// test has completed, which would panic.
 	t.Cleanup(func() {
 		contract.IgnoreClose(stdin)
 		contract.IgnoreError(cmd.Process.Kill())
 		contract.IgnoreError(cmd.Wait())
+		<-readerDone
 	})
 
-	// thread-info confirms the attach completed; exec-continue resumes the
-	// debuggee in case the attach left it stopped. exec-continue may fail if
-	// the debuggee is already running, which is fine.
-	_, err = io.WriteString(stdin, "1-thread-info\n2-exec-continue\n")
-	require.NoError(t, err)
-
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		if strings.Contains(scanner.Text(), "1^done") {
-			return
-		}
+	select {
+	case ok := <-attached:
+		require.True(t, ok, "netcoredbg exited without confirming the attach")
+	case <-time.After(2 * time.Minute):
+		t.Fatal("timed out waiting for netcoredbg to confirm the attach")
 	}
-	t.Fatal("netcoredbg exited without confirming the attach")
 }
 
 func TestDebuggerAttachDotnet(t *testing.T) {

@@ -401,7 +401,18 @@ namespace Pulumi.Experimental
         public object? Deserialize(PropertyValue value, Type targetType)
         {
             var rootPath = new[] { "$" };
-            return DeserializeValue(value, targetType, rootPath);
+            try {
+                return DeserializeValue(value, targetType, rootPath);
+            } catch(UnhandledUnknownException exc) {
+                throw exc.InnerException!;
+            }
+        }
+
+        private sealed class UnhandledUnknownException : Exception
+        {
+            public UnhandledUnknownException(InvalidOperationException innerException) : base("Unhandled unknown value", innerException)
+            {
+            }
         }
 
         private object? DeserializeValue(PropertyValue value, Type targetType, string[] path)
@@ -422,7 +433,12 @@ namespace Pulumi.Experimental
                     targetType: targetType,
                     path: path);
 
-                throw new InvalidOperationException(error);
+                var inner =  new InvalidOperationException(error);
+                if (value.IsComputed)
+                {
+                    throw new UnhandledUnknownException(inner);
+                }
+                throw inner;
             }
 
             if (targetType == typeof(PropertyValue))
@@ -607,13 +623,20 @@ namespace Pulumi.Experimental
                     return CreateInput(secretOutput);
                 }
 
-                var deserialized = value.IsComputed ? null : DeserializeValue(value, elementType, path);
+                object? deserialized;
+                var known = !value.IsComputed;
+                try {
+                    deserialized = value.IsComputed ? null : DeserializeValue(value, elementType, path);
+                } catch (UnhandledUnknownException) {
+                    deserialized = null;
+                    known = false;
+                }
 
                 var outputDataValue = createOutputData.Invoke(new object?[]
                 {
                     ImmutableHashSet<Resource>.Empty,
                     deserialized,
-                    !value.IsComputed,
+                    known,
                     false
                 });
 

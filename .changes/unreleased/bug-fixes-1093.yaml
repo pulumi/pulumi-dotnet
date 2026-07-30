@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Fix deserialisation of deeply nested computed values
+time: 2026-07-30T13:35:14.952768+01:00
+custom:
+    PR: "1093"

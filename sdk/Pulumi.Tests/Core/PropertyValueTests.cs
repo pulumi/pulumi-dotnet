@@ -408,6 +408,42 @@ public class PropertyValueTests
         Assert.Equal(containerBrightness, args.ContainerBrightness);
     }
 
+    // Repro for https://github.com/pulumi/pulumi-dotnet/issues/1092: Deserializing an InputList<string> whose element
+    // is a Computed (unknown) value fails with: "Error while deserializing value of type String from property value of
+    // type Computed. Expected String instead at path [$, index[0]]."
+    [Fact]
+    public async Task DeserializingInputListWithUnknownStringElementWorks()
+    {
+        var serializer = CreateSerializer();
+        var listWithUnknown = Array(PropertyValue.Computed);
+        var deserialized = await serializer.Deserialize<InputList<string>>(listWithUnknown);
+        var output = deserialized.ToOutput();
+        var data = await output.DataTask;
+        Assert.False(data.IsKnown);
+        Assert.False(data.IsSecret);
+    }
+
+    // Nested-Input case for #1092: an InputList<Input<string>> element can represent unknown per-slot, so the top-level
+    // Input<T> should NOT collapse to unknown — only the specific slot should.
+    [Fact]
+    public async Task DeserializingListOfInputStringPreservesKnownElements()
+    {
+        var serializer = CreateSerializer();
+        var listWithMixed = Array(new PropertyValue("hi"), PropertyValue.Computed);
+        var deserialized = await serializer.Deserialize<InputList<Input<string>>>(listWithMixed);
+        var output = deserialized.ToOutput();
+        var data = await output.DataTask;
+        Assert.True(data.IsKnown);
+        Assert.Equal(2, data.Value.Length);
+
+        var firstData = await data.Value[0].ToOutput().DataTask;
+        Assert.True(firstData.IsKnown);
+        Assert.Equal("hi", firstData.Value);
+
+        var secondData = await data.Value[1].ToOutput().DataTask;
+        Assert.False(secondData.IsKnown);
+    }
+
     [Fact]
     public async Task DeserializingUnknownInputsWorks()
     {

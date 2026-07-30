@@ -401,9 +401,12 @@ namespace Pulumi.Experimental
         public object? Deserialize(PropertyValue value, Type targetType)
         {
             var rootPath = new[] { "$" };
-            try {
+            try
+            {
                 return DeserializeValue(value, targetType, rootPath);
-            } catch(UnhandledUnknownException exc) {
+            }
+            catch (UnhandledUnknownException exc)
+            {
                 throw exc.InnerException!;
             }
         }
@@ -433,7 +436,7 @@ namespace Pulumi.Experimental
                     targetType: targetType,
                     path: path);
 
-                var inner =  new InvalidOperationException(error);
+                var inner = new InvalidOperationException(error);
                 if (value.IsComputed)
                 {
                     throw new UnhandledUnknownException(inner);
@@ -625,9 +628,12 @@ namespace Pulumi.Experimental
 
                 object? deserialized;
                 var known = !value.IsComputed;
-                try {
+                try
+                {
                     deserialized = value.IsComputed ? null : DeserializeValue(value, elementType, path);
-                } catch (UnhandledUnknownException) {
+                }
+                catch (UnhandledUnknownException)
+                {
                     deserialized = null;
                     known = false;
                 }

@@ -15,6 +15,7 @@
 package integrationtests
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -32,6 +33,7 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/stretchr/testify/assert"
@@ -341,40 +343,6 @@ func TestFailingTransfomationExitsProgram(t *testing.T) {
 	assert.Contains(t, stderr.String(), "Boom!")
 }
 
-// Test remote component construction with a child resource that takes a long time to be created, ensuring it's created.
-//func TestConstructSlowDotnet(t *testing.T) {
-//	localProvider := testComponentSlowLocalProvider(t)
-//
-//	// TODO[pulumi/pulumi#5455]: Dynamic providers fail to load when used from multi-lang components.
-//	// Until we've addressed this, set PULUMI_TEST_YARN_LINK_PULUMI, which tells the integration test
-//	// module to run `yarn install && yarn link @pulumi/pulumi` in the .NET program's directory, allowing
-//	// the Node.js dynamic provider plugin to load.
-//	// When the underlying issue has been fixed, the use of this environment variable inside the integration
-//	// test module should be removed.
-//	const testYarnLinkPulumiEnv = "PULUMI_TEST_YARN_LINK_PULUMI=true"
-//
-//	testDir := "construct_component_slow"
-//	runComponentSetup(t, testDir)
-//
-//	opts := &integration.ProgramTestOptions{
-//		Env:            []string{testYarnLinkPulumiEnv},
-//		Dir:            filepath.Join(testDir, "dotnet"),
-//		Dependencies:   []string{"Pulumi"},
-//		LocalProviders: []integration.LocalDependency{localProvider},
-//		Quick:          true,
-//		ExtraRuntimeValidation: func(t *testing.T, stackInfo integration.RuntimeValidationStackInfo) {
-//			assert.NotNil(t, stackInfo.Deployment)
-//			if assert.Equal(t, 5, len(stackInfo.Deployment.Resources)) {
-//				stackRes := stackInfo.Deployment.Resources[0]
-//				assert.NotNil(t, stackRes)
-//				assert.Equal(t, resource.RootStackType, stackRes.Type)
-//				assert.Equal(t, "", string(stackRes.Parent))
-//			}
-//		},
-//	}
-//	integration.ProgramTest(t, opts)
-//}
-
 // Test remote component construction with prompt inputs.
 //
 //nolint:paralleltest // ProgramTest calls testing.T.Parallel
@@ -487,14 +455,11 @@ func TestGetResourceDotnet(t *testing.T) {
 func TestAboutDotnet(t *testing.T) {
 	t.Parallel()
 
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
-
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("about")
 
-	e.Env = append(e.Env, getProviderPath(languagePluginPath))
+	e.Env = append(e.Env, getProviderPath(languagePluginPath(t)))
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
 	stdout, stderr := e.RunCommand("pulumi", "about")
 	// There should be no "unknown" plugin versions.
@@ -708,22 +673,112 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 	return events, nil
 }
 
+// waitForDebugEvent polls the update event log until the engine reports a
+// debug configuration, failing the test if none appears within two minutes.
+func waitForDebugEvent(t *testing.T, e *ptesting.Environment) *apitype.StartDebuggingEvent {
+	logfile := filepath.Join(e.RootPath, "debugger.log")
+	deadline := time.Now().Add(2 * time.Minute)
+	for time.Now().Before(deadline) {
+		events, err := readUpdateEventLog(logfile)
+		require.NoError(t, err)
+		for _, event := range events {
+			if event.StartDebuggingEvent != nil {
+				return event.StartDebuggingEvent
+			}
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	t.Fatalf("timed out waiting for a debug event in %s", logfile)
+	return nil
+}
+
+// attachDebugger attaches netcoredbg to the process named by debugEvent and
+// resumes it. The debugger stays attached until the test ends: the debuggee
+// polls Debugger.IsAttached every 100ms, so a debugger that attaches and
+// immediately detaches (as netcoredbg does on stdin EOF) can come and go
+// without the debuggee ever observing the attach, leaving it waiting forever.
+func attachDebugger(t *testing.T, debugEvent *apitype.StartDebuggingEvent) {
+	pid := strconv.Itoa(int(debugEvent.Config["processId"].(float64)))
+	cmd := exec.CommandContext(t.Context(), //nolint:gosec // This is a test
+		"netcoredbg", "--interpreter=mi", "--attach", pid)
+	stdin, err := cmd.StdinPipe()
+	require.NoError(t, err)
+	stdout, err := cmd.StdoutPipe()
+	require.NoError(t, err)
+	require.NoError(t, cmd.Start())
+
+	// thread-info confirms the attach completed; exec-continue resumes the
+	// debuggee, which the attach leaves stopped.
+	_, err = io.WriteString(stdin, "1-thread-info\n2-exec-continue\n")
+	require.NoError(t, err)
+
+	// The attach stop is not reported over MI (netcoredbg only emits
+	// *stopped for breakpoint/step/exception/signal/entry-point/exit), so
+	// whether the exec-continue above is processed after the attach stop is
+	// a race — lost deterministically on Windows, occasionally on macOS.
+	// Keep issuing -exec-continue while the debugger is attached: continuing
+	// a running debuggee is a harmless no-op (^running), and a stopped one
+	// is resumed by the next tick.
+	go func() {
+		for token := 3; ; token++ {
+			time.Sleep(200 * time.Millisecond)
+			if _, err := fmt.Fprintf(stdin, "%d-exec-continue\n", token); err != nil {
+				return
+			}
+		}
+	}()
+
+	attached := make(chan bool, 1)
+	readerDone := make(chan struct{})
+	go func() {
+		defer close(readerDone)
+		confirmed := false
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			line := scanner.Text()
+			t.Logf("netcoredbg: %s", line)
+			if !confirmed && strings.Contains(line, "1^done") {
+				confirmed = true
+				attached <- true
+			}
+		}
+		if !confirmed {
+			attached <- false
+		}
+	}()
+	// Waiting for the reader keeps its t.Logf calls from firing after the
+	// test has completed, which would panic.
+	t.Cleanup(func() {
+		contract.IgnoreClose(stdin)
+		contract.IgnoreError(cmd.Process.Kill())
+		contract.IgnoreError(cmd.Wait())
+		<-readerDone
+	})
+
+	select {
+	case ok := <-attached:
+		require.True(t, ok, "netcoredbg exited without confirming the attach")
+	case <-time.After(2 * time.Minute):
+		t.Fatal("timed out waiting for netcoredbg to confirm the attach")
+	}
+}
+
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// TODO[pulumi/pulumi-dotnet#403]: Fix flaky test.
-	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
-		t.Skip("Temporarily skipping flaky test on macOS and Windows - pulumi/pulumi-dotnet#403")
+	// TODO[pulumi/pulumi-dotnet#403]: The program debugger attach is flaky on Windows.
+	if runtime.GOOS == WindowsOS {
+		t.Skip("Skipping flaky test on Windows - pulumi/pulumi-dotnet#403")
 	}
 
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
+	// Prevent the test from hanging by failing it after five minutes.
+	setTimeout(t, 5*time.Minute)
 
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("printf")
 
-	err = prepareDotnetProjectAtCwd(e.RootPath)
+	err := prepareDotnetProjectAtCwd(e.RootPath)
 	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
@@ -732,42 +787,15 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath(t)))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		e.RunCommand("pulumi", "preview", "--attach-debugger",
 			"--event-log", filepath.Join(e.RootPath, "debugger.log"))
 	}()
 
-	// Wait for the debugging event
-	wait := 20 * time.Millisecond
-	var debugEvent *apitype.StartDebuggingEvent
-outer:
-	for i := 0; i < 50; i++ {
-		events, err := readUpdateEventLog(filepath.Join(e.RootPath, "debugger.log"))
-		require.NoError(t, err)
-		for _, event := range events {
-			if event.StartDebuggingEvent != nil {
-				debugEvent = event.StartDebuggingEvent
-				break outer
-			}
-		}
-		time.Sleep(wait)
-		wait *= 2
-	}
-	require.NotNil(t, debugEvent)
-
-	// We just need to send some command to netcoredbg that will make the program continue.
-	// We don't care about the actual command, and the `thread-info` command just works.
-	in := strings.NewReader("1-thread-info")
-
-	cmd := exec.Command( //nolint:gosec // This is a test
-		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
-	cmd.Stdin = in
-	out, err := cmd.CombinedOutput()
-	require.NoError(t, err)
-	// Check that we get valid output from netcoredbg, so we know it was actually attached.
-	require.Contains(t, string(out), "1^done")
+	debugEvent := waitForDebugEvent(t, e)
+	attachDebugger(t, debugEvent)
 
 	wg.Wait()
 }
@@ -775,19 +803,14 @@ outer:
 func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// TODO[pulumi/pulumi-dotnet#705]: Fix disabled test on MacOS..
-	if runtime.GOOS == "darwin" {
-		t.Skip("Skipping test due to broken netcoredbg on MacOS - pulumi/pulumi-dotnet#705")
-	}
-
-	languagePluginPath, err := filepath.Abs("../pulumi-language-dotnet")
-	require.NoError(t, err)
+	// Prevent the test from hanging by failing it after five minutes.
+	setTimeout(t, 5*time.Minute)
 
 	e := newEnvironmentDotnet(t)
 	defer e.DeleteIfNotFailed()
 	e.ImportDirectory("debug-plugin")
 
-	err = prepareDotnetProjectAtCwd(filepath.Join(e.RootPath, "dotnet-plugin"))
+	err := prepareDotnetProjectAtCwd(filepath.Join(e.RootPath, "dotnet-plugin"))
 	require.NoError(t, err)
 
 	e.RunCommand("pulumi", "login", "--cloud-url", e.LocalURL())
@@ -799,7 +822,7 @@ func TestPluginDebuggerAttachDotnet(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath))
+		e.Env = append(e.Env, "PULUMI_DEBUG_COMMANDS=true", getProviderPath(languagePluginPath(t)))
 		e.RunCommand("pulumi", "stack", "init", "debugger-test")
 		e.RunCommand("pulumi", "stack", "select", "debugger-test")
 		stdout, _ := e.RunCommandExpectError("pulumi", "preview", "--attach-debugger=plugins",
@@ -807,35 +830,8 @@ func TestPluginDebuggerAttachDotnet(t *testing.T) {
 		require.Contains(t, stdout, "error: The method 'Check' is not implemented")
 	}()
 
-	// Wait for the debugging event
-	wait := 20 * time.Millisecond
-	var debugEvent *apitype.StartDebuggingEvent
-outer:
-	for range 50 {
-		events, err := readUpdateEventLog(filepath.Join(e.RootPath, "debugger.log"))
-		require.NoError(t, err)
-		for _, event := range events {
-			if event.StartDebuggingEvent != nil {
-				debugEvent = event.StartDebuggingEvent
-				break outer
-			}
-		}
-		time.Sleep(wait)
-		wait *= 2
-	}
-	require.NotNil(t, debugEvent)
-
-	// We just need to send some command to netcoredbg that will make the program continue.
-	// We don't care about the actual command, and the `thread-info` command just works.
-	in := strings.NewReader("1-thread-info")
-
-	cmd := exec.Command( //nolint:gosec // This is a test
-		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
-	cmd.Stdin = in
-	out, err := cmd.CombinedOutput()
-	require.NoError(t, err, string(out))
-	// Check that we get valid output from netcoredbg, so we know it was actually attached.
-	require.Contains(t, string(out), "1^done")
+	debugEvent := waitForDebugEvent(t, e)
+	attachDebugger(t, debugEvent)
 
 	wg.Wait()
 }

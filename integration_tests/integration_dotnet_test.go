@@ -15,6 +15,7 @@
 package integrationtests
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -32,6 +33,7 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/contract"
 	"github.com/stretchr/testify/assert"
@@ -671,6 +673,60 @@ func readUpdateEventLog(logfile string) ([]apitype.EngineEvent, error) {
 	return events, nil
 }
 
+// waitForDebugEvent polls the update event log until the engine reports a
+// debug configuration, failing the test if none appears within two minutes.
+func waitForDebugEvent(t *testing.T, e *ptesting.Environment) *apitype.StartDebuggingEvent {
+	logfile := filepath.Join(e.RootPath, "debugger.log")
+	deadline := time.Now().Add(2 * time.Minute)
+	for time.Now().Before(deadline) {
+		events, err := readUpdateEventLog(logfile)
+		require.NoError(t, err)
+		for _, event := range events {
+			if event.StartDebuggingEvent != nil {
+				return event.StartDebuggingEvent
+			}
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	t.Fatalf("timed out waiting for a debug event in %s", logfile)
+	return nil
+}
+
+// attachDebugger attaches netcoredbg to the process named by debugEvent and
+// resumes it. The debugger stays attached until the test ends: the debuggee
+// polls Debugger.IsAttached every 100ms, so a debugger that attaches and
+// immediately detaches (as netcoredbg does on stdin EOF) can come and go
+// without the debuggee ever observing the attach, leaving it waiting forever.
+func attachDebugger(t *testing.T, debugEvent *apitype.StartDebuggingEvent) {
+	pid := strconv.Itoa(int(debugEvent.Config["processId"].(float64)))
+	cmd := exec.CommandContext(t.Context(), //nolint:gosec // This is a test
+		"netcoredbg", "--interpreter=mi", "--attach", pid)
+	stdin, err := cmd.StdinPipe()
+	require.NoError(t, err)
+	stdout, err := cmd.StdoutPipe()
+	require.NoError(t, err)
+	require.NoError(t, cmd.Start())
+	t.Cleanup(func() {
+		contract.IgnoreClose(stdin)
+		contract.IgnoreError(cmd.Process.Kill())
+		contract.IgnoreError(cmd.Wait())
+	})
+
+	// thread-info confirms the attach completed; exec-continue resumes the
+	// debuggee in case the attach left it stopped. exec-continue may fail if
+	// the debuggee is already running, which is fine.
+	_, err = io.WriteString(stdin, "1-thread-info\n2-exec-continue\n")
+	require.NoError(t, err)
+
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		if strings.Contains(scanner.Text(), "1^done") {
+			return
+		}
+	}
+	t.Fatal("netcoredbg exited without confirming the attach")
+}
+
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
@@ -702,35 +758,8 @@ func TestDebuggerAttachDotnet(t *testing.T) {
 			"--event-log", filepath.Join(e.RootPath, "debugger.log"))
 	}()
 
-	// Wait for the debugging event
-	wait := 20 * time.Millisecond
-	var debugEvent *apitype.StartDebuggingEvent
-outer:
-	for i := 0; i < 50; i++ {
-		events, err := readUpdateEventLog(filepath.Join(e.RootPath, "debugger.log"))
-		require.NoError(t, err)
-		for _, event := range events {
-			if event.StartDebuggingEvent != nil {
-				debugEvent = event.StartDebuggingEvent
-				break outer
-			}
-		}
-		time.Sleep(wait)
-		wait *= 2
-	}
-	require.NotNil(t, debugEvent)
-
-	// We just need to send some command to netcoredbg that will make the program continue.
-	// We don't care about the actual command, and the `thread-info` command just works.
-	in := strings.NewReader("1-thread-info")
-
-	cmd := exec.CommandContext(t.Context(), //nolint:gosec // This is a test
-		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
-	cmd.Stdin = in
-	out, err := cmd.CombinedOutput()
-	require.NoError(t, err)
-	// Check that we get valid output from netcoredbg, so we know it was actually attached.
-	require.Contains(t, string(out), "1^done")
+	debugEvent := waitForDebugEvent(t, e)
+	attachDebugger(t, debugEvent)
 
 	wg.Wait()
 }
@@ -765,35 +794,8 @@ func TestPluginDebuggerAttachDotnet(t *testing.T) {
 		require.Contains(t, stdout, "error: The method 'Check' is not implemented")
 	}()
 
-	// Wait for the debugging event
-	wait := 20 * time.Millisecond
-	var debugEvent *apitype.StartDebuggingEvent
-outer:
-	for range 50 {
-		events, err := readUpdateEventLog(filepath.Join(e.RootPath, "debugger.log"))
-		require.NoError(t, err)
-		for _, event := range events {
-			if event.StartDebuggingEvent != nil {
-				debugEvent = event.StartDebuggingEvent
-				break outer
-			}
-		}
-		time.Sleep(wait)
-		wait *= 2
-	}
-	require.NotNil(t, debugEvent)
-
-	// We just need to send some command to netcoredbg that will make the program continue.
-	// We don't care about the actual command, and the `thread-info` command just works.
-	in := strings.NewReader("1-thread-info")
-
-	cmd := exec.CommandContext(t.Context(), //nolint:gosec // This is a test
-		"netcoredbg", "--interpreter=mi", "--attach", strconv.Itoa(int(debugEvent.Config["processId"].(float64))))
-	cmd.Stdin = in
-	out, err := cmd.CombinedOutput()
-	require.NoError(t, err, string(out))
-	// Check that we get valid output from netcoredbg, so we know it was actually attached.
-	require.Contains(t, string(out), "1^done")
+	debugEvent := waitForDebugEvent(t, e)
+	attachDebugger(t, debugEvent)
 
 	wg.Wait()
 }

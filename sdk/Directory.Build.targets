@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- The CA1824 analyzer in the .NET 8 SDK has a race condition that intermittently
+         crashes builds (AD0001 NullReferenceException). Suppressing its only rule makes
+         Roslyn skip the analyzer entirely; it can never fire here anyway (no .resx). -->
+    <NoWarn>$(NoWarn);CA1824</NoWarn>
+  </PropertyGroup>
+</Project>

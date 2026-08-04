@@ -262,7 +262,7 @@ namespace Pulumi.Automation.Commands
     public sealed class PulumiNewOptions : BaseOptions
     {
         /// <summary>
-        /// Prompt to use for Pulumi AI
+        /// Retired: use 'pulumi neo -p "prompt"' instead.
         /// </summary>
         public string? AI { get; set; }
 
@@ -312,7 +312,7 @@ namespace Pulumi.Automation.Commands
         public bool? GenerateOnly { get; set; }
 
         /// <summary>
-        /// Language to use for Pulumi AI (must be one of TypeScript, JavaScript, Python, Go, C#, Java, or YAML)
+        /// Retired: use 'pulumi neo -p "prompt"' instead.
         /// </summary>
         public string? Language { get; set; }
 
@@ -377,7 +377,7 @@ namespace Pulumi.Automation.Commands
         public string? Stack { get; set; }
 
         /// <summary>
-        /// Run in template mode, which will skip prompting for AI or Template functionality
+        /// Deprecated: template mode is now the only mode; this flag is a no-op
         /// </summary>
         public bool? TemplateMode { get; set; }
 

@@ -5362,16 +5362,6 @@
             the service specific unique token for this callback.
             </summary>
         </member>
-        <member name="F:Pulumirpc.Callback.AcceptsByteStringFieldNumber">
-            <summary>Field number for the "accepts_byte_string" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.Callback.AcceptsByteString">
-            <summary>
-            True if and only if the callback host supports strings containing bytes that are not valid UTF-8, marshaled
-            as objects carrying the byte string signature and a base64 encoding of the string's bytes. If true, the
-            caller may pass such values to the callback.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.CallbackInvokeRequest.TokenFieldNumber">
             <summary>Field number for the "token" field.</summary>
         </member>
@@ -5639,14 +5629,6 @@
             import from.
             </summary>
         </member>
-        <member name="F:Pulumirpc.ConvertStateRequest.LoaderTargetFieldNumber">
-            <summary>Field number for the "loader_target" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConvertStateRequest.LoaderTarget">
-            <summary>
-            The target of a codegen.LoaderServer to use for loading schemas.
-            </summary>
-        </member>
         <member name="T:Pulumirpc.ResourceImport">
             <summary>
             A ResourceImport specifies a resource to import.
@@ -5733,55 +5715,6 @@
             the extension parameterization to apply to the resource's provider, if any. Unlike a replacement
             parameterization, the resource's own type is in the base provider's package; the extension is a blob
             applied on top of that provider. Mutually exclusive with parameterization.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceImport.ParentFieldNumber">
-            <summary>Field number for the "parent" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceImport.Parent">
-            <summary>
-            the name of the resource's parent, if any. Must reference the name of another resource in the same
-            response; resources without a parent are parented to the stack root.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceImport.PropertiesFieldNumber">
-            <summary>Field number for the "properties" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceImport.Properties">
-            <summary>
-            the input properties to include when generating code for the resource. Defaults to the resource's
-            required properties.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceImport.ProviderFieldNumber">
-            <summary>Field number for the "provider" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceImport.Provider">
-            <summary>
-            the name of the resource's explicit provider, if any. Must reference the name of a provider
-            declared as another resource (of type "pulumi:providers:&lt;package>") in the same response;
-            resources without a provider are served by an appropriate default provider.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceImport.InputsFieldNumber">
-            <summary>Field number for the "inputs" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceImport.Inputs">
-            <summary>
-            input properties supplied for the resource, if any. Values the provider's Read cannot return
-            (e.g. write-only attributes) are taken from here instead. For a provider declared in the
-            response, inputs is its configuration. Secret values are marked with Pulumi's standard secret
-            signature.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceImport.OutputsFieldNumber">
-            <summary>Field number for the "outputs" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceImport.Outputs">
-            <summary>
-            the resource's full output state, if any. When set, the resource is imported from these values
-            directly and the provider's Read is skipped entirely. Secret values are marked with Pulumi's
-            standard secret signature.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceParameterization">
@@ -5967,33 +5900,6 @@
             any extra attributes to convert.
             </summary>
         </member>
-        <member name="F:Pulumirpc.ConvertSnippetRequest.ResourcesFieldNumber">
-            <summary>Field number for the "resources" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConvertSnippetRequest.Resources">
-            <summary>
-            any external resource references to convert.
-            </summary>
-        </member>
-        <member name="T:Pulumirpc.ConvertSnippetRequest.Types">
-            <summary>Container for nested types declared in the ConvertSnippetRequest message type.</summary>
-        </member>
-        <member name="F:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.TokenFieldNumber">
-            <summary>Field number for the "token" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.Token">
-            <summary>
-            The resource token for the referenced resource.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.PackageFieldNumber">
-            <summary>Field number for the "package" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConvertSnippetRequest.Types.ResourceReference.Package">
-            <summary>
-            The package description to load for the referenced resource.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.ConvertSnippetResponse.DiagnosticsFieldNumber">
             <summary>Field number for the "diagnostics" field.</summary>
         </member>
@@ -6024,15 +5930,6 @@
         <member name="P:Pulumirpc.ConvertSnippetResponse.Attributes">
             <summary>
             any extra attributes to merge into the final pcl result.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ConvertSnippetResponse.ResourceNamesFieldNumber">
-            <summary>Field number for the "resource_names" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ConvertSnippetResponse.ResourceNames">
-            <summary>
-            any external resource names that were rewritten during conversion. The keys are identifiers
-            in the source language and the values are identifiers in the generated PCL.
             </summary>
         </member>
         <member name="T:Pulumirpc.Converter">
@@ -9368,16 +9265,6 @@
         <member name="M:Pulumirpc.ProviderHandshakeRequest.ClearResolverTarget">
             <summary>Clears the value of the "resolver_target" field</summary>
         </member>
-        <member name="F:Pulumirpc.ProviderHandshakeRequest.AcceptsByteStringFieldNumber">
-            <summary>Field number for the "accepts_byte_string" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ProviderHandshakeRequest.AcceptsByteString">
-            <summary>
-            True if and only if the engine supports strings containing bytes that are not valid UTF-8, marshaled as objects
-            carrying the byte string signature and a base64 encoding of the string's bytes. If true, the provider may
-            return such values to the engine.
-            </summary>
-        </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>
             `ProviderHandshakeResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Handshake) call.
@@ -9419,16 +9306,6 @@
             <summary>
             True if the provider accepts and respects autonaming configuration that the engine provides on behalf of the
             user. *Must* match the value returned in response to [](pulumirpc.ResourceProvider.Configure).
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ProviderHandshakeResponse.AcceptsByteStringFieldNumber">
-            <summary>Field number for the "accepts_byte_string" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ProviderHandshakeResponse.AcceptsByteString">
-            <summary>
-            True if and only if the provider supports strings containing bytes that are not valid UTF-8, marshaled as
-            objects carrying the byte string signature and a base64 encoding of the string's bytes. If true, the
-            caller may pass such values to the provider.
             </summary>
         </member>
         <member name="T:Pulumirpc.ParameterizeRequest">
@@ -13310,17 +13187,6 @@
              clients should prefer these enum values from DeploymentInfo.
              </summary>
         </member>
-        <member name="F:Pulumirpc.ResourceMonitorFeature.ByteString">
-            <summary>
-            The monitor accepts strings containing bytes that are not valid UTF-8, marshaled as objects carrying the raw
-            string bytes signature and a base64 encoding of the string's bytes.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceMonitorFeature.InvokeParent">
-            <summary>
-            The monitor resolves an invoke's provider from the `parent` field on `ResourceInvokeRequest`.
-            </summary>
-        </member>
         <member name="T:Pulumirpc.DeploymentInfo">
             <summary>
             DeploymentInfo returns monitor execution state currently sent to programs
@@ -13552,15 +13418,6 @@
         <member name="P:Pulumirpc.ReadResourceRequest.PackageRef">
             <summary>
             a reference from RegisterPackageRequest.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ReadResourceRequest.AcceptsByteStringFieldNumber">
-            <summary>Field number for the "accepts_byte_string" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ReadResourceRequest.AcceptsByteString">
-            <summary>
-            When true operations may return strings containing bytes that are not valid UTF-8, marshaled as objects
-            carrying the byte string signature and a base64 encoding of the string's bytes.
             </summary>
         </member>
         <member name="T:Pulumirpc.ReadResourceResponse">
@@ -13930,15 +13787,6 @@
             if set, the UUID of the snippet that issued this registration.
             </summary>
         </member>
-        <member name="F:Pulumirpc.RegisterResourceRequest.AcceptsByteStringFieldNumber">
-            <summary>Field number for the "accepts_byte_string" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.RegisterResourceRequest.AcceptsByteString">
-            <summary>
-            When true operations may return strings containing bytes that are not valid UTF-8, marshaled as objects
-            carrying the byte string signature and a base64 encoding of the string's bytes.
-            </summary>
-        </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
             <summary>Container for nested types declared in the RegisterResourceRequest message type.</summary>
         </member>
@@ -14200,25 +14048,6 @@
             a reference from RegisterPackageRequest.
             </summary>
         </member>
-        <member name="F:Pulumirpc.ResourceInvokeRequest.AcceptsByteStringFieldNumber">
-            <summary>Field number for the "accepts_byte_string" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceInvokeRequest.AcceptsByteString">
-            <summary>
-            When true operations may return strings containing bytes that are not valid UTF-8, marshaled as objects
-            carrying the byte string signature and a base64 encoding of the string's bytes.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceInvokeRequest.ParentFieldNumber">
-            <summary>Field number for the "parent" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceInvokeRequest.Parent">
-            <summary>
-            An optional URN of the resource this invoke is parented to. When `provider` is empty, the invoke is served by
-            the provider its parent's `providers` option names for the invoke's package, the same resolution applied to
-            resource registrations. Only respected when the monitor advertises `INVOKE_PARENT`.
-            </summary>
-        </member>
         <member name="F:Pulumirpc.ResourceCallRequest.TokFieldNumber">
             <summary>Field number for the "tok" field.</summary>
         </member>
@@ -14305,15 +14134,6 @@
         <member name="P:Pulumirpc.ResourceCallRequest.PackageRef">
             <summary>
             a reference from RegisterPackageRequest.
-            </summary>
-        </member>
-        <member name="F:Pulumirpc.ResourceCallRequest.AcceptsByteStringFieldNumber">
-            <summary>Field number for the "accepts_byte_string" field.</summary>
-        </member>
-        <member name="P:Pulumirpc.ResourceCallRequest.AcceptsByteString">
-            <summary>
-            When true operations may return strings containing bytes that are not valid UTF-8, marshaled as objects
-            carrying the byte string signature and a base64 encoding of the string's bytes.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceCallRequest.Types">

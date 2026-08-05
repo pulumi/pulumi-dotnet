@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Update the resource monitor's Invoke to the renamed ResourceInvokeResponse gRPC type
+time: 2026-08-05T13:30:19.830949+02:00
+custom:
+    PR: "1102"

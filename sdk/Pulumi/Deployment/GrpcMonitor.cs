@@ -50,7 +50,7 @@ namespace Pulumi
             return await this._client.SupportsFeatureAsync(request);
         }
 
-        public async Task<InvokeResponse> InvokeAsync(ResourceInvokeRequest request)
+        public async Task<ResourceInvokeResponse> InvokeAsync(ResourceInvokeRequest request)
         {
             using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/Invoke");
             return await this._client.InvokeAsync(request);

@@ -1,0 +1,6 @@
+component: sdk/auto
+kind: Improvements
+body: Stop regenerating the Automation API during PR CI, so unrelated PRs are not blocked by codegen drift
+time: 2026-08-06T17:30:27.28377+02:00
+custom:
+    PR: "1106"

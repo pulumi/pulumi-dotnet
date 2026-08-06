@@ -14,7 +14,7 @@ namespace Pulumi.Mypkg.Outputs
     /// Ssis folder.
     /// </summary>
     [OutputType]
-    public sealed class SsisFolderResponse
+    public sealed class SsisFolderResponse : IGetIntegrationRuntimeObjectMetadatumValue
     {
         /// <summary>
         /// Metadata description.

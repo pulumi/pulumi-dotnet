@@ -26,6 +26,7 @@ import (
 	"io"
 	"maps"
 	"net/http"
+	"net/url"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -150,6 +151,11 @@ type modContext struct {
 	rootNamespace             string
 	parameterization          *schema.Parameterization
 	extensionParameterization *schema.ExtensionParameterization
+
+	// The discriminated unions of the whole package, shared by every module.
+	unions *unionRegistry
+	// The discriminated unions whose interfaces this module generates.
+	discriminatedUnions []*discriminatedUnion
 }
 
 func (mod *modContext) RootNamespace() string {
@@ -306,6 +312,199 @@ func simplifyInputUnion(union *schema.UnionType) *schema.UnionType {
 	}
 }
 
+// minDiscriminatedUnionMembers is the number of members a discriminated union needs before it gets
+// a generated interface. Two-member unions keep using Union<T0, T1>/InputUnion<T0, T1>.
+const minDiscriminatedUnionMembers = 3
+
+const typeRefPrefix = "#/types/"
+
+// discriminatedUnion is a schema union that carries a discriminator with a non-empty mapping and at
+// least minDiscriminatedUnionMembers members. Such a union is generated as a C# interface that each
+// member class implements, rather than degrading to `object`.
+type discriminatedUnion struct {
+	// name is the interface name without the shape suffix that typeName applies to member classes.
+	name string
+	// propertyName is the schema discriminator property name. It is emitted verbatim.
+	propertyName string
+	// tags are the discriminator mapping keys in sorted order.
+	tags []string
+	// members maps each tag to the plain shape of the object type that tag selects.
+	members map[string]*schema.ObjectType
+	// supersets are the registered unions whose mappings strictly contain this one's, so that a
+	// value of this union assigns into a slot typed as one of them.
+	supersets []*discriminatedUnion
+	// mod is the module the interface is generated into: the module its members live in.
+	mod string
+}
+
+// token identifies the module and namespace the interface belongs to.
+func (du *discriminatedUnion) token() string {
+	return du.members[du.tags[0]].Token
+}
+
+// directSupersets returns the supersets that are not themselves supersets of another superset, so
+// the generated interface declaration lists each parent once.
+func (du *discriminatedUnion) directSupersets() []*discriminatedUnion {
+	var direct []*discriminatedUnion
+	for _, candidate := range du.supersets {
+		redundant := false
+		for _, other := range du.supersets {
+			if other != candidate && isTagSubset(other.tags, candidate.tags) {
+				redundant = true
+				break
+			}
+		}
+		if !redundant {
+			direct = append(direct, candidate)
+		}
+	}
+	return direct
+}
+
+// unionRegistry names the discriminated unions of a package. It is shared by every module of that
+// package so that a union referenced from several modules resolves to a single interface.
+type unionRegistry struct {
+	byKey    map[string]*discriminatedUnion
+	byMember map[string][]*discriminatedUnion
+}
+
+func (r *unionRegistry) lookup(t *schema.UnionType) (*discriminatedUnion, bool) {
+	if r == nil {
+		return nil, false
+	}
+	key, ok := discriminatedUnionKey(t)
+	if !ok {
+		return nil, false
+	}
+	du, ok := r.byKey[key]
+	return du, ok
+}
+
+func (r *unionRegistry) containing(token string) []*discriminatedUnion {
+	if r == nil {
+		return nil
+	}
+	return r.byMember[token]
+}
+
+// unionMemberObject unwraps a union element down to the object type it names.
+func unionMemberObject(t schema.Type) (*schema.ObjectType, bool) {
+	obj, ok := codegen.UnwrapType(t).(*schema.ObjectType)
+	return obj, ok
+}
+
+// plainShape returns the non-input shape of an object type.
+func plainShape(obj *schema.ObjectType) *schema.ObjectType {
+	if obj.PlainShape != nil {
+		return obj.PlainShape
+	}
+	return obj
+}
+
+// discriminatedUnionMembers resolves the union's discriminator mapping to the object types it
+// selects, keyed by tag. It reports false when the union is not a well-formed discriminated union
+// of object types, in which case the union is generated the way it always was.
+func discriminatedUnionMembers(t *schema.UnionType) (map[string]*schema.ObjectType, bool) {
+	if t.Discriminator == "" || len(t.Mapping) == 0 {
+		return nil, false
+	}
+
+	byToken := map[string]*schema.ObjectType{}
+	for _, e := range t.ElementTypes {
+		obj, ok := unionMemberObject(e)
+		if !ok {
+			return nil, false
+		}
+		byToken[plainShape(obj).Token] = plainShape(obj)
+	}
+
+	members := map[string]*schema.ObjectType{}
+	for tag, ref := range t.Mapping {
+		token, found := strings.CutPrefix(ref, typeRefPrefix)
+		if !found {
+			return nil, false
+		}
+		obj, ok := byToken[token]
+		if !ok {
+			// Refs may percent-encode characters that are legal in a token.
+			unescaped, err := url.PathUnescape(token)
+			if err != nil {
+				return nil, false
+			}
+			if obj, ok = byToken[unescaped]; !ok {
+				return nil, false
+			}
+		}
+		members[tag] = obj
+	}
+
+	// Every element must be reachable through the mapping, otherwise the tag dispatch the generated
+	// attributes describe would be incomplete.
+	if len(members) != len(byToken) {
+		return nil, false
+	}
+	return members, true
+}
+
+// discriminatedUnionKey identifies a union by its discriminator and tag-to-member mapping, so that
+// the same union reached through different properties, or through its input and output shapes,
+// resolves to one generated interface.
+func discriminatedUnionKey(t *schema.UnionType) (string, bool) {
+	members, ok := discriminatedUnionMembers(t)
+	if !ok || len(members) < minDiscriminatedUnionMembers {
+		return "", false
+	}
+
+	var b strings.Builder
+	b.WriteString(t.Discriminator)
+	for _, tag := range sortedTags(members) {
+		fmt.Fprintf(&b, "|%s=%s", tag, members[tag].Token)
+	}
+	return b.String(), true
+}
+
+func sortedTags(members map[string]*schema.ObjectType) []string {
+	tags := slice.Prealloc[string](len(members))
+	for tag := range members {
+		tags = append(tags, tag)
+	}
+	sort.Strings(tags)
+	return tags
+}
+
+func isTagSubset(sub, super []string) bool {
+	if len(sub) >= len(super) {
+		return false
+	}
+	for _, tag := range sub {
+		if !slices.Contains(super, tag) {
+			return false
+		}
+	}
+	return true
+}
+
+// isUnionSubset reports whether every case of sub is also a case of super, mapped to the same type.
+func isUnionSubset(sub, super *discriminatedUnion) bool {
+	if sub.propertyName != super.propertyName || sub.mod != super.mod || !isTagSubset(sub.tags, super.tags) {
+		return false
+	}
+	for tag, member := range sub.members {
+		if super.members[tag] != member {
+			return false
+		}
+	}
+	return true
+}
+
+// shapeSuffix is the suffix typeName appends to a member's class name for the shape being
+// generated, eg "Args" for resource inputs. The generated interface carries the same suffix so it
+// sits alongside the classes that implement it.
+func (mod *modContext) shapeSuffix(member *schema.ObjectType, state, input bool) string {
+	name := mod.typeName(member, state, input, member.IsInputShape())
+	return strings.TrimPrefix(name, tokenToName(member.Token))
+}
+
 func (mod *modContext) unionTypeString(t *schema.UnionType, qualifier string, input, wrapInput, state, requireInitializers bool) string {
 	elementTypeSet := codegen.StringSet{}
 	var elementTypes []string
@@ -336,8 +535,38 @@ func (mod *modContext) unionTypeString(t *schema.UnionType, qualifier string, in
 		}
 		return fmt.Sprintf("%s<%s>", unionT, strings.Join(elementTypes, ", "))
 	default:
+		// Union<> only has two-arity overloads, so unions of three or more members used to degrade to
+		// `object`. Discriminated unions instead get a generated interface the members implement.
+		if iface, ok := mod.discriminatedUnionTypeString(t, qualifier, input, state); ok {
+			if wrapInput {
+				return fmt.Sprintf("Input<%s>", iface)
+			}
+			return iface
+		}
 		return "object"
 	}
+}
+
+// discriminatedUnionTypeString renders the interface generated for t, if t is a discriminated union
+// that qualifies for one. The interface lives alongside its member classes, so the namespace
+// qualification is taken from whichever member shape the union is currently being rendered in.
+func (mod *modContext) discriminatedUnionTypeString(
+	t *schema.UnionType, qualifier string, input, state bool,
+) (string, bool) {
+	du, ok := mod.unions.lookup(t)
+	if !ok {
+		return "", false
+	}
+
+	member, ok := unionMemberObject(t.ElementTypes[0])
+	if !ok {
+		return "", false
+	}
+
+	memberName := mod.typeName(member, state, input, member.IsInputShape())
+	memberString := mod.typeString(member, qualifier, input, state, false)
+	namespace := strings.TrimSuffix(memberString, memberName)
+	return namespace + du.name + mod.shapeSuffix(member, state, input), true
 }
 
 func (mod *modContext) typeString(t schema.Type, qualifier string, input, state, requireInitializers bool) string {
@@ -525,6 +754,21 @@ type plainType struct {
 	args                  bool
 	state                 bool
 	internal              bool
+	// interfaces are the discriminated union interfaces this type implements.
+	interfaces []string
+}
+
+// baseTypeList renders the base class and interface list of the generated type, if any.
+func (pt *plainType) baseTypeList() string {
+	var bases []string
+	if pt.baseClass != "" {
+		bases = append(bases, "global::Pulumi."+pt.baseClass)
+	}
+	bases = append(bases, pt.interfaces...)
+	if len(bases) == 0 {
+		return ""
+	}
+	return " : " + strings.Join(bases, ", ")
 }
 
 func (pt *plainType) genInputPropertyAttribute(w io.Writer, indent string, prop *schema.Property) {
@@ -669,12 +913,7 @@ func (pt *plainType) genInputTypeWithFlags(w io.Writer, level int, generateInput
 	// Open the class.
 	printCommentWithOptions(w, pt.comment, indent, !pt.unescapeComment)
 
-	var suffix string
-	if pt.baseClass != "" {
-		suffix = " : global::Pulumi." + pt.baseClass
-	}
-
-	fmt.Fprintf(w, "%spublic %sclass %s%s\n", indent, sealed, pt.name, suffix)
+	fmt.Fprintf(w, "%spublic %sclass %s%s\n", indent, sealed, pt.name, pt.baseTypeList())
 	fmt.Fprintf(w, "%s{\n", indent)
 
 	// Declare each input property.
@@ -722,7 +961,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 		visibility = "internal"
 	}
 
-	fmt.Fprintf(w, "%s%s sealed class %s\n", indent, visibility, pt.name)
+	fmt.Fprintf(w, "%s%s sealed class %s%s\n", indent, visibility, pt.name, pt.baseTypeList())
 	fmt.Fprintf(w, "%s{\n", indent)
 
 	// Generate each output field.
@@ -1851,12 +2090,350 @@ func (mod *modContext) genEnum(w io.Writer, enum *schema.EnumType) error {
 	return nil
 }
 
+// visitUnionTypes calls visitor for every union held by t, along with the number of collections the
+// union is nested in. It deliberately does not descend into object types: a union nested in an
+// object belongs to that object's own property, and object types are visited in their own right.
+func visitUnionTypes(t schema.Type, depth int, visitor func(*schema.UnionType, int)) {
+	switch t := t.(type) {
+	case *schema.OptionalType:
+		visitUnionTypes(t.ElementType, depth, visitor)
+	case *schema.InputType:
+		visitUnionTypes(t.ElementType, depth, visitor)
+	case *schema.ArrayType:
+		visitUnionTypes(t.ElementType, depth+1, visitor)
+	case *schema.MapType:
+		visitUnionTypes(t.ElementType, depth+1, visitor)
+	case *schema.UnionType:
+		visitor(t, depth)
+	}
+}
+
+// unionPosition is a schema location that holds a discriminated union. It is the source of the
+// generated interface name.
+type unionPosition struct {
+	owner    string
+	property string
+	union    *schema.UnionType
+	key      string
+	depth    int
+	seq      int
+}
+
+// registerDiscriminatedUnions names every qualifying discriminated union in pkg. A union is named
+// after the first schema position that holds it - the owning resource, function or type, plus the
+// property name - which keeps the name stable when members are added to the union, and unique
+// because positions are unique. Positions are visited in a fixed order so regenerating a package
+// produces the same names.
+func registerDiscriminatedUnions(pkg *schema.Package) *unionRegistry {
+	reg := &unionRegistry{
+		byKey:    map[string]*discriminatedUnion{},
+		byMember: map[string][]*discriminatedUnion{},
+	}
+
+	// Reserve the names of the types the package already generates so an interface can never shadow
+	// one of them.
+	taken := codegen.StringSet{}
+	reserve := func(mod, name string) bool {
+		key := mod + "/" + name
+		if taken.Has(key) {
+			return false
+		}
+		taken.Add(key)
+		return true
+	}
+	for _, t := range pkg.Types {
+		switch t := t.(type) {
+		case *schema.ObjectType:
+			reserve(pkg.TokenToModule(t.Token), tokenToName(t.Token))
+		case *schema.EnumType:
+			reserve(pkg.TokenToModule(t.Token), tokenToName(t.Token))
+		}
+	}
+	for _, r := range pkg.Resources {
+		reserve(pkg.TokenToModule(r.Token), resourceName(r))
+	}
+
+	var positions []unionPosition
+	collect := func(owner string, props []*schema.Property) {
+		for _, p := range props {
+			propertyName := cgstrings.UppercaseFirst(cgstrings.Unhyphenate(p.Name))
+			visitUnionTypes(p.Type, 0, func(union *schema.UnionType, depth int) {
+				key, ok := discriminatedUnionKey(union)
+				if !ok {
+					return
+				}
+				positions = append(positions, unionPosition{
+					owner:    owner,
+					property: propertyName,
+					union:    union,
+					key:      key,
+					depth:    depth,
+					seq:      len(positions),
+				})
+			})
+		}
+	}
+
+	if pkg.Provider != nil {
+		collect(resourceName(pkg.Provider), pkg.Provider.InputProperties)
+		collect(resourceName(pkg.Provider), pkg.Provider.Properties)
+	}
+
+	resources := slices.Clone(pkg.Resources)
+	sort.Slice(resources, func(i, j int) bool { return resources[i].Token < resources[j].Token })
+	for _, r := range resources {
+		collect(resourceName(r), r.InputProperties)
+		collect(resourceName(r), r.Properties)
+		if r.StateInputs != nil {
+			collect(resourceName(r), r.StateInputs.Properties)
+		}
+	}
+
+	functions := slices.Clone(pkg.Functions)
+	sort.Slice(functions, func(i, j int) bool { return functions[i].Token < functions[j].Token })
+	for _, f := range functions {
+		name := tokenToFunctionName(f.Token)
+		if f.Inputs != nil {
+			collect(name, f.Inputs.Properties)
+		}
+		if obj, ok := f.ReturnType.(*schema.ObjectType); ok && obj != nil {
+			collect(name, obj.Properties)
+		}
+	}
+
+	var objects []*schema.ObjectType
+	for _, t := range pkg.Types {
+		if obj, ok := t.(*schema.ObjectType); ok {
+			objects = append(objects, obj)
+		}
+	}
+	sort.Slice(objects, func(i, j int) bool {
+		if objects[i].Token != objects[j].Token {
+			return objects[i].Token < objects[j].Token
+		}
+		return !objects[i].IsInputShape()
+	})
+	for _, obj := range objects {
+		collect(tokenToName(obj.Token), obj.Properties)
+	}
+
+	// A union held directly by a property names the interface better than one buried in a list or a
+	// map, so shallower positions win.
+	sort.SliceStable(positions, func(i, j int) bool {
+		if positions[i].depth != positions[j].depth {
+			return positions[i].depth < positions[j].depth
+		}
+		return positions[i].seq < positions[j].seq
+	})
+
+	for _, pos := range positions {
+		if _, ok := reg.byKey[pos.key]; ok {
+			continue
+		}
+		members, _ := discriminatedUnionMembers(pos.union)
+		tags := sortedTags(members)
+
+		// Every member must live in this package and share a module, otherwise there is no single
+		// namespace to generate the interface into.
+		mod := pkg.TokenToModule(members[tags[0]].Token)
+		usable := true
+		for _, tag := range tags {
+			member := members[tag]
+			if !codegen.PkgEquals(member.PackageReference, pkg.Reference()) ||
+				pkg.TokenToModule(member.Token) != mod {
+				usable = false
+				break
+			}
+		}
+		if !usable {
+			continue
+		}
+
+		candidate := "I" + pos.owner + pos.property
+		name := candidate
+		for i := 2; !reserve(mod, name); i++ {
+			name = fmt.Sprintf("%s%d", candidate, i)
+		}
+
+		du := &discriminatedUnion{
+			name:         name,
+			propertyName: pos.union.Discriminator,
+			tags:         tags,
+			members:      members,
+			mod:          mod,
+		}
+		reg.byKey[pos.key] = du
+		for _, tag := range tags {
+			token := members[tag].Token
+			reg.byMember[token] = append(reg.byMember[token], du)
+		}
+	}
+
+	// A union whose mapping is contained in another's must be assignable to it, which C# models by
+	// having the narrower interface extend the wider one.
+	all := slice.Prealloc[*discriminatedUnion](len(reg.byKey))
+	for _, du := range reg.byKey {
+		all = append(all, du)
+	}
+	sort.Slice(all, func(i, j int) bool { return all[i].name < all[j].name })
+	for _, du := range all {
+		for _, other := range all {
+			if isUnionSubset(du, other) {
+				du.supersets = append(du.supersets, other)
+			}
+		}
+	}
+	for _, dus := range reg.byMember {
+		sort.Slice(dus, func(i, j int) bool { return dus[i].name < dus[j].name })
+	}
+
+	return reg
+}
+
 func visitObjectTypes(properties []*schema.Property, visitor func(*schema.ObjectType)) {
 	codegen.VisitTypeClosure(properties, func(t schema.Type) {
 		if o, ok := t.(*schema.ObjectType); ok {
 			visitor(o)
 		}
 	})
+}
+
+// unionShape is one generated form of a discriminated union interface, matching the form its member
+// classes are generated in.
+type unionShape struct {
+	qualifier string
+	suffix    string
+	state     bool
+	input     bool
+	// member is a representative member in the shape this form is generated from.
+	member *schema.ObjectType
+}
+
+// shapeOf returns the shape of member that this form of the interface refers to.
+func (s unionShape) shapeOf(member *schema.ObjectType) *schema.ObjectType {
+	if s.member.IsInputShape() && member.InputShape != nil {
+		return member.InputShape
+	}
+	return plainShape(member)
+}
+
+// discriminatedUnionShapes returns the forms du's interface must be generated in, mirroring the
+// forms its member types are generated in.
+func (mod *modContext) discriminatedUnionShapes(du *discriminatedUnion) []unionShape {
+	var shapes []unionShape
+	seen := codegen.StringSet{}
+	add := func(qualifier string, state, input bool, member *schema.ObjectType) {
+		shape := unionShape{
+			qualifier: qualifier,
+			suffix:    mod.shapeSuffix(member, state, input),
+			state:     state,
+			input:     input,
+			member:    member,
+		}
+		if seen.Has(qualifier + "/" + shape.suffix) {
+			return
+		}
+		seen.Add(qualifier + "/" + shape.suffix)
+		shapes = append(shapes, shape)
+	}
+
+	for _, tag := range du.tags {
+		member := du.members[tag]
+		members := []*schema.ObjectType{member}
+		if member.InputShape != nil {
+			members = append(members, member.InputShape)
+		}
+		for _, m := range members {
+			details := mod.details(m)
+			if details.inputType {
+				add("Inputs", false, true, m)
+			}
+			if details.stateType {
+				add("Inputs", true, true, m)
+			}
+			if details.outputType {
+				add("Outputs", false, false, m)
+			}
+		}
+	}
+	return shapes
+}
+
+func (mod *modContext) genDiscriminatedUnionInterface(
+	w io.Writer, du *discriminatedUnion, shape unionShape, level int,
+) {
+	indent := strings.Repeat("    ", level)
+
+	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "%s[DiscriminatedUnionType(%q)]\n", indent, du.propertyName)
+	for _, tag := range du.tags {
+		member := shape.shapeOf(du.members[tag])
+		memberName := mod.typeName(member, shape.state, shape.input, member.IsInputShape())
+		fmt.Fprintf(w, "%s[DiscriminatedUnionCase(%q, typeof(%s))]\n", indent, tag, memberName)
+	}
+
+	var bases []string
+	for _, superset := range du.directSupersets() {
+		if mod.hasUnionShape(superset, shape) {
+			bases = append(bases, superset.name+shape.suffix)
+		}
+	}
+	var baseList string
+	if len(bases) > 0 {
+		baseList = " : " + strings.Join(bases, ", ")
+	}
+
+	fmt.Fprintf(w, "%spublic interface %s%s\n", indent, du.name+shape.suffix, baseList)
+	fmt.Fprintf(w, "%s{\n", indent)
+	fmt.Fprintf(w, "%s}\n", indent)
+}
+
+func (mod *modContext) hasUnionShape(du *discriminatedUnion, shape unionShape) bool {
+	for _, s := range mod.discriminatedUnionShapes(du) {
+		if s.qualifier == shape.qualifier && s.suffix == shape.suffix {
+			return true
+		}
+	}
+	return false
+}
+
+// unionInterfaces returns the discriminated union interfaces obj implements in the shape being
+// generated. Only the narrowest applicable interfaces are listed, because the wider ones are
+// already reachable through them.
+func (mod *modContext) unionInterfaces(obj *schema.ObjectType, state, input bool) []string {
+	qualifier := "Outputs"
+	if input {
+		qualifier = "Inputs"
+	}
+	shape := unionShape{
+		qualifier: qualifier,
+		suffix:    mod.shapeSuffix(obj, state, input),
+		state:     state,
+		input:     input,
+		member:    obj,
+	}
+
+	var matches []*discriminatedUnion
+	for _, du := range mod.unions.containing(plainShape(obj).Token) {
+		if mod.hasUnionShape(du, shape) {
+			matches = append(matches, du)
+		}
+	}
+
+	var interfaces []string
+	for _, du := range matches {
+		redundant := false
+		for _, other := range matches {
+			if other != du && slices.Contains(other.supersets, du) {
+				redundant = true
+				break
+			}
+		}
+		if !redundant {
+			interfaces = append(interfaces, du.name+shape.suffix)
+		}
+	}
+	return interfaces
 }
 
 func (mod *modContext) genType(w io.Writer, obj *schema.ObjectType, propertyTypeQualifier string, input, state bool, level int) error {
@@ -1870,6 +2447,7 @@ func (mod *modContext) genType(w io.Writer, obj *schema.ObjectType, propertyType
 		properties:            obj.Properties,
 		state:                 state,
 		args:                  args,
+		interfaces:            mod.unionInterfaces(obj, state, input),
 	}
 
 	if input {
@@ -2248,6 +2826,21 @@ func (mod *modContext) gen(fs codegen.Fs) error {
 				suffix = "Result"
 			}
 			addFile(path.Join("Outputs", tokenToName(t.Token)+suffix+".cs"), buffer.String())
+		}
+	}
+
+	// Discriminated union interfaces
+	for _, du := range mod.discriminatedUnions {
+		for _, shape := range mod.discriminatedUnionShapes(du) {
+			buffer := &bytes.Buffer{}
+			mod.genHeader(buffer, mod.pulumiImports())
+
+			fmt.Fprintf(buffer, "namespace %s\n", mod.tokenToNamespace(du.token(), shape.qualifier))
+			fmt.Fprintf(buffer, "{\n")
+			mod.genDiscriminatedUnionInterface(buffer, du, shape, 1)
+			fmt.Fprintf(buffer, "}\n")
+
+			addFile(path.Join(shape.qualifier, du.name+shape.suffix+".cs"), buffer.String())
 		}
 	}
 
@@ -2653,6 +3246,22 @@ func generateModuleContextMap(tool string, pkg *schema.Package) (map[string]*mod
 		default:
 			continue
 		}
+	}
+
+	// Name the discriminated unions and hand each one to the module that generates its interface.
+	unions := registerDiscriminatedUnions(pkg)
+	for _, mod := range modules {
+		mod.unions = unions
+	}
+	for _, du := range unions.byKey {
+		if mod, ok := modules[du.mod]; ok {
+			mod.discriminatedUnions = append(mod.discriminatedUnions, du)
+		}
+	}
+	for _, mod := range modules {
+		sort.Slice(mod.discriminatedUnions, func(i, j int) bool {
+			return mod.discriminatedUnions[i].name < mod.discriminatedUnions[j].name
+		})
 	}
 
 	return modules, infos[pkg], nil

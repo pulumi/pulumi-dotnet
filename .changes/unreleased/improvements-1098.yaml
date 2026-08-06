@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Generate a typed interface for each discriminated union with three or more members instead of collapsing the union to object. Members implement the interface, and a union whose cases are a subset of another union extends it
+time: 2026-08-06T11:10:22.445717-04:00
+custom:
+    PR: "1098"

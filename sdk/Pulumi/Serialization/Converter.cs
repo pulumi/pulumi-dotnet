@@ -189,7 +189,7 @@ namespace Pulumi.Serialization
 
             if (targetType.IsInterface)
             {
-                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionTypeAttribute>();
+                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionDiscriminatorAttribute>();
                 if (unionAttribute != null)
                     return TryConvertDiscriminatedUnion(warn, context, val, targetType, unionAttribute);
             }
@@ -296,7 +296,7 @@ namespace Pulumi.Serialization
             => val is T t ? (t, null) : (default(T)!, $"Expected {typeof(T).FullName} but got {val.GetType().FullName} deserializing {context}");
 
         private static (object?, string?) TryConvertDiscriminatedUnion(
-            Action<string> warn, string context, object val, Type targetType, DiscriminatedUnionTypeAttribute unionAttribute)
+            Action<string> warn, string context, object val, Type targetType, DiscriminatedUnionDiscriminatorAttribute unionAttribute)
         {
             if (!(val is ImmutableDictionary<string, object> dictionary))
                 return (null,
@@ -536,7 +536,7 @@ namespace Pulumi.Serialization
 
             if (targetType.IsInterface)
             {
-                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionTypeAttribute>();
+                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionDiscriminatorAttribute>();
                 if (unionAttribute != null)
                 {
                     foreach (var unionCase in targetType.GetCustomAttributes<DiscriminatedUnionCaseAttribute>())

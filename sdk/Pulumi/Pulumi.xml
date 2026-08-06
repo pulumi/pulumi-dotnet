@@ -3373,20 +3373,20 @@
                  but is recommended and is what our codegen does.
              </summary>
         </member>
-        <member name="T:Pulumi.DiscriminatedUnionTypeAttribute">
+        <member name="T:Pulumi.DiscriminatedUnionDiscriminatorAttribute">
             <summary>
-            Attribute used by a Pulumi Cloud Provider Package to mark an interface that represents a
-            discriminated union of complex output property types. The interface must also carry one
+            Attribute used to mark an interface that represents a discriminated union of complex
+            output property types. The interface must also carry one
             <see cref="T:Pulumi.DiscriminatedUnionCaseAttribute"/> per union member. When deserializing, the
-            Pulumi runtime reads the discriminator property named by <see cref="P:Pulumi.DiscriminatedUnionTypeAttribute.PropertyName"/> from
+            Pulumi runtime reads the discriminator property named by <see cref="P:Pulumi.DiscriminatedUnionDiscriminatorAttribute.PropertyName"/> from
             the raw value and instantiates the member whose tag matches.
             </summary>
         </member>
         <member name="T:Pulumi.DiscriminatedUnionCaseAttribute">
             <summary>
-            Attribute used by a Pulumi Cloud Provider Package to declare one member of a discriminated
-            union interface marked with <see cref="T:Pulumi.DiscriminatedUnionTypeAttribute"/>. <see cref="P:Pulumi.DiscriminatedUnionCaseAttribute.Tag"/>
-            is the discriminator property value that selects this member, and <see cref="P:Pulumi.DiscriminatedUnionCaseAttribute.Type"/> is the
+            Attribute used to declare one member of a discriminated union interface marked with
+            <see cref="T:Pulumi.DiscriminatedUnionDiscriminatorAttribute"/>. <see cref="P:Pulumi.DiscriminatedUnionCaseAttribute.Tag"/> is the
+            discriminator property value that selects this member, and <see cref="P:Pulumi.DiscriminatedUnionCaseAttribute.Type"/> is the
             concrete <see cref="T:Pulumi.OutputTypeAttribute"/> class to instantiate; it must implement the
             annotated interface.
             </summary>

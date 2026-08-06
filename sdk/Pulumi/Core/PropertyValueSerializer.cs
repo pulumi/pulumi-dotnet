@@ -972,7 +972,7 @@ namespace Pulumi.Experimental
 
             if (targetType.IsInterface)
             {
-                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionTypeAttribute>();
+                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionDiscriminatorAttribute>();
                 if (unionAttribute != null && value.TryGetMap(out var unionProperties))
                 {
                     var cases = targetType.GetCustomAttributes<DiscriminatedUnionCaseAttribute>().ToArray();

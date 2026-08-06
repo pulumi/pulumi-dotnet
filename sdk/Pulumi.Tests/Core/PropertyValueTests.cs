@@ -897,7 +897,7 @@ public class PropertyValueTests
 
     // "password" and "token" share an identical property shape; only the discriminator
     // can tell them apart.
-    [DiscriminatedUnionType("__type")]
+    [DiscriminatedUnionDiscriminator("type")]
     [DiscriminatedUnionCase("password", typeof(PasswordCredential))]
     [DiscriminatedUnionCase("token", typeof(TokenCredential))]
     [DiscriminatedUnionCase("certificate", typeof(CertificateCredential))]
@@ -926,7 +926,7 @@ public class PropertyValueTests
     {
         var serializer = CreateSerializer();
         var data = Object(
-            Pair("__type", new PropertyValue("token")),
+            Pair("type", new PropertyValue("token")),
             Pair("Data", new PropertyValue("abc")));
 
         var credential = await serializer.Deserialize<ICredential>(data);
@@ -940,14 +940,14 @@ public class PropertyValueTests
     {
         var serializer = CreateSerializer();
         var data = Object(
-            Pair("__type", new PropertyValue("oauth")),
+            Pair("type", new PropertyValue("oauth")),
             Pair("Data", new PropertyValue("abc")));
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             serializer.Deserialize<ICredential>(data));
 
         Assert.Equal(
-            "unknown \"__type\" value \"oauth\"; expected one of: certificate, password, token",
+            "unknown \"type\" value \"oauth\"; expected one of: certificate, password, token",
             exception.Message);
     }
 }

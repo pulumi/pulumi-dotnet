@@ -12,7 +12,7 @@ namespace Pulumi.Tests.Serialization
     {
         // "basic" and "bearer" deliberately share an identical property shape so that only
         // discriminator dispatch (not structural first-match) can tell them apart.
-        [DiscriminatedUnionType("discriminantKind")]
+        [DiscriminatedUnionDiscriminator("discriminantKind")]
         [DiscriminatedUnionCase("basic", typeof(BasicAuth))]
         [DiscriminatedUnionCase("bearer", typeof(BearerAuth))]
         [DiscriminatedUnionCase("apiKey", typeof(ApiKeyAuth))]

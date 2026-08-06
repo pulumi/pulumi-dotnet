@@ -315,6 +315,22 @@ func TestGenerateDiscriminatedUnionInterface(t *testing.T) {
 	assert.NotContains(t, example, "object")
 }
 
+func TestGenerateConstValuedProperty(t *testing.T) {
+	t.Parallel()
+
+	files := generateTestPackage(t, unionTestSpec(4, 0, "discriminantKind"))
+
+	// The discriminator tag is a constant, so the generated args class fills it in and the caller
+	// never has to write it by hand. The property stays settable.
+	variant := files["Inputs/Variant1Args.cs"]
+	assert.Contains(t, variant, "public Input<string> DiscriminantKind { get; set; } = null!;")
+	assert.Contains(t, variant, "        public Variant1Args()\n"+
+		"        {\n"+
+		"            DiscriminantKind = \"variant1\";\n"+
+		"        }\n")
+	assert.Contains(t, files["Inputs/Variant4Args.cs"], `DiscriminantKind = "variant4";`)
+}
+
 func TestGenerateDiscriminatedUnionSubsetInterface(t *testing.T) {
 	t.Parallel()
 

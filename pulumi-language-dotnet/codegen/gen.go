@@ -922,16 +922,26 @@ func (pt *plainType) genInputTypeWithFlags(w io.Writer, level int, generateInput
 		fmt.Fprintf(w, "\n")
 	}
 
-	// Generate a constructor that will set default values.
+	// Generate a constructor that will set constant and default values.
 	fmt.Fprintf(w, "%s    public %s()\n", indent, pt.name)
 	fmt.Fprintf(w, "%s    {\n", indent)
 	for _, prop := range pt.properties {
-		if prop.DefaultValue != nil {
+		propertyName := pt.mod.propertyName(prop)
+		switch {
+		// A constant property only ever holds one value, so fill it in rather than making the caller
+		// repeat it. The property stays settable. A constant overrides a default because the engine
+		// is sent the constant regardless of what the default says.
+		case prop.ConstValue != nil:
+			cv, err := primitiveValue(prop.ConstValue)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(w, "%s        %s = %s;\n", indent, propertyName, cv)
+		case prop.DefaultValue != nil:
 			dv, err := pt.mod.getDefaultValue(prop.DefaultValue, prop.Type)
 			if err != nil {
 				return err
 			}
-			propertyName := pt.mod.propertyName(prop)
 			fmt.Fprintf(w, "%s        %s = %s;\n", indent, propertyName, dv)
 		}
 	}

@@ -970,6 +970,32 @@ namespace Pulumi.Experimental
                 ThrowTypeMismatchError(PropertyValueType.Map);
             }
 
+            if (targetType.IsInterface)
+            {
+                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionTypeAttribute>();
+                if (unionAttribute != null && value.TryGetMap(out var unionProperties))
+                {
+                    var cases = targetType.GetCustomAttributes<DiscriminatedUnionCaseAttribute>().ToArray();
+                    var expectedTags = string.Join(", ", cases.Select(c => c.Tag).OrderBy(t => t, StringComparer.Ordinal));
+
+                    if (!unionProperties.TryGetValue(unionAttribute.PropertyName, out var tagValue) ||
+                        !tagValue.TryGetString(out var tag))
+                    {
+                        throw new InvalidOperationException(
+                            $"missing discriminator property \"{unionAttribute.PropertyName}\"; expected one of: {expectedTags}");
+                    }
+
+                    var matchedCase = cases.FirstOrDefault(unionCase => unionCase.Tag == tag);
+                    if (matchedCase == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"unknown \"{unionAttribute.PropertyName}\" value \"{tag}\"; expected one of: {expectedTags}");
+                    }
+
+                    return DeserializeObject(unionProperties, matchedCase.Type, path);
+                }
+            }
+
             if (targetType.IsClass || targetType.IsValueType)
             {
                 if (value.TryGetMap(out var objectProperties))

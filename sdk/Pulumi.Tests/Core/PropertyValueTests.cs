@@ -894,4 +894,60 @@ public class PropertyValueTests
         var tags = await result.Tags.ToOutput().DataTask;
         Assert.False(tags.IsKnown, "tags should be unknown");
     }
+
+    // "password" and "token" share an identical property shape; only the discriminator
+    // can tell them apart.
+    [DiscriminatedUnionType("__type")]
+    [DiscriminatedUnionCase("password", typeof(PasswordCredential))]
+    [DiscriminatedUnionCase("token", typeof(TokenCredential))]
+    [DiscriminatedUnionCase("certificate", typeof(CertificateCredential))]
+    public interface ICredential
+    {
+    }
+
+    public class PasswordCredential : ICredential
+    {
+        public string Data { get; set; } = string.Empty;
+    }
+
+    public class TokenCredential : ICredential
+    {
+        public string Data { get; set; } = string.Empty;
+    }
+
+    public class CertificateCredential : ICredential
+    {
+        public string Data { get; set; } = string.Empty;
+        public string? Thumbprint { get; set; }
+    }
+
+    [Fact]
+    public async Task DeserializingDiscriminatedUnionDispatchesOnTag()
+    {
+        var serializer = CreateSerializer();
+        var data = Object(
+            Pair("__type", new PropertyValue("token")),
+            Pair("Data", new PropertyValue("abc")));
+
+        var credential = await serializer.Deserialize<ICredential>(data);
+
+        var token = Assert.IsType<TokenCredential>(credential);
+        Assert.Equal("abc", token.Data);
+    }
+
+    [Fact]
+    public async Task DeserializingDiscriminatedUnionWithUnknownTagThrows()
+    {
+        var serializer = CreateSerializer();
+        var data = Object(
+            Pair("__type", new PropertyValue("oauth")),
+            Pair("Data", new PropertyValue("abc")));
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            serializer.Deserialize<ICredential>(data));
+
+        Assert.Equal(
+            "unknown \"__type\" value \"oauth\"; expected one of: certificate, password, token",
+            exception.Message);
+    }
 }

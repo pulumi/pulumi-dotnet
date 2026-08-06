@@ -2,6 +2,7 @@
 
 using System;
 using Google.Protobuf.WellKnownTypes;
+using Type = System.Type;
 
 namespace Pulumi
 {
@@ -108,6 +109,44 @@ namespace Pulumi
     [AttributeUsage(AttributeTargets.Struct)]
     public sealed class EnumTypeAttribute : Attribute
     {
+    }
+
+    /// <summary>
+    /// Attribute used by a Pulumi Cloud Provider Package to mark an interface that represents a
+    /// discriminated union of complex output property types. The interface must also carry one
+    /// <see cref="DiscriminatedUnionCaseAttribute"/> per union member. When deserializing, the
+    /// Pulumi runtime reads the discriminator property named by <see cref="PropertyName"/> from
+    /// the raw value and instantiates the member whose tag matches.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Interface)]
+    public sealed class DiscriminatedUnionTypeAttribute : Attribute
+    {
+        public string PropertyName { get; }
+
+        public DiscriminatedUnionTypeAttribute(string propertyName)
+        {
+            PropertyName = propertyName;
+        }
+    }
+
+    /// <summary>
+    /// Attribute used by a Pulumi Cloud Provider Package to declare one member of a discriminated
+    /// union interface marked with <see cref="DiscriminatedUnionTypeAttribute"/>. <see cref="Tag"/>
+    /// is the discriminator property value that selects this member, and <see cref="Type"/> is the
+    /// concrete <see cref="OutputTypeAttribute"/> class to instantiate; it must implement the
+    /// annotated interface.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Interface, AllowMultiple = true)]
+    public sealed class DiscriminatedUnionCaseAttribute : Attribute
+    {
+        public string Tag { get; }
+        public Type Type { get; }
+
+        public DiscriminatedUnionCaseAttribute(string tag, Type type)
+        {
+            Tag = tag;
+            Type = type;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Class)]

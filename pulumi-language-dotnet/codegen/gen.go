@@ -2375,7 +2375,7 @@ func (mod *modContext) genDiscriminatedUnionInterface(
 	indent := strings.Repeat("    ", level)
 
 	fmt.Fprintf(w, "\n")
-	fmt.Fprintf(w, "%s[DiscriminatedUnionType(%q)]\n", indent, du.propertyName)
+	fmt.Fprintf(w, "%s[DiscriminatedUnionDiscriminator(%q)]\n", indent, du.propertyName)
 	for _, tag := range du.tags {
 		member := shape.shapeOf(du.members[tag])
 		memberName := mod.typeName(member, shape.state, shape.input, member.IsInputShape())

@@ -40,7 +40,7 @@ var (
 	}
 	skipCompileCheck = []string{
 		"hyphen-url",
-		// The generated discriminated union interface carries DiscriminatedUnionType and
+		// The generated discriminated union interface carries DiscriminatedUnionDiscriminator and
 		// DiscriminatedUnionCase, which this repository adds to the SDK in the same release as this
 		// generator. The testdata project references Pulumi from nuget, so the check can only pass
 		// once that release is published. Remove this entry then.
@@ -292,14 +292,14 @@ func TestGenerateDiscriminatedUnionInterface(t *testing.T) {
 
 	outputs, ok := files["Outputs/IExampleUnionOf.cs"]
 	require.True(t, ok, "output interface not generated, got %v", slices.Sorted(maps.Keys(files)))
-	assert.Contains(t, outputs, `[DiscriminatedUnionType("discriminantKind")]`)
+	assert.Contains(t, outputs, `[DiscriminatedUnionDiscriminator("discriminantKind")]`)
 	assert.Contains(t, outputs, `[DiscriminatedUnionCase("variant1", typeof(Variant1))]`)
 	assert.Contains(t, outputs, `[DiscriminatedUnionCase("variant4", typeof(Variant4))]`)
 	assert.Contains(t, outputs, "public interface IExampleUnionOf\n")
 
 	inputs, ok := files["Inputs/IExampleUnionOfArgs.cs"]
 	require.True(t, ok, "input interface not generated")
-	assert.Contains(t, inputs, `[DiscriminatedUnionType("discriminantKind")]`)
+	assert.Contains(t, inputs, `[DiscriminatedUnionDiscriminator("discriminantKind")]`)
 	assert.Contains(t, inputs, `[DiscriminatedUnionCase("variant1", typeof(Variant1Args))]`)
 	assert.Contains(t, inputs, "public interface IExampleUnionOfArgs\n")
 

@@ -10,7 +10,7 @@ using Pulumi.Serialization;
 namespace Pulumi.Mypkg.Outputs
 {
 
-    [DiscriminatedUnionType("type")]
+    [DiscriminatedUnionDiscriminator("type")]
     [DiscriminatedUnionCase("Environment", typeof(SsisEnvironmentResponse))]
     [DiscriminatedUnionCase("Folder", typeof(SsisFolderResponse))]
     [DiscriminatedUnionCase("Package", typeof(SsisPackageResponse))]

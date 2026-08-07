@@ -187,6 +187,13 @@ namespace Pulumi.Serialization
                     $"Unexpected generic target type {targetType.FullName} when deserializing {context}");
             }
 
+            if (targetType.IsInterface)
+            {
+                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionDiscriminatorAttribute>();
+                if (unionAttribute != null)
+                    return TryConvertDiscriminatedUnion(warn, context, val, targetType, unionAttribute);
+            }
+
             if (targetType.GetCustomAttribute<OutputTypeAttribute>() == null)
                 return (null, $"Unexpected target type {targetType.FullName} when deserializing {context}");
 
@@ -287,6 +294,28 @@ namespace Pulumi.Serialization
 
         private static (T, string?) TryEnsureType<T>(string context, object val)
             => val is T t ? (t, null) : (default(T)!, $"Expected {typeof(T).FullName} but got {val.GetType().FullName} deserializing {context}");
+
+        private static (object?, string?) TryConvertDiscriminatedUnion(
+            Action<string> warn, string context, object val, Type targetType, DiscriminatedUnionDiscriminatorAttribute unionAttribute)
+        {
+            if (!(val is ImmutableDictionary<string, object> dictionary))
+                return (null,
+                    $"Expected {typeof(ImmutableDictionary<string, object>).FullName} with discriminator property \"{unionAttribute.PropertyName}\" but got {val.GetType().FullName} deserializing {context}");
+
+            var cases = targetType.GetCustomAttributes<DiscriminatedUnionCaseAttribute>().ToArray();
+            var expectedTags = string.Join(", ", cases.Select(c => c.Tag).OrderBy(t => t, StringComparer.Ordinal));
+
+            if (!dictionary.TryGetValue(unionAttribute.PropertyName, out var tagValue) || !(tagValue is string tag))
+                return (null,
+                    $"missing discriminator property \"{unionAttribute.PropertyName}\"; expected one of: {expectedTags} deserializing {context}");
+
+            var matchedCase = cases.FirstOrDefault(c => c.Tag == tag);
+            if (matchedCase == null)
+                return (null,
+                    $"unknown \"{unionAttribute.PropertyName}\" value \"{tag}\"; expected one of: {expectedTags} deserializing {context}");
+
+            return TryConvertObject(warn, context, val, matchedCase.Type);
+        }
 
         private static (object?, string?) TryConvertOneOf(Action<string> warn, string context, object val, Type oneOfType)
         {
@@ -503,6 +532,26 @@ namespace Pulumi.Serialization
                 }
                 throw new InvalidOperationException($@"{context} contains invalid type {targetType.FullName}:
     The only generic types allowed are ImmutableArray<...> and ImmutableDictionary<string, ...>");
+            }
+
+            if (targetType.IsInterface)
+            {
+                var unionAttribute = targetType.GetCustomAttribute<DiscriminatedUnionDiscriminatorAttribute>();
+                if (unionAttribute != null)
+                {
+                    foreach (var unionCase in targetType.GetCustomAttributes<DiscriminatedUnionCaseAttribute>())
+                    {
+                        if (!targetType.IsAssignableFrom(unionCase.Type))
+                        {
+                            throw new InvalidOperationException(
+                                $"{targetType.FullName} had [{nameof(DiscriminatedUnionCaseAttribute)}(\"{unionCase.Tag}\")] with type {unionCase.Type.FullName} that is not assignable to {targetType.FullName}.");
+                        }
+
+                        CheckTargetType($"{targetType.FullName}(\"{unionCase.Tag}\")", unionCase.Type, seenTypes);
+                    }
+
+                    return;
+                }
             }
 
             var propertyTypeAttribute = targetType.GetCustomAttribute<OutputTypeAttribute>();

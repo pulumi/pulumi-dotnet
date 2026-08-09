@@ -5,10 +5,14 @@
     <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="CliWrap" Version="3.10.4" />
+    <PackageVersion Include="Fake.Core.Environment" Version="6.1.4" />
+    <PackageVersion Include="Fake.Core.Target" Version="6.1.4" />
     <PackageVersion Include="FluentAssertions" Version="8.10.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
-    <PackageVersion Include="Moq" Version="4.20.72"/>
+    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="Pulumi.Alpha" Version="3.0.0-alpha.1.internal" />
     <PackageVersion Include="Pulumi.AnyTypeFunction" Version="15.0.0" />
     <PackageVersion Include="Pulumi.Aws" Version="7.41.0" />

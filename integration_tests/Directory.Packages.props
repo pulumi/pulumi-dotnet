@@ -9,7 +9,5 @@
   <ItemGroup>
     <PackageVersion Include="MSTest.TestAdapter" Version="4.3.3"/>
     <PackageVersion Include="MSTest.TestFramework" Version="4.3.3"/>
-    <PackageVersion Include="Pulumi.Aws" Version="7.41.0"/>
-    <PackageVersion Include="Pulumi.Random" Version="4.21.1"/>
   </ItemGroup>
 </Project>

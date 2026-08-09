@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="FluentAssertions" Version="5.10.2" />
+    <PackageVersion Include="Glob" Version="1.1.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.0.0" />
+    <PackageVersion Include="Moq" Version="4.13.1" />
+    <PackageVersion Include="NUnit" Version="3.12.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.2.1" />
+    <PackageVersion Include="Pulumi" Version="3.110.0" />
+    <PackageVersion Include="Pulumi.Aws" Version="7.41.0" />
+    <PackageVersion Include="Pulumi.Goalias" Version="1.0.0" />
+    <PackageVersion Include="Pulumi.GoogleNative" Version="0.20.0" />
+    <PackageVersion Include="Pulumi.Kubernetes" Version="3.7.0" />
+    <PackageVersion Include="Pulumi.Random" Version="4.11.2" />
+    <PackageVersion Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageVersion Include="ThirdParty.Other" Version="0.1.0" />
+  </ItemGroup>
+</Project>

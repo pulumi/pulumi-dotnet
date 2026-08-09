@@ -8,7 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Ben.Demystifier" Version="0.4.1"/>
-    <PackageVersion Include="CliWrap" Version="3.10.4"/>
     <PackageVersion Include="coverlet.msbuild" Version="10.0.1"/>
     <PackageVersion Include="Divergic.Logging.Xunit" Version="4.3.1"/>
     <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.83.0"/>

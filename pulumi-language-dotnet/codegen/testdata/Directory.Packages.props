@@ -1,13 +1,13 @@
 <Project>
+  <Import
+    Project="$([MSBuild]::GetPathOfFileAbove(Directory.Packages.props, $(MSBuildThisFileDirectory)..))" />
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="FluentAssertions" Version="5.10.2" />
     <PackageVersion Include="Glob" Version="1.1.5" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.0.0" />
     <PackageVersion Include="Moq" Version="4.13.1" />
     <PackageVersion Include="NUnit" Version="3.12.0" />

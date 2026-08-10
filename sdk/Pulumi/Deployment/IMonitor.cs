@@ -9,7 +9,7 @@ namespace Pulumi
     {
         Task<SupportsFeatureResponse> SupportsFeatureAsync(SupportsFeatureRequest request);
 
-        Task<InvokeResponse> InvokeAsync(ResourceInvokeRequest request);
+        Task<ResourceInvokeResponse> InvokeAsync(ResourceInvokeRequest request);
 
         Task RegisterStackInvokeTransform(Pulumirpc.Callback callback);
 

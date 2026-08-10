@@ -34,7 +34,7 @@ namespace Pulumi.Testing
             return Task.FromResult(new SupportsFeatureResponse { HasSupport = hasSupport });
         }
 
-        public async Task<InvokeResponse> InvokeAsync(ResourceInvokeRequest request)
+        public async Task<ResourceInvokeResponse> InvokeAsync(ResourceInvokeRequest request)
         {
             var args = ToDictionary(request.Args);
 
@@ -49,7 +49,7 @@ namespace Pulumi.Testing
                         throw new InvalidOperationException($"Unknown resource {urn}");
                     }
                 }
-                return new InvokeResponse { Return = await SerializeAsync(registeredResource).ConfigureAwait(false) };
+                return new ResourceInvokeResponse { Return = await SerializeAsync(registeredResource).ConfigureAwait(false) };
             }
 
             var result = await _mocks.CallAsync(new MockCallArgs
@@ -59,7 +59,7 @@ namespace Pulumi.Testing
                 Provider = request.Provider,
             })
                 .ConfigureAwait(false);
-            return new InvokeResponse { Return = await SerializeAsync(result).ConfigureAwait(false) };
+            return new ResourceInvokeResponse { Return = await SerializeAsync(result).ConfigureAwait(false) };
         }
 
         public async Task<CallResponse> CallAsync(ResourceCallRequest request)

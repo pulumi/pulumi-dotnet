@@ -37,12 +37,12 @@ namespace Pulumi.Automation.Collections
             var y2 = new Dictionary<TKey, TValue>(y, this._keyComparer);
             foreach (var pair in x)
             {
-                if (!y2.ContainsKey(pair.Key))
+                if (!y2.TryGetValue(pair.Key, out TValue? value))
                 {
                     return false;
                 }
 
-                if (!this._valueComparer.Equals(pair.Value, y2[pair.Key]))
+                if (!this._valueComparer.Equals(pair.Value, value))
                 {
                     return false;
                 }

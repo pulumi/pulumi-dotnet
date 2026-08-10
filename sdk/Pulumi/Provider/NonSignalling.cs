@@ -59,7 +59,7 @@ namespace Pulumi.Experimental.Provider
         public async Task<SupportsFeatureResponse> SupportsFeatureAsync(SupportsFeatureRequest request)
             => await Monitor.SupportsFeatureAsync(request);
 
-        public async Task<Pulumirpc.InvokeResponse> InvokeAsync(ResourceInvokeRequest request)
+        public async Task<Pulumirpc.ResourceInvokeResponse> InvokeAsync(ResourceInvokeRequest request)
             => await Monitor.InvokeAsync(request);
 
         public async Task<Pulumirpc.CallResponse> CallAsync(ResourceCallRequest request)

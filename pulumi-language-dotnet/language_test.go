@@ -202,6 +202,10 @@ var expectedFailures = map[string]string{
 	"l3-range-invoke-output-traversal": "Fail after updating to 3.250: dotnet build failed: CS0021 cannot index Output<ImmutableArray<string>>", //nolint:lll
 
 	"l2-failed-create-recover-continue-on-error": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
+
+	"l2-invoke-depends-on-component":     "the .NET SDK does not send dependsOn on invokes: the invoke result is not unknown while its dependencies are pending creation (added in v3.256.0)",            //nolint:lll
+	"l2-target-up-skipped-create-output": "the .NET SDK does not handle RegisterResourceResponse.unknown: outputs of skipped creates resolve as empty instead of unknown (added in v3.256.0)",            //nolint:lll
+	"l3-component-provider-inheritance":  "the .NET SDK does not inherit the providers map into remote components: an extra default provider is created instead of the explicit one (added in v3.256.0)", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

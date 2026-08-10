@@ -11,8 +11,13 @@
             description: "Write a changie fragment for each dependency bump",
             matchPackageNames: ["*"],
             postUpgradeTasks: {
-                commands: ["make renovate"],
-                executionMode: "branch", // Only run once per PR.
+                // The bot's RENOVATE_ALLOWED_COMMANDS (pulumi/home,
+                // infrastructure/github-automation/renovate) is an unanchored
+                // regex list containing "make renovate", which this matches.
+                commands: [
+                    "make renovate DEP='{{{depName}}}' VERSION='{{{newVersion}}}' FILE='{{{packageFile}}}'",
+                ],
+                executionMode: "update", // Once per updated dependency.
             },
         },
     ],

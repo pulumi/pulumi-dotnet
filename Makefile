@@ -29,7 +29,7 @@ changelog:
 # Called from a renovate postUpgradeTasks hook, see renovate.json5.
 .PHONY: renovate
 renovate:
-	./scripts/renovate-changelog.py
+	./scripts/renovate-changelog.sh "$(DEP)" "$(VERSION)" "$(FILE)"
 
 .PHONY: clean
 clean:

@@ -1,0 +1,74 @@
+name: Renovate changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  # For ESC OIDC auth.
+  id-token: write
+  contents: read
+
+env:
+  ESC_ACTION_OIDC_AUTH: true
+  ESC_ACTION_OIDC_ORGANIZATION: pulumi
+  ESC_ACTION_OIDC_REQUESTED_TOKEN_TYPE: urn:pulumi:token-type:access_token:organization
+  ESC_ACTION_ENVIRONMENT: github-secrets/pulumi-pulumi-dotnet
+  ESC_ACTION_EXPORT_ENVIRONMENT_VARIABLES: PULUMI_BOT_TOKEN
+
+jobs:
+  add-changelog:
+    # Renovate can't know the PR number when it creates the branch, so it can't
+    # write the changie fragment itself (the fragment name and changelog entry
+    # both need the PR number). Instead we add the fragment to its PRs here.
+    if: github.event.pull_request.user.login == 'pulumi-renovate[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch secrets from ESC
+        uses: pulumi/esc-action@3af4859af8a73a362fb599b944124097d4bb80c5 # v3
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          # Pushing with the default GITHUB_TOKEN would not re-trigger CI on the PR.
+          token: ${{ env.PULUMI_BOT_TOKEN }}
+
+      - name: Setup mise and install changie
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          install_args: changie
+
+      - name: Add changelog fragment
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          TITLE: ${{ github.event.pull_request.title }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -euo pipefail
+
+          fragment=".changes/unreleased/dependencies-${PR}.yaml"
+          if [ -f "$fragment" ]; then
+            echo "Fragment already exists; nothing to do."
+            exit 0
+          fi
+
+          # Only updates to released artifacts need a changelog entry; updates
+          # to CI, integration tests, etc. are invisible to users.
+          changed=$(git diff --name-only "origin/${BASE_REF}...HEAD")
+          if grep -q '^sdk/' <<< "$changed"; then
+            component=sdk
+          elif grep -q '^pulumi-language-dotnet/' <<< "$changed"; then
+            component=runtime
+          else
+            echo "No released code touched; skipping changelog fragment."
+            exit 0
+          fi
+
+          changie new --component "$component" --kind dependencies --body "$TITLE" --custom "PR=${PR}"
+
+          git config user.name "pulumi-bot"
+          git config user.email "bot@pulumi.com"
+          git add "$fragment"
+          git commit -m "Add changelog fragment for #${PR}"
+          git push

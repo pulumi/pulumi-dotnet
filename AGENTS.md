@@ -122,4 +122,4 @@ Proto files live in the `pulumi/` submodule under `pulumi/proto/`. The SDK's `.c
 - `pulumi-language-dotnet/AGENTS.md` — Go language host, codegen, golden file workflow, conformance tests
 
 ## Changelog
-Every PR must include a changelog fragment. Run `make changelog` and select the component (`sdk`, `sdk/auto`, `sdk/provider`, `sdk/converter`, `runtime`) and kind (`Improvements` or `Bug Fixes`).
+Every PR must include a changelog fragment. Run `make changelog` and select the component (`sdk`, `sdk/auto`, `sdk/provider`, `sdk/converter`, `runtime`) and kind (`Improvements` or `Bug Fixes`). The `Dependencies` kind is reserved for automated Renovate updates (see `.github/workflows/renovate-changelog.yml`).

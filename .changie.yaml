@@ -14,8 +14,6 @@ kinds:
 - label: Dependencies
   auto: patch
   key: dependencies
-  # Written by Renovate (scripts/renovate-changelog.py), which runs before the
-  # PR exists, so these entries have no PR number or link.
   changeFormat: '- [{{.Component}}] {{.Body}}'
   skipGlobalChoices: true
 # Custom fragment file format because we use / in the component name.

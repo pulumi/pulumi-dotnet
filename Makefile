@@ -26,7 +26,6 @@ build_language_host:
 changelog:
 	changie new
 
-# Called from a renovate postUpgradeTasks hook, see renovate.json5.
 .PHONY: renovate
 renovate:
 	./scripts/renovate-changelog.sh "$(DEP)" "$(VERSION)" "$(FILE)"

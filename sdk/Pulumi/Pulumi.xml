@@ -5665,6 +5665,15 @@
             The target of a codegen.LoaderServer to use for loading schemas.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ConvertStateRequest.ResolverTargetFieldNumber">
+            <summary>Field number for the "resolver_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertStateRequest.ResolverTarget">
+            <summary>
+            The target of a [](pulumirpc.PackageResolver) service the converter can use to resolve package
+            specifications to concrete package dependencies. May be empty on older engines.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ResourceImport">
             <summary>
             A ResourceImport specifies a resource to import.
@@ -13334,6 +13343,12 @@
             string bytes signature and a base64 encoding of the string's bytes.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceMonitorFeature.InvokeDependsOn">
+            <summary>
+            The monitor accepts `dependsOn` on `ResourceInvokeRequest` and gates the invoke on the created-ness of the
+            dependencies, returning `unknown` on `ResourceInvokeResponse` when they are pending.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceMonitorFeature.InvokeParent">
             <summary>
             The monitor resolves an invoke's provider from the `parent` field on `ResourceInvokeRequest`.
@@ -14093,6 +14108,14 @@
             the reason, whether the resource registration was successful, failed, or skipped.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceResponse.UnknownFieldNumber">
+            <summary>Field number for the "unknown" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceResponse.Unknown">
+            <summary>
+            true if the result of the registration is unknown, e.g. because the create was elided by a targeted update or a destroy run; result is still SUCCESS and SDKs should resolve outputs as unknown.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceResponse.Types">
             <summary>Container for nested types declared in the RegisterResourceResponse message type.</summary>
         </member>
@@ -14227,6 +14250,16 @@
             carrying the byte string signature and a base64 encoding of the string's bytes.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.DependsOnFieldNumber">
+            <summary>Field number for the "dependsOn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.DependsOn">
+             <summary>
+             The URNs of the resources this invoke depends on.
+            
+             The engine will advertise `INVOKE_DEPENDS_ON` when it reads this field.
+             </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceInvokeRequest.ParentFieldNumber">
             <summary>Field number for the "parent" field.</summary>
         </member>
@@ -14235,6 +14268,31 @@
             An optional URN of the resource this invoke is parented to. When `provider` is empty, the invoke is served by
             the provider its parent's `providers` option names for the invoke's package, the same resolution applied to
             resource registrations. Only respected when the monitor advertises `INVOKE_PARENT`.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeResponse.ReturnFieldNumber">
+            <summary>Field number for the "return" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeResponse.Return">
+            <summary>
+            the returned values, if invoke was successful.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeResponse.FailuresFieldNumber">
+            <summary>Field number for the "failures" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeResponse.Failures">
+            <summary>
+            the failures if any arguments didn't pass verification.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeResponse.UnknownFieldNumber">
+            <summary>Field number for the "unknown" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeResponse.Unknown">
+            <summary>
+            True if the result must be treated as wholly unknown, which the monitor reports when it declines to service an
+            invoke whose dependencies are pending creation.
             </summary>
         </member>
         <member name="F:Pulumirpc.ResourceCallRequest.TokFieldNumber">

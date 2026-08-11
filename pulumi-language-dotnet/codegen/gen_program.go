@@ -25,6 +25,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"sync"
 
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/hashicorp/hcl/v2"
@@ -41,6 +42,33 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/workspace"
 	"github.com/zclconf/go-cty/cty"
 )
+
+// packageContext contains package-derived data that is immutable after construction.
+type packageContext struct {
+	namespaces      map[string]map[string]string
+	compatibilities map[string]string
+	tokenToModules  map[string]func(x string) string
+	functionArgs    map[string]string
+	tokenPackages   map[string]string
+}
+
+// packageContextCacheEntry records package shape because partial package snapshots
+// can grow as binding loads additional schema entries.
+type packageContextCacheEntry struct {
+	packages      []*schema.Package
+	resourceSizes []int
+	functionSizes []int
+	typeSizes     []int
+	context       *packageContext
+}
+
+var packageContexts = struct {
+	sync.Mutex
+	entries []*packageContextCacheEntry
+}{}
+
+// packageContextCacheSize limits the package schemas retained by a long-running language host.
+const packageContextCacheSize = 16
 
 type GenerateProgramOptions struct {
 	// Determines whether ResourceArg types have an implicit name
@@ -132,6 +160,95 @@ func canonicalToken(token string) string {
 	return token[:packageEnd+1] + token[moduleEnd:]
 }
 
+// packageContextFor reuses schema-derived maps across GenerateProgram calls. Bulk generators such as tfgen bind each
+// documentation example as a separate program with a shared pcl.PackageCache, so the programs use the same package
+// objects. Partial package objects can grow between calls, which is why cache hits also require a matching shape.
+func packageContextFor(packages []*schema.Package) (*packageContext, error) {
+	packageContexts.Lock()
+	for i, entry := range packageContexts.entries {
+		if entry.matches(packages) {
+			packageContexts.entries[0], packageContexts.entries[i] = packageContexts.entries[i], packageContexts.entries[0]
+			context := entry.context
+			packageContexts.Unlock()
+			return context, nil
+		}
+	}
+	packageContexts.Unlock()
+
+	context := &packageContext{
+		namespaces:      make(map[string]map[string]string, len(packages)),
+		compatibilities: make(map[string]string, len(packages)),
+		tokenToModules:  make(map[string]func(x string) string, len(packages)),
+		functionArgs:    make(map[string]string),
+		tokenPackages:   make(map[string]string),
+	}
+	entry := &packageContextCacheEntry{
+		packages:      slices.Clone(packages),
+		resourceSizes: make([]int, len(packages)),
+		functionSizes: make([]int, len(packages)),
+		typeSizes:     make([]int, len(packages)),
+		context:       context,
+	}
+	for i, p := range packages {
+		entry.resourceSizes[i] = len(p.Resources)
+		entry.functionSizes[i] = len(p.Functions)
+		entry.typeSizes[i] = len(p.Types)
+		if err := p.ImportLanguages(map[string]schema.Language{"csharp": Importer}); err != nil {
+			return nil, err
+		}
+
+		csharpInfo, hasInfo := p.Language["csharp"].(CSharpPackageInfo)
+		if !hasInfo {
+			csharpInfo = CSharpPackageInfo{}
+		}
+		normalizePackageInfo(&csharpInfo, p.Name, p.Namespace)
+		context.namespaces[p.Name] = csharpInfo.Namespaces
+		context.compatibilities[p.Name] = csharpInfo.Compatibility
+		context.tokenToModules[p.Name] = p.TokenToModule
+
+		for _, resource := range p.Resources {
+			context.tokenPackages[canonicalToken(resource.Token)] = p.Name
+		}
+		for _, function := range p.Functions {
+			context.tokenPackages[canonicalToken(function.Token)] = p.Name
+			if function.Inputs != nil {
+				context.functionArgs[function.Inputs.Token] = function.Token
+			}
+		}
+		for _, typ := range p.Types {
+			switch typ := typ.(type) {
+			case *schema.ObjectType:
+				context.tokenPackages[canonicalToken(typ.Token)] = p.Name
+			case *schema.EnumType:
+				context.tokenPackages[canonicalToken(typ.Token)] = p.Name
+			}
+		}
+	}
+
+	packageContexts.Lock()
+	packageContexts.entries = append([]*packageContextCacheEntry{entry}, packageContexts.entries...)
+	if len(packageContexts.entries) > packageContextCacheSize {
+		packageContexts.entries = packageContexts.entries[:packageContextCacheSize]
+	}
+	packageContexts.Unlock()
+	return context, nil
+}
+
+func (entry *packageContextCacheEntry) matches(packages []*schema.Package) bool {
+	if len(entry.packages) != len(packages) {
+		return false
+	}
+	for i, p := range packages {
+		if entry.packages[i] != p ||
+			entry.resourceSizes[i] != len(p.Resources) ||
+			entry.functionSizes[i] != len(p.Functions) ||
+			entry.typeSizes[i] != len(p.Types) {
+			return false
+		}
+	}
+	return true
+}
+
 func (g *generator) resetListInitializer() {
 	g.listInitializer = "new[]"
 }
@@ -153,52 +270,22 @@ func GenerateProgramWithOptions(
 	// Linearize the nodes into an order appropriate for procedural code generation.
 	nodes := pcl.Linearize(program)
 
-	// Import C#-specific schema info.
-	namespaces := make(map[string]map[string]string)
-	compatibilities := make(map[string]string)
-	tokenToModules := make(map[string]func(x string) string)
-	functionArgs := make(map[string]string)
-	tokenPackages := make(map[string]string)
+	// Import and retain C#-specific schema info. Programs bound through the same
+	// package cache share package objects, which can grow between calls as a
+	// partial package loads more schema entries.
 	packages, err := program.PackageSnapshots()
 	if err != nil {
 		return nil, nil, err
 	}
-	for _, p := range packages {
-		if err := p.ImportLanguages(map[string]schema.Language{"csharp": Importer}); err != nil {
-			return make(map[string][]byte), nil, err
-		}
-
-		csharpInfo, hasInfo := p.Language["csharp"].(CSharpPackageInfo)
-		if !hasInfo {
-			csharpInfo = CSharpPackageInfo{}
-		}
-		normalizePackageInfo(&csharpInfo, p.Name, p.Namespace)
-		packageNamespaces := csharpInfo.Namespaces
-		namespaces[p.Name] = packageNamespaces
-		compatibilities[p.Name] = csharpInfo.Compatibility
-		tokenToModules[p.Name] = p.TokenToModule
-
-		for _, r := range p.Resources {
-			tokenPackages[canonicalToken(r.Token)] = p.Name
-		}
-		for _, fn := range p.Functions {
-			tokenPackages[canonicalToken(fn.Token)] = p.Name
-		}
-		for _, t := range p.Types {
-			switch typ := t.(type) {
-			case *schema.ObjectType:
-				tokenPackages[canonicalToken(typ.Token)] = p.Name
-			case *schema.EnumType:
-				tokenPackages[canonicalToken(typ.Token)] = p.Name
-			}
-		}
-
-		for _, f := range p.Functions {
-			if f.Inputs != nil {
-				functionArgs[f.Inputs.Token] = f.Token
-			}
-		}
+	packageContext, err := packageContextFor(packages)
+	if err != nil {
+		return make(map[string][]byte), nil, err
 	}
+	namespaces := maps.Clone(packageContext.namespaces)
+	compatibilities := packageContext.compatibilities
+	tokenToModules := packageContext.tokenToModules
+	functionArgs := packageContext.functionArgs
+	tokenPackages := packageContext.tokenPackages
 
 	g := &generator{
 		program:          program,

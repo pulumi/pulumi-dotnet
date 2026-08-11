@@ -117,6 +117,27 @@ func TestCanonicalToken(t *testing.T) {
 	}
 }
 
+func TestPackageContextCacheTracksPackageShape(t *testing.T) {
+	t.Parallel()
+
+	pkg := &schema.Package{Name: "test"}
+	packages := []*schema.Package{pkg}
+
+	first, err := packageContextFor(packages)
+	require.NoError(t, err)
+	second, err := packageContextFor(packages)
+	require.NoError(t, err)
+	require.Same(t, first, second)
+
+	pkg.Types = append(pkg.Types, &schema.ObjectType{Token: "test:index:Added"})
+	third, err := packageContextFor(packages)
+	require.NoError(t, err)
+	require.NotSame(t, first, third)
+	fourth, err := packageContextFor(packages)
+	require.NoError(t, err)
+	require.Same(t, third, fourth)
+}
+
 func parseAndBindProgram(t *testing.T,
 	text string,
 	name string,

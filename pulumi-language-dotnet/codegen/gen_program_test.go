@@ -94,6 +94,28 @@ func TestGenerateProgramYAML(t *testing.T) {
 	})
 }
 
+func TestCanonicalToken(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		token string
+		want  string
+	}{
+		{token: "aws:s3/bucket:Bucket", want: "aws:s3/bucket:Bucket"},
+		{token: "aws:index:Bucket", want: "aws::Bucket"},
+		{token: "aws::Bucket", want: "aws::Bucket"},
+		{token: "malformed", want: "malformed"},
+		{token: "aws:index:Bucket:extra", want: "aws::Bucket:extra"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.token, func(t *testing.T) {
+			t.Parallel()
+			require.Equal(t, tt.want, canonicalToken(tt.token))
+		})
+	}
+}
+
 func parseAndBindProgram(t *testing.T,
 	text string,
 	name string,

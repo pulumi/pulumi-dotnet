@@ -9,8 +9,8 @@
 		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Primitive;$(RestoreSources)</RestoreSources>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Pulumi.Primitive" Version="7.0.0" />
-		<PackageReference Include="Pulumi" Version="1.0.0" />
+		<PackageReference Include="Pulumi.Primitive" />
+		<PackageReference Include="Pulumi" />
 	</ItemGroup>
 
 </Project>

@@ -87,6 +87,10 @@ type generator struct {
 	// from an array
 	listInitializer         string
 	deferredOutputVariables []*pcl.DeferredOutputVariable
+	// Local variables whose object literal was emitted as a typed Dictionary. Traversals into
+	// these locals must use string indexers rather than property access, so the decision made
+	// at declaration time is recorded here for the traversal sites.
+	typedDictionaryLocals map[*pcl.LocalVariable]bool
 	// Some of our names interfere with one another. For example, `Pulumi.Output` is a module, and `Output` exists in
 	// `Pulumi`, so programs that import `Pulumi` and `Pulumi.Output` hit name collisions. For this reason, we'll import
 	// the latter as `OutputProvider` rather than `Output`.
@@ -688,7 +692,7 @@ func componentInputElementType(pclType model.Type) string {
 		return "int"
 	case model.NumberType:
 		return "double"
-	case model.StringType:
+	case model.IDType, model.StringType:
 		return "string"
 	default:
 		switch pclType := pclType.(type) {
@@ -731,7 +735,7 @@ func componentOutputElementType(pclType model.Type) string {
 		return "int"
 	case model.NumberType:
 		return "double"
-	case model.StringType:
+	case model.IDType, model.StringType:
 		return "string"
 	default:
 		switch pclType := pclType.(type) {
@@ -760,7 +764,7 @@ func mainConfigElementType(pclType model.Type) string {
 		return "int"
 	case model.NumberType:
 		return "double"
-	case model.StringType:
+	case model.IDType, model.StringType:
 		return "string"
 	default:
 		switch pclType := pclType.(type) {
@@ -1408,6 +1412,7 @@ func (g *generator) functionName(tokenArg model.Expression) (string, string) {
 	pkg, module, member, diags := pcl.DecomposeToken(token, tokenRange)
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
 	pkg = g.packageForToken(token, pkg)
+	member = disambiguateFunctionName(member)
 	return g.qualifiedTypeName(pkg, module, member)
 }
 
@@ -2067,7 +2072,7 @@ func computeConfigTypeParam(configName string, configType model.Type) string {
 	typeName := cgstrings.UppercaseFirst(makeValidIdentifier(configName))
 	configType = pcl.UnwrapOption(configType)
 	switch configType {
-	case model.StringType:
+	case model.IDType, model.StringType:
 		return "string"
 	case model.IntType:
 		return "int"
@@ -2097,7 +2102,7 @@ func resolveConfigType(configType model.Type) string {
 	getType := "Object"
 	configType = pcl.UnwrapOption(configType)
 	switch configType {
-	case model.StringType:
+	case model.IDType, model.StringType:
 		getType = ""
 	case model.NumberType:
 		getType = "Double"
@@ -2173,8 +2178,82 @@ func (g *generator) genLocalVariable(w io.Writer, localVariable *pcl.LocalVariab
 		g.Fgenf(w, "%svar %s = %v;\n\n", g.Indent, variableName, result)
 	} else {
 		result := g.lowerExpression(value, value.Type())
-		g.Fgenf(w, "%svar %s = %v;\n\n", g.Indent, variableName, result)
+		g.Fgenf(w, "%svar %s = ", g.Indent, variableName)
+		if object, ok := result.(*model.ObjectConsExpression); ok && g.genTypedLocalObjectConsExpression(w, object) {
+			if g.typedDictionaryLocals == nil {
+				g.typedDictionaryLocals = map[*pcl.LocalVariable]bool{}
+			}
+			g.typedDictionaryLocals[localVariable] = true
+			g.Fgenf(w, ";\n\n")
+		} else {
+			g.Fgenf(w, "%v;\n\n", result)
+		}
 	}
+}
+
+func localVariableTypeName(t model.Type) (string, bool) {
+	t = pcl.UnwrapOption(t)
+	switch t {
+	case model.BoolType:
+		return "bool", true
+	case model.IntType:
+		return "int", true
+	case model.NumberType:
+		return "double", true
+	case model.IDType, model.StringType:
+		return "string", true
+	default:
+		switch t := t.(type) {
+		case *model.OutputType:
+			elementType, ok := localVariableTypeName(t.ElementType)
+			if !ok {
+				return "", false
+			}
+			return fmt.Sprintf("Output<%s>", elementType), true
+		default:
+			return "", false
+		}
+	}
+}
+
+// dictionaryValueType returns the C# value type to use when emitting the object literal as a
+// Dictionary<string, T>, or false when there is no single T (empty, mixed, or unrepresentable
+// value types).
+func dictionaryValueType(expr *model.ObjectConsExpression) (string, bool) {
+	if len(expr.Items) == 0 {
+		return "", false
+	}
+
+	var elementType string
+	for _, item := range expr.Items {
+		itemType, ok := localVariableTypeName(item.Value.Type())
+		if !ok {
+			return "", false
+		}
+		if elementType == "" {
+			elementType = itemType
+		} else if itemType != elementType {
+			return "", false
+		}
+	}
+	return elementType, true
+}
+
+func (g *generator) genTypedLocalObjectConsExpression(w io.Writer, expr *model.ObjectConsExpression) bool {
+	elementType, ok := dictionaryValueType(expr)
+	if !ok {
+		return false
+	}
+
+	g.Fgenf(w, "new Dictionary<string, %s>\n", elementType)
+	g.Fgenf(w, "%s{\n", g.Indent)
+	g.Indented(func() {
+		for _, item := range expr.Items {
+			g.Fgenf(w, "%s[%.v] = %.v,\n", g.Indent, item.Key, item.Value)
+		}
+	})
+	g.Fgenf(w, "%s}", g.Indent)
+	return true
 }
 
 func (g *generator) genNYI(w io.Writer, reason string, vs ...any) {

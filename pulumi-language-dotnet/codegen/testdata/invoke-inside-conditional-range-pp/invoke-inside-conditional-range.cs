@@ -41,7 +41,7 @@ return await Deployment.RunAsync(async() =>
     var createPublicSubnets = true;
 
     var publicSubnet = new List<Infra.Subnet>();
-    for (var rangeIndex = 0; rangeIndex < createPublicSubnets && (!oneNatGatewayPerAz || lenPublicSubnets >= azs.Length) ? lenPublicSubnets : 0; rangeIndex++)
+    for (var rangeIndex = 0; rangeIndex < createPublicSubnets && (!oneNatGatewayPerAz || lenPublicSubnets >= (double)azs.Length) ? lenPublicSubnets : 0.0; rangeIndex++)
     {
         var range = new { Value = rangeIndex };
         publicSubnet.Add(new Infra.Subnet($"publicSubnet-{range.Value}", new()
@@ -54,7 +54,7 @@ return await Deployment.RunAsync(async() =>
             {
                 Input = currentVpc.Ipv6CidrBlock,
                 Newbits = 8,
-                Netnum = publicSubnetIpv6Prefixes[range.Value],
+                Netnum = int.Parse(publicSubnetIpv6Prefixes[range.Value], System.Globalization.CultureInfo.InvariantCulture),
             }).Apply(invoke => invoke.Result) : null,
             Ipv6Native = enableIpv6 && publicSubnetIpv6Native,
             VpcId = currentVpc.Id,

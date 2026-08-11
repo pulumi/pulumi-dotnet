@@ -199,7 +199,17 @@ func resourceName(r *schema.Resource) string {
 }
 
 func tokenToFunctionName(tok string) string {
-	return tokenToName(tok)
+	return disambiguateFunctionName(tokenToName(tok))
+}
+
+// disambiguateFunctionName renames functions whose generated class name would collide with the
+// Invoke/InvokeAsync methods declared inside it (CS0542: member names cannot be the same as
+// their enclosing type).
+func disambiguateFunctionName(name string) string {
+	if strings.EqualFold(name, "Invoke") || strings.EqualFold(name, "InvokeAsync") {
+		return name + "Function"
+	}
+	return name
 }
 
 func (mod *modContext) isK8sCompatMode() bool {
@@ -2191,7 +2201,7 @@ func (mod *modContext) gen(fs codegen.Fs) error {
 		if err != nil {
 			return err
 		}
-		addFile(tokenToName(f.Token)+".cs", code)
+		addFile(tokenToFunctionName(f.Token)+".cs", code)
 	}
 
 	// Nested types

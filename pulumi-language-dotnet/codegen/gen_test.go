@@ -147,6 +147,14 @@ func TestGenerateType(t *testing.T) {
 	}
 }
 
+func TestTokenToFunctionNameAvoidsInvokeMemberCollisions(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "InvokeFunction", tokenToFunctionName("primitive:index:invoke"))
+	assert.Equal(t, "InvokeAsyncFunction", tokenToFunctionName("primitive:index:invokeAsync"))
+	assert.Equal(t, "GetValue", tokenToFunctionName("primitive:index:getValue"))
+}
+
 func TestGenerateTypeNames(t *testing.T) {
 	t.Parallel()
 

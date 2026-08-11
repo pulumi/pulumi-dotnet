@@ -105,7 +105,6 @@ var expectedFailures = map[string]string{
 	"l2-resource-config":                    "sdk packing for config: build error before pack",
 	"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
 	"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
-	"l2-resource-primitives":                "Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",
 	"l2-provider-grpc-config":               "dotnet build failed",
 	"l2-provider-grpc-config-secret":        "dotnet build failed",
 	"l2-provider-grpc-config-schema":        "dotnet build failed",
@@ -146,12 +145,10 @@ var expectedFailures = map[string]string{
 
 	"l3-range": "Fail after updating to 3.225",
 
-	"l2-primitive-ref": "Fail after updating to 3.229: dotnet build failed",
-	"l2-ref-ref":       "Fail after updating to 3.229: dotnet build failed",
+	"l2-ref-ref": "Fail after updating to 3.229: dotnet build failed",
 
-	"l2-resource-optional":           "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
-	"l3-component-config-objects":    "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll
-	"l3-component-config-primitives": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
+	"l2-resource-optional":        "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
+	"l3-component-config-objects": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll
 
 	"l3-for":              "Fail after updating to 3.226",
 	"l2-snake-names":      "Fail after updating to 3.226",
@@ -160,9 +157,8 @@ var expectedFailures = map[string]string{
 	"l1-builtin-to-json":  "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",
 	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
 
-	"l2-resource-config-primitives": "dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",                //nolint:lll
-	"l2-resource-config-objects":    "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
-	"l3-rewrite-conversions":        "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
+	"l2-resource-config-objects": "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
+	"l3-rewrite-conversions":     "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
 	// l3-range-ref was split by range kind in pulumi/pulumi#23632 (v3.248.0); all three inherit the
 	// original "dotnet build failed: List<Target> missing K1/Name members" range-ref codegen bug.
 	"l3-range-list-ref":                  "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
@@ -179,9 +175,7 @@ var expectedFailures = map[string]string{
 
 	"l3-component-nested":                "Fail after updating to 3.232",
 	"l1-builtin-min-max":                 "Fail after updating to 3.232",
-	"l2-resource-primitive-conversions":  "Fail after updating to 3.232",
 	"l3-component-primitive-conversions": "Fail after updating to 3.232",
-	"l2-id-type":                         "Fail after updating to 3.232",
 
 	"l2-resource-read":        "Fail after updating to 3.234: read resource codegen not implemented",
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",

@@ -12,12 +12,12 @@ return await Deployment.RunAsync(() =>
 
     var Question = new Other.Module.Object("Question", new()
     {
-        Answer = 42,
+        Answer = (double)42,
     });
 
     var Question2 = new Other.Module.Sub.Object("Question2", new()
     {
-        Answer = 24,
+        Answer = (double)24,
     });
 
     var Provider = new Other.Provider("Provider", new()

@@ -28,6 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/model"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/syntax"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/pcl"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
@@ -41,6 +42,21 @@ import (
 //
 // It should be kept up to date with this repo's released version.
 const PulumiDotnetSDKVersion = "3.106.2"
+
+func TestIDTypeIsRepresentedAsString(t *testing.T) {
+	t.Parallel()
+
+	require.Equal(t, "string", componentInputElementType(model.IDType))
+	require.Equal(t, "Input<string>", componentInputType(model.IDType))
+	require.Equal(t, "InputList<string>", componentInputType(model.NewListType(model.IDType)))
+	require.Equal(t, "string", componentOutputElementType(model.IDType))
+	require.Equal(t, "Output<string>", componentOutputType(model.IDType))
+	require.Equal(t, "List<string>", componentOutputElementType(model.NewListType(model.IDType)))
+	require.Equal(t, "string", mainConfigElementType(model.IDType))
+	require.Equal(t, "List<string>", mainConfigElementType(model.NewListType(model.IDType)))
+	require.Equal(t, "string", computeConfigTypeParam("id", model.IDType))
+	require.Empty(t, resolveConfigType(model.IDType))
+}
 
 func TestGenerateProgram(t *testing.T) {
 	t.Parallel()

@@ -1,17 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' != '' ">$(TARGET_FRAMEWORK)</TargetFramework>
     <TargetFramework Condition=" '$(TARGET_FRAMEWORK)' == '' ">net8.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\..\sdk\Pulumi\Pulumi.csproj"/>
+    <ProjectReference Include="..\..\..\sdk\Pulumi\Pulumi.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="FluentAssertions" />
   </ItemGroup>
 </Project>

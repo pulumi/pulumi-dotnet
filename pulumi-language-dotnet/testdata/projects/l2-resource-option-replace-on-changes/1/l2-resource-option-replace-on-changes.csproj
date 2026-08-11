@@ -9,8 +9,8 @@
 		<RestoreSources>ROOT/artifacts/Pulumi;ROOT/artifacts/Pulumi.Replaceonchanges;$(RestoreSources)</RestoreSources>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Pulumi" Version="1.0.0" />
-		<PackageReference Include="Pulumi.Replaceonchanges" Version="25.0.0" />
+		<PackageReference Include="Pulumi" />
+		<PackageReference Include="Pulumi.Replaceonchanges" />
 	</ItemGroup>
 
 </Project>

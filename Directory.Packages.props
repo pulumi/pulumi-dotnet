@@ -1,0 +1,56 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="CliWrap" Version="3.10.4" />
+    <PackageVersion Include="Fake.Core.Environment" Version="6.1.4" />
+    <PackageVersion Include="Fake.Core.Target" Version="6.1.4" />
+    <PackageVersion Include="FluentAssertions" Version="8.10.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
+    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="Pulumi.Alpha" Version="3.0.0-alpha.1.internal" />
+    <PackageVersion Include="Pulumi.AnyTypeFunction" Version="15.0.0" />
+    <PackageVersion Include="Pulumi.Aws" Version="7.41.0" />
+    <PackageVersion Include="Pulumi.Call" Version="15.7.9" />
+    <PackageVersion Include="Pulumi.Component" Version="13.3.7" />
+    <PackageVersion Include="Pulumi.ComponentPropertyDeps" Version="1.33.7" />
+    <PackageVersion Include="Pulumi.Config_" Version="9.0.0" />
+    <PackageVersion Include="Pulumi.Constant" Version="43.0.0" />
+    <PackageVersion Include="Pulumi.DiscriminatedUnion" Version="31.0.0" />
+    <PackageVersion Include="Pulumi.Enum" Version="30.0.0" />
+    <PackageVersion Include="Pulumi.Extbase" Version="45.0.0" />
+    <PackageVersion Include="Pulumi.Extenumref" Version="32.0.0" />
+    <PackageVersion Include="Pulumi.Fail_on_create" Version="4.0.0" />
+    <PackageVersion Include="Pulumi.Flaky" Version="46.0.0" />
+    <PackageVersion Include="Pulumi.Goalias" Version="1.0.0" />
+    <PackageVersion Include="Pulumi.Goodbye" Version="2.0.0" />
+    <PackageVersion Include="Pulumi.GoogleNative" Version="0.32.0" />
+    <PackageVersion Include="Pulumi.IndexMod" Version="35.0.0" />
+    <PackageVersion Include="Pulumi.Keywords" Version="20.0.0" />
+    <PackageVersion Include="Pulumi.Kubernetes" Version="4.33.0" />
+    <PackageVersion Include="Pulumi.Large" Version="4.3.2" />
+    <PackageVersion Include="Pulumi.ModuleFormat" Version="29.0.0" />
+    <PackageVersion Include="Pulumi.MultiArgumentInvoke" Version="44.0.0" />
+    <PackageVersion Include="Pulumi.Myext" Version="2.0.0" />
+    <PackageVersion Include="Pulumi.Names" Version="6.0.0" />
+    <PackageVersion Include="Pulumi.Nestedobject" Version="1.42.0" />
+    <PackageVersion Include="Pulumi.OutputOnlyInvoke" Version="24.0.0" />
+    <PackageVersion Include="Pulumi.Plaincomponent" Version="36.0.0" />
+    <PackageVersion Include="Pulumi.PrimitiveDefaults" Version="8.0.0" />
+    <PackageVersion Include="Pulumi.PrimitiveRef" Version="11.0.0" />
+    <PackageVersion Include="Pulumi.Protobuf" Version="3.33.0" />
+    <PackageVersion Include="Pulumi.Random" Version="4.21.1" />
+    <PackageVersion Include="Pulumi.RefRef" Version="12.0.0" />
+    <PackageVersion Include="Pulumi.Replaceonchanges" Version="25.0.0" />
+    <PackageVersion Include="Pulumi.Simple" Version="27.0.0" />
+    <PackageVersion Include="Pulumi.SimpleInvoke" Version="10.0.0" />
+    <PackageVersion Include="Pulumi.Subpackage" Version="2.0.0" />
+    <PackageVersion Include="Pulumi.Sync" Version="3.0.0-alpha.1.internal" />
+    <PackageVersion Include="Pulumi" Version="3.110.0" />
+  </ItemGroup>
+</Project>

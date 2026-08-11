@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove(Directory.Packages.props, $(MSBuildThisFileDirectory)..))" />
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Ben.Demystifier" Version="0.4.1"/>
+    <PackageVersion Include="coverlet.msbuild" Version="10.0.1"/>
+    <PackageVersion Include="Divergic.Logging.Xunit" Version="4.3.1"/>
+    <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.83.0"/>
+    <PackageVersion Include="Grpc.AspNetCore.Server.Reflection" Version="2.83.0"/>
+    <PackageVersion Include="Grpc.Net.Client" Version="2.83.0"/>
+    <PackageVersion Include="Grpc.Tools" Version="2.83.0"/>
+    <PackageVersion Include="Humanizer.Core" Version="3.0.10"/>
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0"/>
+    <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="5.6.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10"/>
+    <PackageVersion Include="OneOf" Version="3.0.271"/>
+    <PackageVersion Include="OpenTelemetry" Version="1.17.0"/>
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.17.0"/>
+    <PackageVersion Include="semver" Version="3.0.0"/>
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0"/>
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1"/>
+    <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19"/>
+    <PackageVersion Include="xunit" Version="2.9.3"/>
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
+    <PackageVersion Include="YamlDotNet" Version="18.1.0"/>
+  </ItemGroup>
+</Project>

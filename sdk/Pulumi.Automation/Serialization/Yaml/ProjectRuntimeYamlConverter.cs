@@ -12,7 +12,7 @@ namespace Pulumi.Automation.Serialization.Yaml
         private static readonly Type _type = typeof(ProjectRuntime);
         private static readonly Type _optionsType = typeof(ProjectRuntimeOptions);
 
-        private readonly IYamlTypeConverter _optionsConverter = new ProjectRuntimeOptionsYamlConverter();
+        private readonly ProjectRuntimeOptionsYamlConverter _optionsConverter = new ProjectRuntimeOptionsYamlConverter();
 
         public bool Accepts(Type type) => type == _type;
 

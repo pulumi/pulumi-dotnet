@@ -12,7 +12,7 @@ gofumpt = "0.9.1"
 golangci-lint = "2.9.0"
 gotestsum = "latest"
 "github:pulumi/pulumi" = "latest"
-"vfox:dotnet" = { version = "8.0", postinstall = "powershell -File {{config_root}}/scripts/install-dotnet-runtime.ps1 || bash {{config_root}}/scripts/install-dotnet-runtime.sh" }
+"vfox:dotnet" = { version = "10.0.302", postinstall = "powershell -File {{config_root}}/scripts/install-dotnet-runtime.ps1 || bash {{config_root}}/scripts/install-dotnet-runtime.sh" }
 
 # netcoredbg is the .NET debugger used by the debugger-attach integration tests.  Samsung does not publish an osx-arm64
 # build (https://github.com/Samsung/netcoredbg/issues/174), so on Apple Silicon we pull a community-built arm64

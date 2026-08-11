@@ -63,32 +63,7 @@ namespace Pulumi.Automation.Serialization
             where T : class
             => this._yamlSerializer.Serialize(@object);
 
-        public static JsonSerializerOptions BuildJsonSerializerOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                AllowTrailingCommas = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            };
-
-            options.Converters.Add(new StringToEnumJsonConverter<OperationType, OperationTypeConverter>());
-            options.Converters.Add(new StringToEnumJsonConverter<DiffKind, DiffKindConverter>());
-            options.Converters.Add(new StringToEnumJsonConverter<UpdateKind, UpdateKindConverter>());
-            options.Converters.Add(new JsonStringEnumConverter(new LowercaseJsonNamingPolicy()));
-            options.Converters.Add(new SystemObjectJsonConverter());
-            options.Converters.Add(new MapToModelJsonConverter<ConfigValue, ConfigValueModel>());
-            options.Converters.Add(new MapToModelJsonConverter<PluginInfo, PluginInfoModel>());
-            options.Converters.Add(new MapToModelJsonConverter<ProjectSettings, ProjectSettingsModel>());
-            options.Converters.Add(new MapToModelJsonConverter<StackSummary, StackSummaryModel>());
-            options.Converters.Add(new MapToModelJsonConverter<UpdateSummary, UpdateSummaryModel>());
-            options.Converters.Add(new MapToModelJsonConverter<EngineEvent, EngineEventModel>());
-            options.Converters.Add(new ProjectRuntimeJsonConverter());
-            options.Converters.Add(new ResourceChangesJsonConverter());
-            options.Converters.Add(new StackSettingsConfigValueJsonConverter());
-
-            return options;
-        }
+        public static JsonSerializerOptions BuildJsonSerializerOptions() => SourceGenerationContext.Default.Options;
 
         public static IDeserializer BuildYamlDeserializer()
             => new DeserializerBuilder()

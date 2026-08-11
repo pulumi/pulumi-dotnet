@@ -60,9 +60,6 @@ namespace Pulumi.Automation
         /// </summary>
         /// <param name="cancellationToken">A cancellation token.</param>
         public Task UnprotectAllAsync(CancellationToken cancellationToken = default)
-        {
-            var args = new string[] { "state", "unprotect", "--all", }.ToList();
-            return this._workspaceStack.RunCommandAsync(args, null, null, null, cancellationToken);
-        }
+            => this._workspaceStack.RunCommandAsync(["state", "unprotect", "--all"], null, null, null, cancellationToken);
     }
 }

@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Dotnet 10 upgrade and migration to CPM (Central Package Managment)
+time: 2026-08-09T18:32:41.2770853+02:00
+custom:
+    PR: "1109"

@@ -1,27 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Pulumi.Automation.Codegen\Pulumi.Automation.Codegen.csproj" />
     <!-- The generated code returns the SDK's CommandResult, so compiling it
          in these tests needs Pulumi.Automation on the reference set. -->
     <ProjectReference Include="..\Pulumi.Automation\Pulumi.Automation.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- The golden file is C# source compared against generator output; it
          must not be compiled into (or formatted as part of) this project. -->
     <Compile Remove="testdata\**" />
     <None Include="testdata\**" />
   </ItemGroup>
-
 </Project>

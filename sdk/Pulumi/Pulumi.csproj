@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Pulumi</Authors>
     <Company>Pulumi Corp.</Company>
@@ -13,12 +12,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AnalysisMode>Recommended</AnalysisMode>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>.\Pulumi.xml</DocumentationFile>
     <NoWarn>1701;1702;1591;NU5105</NoWarn>
   </PropertyGroup>
-
   <PropertyGroup>
     <!--
     NU1902: Suppress the moderate-severity advisory on OpenTelemetry.Exporter.OpenTelemetryProtocol 1.9.0
@@ -30,34 +27,31 @@
     -->
     <NoWarn>$(NoWarn);NU1902</NoWarn>
   </PropertyGroup>
-
   <PropertyGroup>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="Grpc.Net.Client" Version="2.63.0" />
-    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.63.0" />
-    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.63.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.63.0">
+    <PackageReference Include="Ben.Demystifier" />
+    <PackageReference Include="Grpc.Net.Client" />
+    <PackageReference Include="Grpc.AspNetCore.Server" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" />
+    <PackageReference Include="Grpc.Tools">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.6">
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="OneOf" Version="3.0.216" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    <PackageReference Include="OneOf" />
     <!--
     Note: Pulumi maintains a fork of Google.Protobuf package, to increase the recursion limit.
     The Pulumi.Protobuf package contains an assembly called Google.Protobuf.dll, as does the Google.Protobuf package
@@ -65,32 +59,30 @@
     because it has a higher version number.
     see: https://github.com/pulumi/pulumi-dotnet/issues/322
     -->
-    <PackageReference Include="Pulumi.Protobuf" Version="3.27.3" />
-    <PackageReference Include="semver" Version="3.0.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
-    <PackageReference Include="OpenTelemetry" Version="1.9.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
+    <PackageReference Include="Pulumi.Protobuf" />
+    <PackageReference Include="semver" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="OpenTelemetry" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
   </ItemGroup>
-
   <ItemGroup>
     <Protobuf ProtoRoot="..\..\pulumi\proto" Include="..\..\pulumi\proto\**\*.proto" Access="internal" />
   </ItemGroup>
-
   <ItemGroup>
     <None Remove="PublicAPI.Shipped.txt" />
+    <None Remove="PublicAPI.Unshipped.txt" />
     <None Remove="Pulumi.xml" />
   </ItemGroup>
-
   <ItemGroup>
     <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="..\pulumi_logo_64x64.png">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath>
+      </PackagePath>
     </None>
   </ItemGroup>
-
 </Project>

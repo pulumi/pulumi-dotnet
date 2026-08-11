@@ -30,9 +30,9 @@ namespace Components
                 String = args.String,
                 NumberArray = new[]
                 {
-                    (double)-1,
-                    (double)0,
-                    (double)1,
+                    -1.0,
+                    0.0,
+                    1.0,
                 },
                 BooleanMap = 
                 {

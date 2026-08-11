@@ -506,6 +506,14 @@ func (g *generator) genIntrensic(w io.Writer, from model.Expression, to model.Ty
 				g.Fgenf(w, "%s.ToString(System.Globalization.CultureInfo.InvariantCulture)", value)
 			})
 		case model.NumberType.AssignableFrom(to) && !model.NumberType.AssignableFrom(fromType):
+			// Integer literals can be rendered directly as double literals (3 => 3.0) instead of
+			// being cast ((double)3).
+			if lit, ok := from.(*model.LiteralValueExpression); ok && model.IntType.AssignableFrom(fromType) {
+				if i, acc := lit.Value.AsBigFloat().Int64(); acc == big.Exact {
+					g.Fgenf(w, "%d.0", i)
+					return
+				}
+			}
 			genMaybeOutputConversion(func(value string) {
 				if model.IntType.AssignableFrom(fromType) {
 					g.Fgenf(w, "(double)%s", value)

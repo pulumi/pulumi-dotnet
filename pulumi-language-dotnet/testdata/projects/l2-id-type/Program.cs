@@ -11,12 +11,12 @@ return await Deployment.RunAsync(() =>
     var source1 = new Primitive.Resource("source1", new()
     {
         Boolean = false,
-        Float = (double)1,
+        Float = 1.0,
         Integer = 2,
         String = "1234",
         NumberArray = new[]
         {
-            (double)3,
+            3.0,
         },
         BooleanMap = 
         {
@@ -27,12 +27,12 @@ return await Deployment.RunAsync(() =>
     var source2 = new Primitive.Resource("source2", new()
     {
         Boolean = false,
-        Float = (double)1,
+        Float = 1.0,
         Integer = 2,
         String = "true",
         NumberArray = new[]
         {
-            (double)3,
+            3.0,
         },
         BooleanMap = 
         {
@@ -65,12 +65,12 @@ return await Deployment.RunAsync(() =>
     var sink2 = new Primitive.Resource("sink2", new()
     {
         Boolean = idMap["source2Token"].Apply(x => x == "true"),
-        Float = (double)1,
+        Float = 1.0,
         Integer = 2,
         String = "abc",
         NumberArray = new[]
         {
-            (double)3,
+            3.0,
         },
         BooleanMap = 
         {

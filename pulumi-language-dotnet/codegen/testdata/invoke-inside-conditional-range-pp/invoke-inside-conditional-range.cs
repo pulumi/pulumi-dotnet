@@ -41,7 +41,7 @@ return await Deployment.RunAsync(async() =>
     var createPublicSubnets = true;
 
     var publicSubnet = new List<Infra.Subnet>();
-    for (var rangeIndex = 0; rangeIndex < createPublicSubnets && (!oneNatGatewayPerAz || lenPublicSubnets >= (double)azs.Length) ? lenPublicSubnets : (double)0; rangeIndex++)
+    for (var rangeIndex = 0; rangeIndex < createPublicSubnets && (!oneNatGatewayPerAz || lenPublicSubnets >= (double)azs.Length) ? lenPublicSubnets : 0.0; rangeIndex++)
     {
         var range = new { Value = rangeIndex };
         publicSubnet.Add(new Infra.Subnet($"publicSubnet-{range.Value}", new()

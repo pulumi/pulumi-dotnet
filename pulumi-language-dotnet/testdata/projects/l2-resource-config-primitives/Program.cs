@@ -22,9 +22,9 @@ return await Deployment.RunAsync(() =>
         String = plainString,
         NumberArray = new[]
         {
-            (double)-1,
-            (double)0,
-            (double)1,
+            -1.0,
+            0.0,
+            1.0,
         },
         BooleanMap = 
         {
@@ -41,9 +41,9 @@ return await Deployment.RunAsync(() =>
         String = secretString,
         NumberArray = new[]
         {
-            (double)-2,
-            (double)0,
-            (double)2,
+            -2.0,
+            0.0,
+            2.0,
         },
         BooleanMap = 
         {

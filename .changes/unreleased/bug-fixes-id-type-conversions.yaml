@@ -1,4 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Fix program codegen for conversions between primitive types
-time: 2026-08-11T12:00:00.000000+02:00

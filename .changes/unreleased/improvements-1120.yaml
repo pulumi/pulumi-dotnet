@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Improve repeated .NET program generation performance by caching package-derived lookup maps
+time: 2026-08-11T15:17:25-04:00
+custom:
+    PR: "1120"

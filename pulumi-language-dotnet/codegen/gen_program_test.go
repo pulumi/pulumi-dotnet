@@ -105,6 +105,7 @@ func TestCanonicalToken(t *testing.T) {
 		{token: "aws:index:Bucket", want: "aws::Bucket"},
 		{token: "aws::Bucket", want: "aws::Bucket"},
 		{token: "malformed", want: "malformed"},
+		{token: "aws:index", want: "aws:index"},
 		{token: "aws:index:Bucket:extra", want: "aws::Bucket:extra"},
 	}
 

@@ -439,8 +439,14 @@ func discriminatedUnionMembers(t *schema.UnionType) (map[string]*schema.ObjectTy
 	}
 
 	// Every element must be reachable through the mapping, otherwise the tag dispatch the generated
-	// attributes describe would be incomplete.
-	if len(members) != len(byToken) {
+	// attributes describe would be incomplete. Compare the set of covered tokens rather than the
+	// counts: two tags may name the same member, which keeps the counts equal while leaving
+	// another member uncovered.
+	covered := map[string]bool{}
+	for _, obj := range members {
+		covered[plainShape(obj).Token] = true
+	}
+	if len(covered) != len(byToken) {
 		return nil, false
 	}
 	return members, true
@@ -553,6 +559,13 @@ func (mod *modContext) unionTypeString(t *schema.UnionType, qualifier string, in
 func (mod *modContext) discriminatedUnionTypeString(
 	t *schema.UnionType, qualifier string, input, state bool,
 ) (string, bool) {
+	// The interface is only emitted into the Inputs and Outputs namespaces. Other callers, such
+	// as the config generator (qualifier "Types"), would reference a type that is never declared,
+	// so they keep the untyped rendering.
+	if qualifier != "Inputs" && qualifier != "Outputs" {
+		return "", false
+	}
+
 	du, ok := mod.unions.lookup(t)
 	if !ok {
 		return "", false

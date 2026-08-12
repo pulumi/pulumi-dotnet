@@ -378,3 +378,42 @@ func TestGenerateUndiscriminatedUnionIsUnchanged(t *testing.T) {
 	assert.Contains(t, files["Example.cs"], "public object? UnionOf { get; set; }")
 	assert.Contains(t, files["Example.cs"], "public InputList<object> ArrayOfUnionOf")
 }
+
+func TestGenerateDiscriminatedUnionConfigStaysUntyped(t *testing.T) {
+	t.Parallel()
+
+	// The interface is only emitted into Inputs/Outputs. A config variable typed as the union
+	// must keep the untyped rendering rather than naming a type Config.Types never declares.
+	spec := unionTestSpec(4, 0, "discriminantKind")
+	spec.Config.Variables = map[string]schema.PropertySpec{
+		"creds": {TypeSpec: schema.TypeSpec{
+			OneOf:         spec.Resources["union:index:Example"].InputProperties["unionOf"].OneOf,
+			Discriminator: spec.Resources["union:index:Example"].InputProperties["unionOf"].Discriminator,
+		}},
+	}
+	files := generateTestPackage(t, spec)
+
+	config, ok := files["Config/Config.cs"]
+	require.True(t, ok, "config not generated, got %v", slices.Sorted(maps.Keys(files)))
+	assert.NotContains(t, config, "IExampleUnionOf",
+		"config must not reference the union interface; it is not declared in Config.Types")
+	assert.Contains(t, config, "GetObject<object>(\"creds\")")
+}
+
+func TestGenerateDiscriminatedUnionRejectsUncoveredMember(t *testing.T) {
+	t.Parallel()
+
+	// Two tags naming the same member leaves another member uncovered while keeping the tag and
+	// member counts equal. Such a union must not generate an interface at all, because dispatch
+	// could never reach the uncovered member.
+	spec := unionTestSpec(3, 0, "discriminantKind")
+	union := spec.Resources["union:index:Example"].InputProperties["unionOf"]
+	union.Discriminator.Mapping["variant2"] = "#/types/union:index:Variant1"
+	spec.Resources["union:index:Example"].InputProperties["unionOf"] = union
+
+	files := generateTestPackage(t, spec)
+
+	_, ok := files["Outputs/IExampleUnionOf.cs"]
+	assert.False(t, ok, "a union whose mapping leaves a member uncovered must not generate an interface")
+	assert.Contains(t, files["Example.cs"], "Output<object?>")
+}

@@ -62,6 +62,7 @@ namespace Pulumi.Tests
             deploymentInternal.Setup(x => x.GetConfig("cfg:test")).Returns(PascalCaseJson);
 
             var output = target.GetSecretObject<TestConfig>("test");
+            Assert.NotNull(output);
             var result = await output.GetValueAsync(new TestConfig());
 
             Assert.Equal("Value", result.Value);
@@ -73,6 +74,7 @@ namespace Pulumi.Tests
             deploymentInternal.Setup(x => x.GetConfig("cfg:test")).Returns(CamelCaseJson);
 
             var output = target.GetSecretObject<TestConfig>("test", CamelCaseSerializerOptions);
+            Assert.NotNull(output);
             var result = await output.GetValueAsync(new TestConfig());
 
             Assert.Equal("Value", result.Value);

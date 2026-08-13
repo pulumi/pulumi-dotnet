@@ -78,11 +78,25 @@
             function will throw an error.
             </summary>
         </member>
+        <member name="M:Pulumi.Config.GetObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads an optional configuration value, as an object, by its key, or null if it doesn't
+            exist. This works by taking the value associated with <paramref name="key"/> and passing
+            it to <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>.
+            </summary>
+        </member>
         <member name="M:Pulumi.Config.GetObject``1(System.String)">
             <summary>
             Loads an optional configuration value, as an object, by its key, or null if it doesn't
             exist. This works by taking the value associated with <paramref name="key"/> and passing
             it to <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Config.GetSecretObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads an optional configuration value, as an object, by its key, marking it as a secret
+            or null if it doesn't exist. This works by taking the value associated with <paramref
+            name="key"/> and passing it to <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>.
             </summary>
         </member>
         <member name="M:Pulumi.Config.GetSecretObject``1(System.String)">
@@ -139,12 +153,28 @@
             If it doesn't exist, or the configuration value is not a legal number, an error is thrown.
             </summary>
         </member>
+        <member name="M:Pulumi.Config.RequireObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads a configuration value as a JSON string and deserializes the JSON into an object.
+            object. If it doesn't exist, or the configuration value cannot be converted using <see
+            cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>, an error is
+            thrown.
+            </summary>
+        </member>
         <member name="M:Pulumi.Config.RequireObject``1(System.String)">
             <summary>
             Loads a configuration value as a JSON string and deserializes the JSON into an object.
             object. If it doesn't exist, or the configuration value cannot be converted using <see
             cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>, an error is
             thrown.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Config.RequireSecretObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads a configuration value as a JSON string and deserializes the JSON into a JavaScript
+            object, marking it as a secret. If it doesn't exist, or the configuration value cannot
+            be converted using <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>,
+            an error is thrown.
             </summary>
         </member>
         <member name="M:Pulumi.Config.RequireSecretObject``1(System.String)">

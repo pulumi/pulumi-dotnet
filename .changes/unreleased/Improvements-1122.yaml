@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Add regression tests locking in Config.GetObject/RequireObject (and their secret variants) deserializing structured configuration into custom .NET types
+time: 2026-08-13T22:30:00Z
+custom:
+    PR: "1122"

@@ -155,12 +155,12 @@ namespace Pulumi
             => MakeStructSecret(GetDoubleImpl(key));
 
         [return: MaybeNull]
-        private T GetObjectImpl<T>(string key, string? use = null, [CallerMemberName] string? insteadOf = null)
+        private T GetObjectImpl<T>(string key, string? use = null, [CallerMemberName] string? insteadOf = null, JsonSerializerOptions? options = null)
         {
             var v = GetImpl(key, use, insteadOf);
             try
             {
-                return v == null ? default : JsonSerializer.Deserialize<T>(v);
+                return v == null ? default : JsonSerializer.Deserialize<T>(v, options);
             }
             catch (JsonException ex)
             {
@@ -174,8 +174,31 @@ namespace Pulumi
         /// it to <see cref="JsonSerializer.Deserialize{TValue}(string, JsonSerializerOptions)"/>.
         /// </summary>
         [return: MaybeNull]
+        public T GetObject<T>(string key, JsonSerializerOptions options)
+            => GetObjectImpl<T>(key, nameof(GetSecretObject), options: options);
+
+        /// <summary>
+        /// Loads an optional configuration value, as an object, by its key, or null if it doesn't
+        /// exist. This works by taking the value associated with <paramref name="key"/> and passing
+        /// it to <see cref="JsonSerializer.Deserialize{TValue}(string, JsonSerializerOptions)"/>.
+        /// </summary>
+        [return: MaybeNull]
         public T GetObject<T>(string key)
             => GetObjectImpl<T>(key, nameof(GetSecretObject));
+
+        /// <summary>
+        /// Loads an optional configuration value, as an object, by its key, marking it as a secret
+        /// or null if it doesn't exist. This works by taking the value associated with <paramref
+        /// name="key"/> and passing it to <see cref="JsonSerializer.Deserialize{TValue}(string, JsonSerializerOptions)"/>.
+        /// </summary>
+        public Output<T>? GetSecretObject<T>(string key, JsonSerializerOptions options)
+        {
+            var v = GetObjectImpl<T>(key, options: options);
+            if (v == null)
+                return null;
+
+            return Output.CreateSecret(v);
+        }
 
         /// <summary>
         /// Loads an optional configuration value, as an object, by its key, marking it as a secret
@@ -258,14 +281,23 @@ namespace Pulumi
         public Output<double> RequireSecretDouble(string key)
             => MakeStructSecret(RequireDoubleImpl(key));
 
-        private T RequireObjectImpl<T>(string key, string? use = null, [CallerMemberName] string? insteadOf = null)
+        private T RequireObjectImpl<T>(string key, string? use = null, [CallerMemberName] string? insteadOf = null, JsonSerializerOptions? options = null)
         {
             var v = GetImpl(key);
             if (v == null)
                 throw new ConfigMissingException(FullKey(key));
 
-            return GetObjectImpl<T>(key, use, insteadOf)!;
+            return GetObjectImpl<T>(key, use, insteadOf, options)!;
         }
+
+        /// <summary>
+        /// Loads a configuration value as a JSON string and deserializes the JSON into an object.
+        /// object. If it doesn't exist, or the configuration value cannot be converted using <see
+        /// cref="JsonSerializer.Deserialize{TValue}(string, JsonSerializerOptions)"/>, an error is
+        /// thrown.
+        /// </summary>
+        public T RequireObject<T>(string key, JsonSerializerOptions options)
+            => RequireObjectImpl<T>(key, nameof(RequireSecretObject), options: options);
 
         /// <summary>
         /// Loads a configuration value as a JSON string and deserializes the JSON into an object.
@@ -275,6 +307,15 @@ namespace Pulumi
         /// </summary>
         public T RequireObject<T>(string key)
             => RequireObjectImpl<T>(key, nameof(RequireSecretObject));
+
+        /// <summary>
+        /// Loads a configuration value as a JSON string and deserializes the JSON into a JavaScript
+        /// object, marking it as a secret. If it doesn't exist, or the configuration value cannot
+        /// be converted using <see cref="JsonSerializer.Deserialize{TValue}(string, JsonSerializerOptions)"/>,
+        /// an error is thrown.
+        /// </summary>
+        public Output<T> RequireSecretObject<T>(string key, JsonSerializerOptions options)
+            => Output.CreateSecret(RequireObjectImpl<T>(key, options: options));
 
         /// <summary>
         /// Loads a configuration value as a JSON string and deserializes the JSON into a JavaScript

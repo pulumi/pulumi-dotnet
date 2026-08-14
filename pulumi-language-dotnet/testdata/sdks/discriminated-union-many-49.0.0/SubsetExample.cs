@@ -7,29 +7,29 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Myext
+namespace Pulumi.DiscriminatedUnionMany
 {
-    [MyextResourceType("myext:index:Greeting")]
-    public partial class Greeting : global::Pulumi.CustomResource
+    [DiscriminatedUnionManyResourceType("discriminated-union-many:index:SubsetExample")]
+    public partial class SubsetExample : global::Pulumi.CustomResource
     {
-        [Output("parameterValue")]
-        public Output<string> ParameterValue { get; private set; } = null!;
+        [Output("unionOf")]
+        public Output<object?> UnionOf { get; private set; } = null!;
 
 
         /// <summary>
-        /// Create a Greeting resource with the given unique name, arguments, and options.
+        /// Create a SubsetExample resource with the given unique name, arguments, and options.
         /// </summary>
         ///
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Greeting(string name, GreetingArgs? args = null, CustomResourceOptions? options = null)
-            : base("myext:index:Greeting", name, args ?? new GreetingArgs(), MakeResourceOptions(options, ""), Utilities.PackageParameterization())
+        public SubsetExample(string name, SubsetExampleArgs? args = null, CustomResourceOptions? options = null)
+            : base("discriminated-union-many:index:SubsetExample", name, args ?? new SubsetExampleArgs(), MakeResourceOptions(options, ""))
         {
         }
 
-        private Greeting(string name, Input<string> id, CustomResourceOptions? options = null)
-            : base("myext:index:Greeting", name, null, MakeResourceOptions(options, id), Utilities.PackageParameterization())
+        private SubsetExample(string name, Input<string> id, CustomResourceOptions? options = null)
+            : base("discriminated-union-many:index:SubsetExample", name, null, MakeResourceOptions(options, id))
         {
         }
 
@@ -45,24 +45,27 @@ namespace Pulumi.Myext
             return merged;
         }
         /// <summary>
-        /// Get an existing Greeting resource's state with the given name, ID, and optional extra
+        /// Get an existing SubsetExample resource's state with the given name, ID, and optional extra
         /// properties used to qualify the lookup.
         /// </summary>
         ///
         /// <param name="name">The unique name of the resulting resource.</param>
         /// <param name="id">The unique provider ID of the resource to lookup.</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public static Greeting Get(string name, Input<string> id, CustomResourceOptions? options = null)
+        public static SubsetExample Get(string name, Input<string> id, CustomResourceOptions? options = null)
         {
-            return new Greeting(name, id, options);
+            return new SubsetExample(name, id, options);
         }
     }
 
-    public sealed class GreetingArgs : global::Pulumi.ResourceArgs
+    public sealed class SubsetExampleArgs : global::Pulumi.ResourceArgs
     {
-        public GreetingArgs()
+        [Input("unionOf")]
+        public object? UnionOf { get; set; }
+
+        public SubsetExampleArgs()
         {
         }
-        public static new GreetingArgs Empty => new GreetingArgs();
+        public static new SubsetExampleArgs Empty => new SubsetExampleArgs();
     }
 }

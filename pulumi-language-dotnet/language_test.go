@@ -200,6 +200,11 @@ var expectedFailures = map[string]string{
 	"l2-invoke-depends-on-component":     "the .NET SDK does not send dependsOn on invokes: the invoke result is not unknown while its dependencies are pending creation (added in v3.256.0)",            //nolint:lll
 	"l2-target-up-skipped-create-output": "the .NET SDK does not handle RegisterResourceResponse.unknown: outputs of skipped creates resolve as empty instead of unknown (added in v3.256.0)",            //nolint:lll
 	"l3-component-provider-inheritance":  "the .NET SDK does not inherit the providers map into remote components: an extra default provider is created instead of the explicit one (added in v3.256.0)", //nolint:lll
+
+	"l1-for-expression":      "dotnet build failed: programgen emits invalid C# for `for` expressions: CS1525 invalid expression term '.' (added in v3.257.0)",                                           //nolint:lll
+	"l2-nested-collections":  "dotnet build failed: sdkgen emits plain nested dictionaries instead of typed outputs for deeply nested collections: CS1061 no definition for 'Outer' (added in v3.257.0)", //nolint:lll
+	"l2-reserved-names":      "sdk packing for reservednames: CS0542 'ElementType' member name cannot be the same as its enclosing type (added in v3.257.0)",                                             //nolint:lll
+	"l2-resource-hook-panic": "dotnet build failed: programgen emits invalid hook argument: CS1503 cannot convert from 'object' to 'System.Diagnostics.ProcessStartInfo' (added in v3.257.0)",            //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

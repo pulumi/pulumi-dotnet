@@ -72,6 +72,7 @@ namespace Pulumi.Constant
 
         public ResourceArgs()
         {
+            Kind = "Constant";
         }
         public static new ResourceArgs Empty => new ResourceArgs();
     }

@@ -2600,15 +2600,6 @@
             <see cref="P:Pulumi.RegisterPackageRequest.Extension"/>, never both.
             </summary>
         </member>
-        <member name="M:Pulumi.RegisterPackageRequest.#ctor(System.String,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Byte[]},Pulumi.RegisterPackageRequest.PackageParameterization)">
-            <remarks>
-            This overload must be kept: SDKs generated before <see cref="P:Pulumi.RegisterPackageRequest.Extension"/> was
-            added bind to this exact constructor signature at runtime, and removing it
-            causes a <see cref="T:System.MissingMethodException"/> in already-built SDKs.
-            Its parameters are deliberately not optional so that source-level calls that omit
-            arguments still resolve unambiguously to the primary constructor below.
-            </remarks>
-        </member>
         <member name="T:Pulumi.Resource">
             <summary>
             Resource represents a class whose CRUD operations are implemented by a provider plugin.

@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pulumi" Version="[3.76.1.0,4)" />
+    <PackageReference Include="Pulumi" Version="[3.109.0,4)" />
     <PackageReference Include="Pulumi.Random" Version="4.11.2" ExcludeAssets="contentFiles" />
   </ItemGroup>
 

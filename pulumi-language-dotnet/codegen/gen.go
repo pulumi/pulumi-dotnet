@@ -2405,7 +2405,7 @@ func genProjectFile(pkg *schema.Package,
 		// only add a package reference to Pulumi if we're not referencing a local Pulumi project
 		// which we usually do when testing schemas locally
 		if !referencedLocalPulumiProject {
-			packageReferences["Pulumi"] = "[3.76.1.0,4)"
+			packageReferences["Pulumi"] = "[3.109.0,4)"
 		}
 	}
 

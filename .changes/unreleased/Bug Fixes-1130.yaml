@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Bump the minimum Pulumi version referenced by generated SDKs to 3.109.0, so SDKs generated locally (e.g. via `pulumi package add`) bind to the current `RegisterPackageRequest` constructor and no longer fail with `MissingMethodException` at runtime
+time: 2026-08-18T11:20:00-07:00
+custom:
+    PR: "1130"

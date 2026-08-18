@@ -54,6 +54,23 @@ public sealed class RegisterPackageRequest
     /// </summary>
     public PackageParameterization? Extension { get; }
 
+    /// <remarks>
+    /// This overload must be kept: SDKs generated before <see cref="Extension"/> was
+    /// added bind to this exact constructor signature at runtime, and removing it
+    /// causes a <see cref="System.MissingMethodException"/> in already-built SDKs.
+    /// Its parameters are deliberately not optional so that source-level calls that omit
+    /// arguments still resolve unambiguously to the primary constructor below.
+    /// </remarks>
+    public RegisterPackageRequest(
+        string name,
+        string version,
+        string? downloadUrl,
+        Dictionary<string, byte[]>? checksums,
+        PackageParameterization? parameterization)
+        : this(name, version, downloadUrl, checksums, parameterization, extension: null)
+    {
+    }
+
     public RegisterPackageRequest(
         string name,
         string version,

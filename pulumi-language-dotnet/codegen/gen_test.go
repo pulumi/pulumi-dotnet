@@ -17,6 +17,7 @@ package dotnet
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"sync"
 	"testing"
@@ -169,4 +170,26 @@ func TestGenerateTypeNames(t *testing.T) {
 			return root.typeString(t, "", false, false, false)
 		}
 	}, filepath.FromSlash("../../pulumi/tests/testdata/codegen"))
+}
+
+func TestGenProjectFilePulumiVersion(t *testing.T) {
+	t.Parallel()
+
+	pulumiReference := func(pkg *schema.Package) string {
+		csproj, err := genProjectFile(pkg, "Pulumi.Test", nil, nil, "0.0.1", nil)
+		require.NoError(t, err)
+		re := regexp.MustCompile(`<PackageReference Include="Pulumi" Version="([^"]+)" />`)
+		match := re.FindStringSubmatch(string(csproj))
+		require.Len(t, match, 2, "expected a Pulumi package reference in:\n%s", csproj)
+		return match[1]
+	}
+
+	assert.Equal(t, "[3.76.1.0,4)", pulumiReference(&schema.Package{Name: "test"}))
+	assert.Equal(t, "[3.109.0,4)", pulumiReference(&schema.Package{
+		Name: "test",
+		ExtensionParameterization: &schema.ExtensionParameterization{
+			BaseProvider: schema.BaseProvider{Name: "base"},
+			Parameter:    []byte("param"),
+		},
+	}))
 }

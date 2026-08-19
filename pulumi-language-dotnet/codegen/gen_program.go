@@ -117,14 +117,19 @@ func (g *generator) packageForToken(token, fallback string) string {
 // "index" module and an elided module compare equal — schema tokens spell the
 // module "index" while PCL tokens omit it (e.g. "pkg::member").
 func canonicalToken(token string) string {
-	parts := strings.SplitN(token, ":", 3)
-	if len(parts) != 3 {
+	packageEnd := strings.IndexByte(token, ':')
+	if packageEnd == -1 {
 		return token
 	}
-	if parts[1] == "index" {
-		parts[1] = ""
+	moduleEnd := strings.IndexByte(token[packageEnd+1:], ':')
+	if moduleEnd == -1 {
+		return token
 	}
-	return parts[0] + ":" + parts[1] + ":" + parts[2]
+	moduleEnd += packageEnd + 1
+	if token[packageEnd+1:moduleEnd] != "index" {
+		return token
+	}
+	return token[:packageEnd+1] + token[moduleEnd:]
 }
 
 func (g *generator) resetListInitializer() {

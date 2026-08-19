@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Generated extension-parameterized SDKs now declare a minimum Pulumi version of 3.109.0, matching the `RegisterPackageRequest` constructor they use
-time: 2026-08-18T12:30:00-07:00
-custom:
-    PR: "1133"

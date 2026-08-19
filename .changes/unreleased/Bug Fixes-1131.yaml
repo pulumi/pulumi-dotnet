@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Restore the pre-`extension` `RegisterPackageRequest` constructor so SDKs compiled against Pulumi < 3.109.0 no longer fail with `MissingMethodException` at runtime
-time: 2026-08-18T11:45:00-07:00
-custom:
-    PR: "1131"

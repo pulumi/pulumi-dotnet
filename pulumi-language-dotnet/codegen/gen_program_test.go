@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"unicode"
@@ -27,7 +28,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/model"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/syntax"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/pcl"
@@ -64,7 +65,7 @@ func TestGenerateProgram(t *testing.T) {
 		Language:   "dotnet",
 		Extension:  "cs",
 		OutputFile: "Program.cs",
-		Check: func(t *testing.T, path string, dependencies codegen.StringSet) {
+		Check: func(t *testing.T, path string, dependencies mapset.Set[string]) {
 			checkDotnet(t, path, dependencies)
 		},
 		GenProgram: GenerateProgram,
@@ -83,7 +84,7 @@ func TestGenerateProgramYAML(t *testing.T) {
 		Language:   "dotnet",
 		Extension:  "cs",
 		OutputFile: "Program.cs",
-		Check: func(t *testing.T, path string, dependencies codegen.StringSet) {
+		Check: func(t *testing.T, path string, dependencies mapset.Set[string]) {
 			checkDotnet(t, path, dependencies)
 		},
 		GenProgram: GenerateProgram,
@@ -500,7 +501,7 @@ func (l *inlineLoader) LoadPackageV2(
 	return ref.Definition()
 }
 
-func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
+func checkDotnet(t *testing.T, path string, dependencies mapset.Set[string]) {
 	var err error
 	dir := filepath.Dir(path)
 
@@ -554,7 +555,7 @@ func checkDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
 	typeCheckDotnet(t, path, dependencies)
 }
 
-func typeCheckDotnet(t *testing.T, path string, dependencies codegen.StringSet) {
+func typeCheckDotnet(t *testing.T, path string, dependencies mapset.Set[string]) {
 	var err error
 	dir := filepath.Dir(path)
 
@@ -587,9 +588,11 @@ func (pkg dep) install(t *testing.T, ex, dir string) {
 //
 //	"azure" => {"Pulumi.Azure", 5.12.0}
 //	"random" => {"Pulumi.Random", 4.11.2}
-func dotnetDependencies(deps codegen.StringSet) []dep {
-	result := make([]dep, len(deps))
-	for i, d := range deps.SortedValues() {
+func dotnetDependencies(deps mapset.Set[string]) []dep {
+	sorted := deps.ToSlice()
+	slices.Sort(sorted)
+	result := make([]dep, len(sorted))
+	for i, d := range sorted {
 		switch d {
 		case "azure":
 			// TODO: update constant in test.AzureSchema to v5.x

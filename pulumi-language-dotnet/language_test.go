@@ -205,6 +205,9 @@ var expectedFailures = map[string]string{
 	"l2-nested-collections":  "dotnet build failed: sdkgen emits plain nested dictionaries instead of typed outputs for deeply nested collections: CS1061 no definition for 'Outer' (added in v3.257.0)", //nolint:lll
 	"l2-reserved-names":      "sdk packing for reservednames: CS0542 'ElementType' member name cannot be the same as its enclosing type (added in v3.257.0)",                                             //nolint:lll
 	"l2-resource-hook-panic": "dotnet build failed: programgen emits invalid hook argument: CS1503 cannot convert from 'object' to 'System.Diagnostics.ProcessStartInfo' (added in v3.257.0)",            //nolint:lll
+
+	"l1-component-sourceless": "programgen does not support components declared without a source (pcl.Component.Program == nil): nil pointer dereference in AnnotateComponentInputs (added in v3.259.0)",                                       //nolint:lll
+	"l3-map-keys":             "dotnet build failed: programgen emits a local component output of the wrong map type: CS0029 cannot convert Output<ImmutableDictionary<string, bool>> to Output<Dictionary<string, bool>> (added in v3.259.0)", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

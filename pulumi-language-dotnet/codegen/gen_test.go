@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/testing/test"
 )
@@ -43,10 +43,10 @@ func filterTests() []*test.SDKTest {
 	tests := test.PulumiPulumiSDKTests
 	for _, test := range tests {
 		if check, ok := skip[test.Directory]; ok {
-			test.Skip = codegen.NewStringSet(check)
+			test.Skip = mapset.NewSet(check)
 		}
 		if slices.Contains(skipCompileCheck, test.Directory) {
-			test.SkipCompileCheck = codegen.NewStringSet("dotnet")
+			test.SkipCompileCheck = mapset.NewSet("dotnet")
 		}
 	}
 	return tests

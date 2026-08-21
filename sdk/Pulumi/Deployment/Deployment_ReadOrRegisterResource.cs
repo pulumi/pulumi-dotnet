@@ -27,7 +27,7 @@ namespace Pulumi
                 CompleteResourceAsync(resource, remote, newDependency, args, options, resource.CompletionSources, registerPackageRequest));
         }
 
-        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result)> ReadOrRegisterResourceAsync(
+        private async Task<(string urn, string id, Struct data, ImmutableDictionary<string, ImmutableHashSet<Resource>> dependencies, Pulumirpc.Result result, Struct? serializedInputs)> ReadOrRegisterResourceAsync(
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
             ResourceOptions options, RegisterPackageRequest? registerPackageRequest = null)
         {
@@ -43,7 +43,7 @@ namespace Pulumi
                 var urn = result.Fields["urn"].StringValue;
                 var id = result.Fields["id"].StringValue;
                 var state = result.Fields["state"].StructValue;
-                return (urn, id, state, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success);
+                return (urn, id, state, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success, null);
             }
 
             if (options.Id != null)
@@ -122,6 +122,36 @@ namespace Pulumi
 
                 if (response.result != Pulumirpc.Result.Success)
                 {
+                    // The resource failed or was skipped, so the engine returned no outputs for
+                    // it. Outside of a dry run, resolve any output that has a corresponding input
+                    // to that input value, marked as known: sending unknown values to the engine
+                    // is only legal during previews, so a dependent resource registering itself
+                    // with an unknown input would otherwise fail the whole deployment even under
+                    // --continue-on-error (the engine skips such dependents when their inputs are
+                    // valid).
+                    if (!_isDryRun && response.serializedInputs != null)
+                    {
+                        foreach (var (fieldName, completionSource) in completionSources)
+                        {
+                            if (fieldName == Constants.UrnPropertyName || fieldName == Constants.IdPropertyName)
+                            {
+                                continue;
+                            }
+
+                            if (response.data.Fields.ContainsKey(fieldName))
+                            {
+                                continue;
+                            }
+
+                            if (response.serializedInputs.Fields.TryGetValue(fieldName, out var inputValue))
+                            {
+                                var converted = Converter.ConvertValue(err => Log.Warn(err, resource), $"{resource.GetType().FullName}.{fieldName}", inputValue,
+                                    completionSource.TargetType, ImmutableHashSet<Resource>.Empty);
+                                completionSource.SetValue(converted);
+                            }
+                        }
+                    }
+
                     keepUnknowns = true;
                 }
             }

@@ -31,6 +31,22 @@ namespace Pulumi.Testing
         /// </summary>
         /// <param name="args">MockRegisterResourceOutputsRequest</param>
         Task RegisterResourceOutputs(MockRegisterResourceOutputsRequest args) => Task.CompletedTask;
+
+        /// <summary>
+        /// Invoked when the program registers a stack transform. The mock monitor does not run
+        /// transforms; implementations that want to exercise them can record the transform here
+        /// and call it from <see cref="NewResourceAsync"/>.
+        /// </summary>
+        /// <param name="transform">The registered transform.</param>
+        Task RegisterTransform(ResourceTransform transform) => Task.CompletedTask;
+
+        /// <summary>
+        /// Invoked when the program registers an invoke transform. The mock monitor does not run
+        /// transforms; implementations that want to exercise them can record the transform here
+        /// and call it from <see cref="CallAsync"/>.
+        /// </summary>
+        /// <param name="transform">The registered transform.</param>
+        Task RegisterInvokeTransform(InvokeTransform transform) => Task.CompletedTask;
     }
 
     /// <summary>
@@ -62,6 +78,11 @@ namespace Pulumi.Testing
         /// Resource identifier.
         /// </summary>
         public string? Id { get; set; }
+
+        /// <summary>
+        /// The transforms declared in the resource's options. The mock monitor does not run them.
+        /// </summary>
+        public ImmutableArray<ResourceTransform> Transforms { get; set; } = ImmutableArray<ResourceTransform>.Empty;
     }
 
     /// <summary>

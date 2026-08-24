@@ -3655,6 +3655,22 @@
             </summary>
             <param name="args">MockRegisterResourceOutputsRequest</param>
         </member>
+        <member name="M:Pulumi.Testing.IMocks.RegisterTransform(Pulumi.ResourceTransform)">
+            <summary>
+            Invoked when the program registers a stack transform. The mock monitor does not run
+            transforms; implementations that want to exercise them can record the transform here
+            and call it from <see cref="M:Pulumi.Testing.IMocks.NewResourceAsync(Pulumi.Testing.MockResourceArgs)"/>.
+            </summary>
+            <param name="transform">The registered transform.</param>
+        </member>
+        <member name="M:Pulumi.Testing.IMocks.RegisterInvokeTransform(Pulumi.InvokeTransform)">
+            <summary>
+            Invoked when the program registers an invoke transform. The mock monitor does not run
+            transforms; implementations that want to exercise them can record the transform here
+            and call it from <see cref="M:Pulumi.Testing.IMocks.CallAsync(Pulumi.Testing.MockCallArgs)"/>.
+            </summary>
+            <param name="transform">The registered transform.</param>
+        </member>
         <member name="T:Pulumi.Testing.MockResourceArgs">
             <summary>
             MockResourceArgs for use in NewResourceAsync
@@ -3683,6 +3699,11 @@
         <member name="P:Pulumi.Testing.MockResourceArgs.Id">
             <summary>
             Resource identifier.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Testing.MockResourceArgs.Transforms">
+            <summary>
+            The transforms declared in the resource's options. The mock monitor does not run them.
             </summary>
         </member>
         <member name="T:Pulumi.Testing.MockCallArgs">

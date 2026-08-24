@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Pulumi.Serialization;
+using Pulumi.Testing;
 using Pulumirpc;
 
 namespace Pulumi
@@ -149,7 +150,12 @@ namespace Pulumi
 
                 foreach (var t in options.ResourceTransforms)
                 {
-                    transforms.Add(await AllocateTransform(callbacks.Callbacks, t).ConfigureAwait(false));
+                    var callback = await AllocateTransform(callbacks.Callbacks, t).ConfigureAwait(false);
+                    if (Monitor is MockMonitor mockMonitor)
+                    {
+                        mockMonitor.RecordTransformCallback(callback.Token, t);
+                    }
+                    transforms.Add(callback);
                 }
             }
 

@@ -347,6 +347,11 @@ namespace Pulumi
             var callbacks = await GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
             var callback = await AllocateInvokeTransform(callbacks.Callbacks, transform).ConfigureAwait(false);
 
+            if (Monitor is MockMonitor mockMonitor)
+            {
+                mockMonitor.RecordInvokeTransformCallback(callback.Token, transform);
+            }
+
             await Monitor.RegisterStackInvokeTransform(callback).ConfigureAwait(false);
 
             TaskCompletionSource<bool>? flushed = null;

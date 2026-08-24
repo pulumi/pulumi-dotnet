@@ -1,6 +1,7 @@
 // Copyright 2016-2020, Pulumi Corporation
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -16,12 +17,37 @@ namespace Pulumi.Testing
         private readonly IMocks _mocks;
         private readonly Serializer _serializer = new Serializer(excessiveDebugOutput: false);
         private readonly Dictionary<string, object> _registeredResources = new Dictionary<string, object>();
+        private readonly ConcurrentDictionary<string, ResourceTransform> _resourceTransformCallbacks = new ConcurrentDictionary<string, ResourceTransform>();
+        private readonly ConcurrentDictionary<string, InvokeTransform> _invokeTransformCallbacks = new ConcurrentDictionary<string, InvokeTransform>();
 
         public readonly List<Resource> Resources = new List<Resource>();
 
         public MockMonitor(IMocks mocks)
         {
             _mocks = mocks;
+        }
+
+        internal void RecordTransformCallback(string token, ResourceTransform transform)
+        {
+            _resourceTransformCallbacks[token] = transform;
+        }
+
+        internal void RecordInvokeTransformCallback(string token, InvokeTransform transform)
+        {
+            _invokeTransformCallbacks[token] = transform;
+        }
+
+        private ImmutableArray<ResourceTransform> ResolveTransforms(RegisterResourceRequest request)
+        {
+            var builder = ImmutableArray.CreateBuilder<ResourceTransform>();
+            foreach (var callback in request.Transforms)
+            {
+                if (_resourceTransformCallbacks.TryGetValue(callback.Token, out var transform))
+                {
+                    builder.Add(transform);
+                }
+            }
+            return builder.ToImmutable();
         }
 
         public Task<SupportsFeatureResponse> SupportsFeatureAsync(SupportsFeatureRequest request)
@@ -132,6 +158,13 @@ namespace Pulumi.Testing
 
             if (request.Type == Stack._rootPulumiStackTypeName)
             {
+                // Stack transforms are attached to the root stack's registration, so deliver
+                // them to the mocks before short-circuiting it.
+                foreach (var transform in ResolveTransforms(request))
+                {
+                    await _mocks.RegisterTransform(transform).ConfigureAwait(false);
+                }
+
                 return new RegisterResourceResponse
                 {
                     Urn = NewUrn(request.Parent, request.Type, request.Name),
@@ -146,6 +179,7 @@ namespace Pulumi.Testing
                 Inputs = ToDictionary(request.Object),
                 Provider = request.Provider,
                 Id = request.ImportId,
+                Transforms = ResolveTransforms(request),
             }).ConfigureAwait(false);
 
             var urn = NewUrn(request.Parent, request.Type, request.Name);
@@ -225,9 +259,12 @@ namespace Pulumi.Testing
             return Serializer.CreateStruct(dict!);
         }
 
-        public Task RegisterStackInvokeTransform(Pulumirpc.Callback callback)
+        public async Task RegisterStackInvokeTransform(Pulumirpc.Callback callback)
         {
-            return Task.CompletedTask;
+            if (_invokeTransformCallbacks.TryGetValue(callback.Token, out var transform))
+            {
+                await _mocks.RegisterInvokeTransform(transform).ConfigureAwait(false);
+            }
         }
 
         public Task RegisterResourceHookAsync(RegisterResourceHookRequest request)

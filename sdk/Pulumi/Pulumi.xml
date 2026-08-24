@@ -2924,8 +2924,9 @@
             lifecycle of the resource.
             </para>
             <para>
-            <c>Before*</c> hooks that raise an exception will cause the resource operation to fail. <c>After*</c> hooks that
-            raise an exception will log a warning, but do not cause the action or the deployment to fail.
+            By default, an exception from a <c>Before*</c> hook causes the resource operation to fail. An exception from an
+            <c>After*</c> hook fails the deployment. The resource operation itself has already succeeded, so its result is
+            recorded in state. Set <see cref="P:Pulumi.ResourceHookOptions.IgnoreErrors"/> on the hook to log a warning instead.
             </para>
             <para>
             When running <c>pulumi destroy</c>, <c>BeforeDelete</c> and <c>AfterDelete</c> resource hooks require the

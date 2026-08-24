@@ -1,6 +1,0 @@
-component: runtime
-kind: Improvements
-body: Improve .NET program generation performance by avoiding allocations while normalizing common Pulumi tokens
-time: 2026-08-11T15:16:58-04:00
-custom:
-    PR: "1119"

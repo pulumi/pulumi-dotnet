@@ -1104,6 +1104,15 @@ func isEmptyList(expr model.Expression) bool {
 	return false
 }
 
+func isEmptyObjectCons(expr model.Expression) bool {
+	expr = unwrapIntrinsicConvert(expr)
+	if obj, ok := expr.(*model.ObjectConsExpression); ok {
+		return len(obj.Items) == 0
+	}
+
+	return false
+}
+
 func objectKey(item model.ObjectConsItem) string {
 	switch key := item.Key.(type) {
 	case *model.LiteralValueExpression:

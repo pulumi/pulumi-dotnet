@@ -1838,11 +1838,22 @@ func (g *generator) genResource(w io.Writer, r *pcl.Resource) {
 			g.Indented(func() {
 				for _, attr := range r.Inputs {
 					g.Fgenf(w, "%s%s =", g.Indent, propertyName(attr.Name))
-					if isPlainResourceProperty(r, attr.Name) {
-						g.listInitializer = "new()"
-					}
-					if isListOfUnionResourceProperty(r, attr.Name) {
+					switch {
+					case isListOfUnionResourceProperty(r, attr.Name):
 						g.listInitializer = ""
+					case isPlainResourceProperty(r, attr.Name):
+						g.listInitializer = "new()"
+					case isEmptyList(attr.Value):
+						// An empty `new[] {}` cannot infer its element type; the
+						// property target is typed, so target-typed `new()` works.
+						g.listInitializer = "new()"
+					case isEmptyObjectCons(attr.Value):
+						// `{}` is an empty map value, not null (which fails at
+						// runtime for required properties); the property target
+						// is typed, so target-typed `new() { }` works.
+						g.Fgenf(w, " new() { },\n")
+						g.resetListInitializer()
+						continue
 					}
 
 					g.Fgenf(w, " %.v,\n", attr.Value)

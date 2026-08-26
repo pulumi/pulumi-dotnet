@@ -23,7 +23,26 @@ const (
 	intrinsicAwait = "__await"
 	// intrinsicOutput is the name of the intrinsic to convert tasks to Pulumi outputs.
 	intrinsicOutput = "__output"
+	// intrinsicUntypedObjectLiteral marks a schema-less object literal sitting in
+	// a typeless position; it renders as a Dictionary that carries its own type.
+	intrinsicUntypedObjectLiteral = "__untypedObjectLiteral"
 )
+
+// newUntypedObjectLiteralCall creates a new call to the untyped-object-literal
+// intrinsic.
+func newUntypedObjectLiteralCall(obj *model.ObjectConsExpression) model.Expression {
+	return &model.FunctionCallExpression{
+		Name: intrinsicUntypedObjectLiteral,
+		Signature: model.StaticFunctionSignature{
+			Parameters: []model.Parameter{{
+				Name: "literal",
+				Type: obj.Type(),
+			}},
+			ReturnType: obj.Type(),
+		},
+		Args: []model.Expression{obj},
+	}
+}
 
 // newAwaitCall creates a new call to the await intrinsic.
 func newAwaitCall(promise model.Expression) model.Expression {

@@ -1040,7 +1040,8 @@ func (g *generator) genComponentPostamble(w io.Writer, component *pcl.Component)
 						// Emit component resource output properties
 						for _, n := range outputVars {
 							outputID := fmt.Sprintf(`"%s"`, g.escapeString(n.LogicalName(), false, false))
-							g.Fgenf(w, "%s[%s] = %.3v,\n", g.Indent, outputID, g.lowerExpression(n.Value, n.Type()))
+							value := g.markUntypedObjectLiterals(g.lowerExpression(n.Value, n.Type()))
+							g.Fgenf(w, "%s[%s] = %.3v,\n", g.Indent, outputID, value)
 						}
 					})
 					g.Fgenf(w, "%s});\n", g.Indent)
@@ -1118,7 +1119,8 @@ func (g *generator) genPostamble(w io.Writer, nodes []pcl.Node) {
 					switch n := n.(type) {
 					case *pcl.OutputVariable:
 						outputID := fmt.Sprintf(`"%s"`, g.escapeString(n.LogicalName(), false, false))
-						g.Fgenf(w, "%s[%s] = %.3v,\n", g.Indent, outputID, g.lowerExpression(n.Value, n.Type()))
+						value := g.markUntypedObjectLiterals(g.lowerExpression(n.Value, n.Type()))
+						g.Fgenf(w, "%s[%s] = %.3v,\n", g.Indent, outputID, value)
 					}
 				}
 			})
@@ -2174,7 +2176,7 @@ func (g *generator) genConfigVariable(w io.Writer, v *pcl.ConfigVariable) {
 			g.Fgenf(w, "%svar %s = config.%s%s%s(\"%s\")",
 				g.Indent, name, getOrRequire, getType, typeParam, v.LogicalName())
 		}
-		expr := g.lowerExpression(v.DefaultValue, v.DefaultValue.Type())
+		expr := g.markUntypedObjectLiterals(g.lowerExpression(v.DefaultValue, v.DefaultValue.Type()))
 		g.Fgenf(w, " ?? %.v", expr)
 	} else {
 		g.Fgenf(w, "%svar %s = config.%s%s%s(\"%s\")",
@@ -2202,7 +2204,7 @@ func (g *generator) genLocalVariable(w io.Writer, localVariable *pcl.LocalVariab
 			g.typedDictionaryLocals[localVariable] = true
 			g.Fgenf(w, ";\n\n")
 		} else {
-			g.Fgenf(w, "%v;\n\n", result)
+			g.Fgenf(w, "%v;\n\n", g.markUntypedObjectLiterals(result))
 		}
 	}
 }

@@ -840,6 +840,18 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "readDir":
 		g.Fgenf(w, "Directory.GetFiles(%.v).Select(Path.GetFileName)", expr.Args[0])
 	case "secret":
+		// A schema-less object literal would be emitted as a Dictionary (see
+		// genObjectConsExpression), but the value is traversed through Apply
+		// lambdas whose codegen emits property access. Emit an anonymous record
+		// instead: its PascalCased properties line up with traversal codegen.
+		if obj, ok := expr.Args[0].(*model.ObjectConsExpression); ok {
+			if _, hasSchema := g.toSchemaType(obj.Type()); !hasSchema {
+				g.Fgen(w, "Output.CreateSecret(")
+				g.genAnonymousRecord(w, obj)
+				g.Fgen(w, ")")
+				return
+			}
+		}
 		g.Fgenf(w, "Output.CreateSecret(%v)", expr.Args[0])
 	case "unsecret":
 		g.Fgenf(w, "Output.Unsecret(%v)", expr.Args[0])
@@ -904,6 +916,22 @@ func (g *generator) genDictionaryOrTuple(w io.Writer, expr model.Expression) {
 
 func (g *generator) genRootDirectory(w io.Writer) {
 	g.Fgenf(w, "Pulumi.Deployment.Instance.RootDirectory")
+}
+
+// genAnonymousRecord emits an ObjectConsExpression as a C# anonymous record
+// (`new { Key = value, ... }`). PascalCased field names line up with the
+// traversal codegen, which uppercases the first character of every property
+// name.
+func (g *generator) genAnonymousRecord(w io.Writer, expr *model.ObjectConsExpression) {
+	g.Fgen(w, "new\n")
+	g.Fgenf(w, "%s{\n", g.Indent)
+	g.Indented(func() {
+		for _, item := range expr.Items {
+			key := objectKey(item)
+			g.Fgenf(w, "%s%s = %.v,\n", g.Indent, propertyName(key), item.Value)
+		}
+	})
+	g.Fgenf(w, "%s}", g.Indent)
 }
 
 func (g *generator) genDictionary(w io.Writer, expr *model.ObjectConsExpression, valueType string) {
@@ -1110,10 +1138,45 @@ func configBindsToJSONElement(t model.Type) bool {
 }
 
 // isJSONElementRoot reports whether a traversal root holds a JsonElement: a
-// config variable declared as `any`.
+// config variable declared as `any`, or a value derived from one (a local
+// like `secret(anyObject)`, or an Apply-lambda parameter over such a value).
 func (g *generator) isJSONElementRoot(root model.Traversable) bool {
-	cfg, ok := root.(*pcl.ConfigVariable)
-	return ok && configBindsToJSONElement(cfg.Type())
+	switch root := root.(type) {
+	case *pcl.ConfigVariable:
+		return configBindsToJSONElement(root.Type())
+	case *pcl.LocalVariable:
+		return g.referencesJSONElement(root.Definition.Value)
+	case *model.Variable:
+		// An Apply-lambda parameter is named after the value it applies over;
+		// resolve it through the program-level variable of that name.
+		for _, node := range g.program.Nodes {
+			switch node := node.(type) {
+			case *pcl.ConfigVariable:
+				if node.Name() == root.Name {
+					return configBindsToJSONElement(node.Type())
+				}
+			case *pcl.LocalVariable:
+				if node.Name() == root.Name {
+					return g.referencesJSONElement(node.Definition.Value)
+				}
+			}
+		}
+	}
+	return false
+}
+
+// referencesJSONElement reports whether the expression traverses any value
+// holding a JsonElement.
+func (g *generator) referencesJSONElement(expr model.Expression) bool {
+	found := false
+	visitor := func(e model.Expression) (model.Expression, hcl.Diagnostics) {
+		if scope, ok := e.(*model.ScopeTraversalExpression); ok && g.isJSONElementRoot(scope.Parts[0]) {
+			found = true
+		}
+		return e, nil
+	}
+	_, _ = model.VisitExpression(expr, nil, visitor)
+	return found
 }
 
 // exprIsJSONElement reports whether the expression evaluates to a JsonElement.
@@ -1339,7 +1402,8 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 
 func (g *generator) GenRelativeTraversalExpression(w io.Writer, expr *model.RelativeTraversalExpression) {
 	g.Fgenf(w, "%.20v", expr.Source)
-	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil, false, false)
+	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil, false,
+		g.referencesJSONElement(expr.Source))
 }
 
 func (g *generator) schemaTypeName(schemaType *schema.ObjectType) string {

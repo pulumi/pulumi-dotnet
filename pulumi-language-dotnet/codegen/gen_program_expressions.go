@@ -1492,7 +1492,13 @@ func (g *generator) genTupleAsCollectionInitializer(w io.Writer, expr *model.Tup
 func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExpression) {
 	switch len(expr.Expressions) {
 	case 0:
-		g.Fgenf(w, "%s {}", g.listInitializer)
+		if g.usingDefaultListInitializer() {
+			// An empty `new[] {}` can never infer its element type, so it needs
+			// an explicit one. Target-typed initializers (`new() {}`) are fine.
+			g.Fgenf(w, "new object?[] {}")
+		} else {
+			g.Fgenf(w, "%s {}", g.listInitializer)
+		}
 	default:
 		if !g.isListOfDifferentObjectTypes(expr) && !isListOfUnion(expr.Type()) {
 			// only generate a list initializer when we don't have a list of union types

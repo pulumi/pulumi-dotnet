@@ -618,6 +618,19 @@ func (g *generator) usingStatements(program *pcl.Program) programUsings {
 	systemUsings := codegen.NewStringSet("System.Linq", "System.Collections.Generic")
 	pulumiUsings := codegen.NewStringSet()
 	preambleHelperMethods := codegen.NewStringSet()
+	// Main-program config only: component config binds through generated args
+	// classes instead.
+	if !g.isComponent {
+		if len(collectObjectTypedConfigVariables(program)) > 0 {
+			systemUsings.Add("System.Text.Json.Serialization")
+		}
+		for _, config := range program.ConfigVariables() {
+			if configUsesDynamic(config.Type()) {
+				systemUsings.Add("System.Text.Json")
+				break
+			}
+		}
+	}
 	for _, n := range program.Nodes {
 		if r, isResource := n.(*pcl.Resource); isResource {
 			pkg, _, _, _ := pcl.DecomposeToken(r.GetToken())
@@ -780,9 +793,35 @@ func mainConfigElementType(pclType model.Type) string {
 			elementType := mainConfigElementType(pclType.ElementType)
 			return fmt.Sprintf("Dictionary<string, %s>", elementType)
 		default:
-			return dynamicType
+			// Deserializing into `dynamic` yields a JsonElement boxed as dynamic,
+			// which refuses dynamic member access; bind `any` to JsonElement.
+			return "JsonElement"
 		}
 	}
+}
+
+// configUsesDynamic reports whether the config type binds JsonElement
+// somewhere and therefore needs `using System.Text.Json`.
+func configUsesDynamic(pclType model.Type) bool {
+	pclType = pcl.UnwrapOption(model.ResolveOutputs(pclType))
+	switch pclType {
+	case model.BoolType, model.IntType, model.NumberType, model.StringType:
+		return false
+	}
+	switch pclType := pclType.(type) {
+	case *model.ListType:
+		return configUsesDynamic(pclType.ElementType)
+	case *model.MapType:
+		return configUsesDynamic(pclType.ElementType)
+	case *model.ObjectType:
+		for _, prop := range pclType.Properties {
+			if configUsesDynamic(prop) {
+				return true
+			}
+		}
+		return false
+	}
+	return true
 }
 
 func componentOutputType(pclType model.Type) string {
@@ -1139,11 +1178,13 @@ func (g *generator) genPostamble(w io.Writer, nodes []pcl.Node) {
 		objectType := objectTypedConfigVariables[typeName]
 		g.Fgenf(w, "public class %s\n{\n", typeName)
 		sortedProperties := slices.Sorted(maps.Keys(objectType.Properties))
-		for _, propertyName := range sortedProperties {
+		for _, rawName := range sortedProperties {
 			g.Indented(func() {
-				property := objectType.Properties[propertyName]
+				property := objectType.Properties[rawName]
 				propertyType := mainConfigElementType(property)
-				g.Fgenf(w, "%spublic %s %s { get; set; }\n", g.Indent, propertyType, propertyName)
+				// The C# property is PascalCased; the JSON key keeps the wire name.
+				g.Fgenf(w, "%s[JsonPropertyName(\"%s\")]\n", g.Indent, rawName)
+				g.Fgenf(w, "%spublic %s %s { get; set; }\n", g.Indent, propertyType, propertyName(rawName))
 			})
 		}
 		g.Fgenf(w, "}\n\n")
@@ -2099,7 +2140,7 @@ func computeConfigTypeParam(configName string, configType model.Type) string {
 	case model.BoolType:
 		return "bool"
 	case model.DynamicType:
-		return "dynamic"
+		return "JsonElement"
 	default:
 		switch complexType := configType.(type) {
 		case *model.ObjectType:
@@ -2111,7 +2152,7 @@ func computeConfigTypeParam(configName string, configType model.Type) string {
 			elementType := computeConfigTypeParam(configName, complexType.ElementType)
 			return fmt.Sprintf("Dictionary<string, %s>", elementType)
 		default:
-			return "dynamic"
+			return "JsonElement"
 		}
 	}
 }
@@ -2172,13 +2213,26 @@ func (g *generator) genConfigVariable(w io.Writer, v *pcl.ConfigVariable) {
 		if _, ok := typ.(*model.PromiseType); ok {
 			g.Fgenf(w, "%svar %s = Output.Create(config.%s%s%s(\"%s\"))",
 				g.Indent, name, getOrRequire, getType, typeParam, v.LogicalName())
+		} else if typeParam == "<JsonElement>" {
+			// JsonElement is a struct: use the nullable form so `??` compiles.
+			g.Fgenf(w, "%svar %s = config.%s%s<JsonElement?>(\"%s\")",
+				g.Indent, name, getOrRequire, getType, v.LogicalName())
 		} else {
 			g.Fgenf(w, "%svar %s = config.%s%s%s(\"%s\")",
 				g.Indent, name, getOrRequire, getType, typeParam, v.LogicalName())
 		}
 		expr := g.markUntypedObjectLiterals(g.lowerExpression(v.DefaultValue, v.DefaultValue.Type()))
-		g.Fgenf(w, " ?? %.v", expr)
+		if typeParam == "<JsonElement>" {
+			g.Fgenf(w, " ?? JsonSerializer.SerializeToElement(%.v)", expr)
+		} else {
+			g.Fgenf(w, " ?? %.v", expr)
+		}
 	} else {
+		if typeParam == "<JsonElement>" && model.IsOptionalType(v.Type()) {
+			// An unset non-nullable JsonElement is ValueKind.Undefined, not
+			// null; optional config must stay null-testable.
+			typeParam = "<JsonElement?>"
+		}
 		g.Fgenf(w, "%svar %s = config.%s%s%s(\"%s\")",
 			g.Indent, name, getOrRequire, getType, typeParam, v.LogicalName())
 	}

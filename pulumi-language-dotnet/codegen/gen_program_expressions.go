@@ -519,6 +519,10 @@ func (g *generator) genIntrensic(w io.Writer, from model.Expression, to model.Ty
 					g.Fgenf(w, "(double)%s", value)
 					return
 				}
+				if g.exprIsJSONElement(from) {
+					g.Fgenf(w, "%s.GetDouble()", value)
+					return
+				}
 				g.Fgenf(w, "double.Parse(%s, System.Globalization.CultureInfo.InvariantCulture)", value)
 			})
 		case model.IntType.AssignableFrom(to) && !model.IntType.AssignableFrom(fromType):
@@ -1090,6 +1094,34 @@ func resolvePropertyName(property string, overrides map[string]string) string {
 	return propertyName(property)
 }
 
+// configBindsToJSONElement reports whether a config variable of this declared
+// type binds to C# JsonElement (mirrors computeConfigTypeParam's default).
+func configBindsToJSONElement(t model.Type) bool {
+	t = pcl.UnwrapOption(t)
+	switch t {
+	case model.IDType, model.StringType, model.IntType, model.NumberType, model.BoolType:
+		return false
+	}
+	switch t.(type) {
+	case *model.ObjectType, *model.ListType, *model.MapType:
+		return false
+	}
+	return true
+}
+
+// isJSONElementRoot reports whether a traversal root holds a JsonElement: a
+// config variable declared as `any`.
+func (g *generator) isJSONElementRoot(root model.Traversable) bool {
+	cfg, ok := root.(*pcl.ConfigVariable)
+	return ok && configBindsToJSONElement(cfg.Type())
+}
+
+// exprIsJSONElement reports whether the expression evaluates to a JsonElement.
+func (g *generator) exprIsJSONElement(expr model.Expression) bool {
+	scope, ok := unwrapIntrinsicConvert(expr).(*model.ScopeTraversalExpression)
+	return ok && g.isJSONElementRoot(scope.Parts[0])
+}
+
 func unwrapIntrinsicConvert(expr model.Expression) model.Expression {
 	if call, ok := expr.(*model.FunctionCallExpression); ok && call.Name == pcl.IntrinsicConvert {
 		return call.Args[0]
@@ -1248,8 +1280,11 @@ func findMapType(t model.Type) (*model.MapType, bool) {
 	return nil, false
 }
 
+// genRelativeTraversal emits a traversal sequence. rootIsJSONElement marks a
+// root holding a JsonElement, whose attribute access is `.GetProperty(...)`.
 func (g *generator) genRelativeTraversal(w io.Writer,
-	traversal hcl.Traversal, parts []model.Traversable, objType *schema.ObjectType, rootIsDictionary bool,
+	traversal hcl.Traversal, parts []model.Traversable, objType *schema.ObjectType,
+	rootIsDictionary, rootIsJSONElement bool,
 ) {
 	for i, part := range traversal {
 		var key cty.Value
@@ -1269,16 +1304,30 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 			contract.Failf("unexpected traversal part of type %T (%v)", part, part.SourceRange())
 		}
 
+		// The source's static type picks the accessor: a MapType source is a
+		// Dictionary (indexer); a Dynamic source under a JsonElement root uses
+		// GetProperty, which returns JsonElement, so the flag flows through.
+		sourceType := pcl.UnwrapOption(model.ResolveOutputs(model.GetTraversableType(parts[i])))
+		_, sourceIsMap := sourceType.(*model.MapType)
+		sourceIsDynamic := rootIsJSONElement && sourceType == model.DynamicType
+
 		switch key.Type() {
 		case cty.String:
 			if rootIsDictionary && i == 0 {
 				g.Fgenf(w, "[%q]", key.AsString())
 				continue
 			}
-			if model.IsOptionalType(model.GetTraversableType(parts[i])) {
-				g.Fgen(w, "?")
+			switch {
+			case sourceIsDynamic:
+				g.Fgenf(w, ".GetProperty(%q)", key.AsString())
+			case sourceIsMap:
+				g.Fgenf(w, "[%q]", key.AsString())
+			default:
+				if model.IsOptionalType(model.GetTraversableType(parts[i])) {
+					g.Fgen(w, "?")
+				}
+				g.Fgenf(w, ".%s", propertyName(key.AsString()))
 			}
-			g.Fgenf(w, ".%s", propertyName(key.AsString()))
 		case cty.Number:
 			idx, _ := key.AsBigFloat().Int64()
 			g.Fgenf(w, "[%d]", idx)
@@ -1290,7 +1339,7 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 
 func (g *generator) GenRelativeTraversalExpression(w io.Writer, expr *model.RelativeTraversalExpression) {
 	g.Fgenf(w, "%.20v", expr.Source)
-	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil, false)
+	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil, false, false)
 }
 
 func (g *generator) schemaTypeName(schemaType *schema.ObjectType) string {
@@ -1412,7 +1461,8 @@ func (g *generator) GenScopeTraversalExpression(w io.Writer, expr *model.ScopeTr
 	} else if local, ok := expr.Parts[0].(*pcl.LocalVariable); ok {
 		rootIsDictionary = g.typedDictionaryLocals[local]
 	}
-	g.genRelativeTraversal(w, expr.Traversal.SimpleSplit().Rel, expr.Parts, objType, rootIsDictionary)
+	g.genRelativeTraversal(w, expr.Traversal.SimpleSplit().Rel, expr.Parts, objType,
+		rootIsDictionary, g.isJSONElementRoot(expr.Parts[0]))
 
 	if isFunctionInvoke && !g.asyncInit && len(expr.Parts) > 1 {
 		g.Fgenf(w, ")")

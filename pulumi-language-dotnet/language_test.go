@@ -98,7 +98,6 @@ var expectedFailures = map[string]string{
 	"l1-builtin-can":     "#489 codegen not implemented",
 	"l1-builtin-try":     "#490 codegen not implemented",
 	"l1-keyword-overlap": "#493 update to pulumi 1.50 conformance failure",
-	"l1-proxy-index":     "dotnet build failed",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config":                    "sdk packing for config: build error before pack",
@@ -106,7 +105,6 @@ var expectedFailures = map[string]string{
 	"l2-provider-grpc-config-secret":        "dotnet build failed",
 	"l2-provider-grpc-config-schema":        "dotnet build failed",
 	"l2-provider-grpc-config-schema-secret": "dotnet build failed",
-	"l2-proxy-index":                        "dotnet build failed",
 	"l2-invoke-options-depends-on":          "dotnet build failed",
 	"l2-invoke-scalar": "" +
 		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",

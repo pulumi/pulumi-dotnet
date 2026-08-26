@@ -1,0 +1,6 @@
+component: runtime
+kind: bug-fixes
+body: Fix program codegen for object literals passed to `secret(...)` and traversals into values derived from config `any`
+time: 2026-08-26T12:00:00.000000+00:00
+custom:
+    PR: "1008"

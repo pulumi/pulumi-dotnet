@@ -29,8 +29,19 @@ namespace Pulumi.RefRef.Inputs
         [Input("innerData", required: true)]
         public Input<Inputs.InnerDataArgs> InnerData { get; set; } = null!;
 
+        [Input("innerDataList")]
+        private InputList<Inputs.InnerDataArgs>? _innerDataList;
+        public InputList<Inputs.InnerDataArgs> InnerDataList
+        {
+            get => _innerDataList ?? (_innerDataList = new InputList<Inputs.InnerDataArgs>());
+            set => _innerDataList = value;
+        }
+
         [Input("integer", required: true)]
         public Input<int> Integer { get; set; } = null!;
+
+        [Input("optionalInner")]
+        public Input<Inputs.InnerDataArgs>? OptionalInner { get; set; }
 
         [Input("string", required: true)]
         public Input<string> String { get; set; } = null!;

@@ -205,7 +205,17 @@ func resourceName(r *schema.Resource) string {
 }
 
 func tokenToFunctionName(tok string) string {
-	return tokenToName(tok)
+	return disambiguateFunctionName(tokenToName(tok))
+}
+
+// disambiguateFunctionName renames functions whose generated class name would collide with the
+// Invoke/InvokeAsync methods declared inside it (CS0542: member names cannot be the same as
+// their enclosing type).
+func disambiguateFunctionName(name string) string {
+	if strings.EqualFold(name, "Invoke") || strings.EqualFold(name, "InvokeAsync") {
+		return name + "Function"
+	}
+	return name
 }
 
 func (mod *modContext) isK8sCompatMode() bool {
@@ -2798,7 +2808,7 @@ func (mod *modContext) gen(fs codegen.Fs) error {
 		if err != nil {
 			return err
 		}
-		addFile(tokenToName(f.Token)+".cs", code)
+		addFile(tokenToFunctionName(f.Token)+".cs", code)
 	}
 
 	// Nested types
@@ -3017,7 +3027,13 @@ func genProjectFile(pkg *schema.Package,
 		// only add a package reference to Pulumi if we're not referencing a local Pulumi project
 		// which we usually do when testing schemas locally
 		if !referencedLocalPulumiProject {
-			packageReferences["Pulumi"] = "[3.76.1.0,4)"
+			// Extension-parameterized SDKs pass `extension:` to RegisterPackageRequest,
+			// which only exists in Pulumi 3.109.0 and later.
+			if pkg.ExtensionParameterization != nil {
+				packageReferences["Pulumi"] = "[3.109.0,4)"
+			} else {
+				packageReferences["Pulumi"] = "[3.76.1.0,4)"
+			}
 		}
 	}
 

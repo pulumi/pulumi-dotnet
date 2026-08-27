@@ -58,6 +58,16 @@ public sealed class RegisterPackageRequest
         string name,
         string version,
         string? downloadUrl,
+        Dictionary<string, byte[]>? checksums,
+        PackageParameterization? parameterization)
+        : this(name, version, downloadUrl, checksums, parameterization, extension: null)
+    {
+    }
+
+    public RegisterPackageRequest(
+        string name,
+        string version,
+        string? downloadUrl,
         Dictionary<string, byte[]>? checksums = null,
         PackageParameterization? parameterization = null,
         PackageParameterization? extension = null)

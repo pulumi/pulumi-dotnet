@@ -12,13 +12,13 @@ namespace Pulumi.Myext
     public static class Greet
     {
         public static Task<GreetResult> InvokeAsync(GreetArgs args, InvokeOptions? options = null)
-            => global::Pulumi.Deployment.Instance.InvokeAsync<GreetResult>("extbase:index:greet", args ?? new GreetArgs(), options.WithDefaults(), Utilities.PackageParameterization());
+            => global::Pulumi.Deployment.Instance.InvokeAsync<GreetResult>("myext:index:greet", args ?? new GreetArgs(), options.WithDefaults(), Utilities.PackageParameterization());
 
         public static Output<GreetResult> Invoke(GreetInvokeArgs args, InvokeOptions? options = null)
-            => global::Pulumi.Deployment.Instance.Invoke<GreetResult>("extbase:index:greet", args ?? new GreetInvokeArgs(), options.WithDefaults(), Utilities.PackageParameterization());
+            => global::Pulumi.Deployment.Instance.Invoke<GreetResult>("myext:index:greet", args ?? new GreetInvokeArgs(), options.WithDefaults(), Utilities.PackageParameterization());
 
         public static Output<GreetResult> Invoke(GreetInvokeArgs args, InvokeOutputOptions options)
-            => global::Pulumi.Deployment.Instance.Invoke<GreetResult>("extbase:index:greet", args ?? new GreetInvokeArgs(), options.WithDefaults(), Utilities.PackageParameterization());
+            => global::Pulumi.Deployment.Instance.Invoke<GreetResult>("myext:index:greet", args ?? new GreetInvokeArgs(), options.WithDefaults(), Utilities.PackageParameterization());
     }
 
 

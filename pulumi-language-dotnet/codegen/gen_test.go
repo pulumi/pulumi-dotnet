@@ -21,6 +21,7 @@ import (
 	"maps"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"sync"
 	"testing"
@@ -29,7 +30,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pulumi/pulumi/pkg/v3/codegen"
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/testing/test"
 )
@@ -47,10 +48,10 @@ func filterTests() []*test.SDKTest {
 	tests := test.PulumiPulumiSDKTests
 	for _, test := range tests {
 		if check, ok := skip[test.Directory]; ok {
-			test.Skip = codegen.NewStringSet(check)
+			test.Skip = mapset.NewSet(check)
 		}
 		if slices.Contains(skipCompileCheck, test.Directory) {
-			test.SkipCompileCheck = codegen.NewStringSet("dotnet")
+			test.SkipCompileCheck = mapset.NewSet("dotnet")
 		}
 	}
 	return tests
@@ -150,6 +151,14 @@ func TestGenerateType(t *testing.T) {
 			assert.Equal(t, c.expected, typeString)
 		})
 	}
+}
+
+func TestTokenToFunctionNameAvoidsInvokeMemberCollisions(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "InvokeFunction", tokenToFunctionName("primitive:index:invoke"))
+	assert.Equal(t, "InvokeAsyncFunction", tokenToFunctionName("primitive:index:invokeAsync"))
+	assert.Equal(t, "GetValue", tokenToFunctionName("primitive:index:getValue"))
 }
 
 func TestGenerateTypeNames(t *testing.T) {
@@ -460,4 +469,26 @@ func TestGenerateDiscriminatedUnionRejectsUncoveredMember(t *testing.T) {
 	_, ok := files["Outputs/IExampleUnionOf.cs"]
 	assert.False(t, ok, "a union whose mapping leaves a member uncovered must not generate an interface")
 	assert.Contains(t, files["Example.cs"], "Output<object?>")
+}
+
+func TestGenProjectFilePulumiVersion(t *testing.T) {
+	t.Parallel()
+
+	pulumiReference := func(pkg *schema.Package) string {
+		csproj, err := genProjectFile(pkg, "Pulumi.Test", nil, nil, "0.0.1", nil)
+		require.NoError(t, err)
+		re := regexp.MustCompile(`<PackageReference Include="Pulumi" Version="([^"]+)" />`)
+		match := re.FindStringSubmatch(string(csproj))
+		require.Len(t, match, 2, "expected a Pulumi package reference in:\n%s", csproj)
+		return match[1]
+	}
+
+	assert.Equal(t, "[3.76.1.0,4)", pulumiReference(&schema.Package{Name: "test"}))
+	assert.Equal(t, "[3.109.0,4)", pulumiReference(&schema.Package{
+		Name: "test",
+		ExtensionParameterization: &schema.ExtensionParameterization{
+			BaseProvider: schema.BaseProvider{Name: "base"},
+			Parameter:    []byte("param"),
+		},
+	}))
 }

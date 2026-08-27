@@ -78,11 +78,25 @@
             function will throw an error.
             </summary>
         </member>
+        <member name="M:Pulumi.Config.GetObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads an optional configuration value, as an object, by its key, or null if it doesn't
+            exist. This works by taking the value associated with <paramref name="key"/> and passing
+            it to <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>.
+            </summary>
+        </member>
         <member name="M:Pulumi.Config.GetObject``1(System.String)">
             <summary>
             Loads an optional configuration value, as an object, by its key, or null if it doesn't
             exist. This works by taking the value associated with <paramref name="key"/> and passing
             it to <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Config.GetSecretObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads an optional configuration value, as an object, by its key, marking it as a secret
+            or null if it doesn't exist. This works by taking the value associated with <paramref
+            name="key"/> and passing it to <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>.
             </summary>
         </member>
         <member name="M:Pulumi.Config.GetSecretObject``1(System.String)">
@@ -139,12 +153,28 @@
             If it doesn't exist, or the configuration value is not a legal number, an error is thrown.
             </summary>
         </member>
+        <member name="M:Pulumi.Config.RequireObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads a configuration value as a JSON string and deserializes the JSON into an object.
+            object. If it doesn't exist, or the configuration value cannot be converted using <see
+            cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>, an error is
+            thrown.
+            </summary>
+        </member>
         <member name="M:Pulumi.Config.RequireObject``1(System.String)">
             <summary>
             Loads a configuration value as a JSON string and deserializes the JSON into an object.
             object. If it doesn't exist, or the configuration value cannot be converted using <see
             cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>, an error is
             thrown.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Config.RequireSecretObject``1(System.String,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Loads a configuration value as a JSON string and deserializes the JSON into a JavaScript
+            object, marking it as a secret. If it doesn't exist, or the configuration value cannot
+            be converted using <see cref="M:System.Text.Json.JsonSerializer.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions)"/>,
+            an error is thrown.
             </summary>
         </member>
         <member name="M:Pulumi.Config.RequireSecretObject``1(System.String)">
@@ -2894,8 +2924,9 @@
             lifecycle of the resource.
             </para>
             <para>
-            <c>Before*</c> hooks that raise an exception will cause the resource operation to fail. <c>After*</c> hooks that
-            raise an exception will log a warning, but do not cause the action or the deployment to fail.
+            By default, an exception from a <c>Before*</c> hook causes the resource operation to fail. An exception from an
+            <c>After*</c> hook fails the deployment. The resource operation itself has already succeeded, so its result is
+            recorded in state. Set <see cref="P:Pulumi.ResourceHookOptions.IgnoreErrors"/> on the hook to log a warning instead.
             </para>
             <para>
             When running <c>pulumi destroy</c>, <c>BeforeDelete</c> and <c>AfterDelete</c> resource hooks require the
@@ -3625,6 +3656,22 @@
             </summary>
             <param name="args">MockRegisterResourceOutputsRequest</param>
         </member>
+        <member name="M:Pulumi.Testing.IMocks.RegisterTransform(Pulumi.ResourceTransform)">
+            <summary>
+            Invoked when the program registers a stack transform. The mock monitor does not run
+            transforms; implementations that want to exercise them can record the transform here
+            and call it from <see cref="M:Pulumi.Testing.IMocks.NewResourceAsync(Pulumi.Testing.MockResourceArgs)"/>.
+            </summary>
+            <param name="transform">The registered transform.</param>
+        </member>
+        <member name="M:Pulumi.Testing.IMocks.RegisterInvokeTransform(Pulumi.InvokeTransform)">
+            <summary>
+            Invoked when the program registers an invoke transform. The mock monitor does not run
+            transforms; implementations that want to exercise them can record the transform here
+            and call it from <see cref="M:Pulumi.Testing.IMocks.CallAsync(Pulumi.Testing.MockCallArgs)"/>.
+            </summary>
+            <param name="transform">The registered transform.</param>
+        </member>
         <member name="T:Pulumi.Testing.MockResourceArgs">
             <summary>
             MockResourceArgs for use in NewResourceAsync
@@ -3653,6 +3700,11 @@
         <member name="P:Pulumi.Testing.MockResourceArgs.Id">
             <summary>
             Resource identifier.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Testing.MockResourceArgs.Transforms">
+            <summary>
+            The transforms declared in the resource's options. The mock monitor does not run them.
             </summary>
         </member>
         <member name="T:Pulumi.Testing.MockCallArgs">
@@ -5663,6 +5715,15 @@
         <member name="P:Pulumirpc.ConvertStateRequest.LoaderTarget">
             <summary>
             The target of a codegen.LoaderServer to use for loading schemas.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ConvertStateRequest.ResolverTargetFieldNumber">
+            <summary>Field number for the "resolver_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ConvertStateRequest.ResolverTarget">
+            <summary>
+            The target of a [](pulumirpc.PackageResolver) service the converter can use to resolve package
+            specifications to concrete package dependencies. May be empty on older engines.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceImport">
@@ -13334,6 +13395,12 @@
             string bytes signature and a base64 encoding of the string's bytes.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceMonitorFeature.InvokeDependsOn">
+            <summary>
+            The monitor accepts `dependsOn` on `ResourceInvokeRequest` and gates the invoke on the created-ness of the
+            dependencies, returning `unknown` on `ResourceInvokeResponse` when they are pending.
+            </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceMonitorFeature.InvokeParent">
             <summary>
             The monitor resolves an invoke's provider from the `parent` field on `ResourceInvokeRequest`.
@@ -14093,6 +14160,14 @@
             the reason, whether the resource registration was successful, failed, or skipped.
             </summary>
         </member>
+        <member name="F:Pulumirpc.RegisterResourceResponse.UnknownFieldNumber">
+            <summary>Field number for the "unknown" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceResponse.Unknown">
+            <summary>
+            true if the result of the registration is unknown, e.g. because the create was elided by a targeted update or a destroy run; result is still SUCCESS and SDKs should resolve outputs as unknown.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.RegisterResourceResponse.Types">
             <summary>Container for nested types declared in the RegisterResourceResponse message type.</summary>
         </member>
@@ -14227,6 +14302,16 @@
             carrying the byte string signature and a base64 encoding of the string's bytes.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.DependsOnFieldNumber">
+            <summary>Field number for the "dependsOn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.DependsOn">
+             <summary>
+             The URNs of the resources this invoke depends on.
+            
+             The engine will advertise `INVOKE_DEPENDS_ON` when it reads this field.
+             </summary>
+        </member>
         <member name="F:Pulumirpc.ResourceInvokeRequest.ParentFieldNumber">
             <summary>Field number for the "parent" field.</summary>
         </member>
@@ -14235,6 +14320,31 @@
             An optional URN of the resource this invoke is parented to. When `provider` is empty, the invoke is served by
             the provider its parent's `providers` option names for the invoke's package, the same resolution applied to
             resource registrations. Only respected when the monitor advertises `INVOKE_PARENT`.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeResponse.ReturnFieldNumber">
+            <summary>Field number for the "return" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeResponse.Return">
+            <summary>
+            the returned values, if invoke was successful.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeResponse.FailuresFieldNumber">
+            <summary>Field number for the "failures" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeResponse.Failures">
+            <summary>
+            the failures if any arguments didn't pass verification.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeResponse.UnknownFieldNumber">
+            <summary>Field number for the "unknown" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeResponse.Unknown">
+            <summary>
+            True if the result must be treated as wholly unknown, which the monitor reports when it declines to service an
+            invoke whose dependencies are pending creation.
             </summary>
         </member>
         <member name="F:Pulumirpc.ResourceCallRequest.TokFieldNumber">

@@ -15,6 +15,7 @@
 package dotnet
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"math/big"
@@ -414,10 +415,46 @@ func enumName(enum *model.EnumType) (string, string) {
 
 func (g *generator) genIntrensic(w io.Writer, from model.Expression, to model.Type) {
 	to = pcl.LowerConversion(from, to)
-	output, isOutput := to.(*model.OutputType)
-	if isOutput {
-		to = output.ElementType
+	to = model.ResolveOutputs(to)
+	if cns, ok := to.(*model.ConstType); ok {
+		to = cns.Type
 	}
+
+	fromType := from.Type()
+	containsOutputs, containsPromises := model.ContainsEventuals(fromType)
+	fromType = model.ResolveOutputs(fromType)
+	if cns, ok := fromType.(*model.ConstType); ok {
+		fromType = cns.Type
+	}
+	if union, ok := fromType.(*model.UnionType); ok && len(union.ElementTypes) == 2 {
+		if union.ElementTypes[0] == model.NoneType {
+			fromType = union.ElementTypes[1]
+		} else if union.ElementTypes[1] == model.NoneType {
+			fromType = union.ElementTypes[0]
+		}
+	}
+
+	genMaybeOutputConversion := func(conversionExpr func(string)) {
+		if containsPromises {
+			g.Fgenf(w, "Output.Create(%.v).Apply(x => ", from)
+			conversionExpr("x")
+			g.Fgen(w, ")")
+			return
+		}
+		if containsOutputs {
+			g.Fgenf(w, "%.20v.Apply(x => ", from)
+			conversionExpr("x")
+			g.Fgen(w, ")")
+			return
+		}
+
+		// Render at primary precedence: the converted value is spliced into member-access,
+		// cast, and comparison contexts, so compound expressions need parentheses.
+		var rendered bytes.Buffer
+		g.Fgenf(&rendered, "%.20v", from)
+		conversionExpr(rendered.String())
+	}
+
 	switch to := to.(type) {
 	case *model.EnumType:
 		pkg, name := enumName(to)
@@ -437,8 +474,10 @@ func (g *generator) genIntrensic(w io.Writer, from model.Expression, to model.Ty
 				from.Type(), from, to))
 		}
 
-		if isOutput {
+		if containsOutputs {
 			g.Fgenf(w, "%.v.Apply(%s)", from, convertFn())
+		} else if containsPromises {
+			g.Fgenf(w, "Output.Create(%.v).Apply(%s)", from, convertFn())
 		} else {
 			diag := pcl.GenEnum(to, from, g.genSafeEnum(w, to), func(from model.Expression) {
 				g.Fgenf(w, "%s(%v)", convertFn(), from)
@@ -448,7 +487,51 @@ func (g *generator) genIntrensic(w io.Writer, from model.Expression, to model.Ty
 			}
 		}
 	default:
-		g.Fgenf(w, "%.v", from) // <- probably wrong w.r.t. precedence
+		switch {
+		case model.BoolType.AssignableFrom(to) && !model.BoolType.AssignableFrom(fromType):
+			genMaybeOutputConversion(func(value string) {
+				g.Fgenf(w, `%s == "true"`, value)
+			})
+		case model.StringType.AssignableFrom(to) &&
+			!model.StringType.AssignableFrom(fromType) &&
+			!model.IDType.AssignableFrom(fromType),
+			model.IDType.AssignableFrom(to) &&
+				!model.StringType.AssignableFrom(fromType) &&
+				!model.IDType.AssignableFrom(fromType):
+			genMaybeOutputConversion(func(value string) {
+				if model.BoolType.AssignableFrom(fromType) {
+					g.Fgenf(w, `%s ? "true" : "false"`, value)
+					return
+				}
+				g.Fgenf(w, "%s.ToString(System.Globalization.CultureInfo.InvariantCulture)", value)
+			})
+		case model.NumberType.AssignableFrom(to) && !model.NumberType.AssignableFrom(fromType):
+			// Integer literals can be rendered directly as double literals (3 => 3.0) instead of
+			// being cast ((double)3).
+			if lit, ok := from.(*model.LiteralValueExpression); ok && model.IntType.AssignableFrom(fromType) {
+				if i, acc := lit.Value.AsBigFloat().Int64(); acc == big.Exact {
+					g.Fgenf(w, "%d.0", i)
+					return
+				}
+			}
+			genMaybeOutputConversion(func(value string) {
+				if model.IntType.AssignableFrom(fromType) {
+					g.Fgenf(w, "(double)%s", value)
+					return
+				}
+				g.Fgenf(w, "double.Parse(%s, System.Globalization.CultureInfo.InvariantCulture)", value)
+			})
+		case model.IntType.AssignableFrom(to) && !model.IntType.AssignableFrom(fromType):
+			genMaybeOutputConversion(func(value string) {
+				if model.NumberType.AssignableFrom(fromType) {
+					g.Fgenf(w, "(int)%s", value)
+					return
+				}
+				g.Fgenf(w, "int.Parse(%s, System.Globalization.CultureInfo.InvariantCulture)", value)
+			})
+		default:
+			g.Fgenf(w, "%.v", from)
+		}
 	}
 }
 
@@ -719,7 +802,8 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 		// PCL's length() on strings returns the number of Unicode grapheme clusters, not UTF-16 code
 		// units. .NET's StringInfo.LengthInTextElements implements UAX #29 grapheme cluster boundaries,
 		// matching PCL semantics for multi-byte Latin, emoji with variation selectors, and ZWJ sequences.
-		if model.ResolveOutputs(expr.Args[0].Type()).Equals(model.StringType) {
+		argType := model.ResolveOutputs(expr.Args[0].Type())
+		if argType.Equals(model.IDType) || argType.Equals(model.StringType) {
 			if isOutput {
 				g.Fgenf(w, "%.20v.Apply(s => new System.Globalization.StringInfo(s).LengthInTextElements)",
 					expr.Args[0])
@@ -1020,6 +1104,15 @@ func isEmptyList(expr model.Expression) bool {
 	return false
 }
 
+func isEmptyObjectCons(expr model.Expression) bool {
+	expr = unwrapIntrinsicConvert(expr)
+	if obj, ok := expr.(*model.ObjectConsExpression); ok {
+		return len(obj.Items) == 0
+	}
+
+	return false
+}
+
 func objectKey(item model.ObjectConsItem) string {
 	switch key := item.Key.(type) {
 	case *model.LiteralValueExpression:
@@ -1127,7 +1220,7 @@ func findMapType(t model.Type) (*model.MapType, bool) {
 }
 
 func (g *generator) genRelativeTraversal(w io.Writer,
-	traversal hcl.Traversal, parts []model.Traversable, objType *schema.ObjectType,
+	traversal hcl.Traversal, parts []model.Traversable, objType *schema.ObjectType, rootIsDictionary bool,
 ) {
 	for i, part := range traversal {
 		var key cty.Value
@@ -1149,6 +1242,10 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 
 		switch key.Type() {
 		case cty.String:
+			if rootIsDictionary && i == 0 {
+				g.Fgenf(w, "[%q]", key.AsString())
+				continue
+			}
 			if model.IsOptionalType(model.GetTraversableType(parts[i])) {
 				g.Fgen(w, "?")
 			}
@@ -1164,7 +1261,7 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 
 func (g *generator) GenRelativeTraversalExpression(w io.Writer, expr *model.RelativeTraversalExpression) {
 	g.Fgenf(w, "%.20v", expr.Source)
-	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil)
+	g.genRelativeTraversal(w, expr.Traversal, expr.Parts, nil, false)
 }
 
 func (g *generator) schemaTypeName(schemaType *schema.ObjectType) string {
@@ -1278,12 +1375,15 @@ func (g *generator) GenScopeTraversalExpression(w io.Writer, expr *model.ScopeTr
 	}
 
 	var objType *schema.ObjectType
+	rootIsDictionary := false
 	if resource, ok := expr.Parts[0].(*pcl.Resource); ok {
 		if schemaType, ok := pcl.GetSchemaForType(resource.InputType); ok {
 			objType, _ = schemaType.(*schema.ObjectType)
 		}
+	} else if local, ok := expr.Parts[0].(*pcl.LocalVariable); ok {
+		rootIsDictionary = g.typedDictionaryLocals[local]
 	}
-	g.genRelativeTraversal(w, expr.Traversal.SimpleSplit().Rel, expr.Parts, objType)
+	g.genRelativeTraversal(w, expr.Traversal.SimpleSplit().Rel, expr.Parts, objType, rootIsDictionary)
 
 	if isFunctionInvoke && !g.asyncInit && len(expr.Parts) > 1 {
 		g.Fgenf(w, ")")
@@ -1401,7 +1501,13 @@ func (g *generator) genTupleAsCollectionInitializer(w io.Writer, expr *model.Tup
 func (g *generator) GenTupleConsExpression(w io.Writer, expr *model.TupleConsExpression) {
 	switch len(expr.Expressions) {
 	case 0:
-		g.Fgenf(w, "%s {}", g.listInitializer)
+		if g.usingDefaultListInitializer() {
+			// An empty `new[] {}` can never infer its element type, so it needs
+			// an explicit one. Target-typed initializers (`new() {}`) are fine.
+			g.Fgenf(w, "new object?[] {}")
+		} else {
+			g.Fgenf(w, "%s {}", g.listInitializer)
+		}
 	default:
 		if !g.isListOfDifferentObjectTypes(expr) && !isListOfUnion(expr.Type()) {
 			// only generate a list initializer when we don't have a list of union types

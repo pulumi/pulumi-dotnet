@@ -9,7 +9,7 @@ using Pulumi.Serialization;
 
 namespace Pulumi.Myext
 {
-    [MyextResourceType("extbase:index:Greeting")]
+    [MyextResourceType("myext:index:Greeting")]
     public partial class Greeting : global::Pulumi.CustomResource
     {
         [Output("parameterValue")]
@@ -24,12 +24,12 @@ namespace Pulumi.Myext
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
         public Greeting(string name, GreetingArgs? args = null, CustomResourceOptions? options = null)
-            : base("extbase:index:Greeting", name, args ?? new GreetingArgs(), MakeResourceOptions(options, ""), Utilities.PackageParameterization())
+            : base("myext:index:Greeting", name, args ?? new GreetingArgs(), MakeResourceOptions(options, ""), Utilities.PackageParameterization())
         {
         }
 
         private Greeting(string name, Input<string> id, CustomResourceOptions? options = null)
-            : base("extbase:index:Greeting", name, null, MakeResourceOptions(options, id), Utilities.PackageParameterization())
+            : base("myext:index:Greeting", name, null, MakeResourceOptions(options, id), Utilities.PackageParameterization())
         {
         }
 

@@ -26,6 +26,10 @@ build_language_host:
 changelog:
 	changie new
 
+.PHONY: renovate
+renovate:
+	./scripts/renovate-changelog.sh "$(DEP)" "$(VERSION)" "$(FILE)"
+
 .PHONY: clean
 clean:
 	cd sdk && dotnet clean

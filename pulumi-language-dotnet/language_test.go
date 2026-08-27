@@ -95,17 +95,14 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 
 // Add test names here that are expected to fail and the reason why they are failing
 var expectedFailures = map[string]string{
-	"l1-builtin-can":                   "#489 codegen not implemented",
-	"l1-builtin-try":                   "#490 codegen not implemented",
-	"l1-keyword-overlap":               "#493 update to pulumi 1.50 conformance failure",
-	"l1-proxy-index":                   "dotnet build failed",
-	"l2-resource-provider-inheritance": "No best type found for implicitly-typed array",
+	"l1-builtin-can":     "#489 codegen not implemented",
+	"l1-builtin-try":     "#490 codegen not implemented",
+	"l1-keyword-overlap": "#493 update to pulumi 1.50 conformance failure",
+	"l1-proxy-index":     "dotnet build failed",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-resource-config":                    "sdk packing for config: build error before pack",
-	"l1-output-array":                       "error CS0826: No best type found for implicitly-typed array",
 	"l1-output-map":                         "Same error as with arrays about implicitly typed maps",
-	"l2-resource-primitives":                "Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",
 	"l2-provider-grpc-config":               "dotnet build failed",
 	"l2-provider-grpc-config-secret":        "dotnet build failed",
 	"l2-provider-grpc-config-schema":        "dotnet build failed",
@@ -146,12 +143,10 @@ var expectedFailures = map[string]string{
 
 	"l3-range": "Fail after updating to 3.225",
 
-	"l2-primitive-ref": "Fail after updating to 3.229: dotnet build failed",
-	"l2-ref-ref":       "Fail after updating to 3.229: dotnet build failed",
+	"l2-ref-ref": "Fail after updating to 3.229: dotnet build failed",
 
-	"l2-resource-optional":           "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
-	"l3-component-config-objects":    "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll
-	"l3-component-config-primitives": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
+	"l2-resource-optional":        "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
+	"l3-component-config-objects": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll
 
 	"l3-for":              "Fail after updating to 3.226",
 	"l2-snake-names":      "Fail after updating to 3.226",
@@ -160,9 +155,8 @@ var expectedFailures = map[string]string{
 	"l1-builtin-to-json":  "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",
 	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
 
-	"l2-resource-config-primitives": "dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",                //nolint:lll
-	"l2-resource-config-objects":    "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
-	"l3-rewrite-conversions":        "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
+	"l2-resource-config-objects": "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
+	"l3-rewrite-conversions":     "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
 	// l3-range-ref was split by range kind in pulumi/pulumi#23632 (v3.248.0); all three inherit the
 	// original "dotnet build failed: List<Target> missing K1/Name members" range-ref codegen bug.
 	"l3-range-list-ref":                  "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
@@ -179,9 +173,7 @@ var expectedFailures = map[string]string{
 
 	"l3-component-nested":                "Fail after updating to 3.232",
 	"l1-builtin-min-max":                 "Fail after updating to 3.232",
-	"l2-resource-primitive-conversions":  "Fail after updating to 3.232",
 	"l3-component-primitive-conversions": "Fail after updating to 3.232",
-	"l2-id-type":                         "Fail after updating to 3.232",
 
 	"l2-resource-read":        "Fail after updating to 3.234: read resource codegen not implemented",
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
@@ -202,6 +194,18 @@ var expectedFailures = map[string]string{
 	"l3-range-invoke-output-traversal": "Fail after updating to 3.250: dotnet build failed: CS0021 cannot index Output<ImmutableArray<string>>", //nolint:lll
 
 	"l2-failed-create-recover-continue-on-error": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
+
+	"l2-invoke-depends-on-component":     "the .NET SDK does not send dependsOn on invokes: the invoke result is not unknown while its dependencies are pending creation (added in v3.256.0)",            //nolint:lll
+	"l2-target-up-skipped-create-output": "the .NET SDK does not handle RegisterResourceResponse.unknown: outputs of skipped creates resolve as empty instead of unknown (added in v3.256.0)",            //nolint:lll
+	"l3-component-provider-inheritance":  "the .NET SDK does not inherit the providers map into remote components: an extra default provider is created instead of the explicit one (added in v3.256.0)", //nolint:lll
+
+	"l1-for-expression":      "dotnet build failed: programgen emits invalid C# for `for` expressions: CS1525 invalid expression term '.' (added in v3.257.0)",                                           //nolint:lll
+	"l2-nested-collections":  "dotnet build failed: sdkgen emits plain nested dictionaries instead of typed outputs for deeply nested collections: CS1061 no definition for 'Outer' (added in v3.257.0)", //nolint:lll
+	"l2-reserved-names":      "sdk packing for reservednames: CS0542 'ElementType' member name cannot be the same as its enclosing type (added in v3.257.0)",                                             //nolint:lll
+	"l2-resource-hook-panic": "dotnet build failed: programgen emits invalid hook argument: CS1503 cannot convert from 'object' to 'System.Diagnostics.ProcessStartInfo' (added in v3.257.0)",            //nolint:lll
+
+	"l1-component-sourceless": "programgen does not support components declared without a source (pcl.Component.Program == nil): nil pointer dereference in AnnotateComponentInputs (added in v3.259.0)",                                       //nolint:lll
+	"l3-map-keys":             "dotnet build failed: programgen emits a local component output of the wrong map type: CS0029 cannot convert Output<ImmutableDictionary<string, bool>> to Output<Dictionary<string, bool>> (added in v3.259.0)", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

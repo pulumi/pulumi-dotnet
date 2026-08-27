@@ -9,9 +9,9 @@ return await Deployment.RunAsync(async() =>
 {
     var config = new Config();
     // A list of availability zones names or ids in the region
-    var azs = config.GetObject<string[]>("azs") ?? new[] {};
+    var azs = config.GetObject<string[]>("azs") ?? new object?[] {};
     // Assigns IPv6 public subnet id based on the Amazon provided /56 prefix base 10 integer (0-256). Must be of equal length to the corresponding IPv4 subnet list
-    var publicSubnetIpv6Prefixes = config.GetObject<string[]>("publicSubnetIpv6Prefixes") ?? new[] {};
+    var publicSubnetIpv6Prefixes = config.GetObject<string[]>("publicSubnetIpv6Prefixes") ?? new object?[] {};
     // Should be true if you want only one NAT Gateway per availability zone. Requires `var.azs` to be set, and the number of `public_subnets` created to be greater than or equal to the number of availability zones specified in `var.azs`
     var oneNatGatewayPerAz = config.GetBoolean("oneNatGatewayPerAz") ?? false;
     // Requests an Amazon-provided IPv6 CIDR block with a /56 prefix length for the VPC. You cannot specify the range of IP addresses, or the size of the CIDR block
@@ -41,7 +41,7 @@ return await Deployment.RunAsync(async() =>
     var createPublicSubnets = true;
 
     var publicSubnet = new List<Infra.Subnet>();
-    for (var rangeIndex = 0; rangeIndex < createPublicSubnets && (!oneNatGatewayPerAz || lenPublicSubnets >= azs.Length) ? lenPublicSubnets : 0; rangeIndex++)
+    for (var rangeIndex = 0; rangeIndex < createPublicSubnets && (!oneNatGatewayPerAz || lenPublicSubnets >= (double)azs.Length) ? lenPublicSubnets : 0.0; rangeIndex++)
     {
         var range = new { Value = rangeIndex };
         publicSubnet.Add(new Infra.Subnet($"publicSubnet-{range.Value}", new()
@@ -54,7 +54,7 @@ return await Deployment.RunAsync(async() =>
             {
                 Input = currentVpc.Ipv6CidrBlock,
                 Newbits = 8,
-                Netnum = publicSubnetIpv6Prefixes[range.Value],
+                Netnum = int.Parse(publicSubnetIpv6Prefixes[range.Value], System.Globalization.CultureInfo.InvariantCulture),
             }).Apply(invoke => invoke.Result) : null,
             Ipv6Native = enableIpv6 && publicSubnetIpv6Native,
             VpcId = currentVpc.Id,

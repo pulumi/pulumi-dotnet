@@ -377,7 +377,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.AI">
             <summary>
-            Prompt to use for Pulumi AI
+            Retired: use 'pulumi neo -p "prompt"' instead.
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.Color">
@@ -427,7 +427,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.Language">
             <summary>
-            Language to use for Pulumi AI (must be one of TypeScript, JavaScript, Python, Go, C#, Java, or YAML)
+            Retired: use 'pulumi neo -p "prompt"' instead.
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.ListTemplates">
@@ -492,7 +492,7 @@
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.TemplateMode">
             <summary>
-            Run in template mode, which will skip prompting for AI or Template functionality
+            Deprecated: template mode is now the only mode; this flag is a no-op
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiNewOptions.Tracing">

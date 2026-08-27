@@ -312,15 +312,11 @@ func simplifyInputUnion(union *schema.UnionType) *schema.UnionType {
 	}
 }
 
-// minDiscriminatedUnionMembers is the number of members a discriminated union needs before it gets
-// a generated interface. Two-member unions keep using Union<T0, T1>/InputUnion<T0, T1>.
-const minDiscriminatedUnionMembers = 3
-
 const typeRefPrefix = "#/types/"
 
-// discriminatedUnion is a schema union that carries a discriminator with a non-empty mapping and at
-// least minDiscriminatedUnionMembers members. Such a union is generated as a C# interface that each
-// member class implements, rather than degrading to `object`.
+// discriminatedUnion is a schema union that carries a discriminator with a mapping that covers
+// every member. When the package opts in through fullyTypedUnions, such a union is generated as a
+// C# interface that each member class implements, whatever its member count.
 type discriminatedUnion struct {
 	// name is the interface name without the shape suffix that typeName applies to member classes.
 	name string
@@ -457,7 +453,7 @@ func discriminatedUnionMembers(t *schema.UnionType) (map[string]*schema.ObjectTy
 // resolves to one generated interface.
 func discriminatedUnionKey(t *schema.UnionType) (string, bool) {
 	members, ok := discriminatedUnionMembers(t)
-	if !ok || len(members) < minDiscriminatedUnionMembers {
+	if !ok {
 		return "", false
 	}
 
@@ -512,6 +508,16 @@ func (mod *modContext) shapeSuffix(member *schema.ObjectType, state, input bool)
 }
 
 func (mod *modContext) unionTypeString(t *schema.UnionType, qualifier string, input, wrapInput, state, requireInitializers bool) string {
+	// Under the fullyTypedUnions option a discriminated union of any size is generated as an
+	// interface the members implement. Checked before the elements are rendered, and ahead of the
+	// arity switch so two-member unions do not fall into Union<T0, T1>.
+	if iface, ok := mod.discriminatedUnionTypeString(t, qualifier, input, state); ok {
+		if wrapInput {
+			return fmt.Sprintf("Input<%s>", iface)
+		}
+		return iface
+	}
+
 	elementTypeSet := codegen.StringSet{}
 	var elementTypes []string
 	for _, e := range t.ElementTypes {
@@ -541,14 +547,8 @@ func (mod *modContext) unionTypeString(t *schema.UnionType, qualifier string, in
 		}
 		return fmt.Sprintf("%s<%s>", unionT, strings.Join(elementTypes, ", "))
 	default:
-		// Union<> only has two-arity overloads, so unions of three or more members used to degrade to
-		// `object`. Discriminated unions instead get a generated interface the members implement.
-		if iface, ok := mod.discriminatedUnionTypeString(t, qualifier, input, state); ok {
-			if wrapInput {
-				return fmt.Sprintf("Input<%s>", iface)
-			}
-			return iface
-		}
+		// Union<> only has two-arity overloads, so a union of three or more members that does not
+		// qualify for an interface above degrades to `object`.
 		return "object"
 	}
 }
@@ -2147,10 +2147,16 @@ type unionPosition struct {
 // property name - which keeps the name stable when members are added to the union, and unique
 // because positions are unique. Positions are visited in a fixed order so regenerating a package
 // produces the same names.
-func registerDiscriminatedUnions(pkg *schema.Package) *unionRegistry {
+func registerDiscriminatedUnions(pkg *schema.Package, fullyTypedUnions bool) *unionRegistry {
 	reg := &unionRegistry{
 		byKey:    map[string]*discriminatedUnion{},
 		byMember: map[string][]*discriminatedUnion{},
+	}
+	// Typing a property that used to be `object` or Union<T0, T1> breaks the callers of a
+	// generated SDK, so packages opt in through the fullyTypedUnions option. Off means the empty
+	// registry: every lookup misses and rendering keeps the untyped shapes.
+	if !fullyTypedUnions {
+		return reg
 	}
 
 	// Reserve the names of the types the package already generates so an interface can never shadow
@@ -3272,7 +3278,7 @@ func generateModuleContextMap(tool string, pkg *schema.Package) (map[string]*mod
 	}
 
 	// Name the discriminated unions and hand each one to the module that generates its interface.
-	unions := registerDiscriminatedUnions(pkg)
+	unions := registerDiscriminatedUnions(pkg, infos[pkg].FullyTypedUnions)
 	for _, mod := range modules {
 		mod.unions = unions
 	}

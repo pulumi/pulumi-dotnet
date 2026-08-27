@@ -109,13 +109,13 @@ namespace Pulumi.Mypkg
         /// <summary>
         /// List of SSIS object metadata.
         /// </summary>
-        public readonly ImmutableArray<Outputs.IGetIntegrationRuntimeObjectMetadatumValue> Value;
+        public readonly ImmutableArray<object> Value;
 
         [OutputConstructor]
         private GetIntegrationRuntimeObjectMetadatumResult(
             string? nextLink,
 
-            ImmutableArray<Outputs.IGetIntegrationRuntimeObjectMetadatumValue> value)
+            ImmutableArray<object> value)
         {
             NextLink = nextLink;
             Value = value;

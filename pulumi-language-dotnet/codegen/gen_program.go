@@ -87,10 +87,6 @@ type generator struct {
 	// from an array
 	listInitializer         string
 	deferredOutputVariables []*pcl.DeferredOutputVariable
-	// Local variables whose object literal was emitted as a typed Dictionary. Traversals into
-	// these locals must use string indexers rather than property access, so the decision made
-	// at declaration time is recorded here for the traversal sites.
-	typedDictionaryLocals map[*pcl.LocalVariable]bool
 	// Some of our names interfere with one another. For example, `Pulumi.Output` is a module, and `Output` exists in
 	// `Pulumi`, so programs that import `Pulumi` and `Pulumi.Output` hit name collisions. For this reason, we'll import
 	// the latter as `OutputProvider` rather than `Output`.
@@ -2252,10 +2248,6 @@ func (g *generator) genLocalVariable(w io.Writer, localVariable *pcl.LocalVariab
 		result := g.lowerExpression(value, value.Type())
 		g.Fgenf(w, "%svar %s = ", g.Indent, variableName)
 		if object, ok := result.(*model.ObjectConsExpression); ok && g.genTypedLocalObjectConsExpression(w, object) {
-			if g.typedDictionaryLocals == nil {
-				g.typedDictionaryLocals = map[*pcl.LocalVariable]bool{}
-			}
-			g.typedDictionaryLocals[localVariable] = true
 			g.Fgenf(w, ";\n\n")
 		} else {
 			g.Fgenf(w, "%v;\n\n", g.markUntypedObjectLiterals(result))
@@ -2317,14 +2309,7 @@ func (g *generator) genTypedLocalObjectConsExpression(w io.Writer, expr *model.O
 		return false
 	}
 
-	g.Fgenf(w, "new Dictionary<string, %s>\n", elementType)
-	g.Fgenf(w, "%s{\n", g.Indent)
-	g.Indented(func() {
-		for _, item := range expr.Items {
-			g.Fgenf(w, "%s[%.v] = %.v,\n", g.Indent, item.Key, item.Value)
-		}
-	})
-	g.Fgenf(w, "%s}", g.Indent)
+	g.genDictionary(w, expr, elementType)
 	return true
 }
 

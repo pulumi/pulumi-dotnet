@@ -840,17 +840,11 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "readDir":
 		g.Fgenf(w, "Directory.GetFiles(%.v).Select(Path.GetFileName)", expr.Args[0])
 	case "secret":
-		// A schema-less object literal would be emitted as a Dictionary (see
-		// genObjectConsExpression), but the value is traversed through Apply
-		// lambdas whose codegen emits property access. Emit an anonymous record
-		// instead: its PascalCased properties line up with traversal codegen.
-		if obj, ok := expr.Args[0].(*model.ObjectConsExpression); ok {
-			if _, hasSchema := g.toSchemaType(obj.Type()); !hasSchema {
-				g.Fgen(w, "Output.CreateSecret(")
-				g.genAnonymousRecord(w, obj)
-				g.Fgen(w, ")")
-				return
-			}
+		if g.exprContainerRepr(expr) == reprAnonymousRecord {
+			g.Fgen(w, "Output.CreateSecret(")
+			g.genAnonymousRecord(w, expr.Args[0].(*model.ObjectConsExpression))
+			g.Fgen(w, ")")
+			return
 		}
 		g.Fgenf(w, "Output.CreateSecret(%v)", expr.Args[0])
 	case "unsecret":
@@ -928,7 +922,15 @@ func (g *generator) genAnonymousRecord(w io.Writer, expr *model.ObjectConsExpres
 	g.Indented(func() {
 		for _, item := range expr.Items {
 			key := objectKey(item)
-			g.Fgenf(w, "%s%s = %.v,\n", g.Indent, propertyName(key), item.Value)
+			g.Fgenf(w, "%s%s = ", g.Indent, propertyName(key))
+			// A nested schema-less literal stays an anonymous record: the
+			// members must keep their static types along with the parent's.
+			if obj := g.schemalessObjectLiteral(item.Value); obj != nil {
+				g.genAnonymousRecord(w, obj)
+			} else {
+				g.Fgenf(w, "%.v", item.Value)
+			}
+			g.Fgen(w, ",\n")
 		}
 	})
 	g.Fgenf(w, "%s}", g.Indent)
@@ -1120,6 +1122,62 @@ func resolvePropertyName(property string, overrides map[string]string) string {
 	}
 
 	return propertyName(property)
+}
+
+// containerRepr describes the C# container emitted for a schema-less object
+// literal. Schema-backed literals render as their args classes and are not
+// tracked here.
+type containerRepr int
+
+const (
+	// reprNone: not a schema-less object literal; traversals use property
+	// access (or the map/JsonElement spellings genRelativeTraversal picks
+	// per hop).
+	reprNone containerRepr = iota
+	// reprDictionary: a Dictionary, traversed with string indexers.
+	reprDictionary
+	// reprAnonymousRecord: an anonymous record, traversed with PascalCase
+	// property access. Chosen for Output-wrapped literals so member types
+	// survive Apply lambdas, which a Dictionary's object? values would not.
+	reprAnonymousRecord
+)
+
+// schemalessObjectLiteral returns the object literal an expression is when the
+// literal has no schema-backed type, or nil.
+func (g *generator) schemalessObjectLiteral(expr model.Expression) *model.ObjectConsExpression {
+	if obj, ok := unwrapIntrinsicConvert(expr).(*model.ObjectConsExpression); ok {
+		if _, hasSchema := g.toSchemaType(obj.Type()); !hasSchema {
+			return obj
+		}
+	}
+	return nil
+}
+
+// exprContainerRepr classifies how the value of a defining expression is
+// represented in C#. Producers of schema-less object literals and the
+// traversal codegen both consult this, so the container shape and the
+// accessor spelling cannot diverge.
+func (g *generator) exprContainerRepr(expr model.Expression) containerRepr {
+	expr = unwrapIntrinsicConvert(expr)
+	if call, ok := expr.(*model.FunctionCallExpression); ok && call.Name == "secret" {
+		if obj, ok := call.Args[0].(*model.ObjectConsExpression); ok && g.schemalessObjectLiteral(obj) != nil {
+			return reprAnonymousRecord
+		}
+		return reprNone
+	}
+	if g.schemalessObjectLiteral(expr) != nil {
+		return reprDictionary
+	}
+	return reprNone
+}
+
+// rootContainerRepr resolves a traversal root to the representation of its
+// defining expression.
+func (g *generator) rootContainerRepr(root model.Traversable) containerRepr {
+	if local, ok := root.(*pcl.LocalVariable); ok {
+		return g.exprContainerRepr(local.Definition.Value)
+	}
+	return reprNone
 }
 
 // configBindsToJSONElement reports whether a config variable of this declared
@@ -1517,14 +1575,12 @@ func (g *generator) GenScopeTraversalExpression(w io.Writer, expr *model.ScopeTr
 	}
 
 	var objType *schema.ObjectType
-	rootIsDictionary := false
 	if resource, ok := expr.Parts[0].(*pcl.Resource); ok {
 		if schemaType, ok := pcl.GetSchemaForType(resource.InputType); ok {
 			objType, _ = schemaType.(*schema.ObjectType)
 		}
-	} else if local, ok := expr.Parts[0].(*pcl.LocalVariable); ok {
-		rootIsDictionary = g.typedDictionaryLocals[local]
 	}
+	rootIsDictionary := g.rootContainerRepr(expr.Parts[0]) == reprDictionary
 	g.genRelativeTraversal(w, expr.Traversal.SimpleSplit().Rel, expr.Parts, objType,
 		rootIsDictionary, g.isJSONElementRoot(expr.Parts[0]))
 

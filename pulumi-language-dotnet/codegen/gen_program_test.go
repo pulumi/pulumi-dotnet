@@ -491,6 +491,58 @@ output "out" {
 			"non-nullable JsonElement is ValueKind.Undefined, not null")
 }
 
+func TestGenerateProgramNestedSecretObjectLiteral(t *testing.T) {
+	t.Parallel()
+
+	source := `
+s = secret({
+    outer = {
+        inner = "value"
+    }
+})
+
+output "out" {
+    value = s.outer.inner
+}
+`
+
+	parser := syntax.NewParser()
+	err := parser.ParseFile(strings.NewReader(source), "main.pp")
+	require.NoError(t, err)
+	require.False(t, parser.Diagnostics.HasErrors(), "parse diagnostics: %v", parser.Diagnostics)
+
+	program, diags, err := pcl.BindProgram(parser.Files, &inlineLoader{})
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "bind diagnostics: %v", diags)
+	require.NotNil(t, program)
+
+	files, diags, err := GenerateProgram(program)
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "codegen diagnostics: %v", diags)
+
+	require.Equal(t, `using System.Collections.Generic;
+using System.Linq;
+using Pulumi;
+
+return await Deployment.RunAsync(() => 
+{
+    var s = Output.CreateSecret(new
+    {
+        Outer = new
+        {
+            Inner = "value",
+        },
+    });
+
+    return new Dictionary<string, object?>
+    {
+        ["out"] = s.Apply(s => s.Outer.Inner),
+    };
+});
+
+`, string(files["Program.cs"]))
+}
+
 type inlineLoader struct {
 	schemas map[string]schema.PackageSpec
 }

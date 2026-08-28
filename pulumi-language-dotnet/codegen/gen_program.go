@@ -2246,12 +2246,14 @@ func (g *generator) genLocalVariable(w io.Writer, localVariable *pcl.LocalVariab
 		g.Fgenf(w, "%svar %s = %v;\n\n", g.Indent, variableName, result)
 	} else {
 		result := g.lowerExpression(value, value.Type())
-		g.Fgenf(w, "%svar %s = ", g.Indent, variableName)
-		if object, ok := result.(*model.ObjectConsExpression); ok && g.genTypedLocalObjectConsExpression(w, object) {
-			g.Fgenf(w, ";\n\n")
-		} else {
-			g.Fgenf(w, "%v;\n\n", g.markUntypedObjectLiterals(result))
+		// A homogeneous top-level literal gets a precise Dictionary value type;
+		// var-typed locals keep their members usable (e.g. Output<T> methods).
+		if obj, ok := result.(*model.ObjectConsExpression); ok {
+			if elementType, homogeneous := dictionaryValueType(obj); homogeneous {
+				result = newUntypedObjectLiteralCall(obj, elementType)
+			}
 		}
+		g.Fgenf(w, "%svar %s = %v;\n\n", g.Indent, variableName, g.markUntypedObjectLiterals(result))
 	}
 }
 
@@ -2301,16 +2303,6 @@ func dictionaryValueType(expr *model.ObjectConsExpression) (string, bool) {
 		}
 	}
 	return elementType, true
-}
-
-func (g *generator) genTypedLocalObjectConsExpression(w io.Writer, expr *model.ObjectConsExpression) bool {
-	elementType, ok := dictionaryValueType(expr)
-	if !ok {
-		return false
-	}
-
-	g.genDictionary(w, expr, elementType)
-	return true
 }
 
 func (g *generator) genNYI(w io.Writer, reason string, vs ...any) {

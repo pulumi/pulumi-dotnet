@@ -54,8 +54,28 @@ func (g *generator) rewriteExpression(expr model.Expression, typ model.Type, rew
 	} else {
 		expr = g.outputInvokes(expr)
 	}
+	expr = g.markSecretObjectLiterals(expr)
 	g.diagnostics = g.diagnostics.Extend(diags)
 	return expr
+}
+
+// markSecretObjectLiterals wraps the schema-less object literal argument of
+// each secret(...) call in the anonymous-record intrinsic, so the literal
+// renders as a record wherever the call is emitted.
+func (g *generator) markSecretObjectLiterals(x model.Expression) model.Expression {
+	rewriter := func(x model.Expression) (model.Expression, hcl.Diagnostics) {
+		call, ok := x.(*model.FunctionCallExpression)
+		if !ok || call.Name != "secret" {
+			return x, nil
+		}
+		if obj, ok := call.Args[0].(*model.ObjectConsExpression); ok && g.exprContainerRepr(call) == reprAnonymousRecord {
+			call.Args[0] = newAnonymousRecordLiteralCall(obj)
+		}
+		return call, nil
+	}
+	x, diags := model.VisitExpression(x, model.IdentityVisitor, rewriter)
+	contract.Assertf(len(diags) == 0, "unexpected diagnostics: %v", diags)
+	return x
 }
 
 // lowerExpression amends the expression with intrinsics for C# generation.
@@ -628,7 +648,11 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 		})
 
 	case intrinsicUntypedObjectLiteral:
-		g.genDictionaryOrTuple(w, expr.Args[0])
+		elementType := expr.Args[1].(*model.LiteralValueExpression).Value.AsString()
+		g.genDictionary(w, expr.Args[0].(*model.ObjectConsExpression), elementType)
+
+	case intrinsicAnonymousRecordLiteral:
+		g.genAnonymousRecord(w, expr.Args[0].(*model.ObjectConsExpression))
 
 	case intrinsicOutput:
 		// if we are calling Output.Create(FuncInvokeAsync())
@@ -840,12 +864,6 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "readDir":
 		g.Fgenf(w, "Directory.GetFiles(%.v).Select(Path.GetFileName)", expr.Args[0])
 	case "secret":
-		if g.exprContainerRepr(expr) == reprAnonymousRecord {
-			g.Fgen(w, "Output.CreateSecret(")
-			g.genAnonymousRecord(w, expr.Args[0].(*model.ObjectConsExpression))
-			g.Fgen(w, ")")
-			return
-		}
 		g.Fgenf(w, "Output.CreateSecret(%v)", expr.Args[0])
 	case "unsecret":
 		g.Fgenf(w, "Output.Unsecret(%v)", expr.Args[0])
@@ -1154,14 +1172,26 @@ func (g *generator) schemalessObjectLiteral(expr model.Expression) *model.Object
 }
 
 // exprContainerRepr classifies how the value of a defining expression is
-// represented in C#. Producers of schema-less object literals and the
-// traversal codegen both consult this, so the container shape and the
-// accessor spelling cannot diverge.
+// represented in C#. The lowering pass that marks schema-less object literals
+// with their representation intrinsic and the traversal codegen both consult
+// this, so the container shape and the accessor spelling cannot diverge. It
+// accepts both unlowered and marked expressions: lowering mutates shared
+// trees in place, so a definition may carry marks when traversals resolve it.
 func (g *generator) exprContainerRepr(expr model.Expression) containerRepr {
 	expr = unwrapIntrinsicConvert(expr)
-	if call, ok := expr.(*model.FunctionCallExpression); ok && call.Name == "secret" {
-		if obj, ok := call.Args[0].(*model.ObjectConsExpression); ok && g.schemalessObjectLiteral(obj) != nil {
+	if call, ok := expr.(*model.FunctionCallExpression); ok {
+		switch call.Name {
+		case intrinsicUntypedObjectLiteral:
+			return reprDictionary
+		case intrinsicAnonymousRecordLiteral:
 			return reprAnonymousRecord
+		case "secret":
+			if inner, ok := call.Args[0].(*model.FunctionCallExpression); ok && inner.Name == intrinsicAnonymousRecordLiteral {
+				return reprAnonymousRecord
+			}
+			if obj, ok := call.Args[0].(*model.ObjectConsExpression); ok && g.schemalessObjectLiteral(obj) != nil {
+				return reprAnonymousRecord
+			}
 		}
 		return reprNone
 	}
@@ -1272,7 +1302,7 @@ func (g *generator) markUntypedObjectLiterals(expr model.Expression) model.Expre
 	switch expr := expr.(type) {
 	case *model.ObjectConsExpression:
 		if _, hasSchema := g.toSchemaType(expr.Type()); !hasSchema {
-			return newUntypedObjectLiteralCall(expr)
+			return newUntypedObjectLiteralCall(expr, "object?")
 		}
 	case *model.TupleConsExpression:
 		for i, element := range expr.Expressions {

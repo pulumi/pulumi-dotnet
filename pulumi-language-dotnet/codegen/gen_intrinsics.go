@@ -16,6 +16,7 @@ package dotnet
 
 import (
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/model"
+	"github.com/zclconf/go-cty/cty"
 )
 
 const (
@@ -26,13 +27,33 @@ const (
 	// intrinsicUntypedObjectLiteral marks a schema-less object literal sitting in
 	// a typeless position; it renders as a Dictionary that carries its own type.
 	intrinsicUntypedObjectLiteral = "__untypedObjectLiteral"
+	// intrinsicAnonymousRecordLiteral marks a schema-less object literal whose
+	// value is wrapped in an Output; it renders as an anonymous record so member
+	// types survive Apply lambdas, which a Dictionary's object? values would not.
+	intrinsicAnonymousRecordLiteral = "__anonymousRecordLiteral"
 )
 
 // newUntypedObjectLiteralCall creates a new call to the untyped-object-literal
-// intrinsic.
-func newUntypedObjectLiteralCall(obj *model.ObjectConsExpression) model.Expression {
+// intrinsic. elementType is the C# value type of the emitted Dictionary.
+func newUntypedObjectLiteralCall(obj *model.ObjectConsExpression, elementType string) model.Expression {
 	return &model.FunctionCallExpression{
 		Name: intrinsicUntypedObjectLiteral,
+		Signature: model.StaticFunctionSignature{
+			Parameters: []model.Parameter{{
+				Name: "literal",
+				Type: obj.Type(),
+			}},
+			ReturnType: obj.Type(),
+		},
+		Args: []model.Expression{obj, &model.LiteralValueExpression{Value: cty.StringVal(elementType)}},
+	}
+}
+
+// newAnonymousRecordLiteralCall creates a new call to the
+// anonymous-record-literal intrinsic.
+func newAnonymousRecordLiteralCall(obj *model.ObjectConsExpression) model.Expression {
+	return &model.FunctionCallExpression{
+		Name: intrinsicAnonymousRecordLiteral,
 		Signature: model.StaticFunctionSignature{
 			Parameters: []model.Parameter{{
 				Name: "literal",

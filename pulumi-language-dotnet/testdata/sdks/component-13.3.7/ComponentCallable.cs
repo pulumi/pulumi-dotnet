@@ -43,6 +43,9 @@ namespace Pulumi.Component
             return merged;
         }
 
+        public global::Pulumi.Output<ComponentCallableEchoMapResult> EchoMap(ComponentCallableEchoMapArgs args)
+            => global::Pulumi.Deployment.Instance.Call<ComponentCallableEchoMapResult>("component:index:ComponentCallable/echoMap", args ?? new ComponentCallableEchoMapArgs(), this);
+
         /// <summary>
         /// The `identity` method of the `ComponentCallable` component resource. Returns the component's `value` unaltered.
         /// </summary>
@@ -65,6 +68,40 @@ namespace Pulumi.Component
         {
         }
         public static new ComponentCallableArgs Empty => new ComponentCallableArgs();
+    }
+
+    /// <summary>
+    /// The set of arguments for the <see cref="ComponentCallable.EchoMap"/> method.
+    /// </summary>
+    public sealed class ComponentCallableEchoMapArgs : global::Pulumi.CallArgs
+    {
+        [Input("stringMap", required: true)]
+        private InputMap<string>? _stringMap;
+        public InputMap<string> StringMap
+        {
+            get => _stringMap ?? (_stringMap = new InputMap<string>());
+            set => _stringMap = value;
+        }
+
+        public ComponentCallableEchoMapArgs()
+        {
+        }
+        public static new ComponentCallableEchoMapArgs Empty => new ComponentCallableEchoMapArgs();
+    }
+
+    /// <summary>
+    /// The results of the <see cref="ComponentCallable.EchoMap"/> method.
+    /// </summary>
+    [OutputType]
+    public sealed class ComponentCallableEchoMapResult
+    {
+        public readonly ImmutableDictionary<string, string> StringMap;
+
+        [OutputConstructor]
+        private ComponentCallableEchoMapResult(ImmutableDictionary<string, string> stringMap)
+        {
+            StringMap = stringMap;
+        }
     }
 
     /// <summary>

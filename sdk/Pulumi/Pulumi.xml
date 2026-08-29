@@ -13406,6 +13406,11 @@
             The monitor resolves an invoke's provider from the `parent` field on `ResourceInvokeRequest`.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceMonitorFeature.StateMigrations">
+            <summary>
+            The monitor accepts state migration callbacks on resource registrations.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.DeploymentInfo">
             <summary>
             DeploymentInfo returns monitor execution state currently sent to programs
@@ -14022,6 +14027,14 @@
             <summary>
             When true operations may return strings containing bytes that are not valid UTF-8, marshaled as objects
             carrying the byte string signature and a base64 encoding of the string's bytes.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.StateMigrationsFieldNumber">
+            <summary>Field number for the "state_migrations" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.StateMigrations">
+            <summary>
+            A list of state migrations to apply to the prior state of this resource and its descendants before diffing.
             </summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">
@@ -14760,6 +14773,55 @@
         </member>
         <member name="F:Pulumirpc.TransformInvokeOptions.PluginChecksumsFieldNumber">
             <summary>Field number for the "plugin_checksums" field.</summary>
+        </member>
+        <member name="T:Pulumirpc.StateMigrationRequest">
+            <summary>
+            StateMigrationRequest is the request object for state migration callbacks registered via
+            RegisterResourceRequest.state_migrations.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StateMigrationRequest.UrnFieldNumber">
+            <summary>Field number for the "urn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StateMigrationRequest.Urn">
+            <summary>
+            the URN of the registering resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StateMigrationRequest.OldStateFieldNumber">
+            <summary>Field number for the "old_state" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StateMigrationRequest.OldState">
+            <summary>
+            A JSON-encoded array of resources in the checkpoint format (apitype.ResourceV3): the prior state of the
+            registering resource followed by the prior state of all resources transitively parented to it. Secret property
+            values are supplied to the callback in plaintext inside their secret envelopes and must be treated as sensitive.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.StateMigrationResponse">
+            <summary>
+            StateMigrationResponse is the response object for state migration callbacks.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StateMigrationResponse.NewStateFieldNumber">
+            <summary>Field number for the "new_state" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StateMigrationResponse.NewState">
+            <summary>
+            A JSON-encoded array of resources in the checkpoint format (apitype.ResourceV3) that replaces old_state.
+            If unset, the prior state is left unchanged. Every resource URN present in old_state must either be present
+            in new_state or have an entry in successors.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.StateMigrationResponse.SuccessorsFieldNumber">
+            <summary>Field number for the "successors" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.StateMigrationResponse.Successors">
+            <summary>
+            Maps the URN of each resource removed from old_state to the URN of the resource in new_state that succeeds it.
+            Multiple old URNs may have the same successor, allowing N-to-M migrations while giving the engine enough
+            information to rewrite references to the old resources. An old resource may not be removed without a successor.
+            </summary>
         </member>
         <member name="T:Pulumirpc.ResourceHookRequest">
             <summary>

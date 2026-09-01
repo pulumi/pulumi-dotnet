@@ -623,6 +623,9 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 			g.Fgenf(w, "await %.17v", expr.Args[0])
 		})
 
+	case intrinsicUntypedObjectLiteral:
+		g.genDictionaryOrTuple(w, expr.Args[0])
+
 	case intrinsicOutput:
 		// if we are calling Output.Create(FuncInvokeAsync())
 		// then we can simplify to just FuncInvoke() which already returns Output
@@ -1102,6 +1105,32 @@ func isEmptyList(expr model.Expression) bool {
 	}
 
 	return false
+}
+
+// markUntypedObjectLiterals wraps schema-less object literals with the
+// untyped-object-literal intrinsic so they render as self-typed Dictionaries.
+// Callers pass expressions from typeless positions (an output value, a local,
+// a config default), where a bare `{ {k, v} }` collection initializer (or
+// `null` for an empty literal) has no target type to absorb it. Recursion
+// stays within positions that remain typeless — conversion wrappers and list
+// elements; other sub-expressions (such as function arguments) keep their own
+// rendering rules.
+func (g *generator) markUntypedObjectLiterals(expr model.Expression) model.Expression {
+	switch expr := expr.(type) {
+	case *model.ObjectConsExpression:
+		if _, hasSchema := g.toSchemaType(expr.Type()); !hasSchema {
+			return newUntypedObjectLiteralCall(expr)
+		}
+	case *model.TupleConsExpression:
+		for i, element := range expr.Expressions {
+			expr.Expressions[i] = g.markUntypedObjectLiterals(element)
+		}
+	case *model.FunctionCallExpression:
+		if expr.Name == pcl.IntrinsicConvert {
+			expr.Args[0] = g.markUntypedObjectLiterals(expr.Args[0])
+		}
+	}
+	return expr
 }
 
 func isEmptyObjectCons(expr model.Expression) bool {

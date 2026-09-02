@@ -161,6 +161,8 @@ namespace Pulumi.Kubernetes.Types.Inputs.Core.V1
 
         public ConfigMapArgs()
         {
+            ApiVersion = "v1";
+            Kind = "ConfigMap";
         }
         public static new ConfigMapArgs Empty => new ConfigMapArgs();
     }

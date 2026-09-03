@@ -294,6 +294,16 @@ func GenerateProgramWithOptions(
 								})
 							}
 							componentGenerator.genResource(&componentBuffer, node)
+						case *pcl.ReadResource:
+							if node.Options == nil {
+								node.Options = &pcl.ResourceOptions{}
+							}
+							if node.Options.Parent == nil {
+								node.Options.Parent = model.ConstantReference(&model.Constant{
+									Name: "this",
+								})
+							}
+							componentGenerator.genReadResource(&componentBuffer, node)
 						}
 					}
 				})
@@ -619,7 +629,15 @@ func (g *generator) usingStatements(program *pcl.Program) programUsings {
 	pulumiUsings := codegen.NewStringSet()
 	preambleHelperMethods := codegen.NewStringSet()
 	for _, n := range program.Nodes {
-		if r, isResource := n.(*pcl.Resource); isResource {
+		switch r := n.(type) {
+		case *pcl.Resource:
+			pkg, _, _, _ := pcl.DecomposeToken(r.GetToken())
+			var pkgRef schema.PackageReference
+			if r.Schema != nil && r.Schema.PackageReference != nil {
+				pkgRef = r.Schema.PackageReference
+			}
+			g.setupNamespaceAlias(pkg, pkgRef, program, pulumiUsings)
+		case *pcl.ReadResource:
 			pkg, _, _, _ := pcl.DecomposeToken(r.GetToken())
 			var pkgRef schema.PackageReference
 			if r.Schema != nil && r.Schema.PackageReference != nil {
@@ -1154,6 +1172,8 @@ func (g *generator) genNode(w io.Writer, n pcl.Node) {
 	switch n := n.(type) {
 	case *pcl.Resource:
 		g.genResource(w, n)
+	case *pcl.ReadResource:
+		g.genReadResource(w, n)
 	case *pcl.ConfigVariable:
 		g.genConfigVariable(w, n)
 	case *pcl.LocalVariable:
@@ -1334,8 +1354,15 @@ func (g *generator) qualifiedTypeName(pkg, module, member string) (string, strin
 
 // resourceTypeName computes the C# class name for the given resource.
 func (g *generator) resourceTypeName(r *pcl.Resource) string {
+	token, tokenRange := r.GetToken()
+	return g.resourceTypeNameFromToken(token, tokenRange, r.Schema)
+}
+
+func (g *generator) resourceTypeNameFromToken(
+	token string, tokenRange hcl.Range, sch *schema.Resource,
+) string {
 	// Compute the resource type from the Pulumi type token.
-	pkg, module, member, diags := pcl.DecomposeToken(r.GetToken())
+	pkg, module, member, diags := pcl.DecomposeToken(token, tokenRange)
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
 
 	if pkg == "pulumi" && strings.EqualFold(module, "providers") {
@@ -1343,13 +1370,13 @@ func (g *generator) resourceTypeName(r *pcl.Resource) string {
 		return qualifiedName
 	}
 
-	if r.Schema != nil {
+	if sch != nil {
 		// Extension resources carry the base provider's token but are rooted under
 		// the extension's own package namespace; resolve to the owning package.
-		if r.Schema.PackageReference != nil {
-			pkg = r.Schema.PackageReference.Name()
+		if sch.PackageReference != nil {
+			pkg = sch.PackageReference.Name()
 		}
-		if val1, ok := r.Schema.Language["csharp"]; ok {
+		if val1, ok := sch.Language["csharp"]; ok {
 			val2, ok := val1.(CSharpResourceInfo)
 			contract.Assertf(ok, "dotnet specific settings for resources should be of type CSharpResourceInfo")
 			member = val2.Name
@@ -1377,8 +1404,17 @@ func (g *generator) extractInputPropertyNameMap(r *pcl.Resource) map[string]stri
 
 // resourceArgsTypeName computes the C# arguments class name for the given resource.
 func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
-	// Compute the resource type from the Pulumi type token.
-	pkg, module, member, diags := pcl.DecomposeToken(r.GetToken())
+	token, tokenRange := r.GetToken()
+	return g.resourceArgsTypeNameFromToken(token, tokenRange, r.Schema, "Args")
+}
+
+// resourceArgsTypeNameFromToken computes the C# arguments/state class name for a
+// resource identified by token and optional schema. `suffix` is either "Args" (for
+// resource inputs) or "State" (for the state-inputs class used by read resources).
+func (g *generator) resourceArgsTypeNameFromToken(
+	token string, tokenRange hcl.Range, sch *schema.Resource, suffix string,
+) string {
+	pkg, module, member, diags := pcl.DecomposeToken(token, tokenRange)
 	contract.Assertf(len(diags) == 0, "error decomposing token: %v", diags)
 
 	// Built-in pulumi resources live directly under the root Pulumi namespace; see
@@ -1389,8 +1425,8 @@ func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
 
 	// Extension resources carry the base provider's token but are rooted under the
 	// extension's own package namespace; resolve to the package that owns them.
-	if r.Schema != nil && r.Schema.PackageReference != nil {
-		pkg = r.Schema.PackageReference.Name()
+	if sch != nil && sch.PackageReference != nil {
+		pkg = sch.PackageReference.Name()
 	}
 
 	namespaces := g.namespaces[pkg]
@@ -1407,7 +1443,7 @@ func (g *generator) resourceArgsTypeName(r *pcl.Resource) string {
 		namespace = "." + namespace
 	}
 
-	return fmt.Sprintf("%s%s.%sArgs", rootNamespace, namespace, cgstrings.UppercaseFirst(member))
+	return fmt.Sprintf("%s%s.%s%s", rootNamespace, namespace, cgstrings.UppercaseFirst(member), suffix)
 }
 
 // functionName computes the C# namespace and class name for the given function token.
@@ -1931,6 +1967,64 @@ func (g *generator) genResource(w io.Writer, r *pcl.Resource) {
 		instantiate(g.makeResourceName(name, ""))
 		g.Fgenf(w, ";\n\n")
 	}
+
+	g.genTrivia(w, r.Definition.Tokens.GetCloseBrace())
+}
+
+// genReadResource emits code for a `read` block, which becomes a call to the
+// generated resource's static `Get` method: `Type.Get(name, id, state, options)`.
+func (g *generator) genReadResource(w io.Writer, r *pcl.ReadResource) {
+	token, tokenRange := r.GetToken()
+	qualifiedMemberName := g.resourceTypeNameFromToken(token, tokenRange, r.Schema)
+	stateTypeName := g.resourceArgsTypeNameFromToken(token, tokenRange, r.Schema, "State")
+
+	// Lower input expressions against their bound types so conversions match.
+	var idInput *model.Attribute
+	stateInputs := make([]*model.Attribute, 0, len(r.Inputs))
+	for _, input := range r.Inputs {
+		destType, diagnostics := r.InputType.Traverse(hcl.TraverseAttr{Name: input.Name})
+		g.diagnostics = append(g.diagnostics, diagnostics...)
+		if t, ok := destType.(model.Type); ok {
+			input.Value = g.lowerExpression(input.Value, t)
+		}
+		if input.Name == "id" {
+			idInput = input
+		} else {
+			stateInputs = append(stateInputs, input)
+		}
+	}
+
+	name := r.LogicalName()
+	variableName := makeValidIdentifier(r.Name())
+
+	g.genTrivia(w, r.Definition.Tokens.GetType(""))
+	for _, l := range r.Definition.Tokens.GetLabels(nil) {
+		g.genTrivia(w, l)
+	}
+	g.genTrivia(w, r.Definition.Tokens.GetOpenBrace())
+
+	if idInput == nil {
+		g.diagnostics = append(g.diagnostics, &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "read block missing required 'id' attribute",
+			Subject:  r.Definition.Tokens.GetOpenBrace().Range().Ptr(),
+		})
+		return
+	}
+
+	resName := g.makeResourceName(name, "")
+	g.Fgenf(w, "%svar %s = %s.Get(%s, %.v", g.Indent, variableName, qualifiedMemberName, resName, idInput.Value)
+	if len(stateInputs) > 0 {
+		g.Fgenf(w, ", new %s\n", stateTypeName)
+		g.Fgenf(w, "%s{\n", g.Indent)
+		g.Indented(func() {
+			for _, attr := range stateInputs {
+				g.Fgenf(w, "%s%s = %.v,\n", g.Indent, propertyName(attr.Name), attr.Value)
+			}
+		})
+		g.Fgenf(w, "%s}", g.Indent)
+	}
+	g.Fgenf(w, "%s);\n\n", g.genResourceOptions(r.Options, "CustomResourceOptions", r.Schema, nil))
 
 	g.genTrivia(w, r.Definition.Tokens.GetCloseBrace())
 }

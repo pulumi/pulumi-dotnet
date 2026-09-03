@@ -135,6 +135,7 @@ var expectedFailures = map[string]string{
 
 	"l1-builtin-object":          "Fail after updating to 3.224: KeyNotFoundException: The given key 'keyMissing' was not present in the dictionary. ", //nolint:lll
 	"l2-resource-elide-unknowns": "Fail after updating to 3.224: conflict in Output type name",                                                         //nolint:lll
+	"l2-secret-unknown":          "error CS0434: The namespace 'Pulumi.Output' conflicts with the type 'Output' in 'Pulumi' (added in v3.261.0)",       //nolint:lll
 	"l2-camel-names":             "Fail after updating to 3.224: 'SomeResourceArgs' does not contain a definition for 'ResourceName'",                  //nolint:lll
 	"l2-resource-name-type":      "Fail after updating to 3.224: TODO: call pulumiResourceName",                                                        //nolint:lll
 	"l2-resource-names":          "Fail after updating to 3.224: The type or namespace name 'Mod' does not exist in the namespace 'Pulumi.Names'",      //nolint:lll

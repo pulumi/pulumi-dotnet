@@ -9457,6 +9457,16 @@
             return such values to the engine.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.SendsOldOutputsToCheckFieldNumber">
+            <summary>Field number for the "sends_old_outputs_to_check" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.SendsOldOutputsToCheck">
+            <summary>
+            If true the engine populates `old_outputs` on `CheckRequest` for update-path Check calls. Older engines never
+            set this field, so providers should treat an absent value as false and fall back to legacy behavior that does
+            not rely on previously persisted outputs during Check.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>
             `ProviderHandshakeResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Handshake) call.
@@ -10171,6 +10181,16 @@
         </member>
         <member name="F:Pulumirpc.CheckRequest.AutonamingFieldNumber">
             <summary>Field number for the "autonaming" field.</summary>
+        </member>
+        <member name="F:Pulumirpc.CheckRequest.OldOutputsFieldNumber">
+            <summary>Field number for the "old_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckRequest.OldOutputs">
+            <summary>
+            The previously persisted output properties of the resource, if any. Only populated by engines that advertise
+            `sends_old_outputs_to_check` on the provider handshake, and only for Check calls that follow an existing
+            resource state (i.e. not create or replace). Providers must not assume this is populated.
+            </summary>
         </member>
         <member name="T:Pulumirpc.CheckRequest.Types">
             <summary>Container for nested types declared in the CheckRequest message type.</summary>

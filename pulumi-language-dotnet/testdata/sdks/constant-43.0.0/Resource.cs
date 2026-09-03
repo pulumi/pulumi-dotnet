@@ -12,8 +12,17 @@ namespace Pulumi.Constant
     [ConstantResourceType("constant:index:Resource")]
     public partial class Resource : global::Pulumi.CustomResource
     {
+        [Output("count")]
+        public Output<int?> Count { get; private set; } = null!;
+
+        [Output("flag")]
+        public Output<bool?> Flag { get; private set; } = null!;
+
         [Output("kind")]
         public Output<string?> Kind { get; private set; } = null!;
+
+        [Output("ratio")]
+        public Output<double?> Ratio { get; private set; } = null!;
 
 
         /// <summary>
@@ -36,7 +45,10 @@ namespace Pulumi.Constant
         private static ResourceArgs MakeArgs(ResourceArgs args)
         {
             args ??= new ResourceArgs();
+            args.Count = 3;
+            args.Flag = true;
             args.Kind = "Constant";
+            args.Ratio = 1.5;
             return args;
         }
 
@@ -67,8 +79,17 @@ namespace Pulumi.Constant
 
     public sealed class ResourceArgs : global::Pulumi.ResourceArgs
     {
+        [Input("count", required: true)]
+        public Input<int> Count { get; set; } = null!;
+
+        [Input("flag", required: true)]
+        public Input<bool> Flag { get; set; } = null!;
+
         [Input("kind", required: true)]
         public Input<string> Kind { get; set; } = null!;
+
+        [Input("ratio", required: true)]
+        public Input<double> Ratio { get; set; } = null!;
 
         public ResourceArgs()
         {

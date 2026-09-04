@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
+using Pulumi.Serialization;
 using Pulumirpc;
 
 namespace Pulumi
@@ -47,7 +48,11 @@ namespace Pulumi
             // Now run the operation, serializing the invocation if necessary.
             var response = await this.Monitor.ReadResourceAsync(resource, request).ConfigureAwait(false);
 
-            return (response.Urn, id, response.Properties, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success);
+            // If we passed the unknown sentinel to the engine, surface the id back to the caller
+            // as an empty string so its completion source resolves as unknown rather than the
+            // sentinel value.
+            var responseId = id == Constants.UnknownValue ? "" : id;
+            return (response.Urn, responseId, response.Properties, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success);
         }
     }
 }

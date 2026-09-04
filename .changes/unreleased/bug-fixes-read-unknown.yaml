@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Handle unknown ids in `Resource.Get` during preview
+time: 2026-09-04T00:00:00.000000+00:00
+custom:
+    PR: "1156"

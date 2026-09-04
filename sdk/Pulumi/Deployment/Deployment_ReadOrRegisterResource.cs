@@ -48,7 +48,10 @@ namespace Pulumi
 
             if (options.Id != null)
             {
-                var id = await options.Id.ToOutput().GetValueAsync(whenUnknown: "").ConfigureAwait(false);
+                // Pass the unknown sentinel through to the engine when the id isn't known yet (e.g. it depends on
+                // another resource being created); the engine's Read step recognizes the sentinel and returns unknown
+                // outputs during preview.
+                var id = await options.Id.ToOutput().GetValueAsync(whenUnknown: Constants.UnknownValue).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(id))
                 {
                     if (!(resource is CustomResource))

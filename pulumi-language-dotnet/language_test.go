@@ -177,7 +177,6 @@ var expectedFailures = map[string]string{
 
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
 
-	"l2-map-keys-adversarial":  "Fail after updating to 3.239",
 	"l1-config-types-optional": "Fail after updating to 3.239",
 
 	"l1-expand-final": "Fail after updating to 3.243",
@@ -209,7 +208,6 @@ var expectedFailures = map[string]string{
 	"l2-kebab-names":                    "sdkgen emits kebab-case token members verbatim in C# type and file names: CS1514 '{' expected in Another-resource.cs (kebab member tokens allowed since v3.260.0, pulumi/pulumi#24440)", //nolint:lll
 	"l2-discriminated-union-marked-key": "dotnet build failed: programgen emits CS0029 cannot convert Output<Union<VariantOne, VariantTwo>> to InputUnion<VariantOneArgs, VariantTwoArgs> (added in v3.260.0)",                    //nolint:lll
 	"l2-large-map":                      "the .NET SDK overflows the stack (exit 134) recursively serializing a large property map during RegisterResource (added in v3.260.0)",                                                   //nolint:lll
-	"l2-map-keys-invoke-call":           "the .NET SDK strips '__type' and '__internal' keys from invoke and call results (added in v3.260.0)",                                                                                    //nolint:lll
 	"l2-resource-read-unknown":          "dotnet build failed: programgen references the read resource's variable before declaring it: CS0103 the name 'res' does not exist in the current context (added in v3.260.0)",           //nolint:lll
 }
 

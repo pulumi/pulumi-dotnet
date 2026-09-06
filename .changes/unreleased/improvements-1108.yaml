@@ -1,0 +1,6 @@
+component: sdk
+kind: Improvements
+body: Generate a typed interface for each discriminated union when a package opts in through `language.csharp.fullyTypedUnions`, instead of `Union<T0, T1>` for two members or `object` for more. Members implement the interface, and a union whose cases are a subset of another union extends it
+time: 2026-08-06T11:10:22.445717-04:00
+custom:
+    PR: "1108"

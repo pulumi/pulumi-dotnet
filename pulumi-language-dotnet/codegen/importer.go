@@ -45,6 +45,16 @@ type CSharpPackageInfo struct {
 
 	// Allow the Pkg.Version field to filter down to emitted code.
 	RespectSchemaVersion bool `json:"respectSchemaVersion,omitempty"`
+
+	// Generates a C# interface for every discriminated union in the schema, which the member
+	// classes of that union implement, and types the union-valued properties as that interface.
+	//
+	// Without this, a discriminated union of two members is generated as Union<T0, T1> or
+	// InputUnion<T0, T1> and one of three or more members degrades to `object`.
+	//
+	// Turning this on changes the type of every union-valued property, so it is a breaking
+	// change to the generated SDK. Providers opt in as part of a major version.
+	FullyTypedUnions bool `json:"fullyTypedUnions,omitempty"`
 }
 
 // Returns the root namespace, or "Pulumi" if not provided.

@@ -23,6 +23,7 @@ namespace Pulumi.DiscriminatedUnionMany.Inputs
 
         public Variant10Args()
         {
+            DiscriminantKind = "variant10";
         }
         public static new Variant10Args Empty => new Variant10Args();
     }

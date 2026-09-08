@@ -15,25 +15,29 @@ namespace Pulumi.Tests
     public class DeploymentRunnerTests
     {
         [Fact]
-        public async Task TerminatesEarlyOnException()
+        public async Task DrainsAllTasksBeforeReportingException()
         {
-            var deployResult = await Deployment.TryTestAsync<TerminatesEarlyOnExceptionStack>(new EmptyMocks());
+            // Even when one task faults, the runner should wait for all other in-flight
+            // tasks to complete before returning the exception. This matches the behavior
+            // of the Go, Node, and Python SDKs, and avoids losing resource registrations
+            // (e.g. under ContinueOnError) to a race with the faulting task.
+            var deployResult = await Deployment.TryTestAsync<DrainsAllTasksStack>(new EmptyMocks());
             Assert.NotNull(deployResult.Exception);
             Assert.IsType<RunException>(deployResult.Exception!);
             Assert.Contains("Deliberate test error", deployResult.Exception!.Message);
-            var stack = (TerminatesEarlyOnExceptionStack)deployResult.Resources[0];
-            Assert.False(stack.SlowOutput.GetValueAsync(whenUnknown: default!).IsCompleted);
+            var stack = (DrainsAllTasksStack)deployResult.Resources[0];
+            Assert.True(stack.OtherOutput.GetValueAsync(whenUnknown: default!).IsCompleted);
         }
 
-        class TerminatesEarlyOnExceptionStack : Stack
+        class DrainsAllTasksStack : Stack
         {
             [Output]
-            public Output<int> SlowOutput { get; private set; }
+            public Output<int> OtherOutput { get; private set; }
 
-            public TerminatesEarlyOnExceptionStack()
+            public DrainsAllTasksStack()
             {
                 Output.Create(Task.FromException<int>(new Exception("Deliberate test error")));
-                SlowOutput = Output.Create(Task.Delay(60000).ContinueWith(_ => 1));
+                OtherOutput = Output.Create(Task.Delay(100).ContinueWith(_ => 1));
             }
         }
 

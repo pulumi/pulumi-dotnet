@@ -75,46 +75,34 @@ namespace Pulumi
                     _exceptions.AddRange(task.Exception.InnerExceptions);
                 }
 
-                if (_exceptions.Count > 0 && _promise != null)
+                if (_activeTasks == 0 && _promise != null)
                 {
                     _promise.SetResult(Flush());
-                    _promise = null;
-                }
-                else if (_activeTasks == 0 && _promise != null)
-                {
-                    _promise.SetResult(Enumerable.Empty<Exception>());
                     _promise = null;
                 }
             }
         }
 
         /// <summary>
-        /// Awaits next IDLE state or an exception, whichever comes
-        /// first. Several exceptions may be returned if they have
-        /// been observed prior to this call.
-        ///
-        /// IDLE state is represented as an empty sequence in the result.
+        /// Awaits the next IDLE state (all monitored tasks completed) and
+        /// returns every exception observed across all of them. Faulting
+        /// tasks do not short-circuit the wait; outstanding tasks are
+        /// always allowed to finish so callers see every fault.
         /// </summary>
-        public Task<IEnumerable<Exception>> AwaitIdleOrFirstExceptionAsync()
+        public Task<IEnumerable<Exception>> AwaitIdleAsync()
         {
             lock (_lockObject)
             {
-                if (_exceptions.Count > 0)
+                if (_activeTasks == 0)
                 {
                     return Task.FromResult(Flush());
                 }
-                else if (_activeTasks == 0)
+
+                if (_promise == null)
                 {
-                    return Task.FromResult(Enumerable.Empty<Exception>());
+                    _promise = new TaskCompletionSource<IEnumerable<Exception>>();
                 }
-                else
-                {
-                    if (_promise == null)
-                    {
-                        _promise = new TaskCompletionSource<IEnumerable<Exception>>();
-                    }
-                    return _promise.Task;
-                }
+                return _promise.Task;
             }
         }
     }

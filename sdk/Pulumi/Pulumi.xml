@@ -2079,14 +2079,13 @@
             Starts monitoring the given task.
             </summary>
         </member>
-        <member name="M:Pulumi.TaskMonitoringHelper.AwaitIdleOrFirstExceptionAsync">
-             <summary>
-             Awaits next IDLE state or an exception, whichever comes
-             first. Several exceptions may be returned if they have
-             been observed prior to this call.
-            
-             IDLE state is represented as an empty sequence in the result.
-             </summary>
+        <member name="M:Pulumi.TaskMonitoringHelper.AwaitIdleAsync">
+            <summary>
+            Awaits the next IDLE state (all monitored tasks completed) and
+            returns every exception observed across all of them. Faulting
+            tasks do not short-circuit the wait; outstanding tasks are
+            always allowed to finish so callers see every fault.
+            </summary>
         </member>
         <member name="T:Pulumi.LogException">
             <summary>

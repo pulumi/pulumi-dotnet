@@ -62,5 +62,5 @@ jobs:
         if: steps.check-release.outputs.exists == 'false'
         uses: goreleaser/goreleaser-action@v7
         with:
-          version: latest
+          version: 2.18.0
           args: --clean --release-notes=${{ env.RELEASE_NOTES_PATH }} --verbose --skip=validate

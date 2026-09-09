@@ -1,0 +1,4 @@
+component: sdk
+kind: dependencies
+body: Update google.golang.org/grpc to v1.83.2
+time: 2026-09-09T03:33:28.942348952Z

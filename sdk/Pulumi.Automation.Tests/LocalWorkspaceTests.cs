@@ -1530,12 +1530,25 @@ namespace Pulumi.Automation.Tests
             });
 
             var previewTaskWithOutput = stackWithOutput.PreviewAsync();
-            await Assert.ThrowsAsync<FileNotFoundException>(
-                () => previewTaskWithOutput);
+            await AssertThrowsFileNotFoundAsync(() => previewTaskWithOutput);
 
             var upTaskWithOutput = stackWithOutput.UpAsync();
-            await Assert.ThrowsAsync<FileNotFoundException>(
-                () => upTaskWithOutput);
+            await AssertThrowsFileNotFoundAsync(() => upTaskWithOutput);
+        }
+
+        // The runner drains all in-flight tasks before reporting exceptions. When the failing task is
+        // an output the runner may collect more than one exception (the original fault plus a
+        // downstream "error serializing property" from RegisterResourceOutputs consuming the same
+        // output). Accept either the raw exception or an AggregateException containing it.
+        private static async Task AssertThrowsFileNotFoundAsync(Func<Task> action)
+        {
+            var ex = await Assert.ThrowsAnyAsync<Exception>(action);
+            if (ex is FileNotFoundException)
+            {
+                return;
+            }
+            var agg = Assert.IsType<AggregateException>(ex);
+            Assert.Contains(agg.Flatten().InnerExceptions, e => e is FileNotFoundException);
         }
 
         private class FileNotFoundStack : Stack
@@ -1595,12 +1608,10 @@ namespace Pulumi.Automation.Tests
             });
 
             var previewTaskWithOutput = stackWithOutput.PreviewAsync();
-            await Assert.ThrowsAsync<FileNotFoundException>(
-                () => previewTaskWithOutput);
+            await AssertThrowsFileNotFoundAsync(() => previewTaskWithOutput);
 
             var upTaskWithOutput = stackWithOutput.UpAsync();
-            await Assert.ThrowsAsync<FileNotFoundException>(
-                () => upTaskWithOutput);
+            await AssertThrowsFileNotFoundAsync(() => upTaskWithOutput);
         }
 
         // TODO[pulumi/pulumi#8228]: fix flakiness

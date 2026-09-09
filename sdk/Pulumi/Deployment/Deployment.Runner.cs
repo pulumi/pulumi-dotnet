@@ -138,7 +138,7 @@ namespace Pulumi
 
             internal async Task<int> WhileRunningAsync()
             {
-                var errs = await _inFlightTasks.AwaitIdleOrFirstExceptionAsync().ConfigureAwait(false);
+                var errs = await _inFlightTasks.AwaitIdleAsync().ConfigureAwait(false);
                 if (errs.Any())
                 {
                     return await HandleExceptionsAsync(errs).ConfigureAwait(false);

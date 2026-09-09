@@ -1,0 +1,6 @@
+kind: bug-fixes
+body: Drain all in-flight resource registrations before reporting exceptions, so failures with `ContinueOnError` (and independent resources registered concurrently with a failing one) are not lost to a race.
+time: 2026-09-07T00:00:00Z
+component: sdk
+custom:
+  PR: "1160"

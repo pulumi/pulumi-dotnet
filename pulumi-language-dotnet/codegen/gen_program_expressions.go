@@ -836,9 +836,13 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "readDir":
 		g.Fgenf(w, "Directory.GetFiles(%.v).Select(Path.GetFileName)", expr.Args[0])
 	case "secret":
-		g.Fgenf(w, "Output.CreateSecret(%v)", expr.Args[0])
+		g.Fgen(w, "Output.CreateSecret(")
+		g.genDictionaryOrTuple(w, expr.Args[0])
+		g.Fgen(w, ")")
 	case "unsecret":
-		g.Fgenf(w, "Output.Unsecret(%v)", expr.Args[0])
+		g.Fgen(w, "Output.Unsecret(")
+		g.genDictionaryOrTuple(w, expr.Args[0])
+		g.Fgen(w, ")")
 	case "split":
 		g.Fgenf(w, "%.20v.Split(%v)", expr.Args[1], expr.Args[0])
 	case "toBase64":

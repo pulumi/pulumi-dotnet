@@ -458,6 +458,39 @@ resource "r" "nested:index:Resource" {
 			"immediately before the nested initializer")
 }
 
+func TestGenerateProgramOptionalAnyConfig(t *testing.T) {
+	t.Parallel()
+
+	source := `
+config "maybeAny" {
+    default = null
+}
+
+output "out" {
+    value = maybeAny
+}
+`
+
+	parser := syntax.NewParser()
+	err := parser.ParseFile(strings.NewReader(source), "main.pp")
+	require.NoError(t, err)
+	require.False(t, parser.Diagnostics.HasErrors(), "parse diagnostics: %v", parser.Diagnostics)
+
+	program, diags, err := pcl.BindProgram(parser.Files, &inlineLoader{})
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "bind diagnostics: %v", diags)
+	require.NotNil(t, program)
+
+	files, diags, err := GenerateProgram(program)
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "codegen diagnostics: %v", diags)
+
+	programText := string(files["Program.cs"])
+	require.Contains(t, programText, `config.GetObject<JsonElement?>("maybeAny")`,
+		"optional `any` config must bind to the nullable JsonElement form: an unset "+
+			"non-nullable JsonElement is ValueKind.Undefined, not null")
+}
+
 type inlineLoader struct {
 	schemas map[string]schema.PackageSpec
 }

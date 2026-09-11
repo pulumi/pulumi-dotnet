@@ -2,6 +2,7 @@
 
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using Pulumi.Serialization;
 using Xunit;
 
 namespace Pulumi.Tests.Serialization
@@ -13,16 +14,16 @@ namespace Pulumi.Tests.Serialization
         {
             var response = new Pulumirpc.InvokeResponse
             {
-                Return = GenerateNestedStruct(50),
+                Return = GenerateNestedStruct(300),
             };
-            var serialized = response.ToByteArray();
+            var serialized = response.ToByteString();
 
             // If we haven't successfully fixed the recursion limit,
             // this will throw due to hitting the limit.
-            var actual = Pulumirpc.InvokeResponse.Parser.ParseFrom(serialized);
+            var actual = Protobuf.Parse<Pulumirpc.InvokeResponse>(serialized);
 
             // While we're here, verify it round-trips to the same serialized value.
-            Assert.Equal(serialized, actual.ToByteArray());
+            Assert.Equal(serialized, actual.ToByteString());
 
             static Struct GenerateNestedStruct(int depth)
             {

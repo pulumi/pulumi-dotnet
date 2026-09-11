@@ -2016,6 +2016,15 @@
             in outgoing call metadata so the engine can parent its spans correctly.
             </summary>
         </member>
+        <member name="T:Pulumi.ProtobufRecursionLimitInterceptor">
+            <summary>
+            A gRPC client interceptor that swaps the response marshaller for one built by
+            <see cref="M:Pulumi.Serialization.Protobuf.CreateMarshaller``1(Grpc.Core.Marshaller{``0})"/>, which parses responses with an
+            increased protobuf recursion limit. This is needed because Pulumi resource property values
+            can be deeply nested (large maps/lists of maps), exceeding protobuf's default recursion
+            limit of 100 and causing deserialization to fail.
+            </summary>
+        </member>
         <member name="M:Pulumi.Instrumentation.Initialize">
             <summary>
             Initialize OpenTelemetry tracing if TRACEPARENT is set.

@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
-using Grpc.Core.Interceptors;
 using Pulumirpc;
 using Grpc.Core;
 using System.Collections.Generic;
@@ -23,7 +22,7 @@ namespace Pulumi
         public GrpcMonitor(string monitorAddress)
         {
             var monitorChannel = _monitorChannels.GetOrAdd(monitorAddress, LazyCreateChannel);
-            var invoker = monitorChannel.Value.CreateCallInvoker().Intercept(new TracingInterceptor());
+            var invoker = Serialization.Protobuf.CreateCallInvoker(monitorChannel.Value);
             this._client = new ResourceMonitor.ResourceMonitorClient(invoker);
         }
 

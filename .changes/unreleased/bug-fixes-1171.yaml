@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Fix serialisation/deserialisation of large structures hitting stack overflows
+time: 2026-09-11T11:05:22.376796+01:00
+custom:
+    PR: "1171"

@@ -185,7 +185,6 @@ var expectedFailures = map[string]string{
 
 	"l2-kebab-names":                    "sdkgen emits kebab-case token members verbatim in C# type and file names: CS1514 '{' expected in Another-resource.cs (kebab member tokens allowed since v3.260.0, pulumi/pulumi#24440)", //nolint:lll
 	"l2-discriminated-union-marked-key": "dotnet build failed: programgen emits CS0029 cannot convert Output<Union<VariantOne, VariantTwo>> to InputUnion<VariantOneArgs, VariantTwoArgs> (added in v3.260.0)",                    //nolint:lll
-	"l2-large-map":                      "the .NET SDK overflows the stack (exit 134) recursively serializing a large property map during RegisterResource (added in v3.260.0)",                                                   //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

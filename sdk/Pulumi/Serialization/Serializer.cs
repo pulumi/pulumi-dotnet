@@ -480,85 +480,329 @@ $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:
         private async Task<ImmutableArray<object?>> SerializeListAsync(string ctx, IList list, bool keepResources, bool keepOutputValues,
             bool excludeResourceReferencesFromDependencies)
         {
-            if (_excessiveDebugOutput)
-            {
-                Log.Debug($"Serialize property[{ctx}]: Hit list");
-            }
-
-            if (InitializedByDefault(list))
-            {
-                // early return an empty array here because
-                // we cannot get Count in list.Count (throws exception)
-                // when the list is default(ImmutableArray<T>)
-                return ImmutableArray.Create<object?>();
-            }
-
-            var result = ImmutableArray.CreateBuilder<object?>(list.Count);
-            for (int i = 0, n = list.Count; i < n; i++)
-            {
-                if (_excessiveDebugOutput)
-                {
-                    Log.Debug($"Serialize property[{ctx}]: array[{i}] element");
-                }
-
-                result.Add(await SerializeAsync($"{ctx}[{i}]", list[i], keepResources, keepOutputValues,
-                    excludeResourceReferencesFromDependencies).ConfigureAwait(false));
-            }
-
-            return result.MoveToImmutable();
+            var result = await SerializeCollectionAsync(ctx, list, keepResources, keepOutputValues,
+                excludeResourceReferencesFromDependencies).ConfigureAwait(false);
+            return (ImmutableArray<object?>)result!;
         }
 
         private async Task<ImmutableDictionary<string, object>> SerializeDictionaryAsync(
             string ctx, IDictionary dictionary, bool keepResources, bool keepOutputValues,
             bool excludeResourceReferencesFromDependencies)
         {
-            if (_excessiveDebugOutput)
-            {
-                Log.Debug($"Serialize property[{ctx}]: Hit dictionary");
-            }
+            var result = await SerializeCollectionAsync(ctx, dictionary, keepResources, keepOutputValues,
+                excludeResourceReferencesFromDependencies).ConfigureAwait(false);
+            return (ImmutableDictionary<string, object>)result!;
+        }
 
-            var result = ImmutableDictionary.CreateBuilder<string, object>();
-            foreach (var key in dictionary.Keys)
+        private async Task<object?> SerializeCollectionAsync(
+            string ctx, object collection, bool keepResources, bool keepOutputValues,
+            bool excludeResourceReferencesFromDependencies)
+        {
+            // Use an explicit stack for list/dictionary traversal so deeply nested collection values
+            // do not consume the CLR call stack.
+            var frames = new List<SerializeCollectionFrame>
             {
-                if (!(key is string stringKey))
+                new SerializeCollectionFrame(ctx, collection, _excessiveDebugOutput),
+            };
+
+            while (frames.Count > 0)
+            {
+                var frame = frames[^1];
+                var child = frame.GetNextChild();
+                if (child is not null)
                 {
-                    throw new InvalidOperationException(
-                        $"Dictionaries are only supported with string keys:\n\t{ctx}");
+                    if (child.Value is IDictionary || child.Value is IList)
+                    {
+                        frames.Add(new SerializeCollectionFrame(child.Context, child.Value, _excessiveDebugOutput));
+                        continue;
+                    }
+
+                    // Non-collection wrappers such as IInput, Output<T>, ResourceArgs, and IUnion still recurse
+                    // through SerializeAsync. This loop only protects deeply nested list/dictionary values.
+                    frame.AddChild(await SerializeAsync(
+                        child.Context, child.Value, keepResources, keepOutputValues,
+                        excludeResourceReferencesFromDependencies).ConfigureAwait(false));
+                    continue;
                 }
 
-                if (_excessiveDebugOutput)
+                var value = frame.Complete();
+                frames.RemoveAt(frames.Count - 1);
+                if (frames.Count == 0)
                 {
-                    Log.Debug($"Serialize property[{ctx}]: object.{stringKey}");
+                    return value;
+                }
+
+                frames[^1].AddChild(value);
+            }
+
+            // The loop either returns the root frame result or pushes/pops a child frame on each iteration.
+            throw new InvalidOperationException("Serializer stack was exhausted before producing a result.");
+        }
+
+        private sealed class SerializeCollectionFrame
+        {
+            private readonly string _ctx;
+            private readonly bool _excessiveDebugOutput;
+            private readonly IList? _list;
+            private readonly IDictionary? _dictionary;
+            private readonly ImmutableArray<object?>.Builder? _listResult;
+            private readonly ImmutableDictionary<string, object>.Builder? _dictionaryResult;
+            private readonly IEnumerator? _dictionaryKeys;
+            private int _listIndex;
+            private string? _currentDictionaryKey;
+
+            public SerializeCollectionFrame(string ctx, object collection, bool excessiveDebugOutput)
+            {
+                _ctx = ctx;
+                _excessiveDebugOutput = excessiveDebugOutput;
+
+                if (collection is IDictionary dictionary)
+                {
+                    if (_excessiveDebugOutput)
+                    {
+                        Log.Debug($"Serialize property[{ctx}]: Hit dictionary");
+                    }
+
+                    _dictionary = dictionary;
+                    _dictionaryKeys = dictionary.Keys.GetEnumerator();
+                    _dictionaryResult = ImmutableDictionary.CreateBuilder<string, object>();
+                    return;
+                }
+
+                if (collection is IList list)
+                {
+                    if (_excessiveDebugOutput)
+                    {
+                        Log.Debug($"Serialize property[{ctx}]: Hit list");
+                    }
+
+                    _list = list;
+                    _listResult = InitializedByDefault(list)
+                        ? ImmutableArray.CreateBuilder<object?>()
+                        : ImmutableArray.CreateBuilder<object?>(list.Count);
+                    return;
+                }
+
+                throw new InvalidOperationException(
+                    $"{collection.GetType().FullName} is not a supported collection type.\n\t{ctx}");
+            }
+
+            public SerializeCollectionChild? GetNextChild()
+            {
+                if (_list is not null)
+                {
+                    if (InitializedByDefault(_list) || _listIndex >= _list.Count)
+                    {
+                        return null;
+                    }
+
+                    var index = _listIndex++;
+                    if (_excessiveDebugOutput)
+                    {
+                        Log.Debug($"Serialize property[{_ctx}]: array[{index}] element");
+                    }
+
+                    return new SerializeCollectionChild($"{_ctx}[{index}]", _list[index]);
+                }
+
+                if (_dictionaryKeys!.MoveNext())
+                {
+                    if (!(_dictionaryKeys.Current is string stringKey))
+                    {
+                        throw new InvalidOperationException(
+                            $"Dictionaries are only supported with string keys:\n\t{_ctx}");
+                    }
+
+                    _currentDictionaryKey = stringKey;
+                    if (_excessiveDebugOutput)
+                    {
+                        Log.Debug($"Serialize property[{_ctx}]: object.{stringKey}");
+                    }
+
+                    return new SerializeCollectionChild($"{_ctx}.{stringKey}", _dictionary![stringKey]);
+                }
+
+                return null;
+            }
+
+            public void AddChild(object? value)
+            {
+                if (_listResult is not null)
+                {
+                    _listResult.Add(value);
+                    return;
                 }
 
                 // When serializing an object, we omit any keys with null values. This matches
                 // JSON semantics.
-                var v = await SerializeAsync($"{ctx}.{stringKey}", dictionary[stringKey], keepResources, keepOutputValues,
-                    excludeResourceReferencesFromDependencies).ConfigureAwait(false);
-                if (v != null)
+                if (value != null)
                 {
-                    result[stringKey] = v;
+                    _dictionaryResult![_currentDictionaryKey!] = value;
                 }
             }
 
-            return result.ToImmutable();
+            public object Complete()
+            {
+                if (_listResult is not null)
+                {
+                    return _listResult.ToImmutable();
+                }
+
+                return _dictionaryResult!.ToImmutable();
+            }
+        }
+
+        private sealed class SerializeCollectionChild
+        {
+            public SerializeCollectionChild(string context, object? value)
+            {
+                Context = context;
+                Value = value;
+            }
+
+            public string Context { get; }
+
+            public object? Value { get; }
         }
 
         /// <summary>
         /// Internal for testing purposes.
         /// </summary>
         internal static Value CreateValue(object? value)
-            => value switch
+            => CreateValueIteratively(value);
+
+        private static Value CreateValueIteratively(object? value)
+        {
+            var frames = new List<CreateValueFrame> { new CreateValueFrame(value) };
+
+            while (frames.Count > 0)
             {
-                null => Value.ForNull(),
-                int i => Value.ForNumber(i),
-                double d => Value.ForNumber(d),
-                bool b => Value.ForBool(b),
-                string s => Value.ForString(s),
-                ImmutableArray<object?> list => Value.ForList(list.Select(CreateValue).ToArray()),
-                ImmutableDictionary<string, object?> dict => Value.ForStruct(CreateStruct(dict)),
-                _ => throw new InvalidOperationException("Unsupported value when converting to protobuf: " + value.GetType().FullName),
-            };
+                var frame = frames[^1];
+                var child = frame.GetNextChild();
+                if (child is not NoChild)
+                {
+                    frames.Add(new CreateValueFrame(child));
+                    continue;
+                }
+
+                var result = frame.Complete();
+                frames.RemoveAt(frames.Count - 1);
+                if (frames.Count == 0)
+                {
+                    return result;
+                }
+
+                frames[^1].AddChild(result);
+            }
+
+            // The loop either returns the root frame result or pushes/pops a child frame on each iteration.
+            throw new InvalidOperationException("Protobuf value stack was exhausted before producing a result.");
+        }
+
+        private sealed class CreateValueFrame
+        {
+            private readonly object? _value;
+            private readonly ImmutableArray<object?>? _list;
+            private readonly ImmutableDictionary<string, object?>? _dictionary;
+            private readonly List<Value>? _listResult;
+            private readonly Struct? _structResult;
+            private readonly IEnumerator<string>? _dictionaryKeys;
+            private int _listIndex;
+            private string? _currentDictionaryKey;
+
+            public CreateValueFrame(object? value)
+            {
+                _value = value;
+
+                if (value is ImmutableArray<object?> list)
+                {
+                    _list = list;
+                    _listResult = new List<Value>(list.Length);
+                    return;
+                }
+
+                if (value is ImmutableDictionary<string, object?> dictionary)
+                {
+                    _dictionary = dictionary;
+                    _dictionaryKeys = dictionary.Keys.OrderBy(k => k).GetEnumerator();
+                    _structResult = new Struct();
+                }
+            }
+
+            public object? GetNextChild()
+            {
+                if (_list.HasValue)
+                {
+                    if (_listIndex >= _list.Value.Length)
+                    {
+                        return NoChild.Instance;
+                    }
+
+                    return _list.Value[_listIndex++];
+                }
+
+                if (_dictionaryKeys is not null)
+                {
+                    if (!_dictionaryKeys.MoveNext())
+                    {
+                        return NoChild.Instance;
+                    }
+
+                    _currentDictionaryKey = _dictionaryKeys.Current;
+                    return _dictionary![_currentDictionaryKey];
+                }
+
+                return NoChild.Instance;
+            }
+
+            public void AddChild(Value child)
+            {
+                if (_listResult is not null)
+                {
+                    _listResult.Add(child);
+                    return;
+                }
+
+                _structResult!.Fields.Add(_currentDictionaryKey, child);
+            }
+
+            public Value Complete()
+            {
+                if (_listResult is not null)
+                {
+                    var result = new Value { ListValue = new ListValue() };
+                    result.ListValue.Values.AddRange(_listResult);
+                    return result;
+                }
+
+                if (_structResult is not null)
+                {
+                    return new Value { StructValue = _structResult };
+                }
+
+                return _value switch
+                {
+                    null => Value.ForNull(),
+                    int i => Value.ForNumber(i),
+                    double d => Value.ForNumber(d),
+                    bool b => Value.ForBool(b),
+                    string s => Value.ForString(s),
+                    _ => throw new InvalidOperationException(
+                        "Unsupported value when converting to protobuf: " + _value.GetType().FullName),
+                };
+            }
+        }
+
+        private sealed class NoChild
+        {
+            // Null is a valid collection element, so CreateValueFrame uses this sentinel to mean
+            // "there is no next child" without conflating that with a null value to serialize.
+            public static readonly NoChild Instance = new NoChild();
+
+            private NoChild()
+            {
+            }
+        }
 
         /// <summary>
         /// Detects encoded `Unknown` values in objects that conform

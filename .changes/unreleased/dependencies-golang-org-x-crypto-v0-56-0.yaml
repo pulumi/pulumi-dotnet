@@ -1,0 +1,4 @@
+component: sdk
+kind: dependencies
+body: Update golang.org/x/crypto to v0.56.0
+time: 2026-09-11T06:18:37.844466736Z

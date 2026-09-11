@@ -17,7 +17,9 @@ namespace Pulumi.RefRef.Outputs
         public readonly bool Boolean;
         public readonly double Float;
         public readonly Outputs.InnerData InnerData;
+        public readonly ImmutableArray<Outputs.InnerData> InnerDataList;
         public readonly int Integer;
+        public readonly Outputs.InnerData? OptionalInner;
         public readonly string String;
         public readonly ImmutableDictionary<string, string> StringMap;
 
@@ -31,7 +33,11 @@ namespace Pulumi.RefRef.Outputs
 
             Outputs.InnerData innerData,
 
+            ImmutableArray<Outputs.InnerData> innerDataList,
+
             int integer,
+
+            Outputs.InnerData? optionalInner,
 
             string @string,
 
@@ -41,7 +47,9 @@ namespace Pulumi.RefRef.Outputs
             Boolean = boolean;
             Float = @float;
             InnerData = innerData;
+            InnerDataList = innerDataList;
             Integer = integer;
+            OptionalInner = optionalInner;
             String = @string;
             StringMap = stringMap;
         }

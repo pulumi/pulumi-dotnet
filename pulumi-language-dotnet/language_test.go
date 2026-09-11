@@ -95,40 +95,26 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 
 // Add test names here that are expected to fail and the reason why they are failing
 var expectedFailures = map[string]string{
-	"l1-builtin-can":     "#489 codegen not implemented",
-	"l1-builtin-try":     "#490 codegen not implemented",
-	"l1-keyword-overlap": "#493 update to pulumi 1.50 conformance failure",
-	"l1-proxy-index":     "dotnet build failed",
+	"l1-builtin-can": "#489 codegen not implemented",
+	"l1-builtin-try": "#490 codegen not implemented",
+	"l1-proxy-index": "dotnet build failed",
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
-	"l2-resource-config":                    "sdk packing for config: build error before pack",
 	"l2-provider-grpc-config":               "dotnet build failed",
 	"l2-provider-grpc-config-secret":        "dotnet build failed",
-	"l2-provider-grpc-config-schema":        "dotnet build failed",
 	"l2-provider-grpc-config-schema-secret": "dotnet build failed",
 	"l2-proxy-index":                        "dotnet build failed",
-	"l2-invoke-options-depends-on":          "dotnet build failed",
 	"l2-invoke-scalar": "" +
 		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
 	"l2-invoke-scalars": "" +
 		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
-	"l2-invoke-secrets": "" +
-		"Pulumi.Deployment+InvokeException: 'simple-invoke:index:secretInvoke' failed: value is not a string",
-	"l2-map-keys":                   "dotnet build failed",
-	"l2-resource-secret":            "test hanging",
-	"l2-namespaced-provider":        "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
-	"l2-union":                      "dotnet build failed",
-	"l2-resource-option-alias":      "aliases not recognized: expected 0 create operations but got 3",
-	"l2-resource-option-hide-diffs": "programgen bug: https://github.com/pulumi/pulumi/issues/20665",
-	"l2-parameterized-invoke": "dotnet build failed: " +
-		"DoHelloWorld does not exist in namespace Pulumi.Subpackage",
-	"l2-parameterized-resource-twice":        "testdata not yet generated for .NET",
+	"l2-map-keys":                            "dotnet build failed",
+	"l2-resource-secret":                     "test hanging",
+	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
+	"l2-union":                               "dotnet build failed",
+	"l2-resource-option-alias":               "aliases not recognized: expected 0 create operations but got 3",
 	"l2-resource-option-replacement-trigger": "dotnet build failed: Pulumi.Output namespace conflict",
-	"l2-resource-option-replace-with":        "not yet implemented",
 	"l1-config-types-object":                 "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
-	"l1-elide-index":                         "https://github.com/pulumi/pulumi-dotnet/issues/865",
-	"l2-elide-index":                         "https://github.com/pulumi/pulumi-dotnet/issues/868",
-	"l2-module-format":                       "https://github.com/pulumi/pulumi-dotnet/issues/867",
 
 	// TODO: This is a codegen bug, we're translating {} to null
 	"l2-plain": "System.ArgumentNullException: [Input] Pulumi.Plain.Inputs.DataArgs._stringMap is required but was not given a value (Parameter '_stringMap')", //nolint:lll
@@ -136,14 +122,10 @@ var expectedFailures = map[string]string{
 	"l1-builtin-object":          "Fail after updating to 3.224: KeyNotFoundException: The given key 'keyMissing' was not present in the dictionary. ", //nolint:lll
 	"l2-resource-elide-unknowns": "Fail after updating to 3.224: conflict in Output type name",                                                         //nolint:lll
 	"l2-secret-unknown":          "error CS0434: The namespace 'Pulumi.Output' conflicts with the type 'Output' in 'Pulumi' (added in v3.261.0)",       //nolint:lll
-	"l2-camel-names":             "Fail after updating to 3.224: 'SomeResourceArgs' does not contain a definition for 'ResourceName'",                  //nolint:lll
 	"l2-resource-name-type":      "Fail after updating to 3.224: TODO: call pulumiResourceName",                                                        //nolint:lll
-	"l2-resource-names":          "Fail after updating to 3.224: The type or namespace name 'Mod' does not exist in the namespace 'Pulumi.Names'",      //nolint:lll
 	"l2-builtin-object":          "Fail after updating to 3.224: Invalid expression term ')'",
 
 	"l3-range": "Fail after updating to 3.225",
-
-	"l2-ref-ref": "Fail after updating to 3.229: dotnet build failed",
 
 	"l2-resource-optional":        "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
 	"l3-component-config-objects": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll
@@ -152,14 +134,12 @@ var expectedFailures = map[string]string{
 	"l2-snake-names":      "Fail after updating to 3.226",
 	"l3-for-resource":     "Fail after updating to 3.226",
 	"l2-keywords":         "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
-	"l1-builtin-to-json":  "dotnet build failed: CS0623 array initializers and CS0820 implicitly-typed variable errors",
 	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
 
 	"l2-resource-config-objects": "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
 	"l3-rewrite-conversions":     "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
 	// l3-range-ref was split by range kind in pulumi/pulumi#23632 (v3.248.0); all three inherit the
 	// original "dotnet build failed: List<Target> missing K1/Name members" range-ref codegen bug.
-	"l3-range-list-ref":                  "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
 	"l3-range-map-ref":                   "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
 	"l3-range-bool-ref":                  "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
 	"l2-resource-option-custom-timeouts": "https://github.com/pulumi/pulumi-dotnet/issues/822",
@@ -176,8 +156,6 @@ var expectedFailures = map[string]string{
 	"l3-component-primitive-conversions": "Fail after updating to 3.232",
 
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
-
-	"l1-config-types-optional": "Fail after updating to 3.239",
 
 	"l1-expand-final": "Fail after updating to 3.243",
 

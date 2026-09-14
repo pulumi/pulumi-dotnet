@@ -1,6 +1,7 @@
 // Copyright 2016-2019, Pulumi Corporation
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -13,108 +14,207 @@ namespace Pulumi.Serialization
 {
     internal static class Deserializer
     {
-        private static OutputData<T> DeserializeCore<T>(Value value, Func<Value, OutputData<T>> func)
+        public static OutputData<object?> Deserialize(Value value)
+            => DeserializeIteratively(value);
+
+        private static OutputData<object?> DeserializeIteratively(Value value)
         {
-            var (innerVal, isSecret) = UnwrapSecret(value);
-            value = innerVal;
+            // Use an explicit stack for list/struct traversal so heavily nested protobuf values
+            // do not consume the CLR call stack.
+            var frames = new List<DeserializeFrame> { new DeserializeFrame(value) };
 
-            if (value.KindCase == Value.KindOneofCase.StringValue &&
-                value.StringValue == Constants.UnknownValue)
+            while (frames.Count > 0)
             {
-                // always deserialize unknown as the null value.
-                return new OutputData<T>(ImmutableHashSet<Resource>.Empty, default!, isKnown: false, isSecret);
+                var frame = frames[^1];
+
+                if (!frame.Started)
+                {
+                    frame.Start();
+                }
+
+                if (frame.Result.HasValue)
+                {
+                    frames.RemoveAt(frames.Count - 1);
+                    if (frames.Count == 0)
+                    {
+                        return frame.Result.Value;
+                    }
+
+                    frames[^1].AddChild(frame.Result.Value);
+                    continue;
+                }
+
+                var child = frame.GetNextChild();
+                if (child is not null)
+                {
+                    frames.Add(new DeserializeFrame(child));
+                    continue;
+                }
+
+                frame.Complete();
             }
 
-            if (TryDeserializeAssetOrArchive(value, out var assetOrArchive))
-            {
-                return new OutputData<T>(ImmutableHashSet<Resource>.Empty, (T)(object)assetOrArchive, isKnown: true, isSecret);
-            }
-            if (TryDeserializeResource(value, out var resource))
-            {
-                return new OutputData<T>(ImmutableHashSet<Resource>.Empty, (T)(object)resource, isKnown: true, isSecret);
-            }
-            if (TryDeserializeOutputValue(value, out var outputValue))
-            {
-                // Note that output values don't really fit-in well with the OutputData<T> model, as they deserialize
-                // to instances of Output<T> which already internally track the resources, known-ness, and secret-ness,
-                // so for the OutputData<T> we just use empty resources, mark it as known, and not a secret.
-                return new OutputData<T>(ImmutableHashSet<Resource>.Empty, (T)outputValue, isKnown: true, isSecret: false);
-            }
-
-            var innerData = func(value);
-            return OutputData.Create(innerData.Resources, innerData.Value, innerData.IsKnown, isSecret || innerData.IsSecret);
+            // The loop either returns the root frame result or pushes/pops a child frame on each iteration.
+            throw new InvalidOperationException("Deserializer stack was exhausted before producing a result.");
         }
 
-        private static OutputData<T> DeserializeOneOf<T>(Value value, Value.KindOneofCase kind, Func<Value, OutputData<T>> func)
-            => DeserializeCore(value, v =>
-                v.KindCase == kind ? func(v) : throw new InvalidOperationException($"Trying to deserialize {v.KindCase} as a {kind}"));
+        private sealed class DeserializeFrame
+        {
+            private readonly Value _input;
+            private Value _value = new Value();
+            private bool _wrapperIsSecret;
+            private RepeatedField<Value>? _listValues;
+            private int _listIndex;
+            private ImmutableArray<object?>.Builder? _listResult;
+            private IEnumerator<KeyValuePair<string, Value>>? _structEnumerator;
+            private ImmutableDictionary<string, object?>.Builder? _structResult;
+            private string? _currentStructKey;
+            private ImmutableHashSet<Resource>.Builder? _resources;
+            private bool _isKnown = true;
+            private bool _isSecret;
 
-        private static OutputData<T> DeserializePrimitive<T>(Value value, Value.KindOneofCase kind, Func<Value, T> func)
-            => DeserializeOneOf(value, kind, v => OutputData.Create(
-                ImmutableHashSet<Resource>.Empty, func(v), isKnown: true, isSecret: false));
+            public DeserializeFrame(Value input)
+            {
+                _input = input;
+            }
 
-        private static OutputData<bool> DeserializeBoolean(Value value)
-            => DeserializePrimitive(value, Value.KindOneofCase.BoolValue, v => v.BoolValue);
+            public bool Started { get; private set; }
 
-        private static OutputData<string> DeserializerString(Value value)
-            => DeserializePrimitive(value, Value.KindOneofCase.StringValue, v => v.StringValue);
+            public OutputData<object?>? Result { get; private set; }
 
-        private static OutputData<double> DeserializerDouble(Value value)
-            => DeserializePrimitive(value, Value.KindOneofCase.NumberValue, v => v.NumberValue);
+            public void Start()
+            {
+                Started = true;
+                var (innerVal, isSecret) = UnwrapSecret(_input);
+                _value = innerVal;
+                _wrapperIsSecret = isSecret;
 
-        private static OutputData<ImmutableArray<object?>> DeserializeList(Value value)
-            => DeserializeOneOf(value, Value.KindOneofCase.ListValue,
-                v =>
+                if (_value.KindCase == Value.KindOneofCase.StringValue &&
+                    _value.StringValue == Constants.UnknownValue)
                 {
-                    var resources = ImmutableHashSet.CreateBuilder<Resource>();
-                    var result = ImmutableArray.CreateBuilder<object?>();
-                    var isKnown = true;
-                    var isSecret = false;
+                    // Always deserialize unknown as the null value.
+                    Result = new OutputData<object?>(
+                        ImmutableHashSet<Resource>.Empty, null, isKnown: false, isSecret: _wrapperIsSecret);
+                    return;
+                }
 
-                    foreach (var element in v.ListValue.Values)
+                if (TryDeserializeAssetOrArchive(_value, out var assetOrArchive))
+                {
+                    Result = new OutputData<object?>(
+                        ImmutableHashSet<Resource>.Empty, assetOrArchive, isKnown: true, isSecret: _wrapperIsSecret);
+                    return;
+                }
+                if (TryDeserializeResource(_value, out var resource))
+                {
+                    Result = new OutputData<object?>(
+                        ImmutableHashSet<Resource>.Empty, resource, isKnown: true, isSecret: _wrapperIsSecret);
+                    return;
+                }
+                if (TryDeserializeOutputValue(_value, out var outputValue))
+                {
+                    // Note that output values don't really fit-in well with the OutputData<T> model, as they deserialize
+                    // to instances of Output<T> which already internally track the resources, known-ness, and secret-ness,
+                    // so for the OutputData<T> we just use empty resources, mark it as known, and not a secret.
+                    Result = new OutputData<object?>(
+                        ImmutableHashSet<Resource>.Empty, outputValue, isKnown: true, isSecret: false);
+                    return;
+                }
+
+                switch (_value.KindCase)
+                {
+                    case Value.KindOneofCase.NumberValue:
+                        Result = new OutputData<object?>(
+                            ImmutableHashSet<Resource>.Empty, _value.NumberValue, isKnown: true, isSecret: _wrapperIsSecret);
+                        break;
+                    case Value.KindOneofCase.StringValue:
+                        Result = new OutputData<object?>(
+                            ImmutableHashSet<Resource>.Empty, _value.StringValue, isKnown: true, isSecret: _wrapperIsSecret);
+                        break;
+                    case Value.KindOneofCase.BoolValue:
+                        Result = new OutputData<object?>(
+                            ImmutableHashSet<Resource>.Empty, _value.BoolValue, isKnown: true, isSecret: _wrapperIsSecret);
+                        break;
+                    case Value.KindOneofCase.NullValue:
+                        Result = new OutputData<object?>(
+                            ImmutableHashSet<Resource>.Empty, null, isKnown: true, isSecret: _wrapperIsSecret);
+                        break;
+                    case Value.KindOneofCase.ListValue:
+                        _listValues = _value.ListValue.Values;
+                        _listResult = ImmutableArray.CreateBuilder<object?>();
+                        _resources = ImmutableHashSet.CreateBuilder<Resource>();
+                        break;
+                    case Value.KindOneofCase.StructValue:
+                        _structEnumerator = _value.StructValue.Fields.GetEnumerator();
+                        _structResult = ImmutableDictionary.CreateBuilder<string, object?>();
+                        _resources = ImmutableHashSet.CreateBuilder<Resource>();
+                        break;
+                    case Value.KindOneofCase.None:
+                        throw new InvalidOperationException("Should never get 'None' type when deserializing protobuf");
+                    default:
+                        throw new InvalidOperationException("Unknown type when deserializing protobuf: " + _value.KindCase);
+                }
+            }
+
+            public Value? GetNextChild()
+            {
+                if (_listValues is not null)
+                {
+                    if (_listIndex >= _listValues.Count)
                     {
-                        var elementData = Deserialize(element);
-                        (isKnown, isSecret) = OutputData.Combine(elementData, isKnown, isSecret);
-                        resources.UnionWith(elementData.Resources);
-                        result.Add(elementData.Value);
+                        return null;
                     }
 
-                    return OutputData.Create(resources.ToImmutable(), result.ToImmutable(), isKnown, isSecret);
-                });
+                    return _listValues[_listIndex++];
+                }
 
-        private static OutputData<ImmutableDictionary<string, object?>> DeserializeStruct(Value value)
-            => DeserializeOneOf(value, Value.KindOneofCase.StructValue,
-                v =>
+                if (_structEnumerator is not null)
                 {
-                    var resources = ImmutableHashSet.CreateBuilder<Resource>();
-                    var result = ImmutableDictionary.CreateBuilder<string, object?>();
-                    var isKnown = true;
-                    var isSecret = false;
-
-                    foreach (var (key, element) in v.StructValue.Fields)
+                    if (!_structEnumerator.MoveNext())
                     {
-                        var elementData = Deserialize(element);
-                        (isKnown, isSecret) = OutputData.Combine(elementData, isKnown, isSecret);
-                        result.Add(key, elementData.Value);
-                        resources.UnionWith(elementData.Resources);
+                        return null;
                     }
 
-                    return OutputData.Create(resources.ToImmutable(), result.ToImmutable(), isKnown, isSecret);
-                });
+                    var current = _structEnumerator.Current;
+                    _currentStructKey = current.Key;
+                    return current.Value;
+                }
 
-        public static OutputData<object?> Deserialize(Value value)
-            => DeserializeCore(value,
-                v => v.KindCase switch
+                return null;
+            }
+
+            public void AddChild(OutputData<object?> child)
+            {
+                (_isKnown, _isSecret) = OutputData.Combine(child, _isKnown, _isSecret);
+                _resources!.UnionWith(child.Resources);
+
+                if (_listResult is not null)
                 {
-                    Value.KindOneofCase.NumberValue => DeserializerDouble(v),
-                    Value.KindOneofCase.StringValue => DeserializerString(v),
-                    Value.KindOneofCase.BoolValue => DeserializeBoolean(v),
-                    Value.KindOneofCase.StructValue => DeserializeStruct(v),
-                    Value.KindOneofCase.ListValue => DeserializeList(v),
-                    Value.KindOneofCase.NullValue => new OutputData<object?>(ImmutableHashSet<Resource>.Empty, null, isKnown: true, isSecret: false),
-                    Value.KindOneofCase.None => throw new InvalidOperationException("Should never get 'None' type when deserializing protobuf"),
-                    _ => throw new InvalidOperationException("Unknown type when deserializing protobuf: " + v.KindCase),
-                });
+                    _listResult.Add(child.Value);
+                    return;
+                }
+
+                _structResult!.Add(_currentStructKey!, child.Value);
+            }
+
+            public void Complete()
+            {
+                if (_listResult is not null)
+                {
+                    Result = OutputData.Create(
+                        _resources!.ToImmutable(), _listResult.ToImmutable(), _isKnown, _wrapperIsSecret || _isSecret);
+                    return;
+                }
+
+                if (_structResult is not null)
+                {
+                    Result = OutputData.Create(
+                        _resources!.ToImmutable(), _structResult.ToImmutable(), _isKnown, _wrapperIsSecret || _isSecret);
+                    return;
+                }
+
+                throw new InvalidOperationException("Cannot complete a primitive deserializer frame.");
+            }
+        }
 
         private static (Value unwrapped, bool isSecret) UnwrapSecret(Value value)
         {

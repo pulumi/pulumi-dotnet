@@ -1,5 +1,6 @@
 // Copyright 2016-2024, Pulumi Corporation
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
@@ -251,6 +252,58 @@ namespace Pulumi.Tests.Serialization
             Assert.False(data.IsKnown);
             Assert.False(data.IsSecret);
             Assert.Empty(data.Resources);
+        }
+
+        [Fact]
+        public void TestDeeplyNestedDictionaryDeserialization()
+        {
+            var input = new Value { StringValue = "leaf" };
+            for (var i = 0; i < 10_000; i++)
+            {
+                input = new Value
+                {
+                    StructValue = new Struct
+                    {
+                        Fields =
+                        {
+                            { "value", input },
+                        },
+                    },
+                };
+            }
+
+            var result = Deserializer.Deserialize(input);
+            var current = Assert.IsType<ImmutableDictionary<string, object?>>(result.Value);
+            for (var i = 0; i < 9_999; i++)
+            {
+                current = Assert.IsType<ImmutableDictionary<string, object?>>(current["value"]);
+            }
+
+            Assert.Equal("leaf", current["value"]);
+            Assert.True(result.IsKnown);
+            Assert.False(result.IsSecret);
+            Assert.Empty(result.Resources);
+        }
+
+        [Fact]
+        public async Task TestDeeplyNestedDictionarySerialization()
+        {
+            object? input = "leaf";
+            for (var i = 0; i < 10_000; i++)
+            {
+                input = new Dictionary<string, object?>
+                {
+                    ["value"] = input,
+                };
+            }
+
+            var result = await SerializeToValueAsync(input);
+            for (var i = 0; i < 10_000; i++)
+            {
+                Assert.True(result.StructValue.Fields.TryGetValue("value", out result));
+            }
+
+            Assert.Equal("leaf", result.StringValue);
         }
     }
 }

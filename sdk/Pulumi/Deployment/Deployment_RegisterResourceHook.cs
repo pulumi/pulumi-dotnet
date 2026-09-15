@@ -78,7 +78,7 @@ namespace Pulumi
         {
             var wrapper = new Callback(async (message, token) =>
             {
-                var request = Pulumirpc.ErrorHookRequest.Parser.ParseFrom(message);
+                var request = Serialization.Protobuf.Parse<Pulumirpc.ErrorHookRequest>(message);
 
                 ImmutableDictionary<string, object?>? newInputs = null;
                 if (request.NewInputs != null)
@@ -130,7 +130,7 @@ namespace Pulumi
         {
             var wrapper = new Callback(async (message, token) =>
             {
-                var request = Pulumirpc.ResourceHookRequest.Parser.ParseFrom(message);
+                var request = Serialization.Protobuf.Parse<Pulumirpc.ResourceHookRequest>(message);
 
                 ImmutableDictionary<string, object?>? newInputs = null;
                 if (request.NewInputs != null)

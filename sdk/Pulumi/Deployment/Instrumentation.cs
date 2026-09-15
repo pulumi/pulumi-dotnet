@@ -41,6 +41,47 @@ namespace Pulumi
         }
     }
 
+    /// <summary>
+    /// A gRPC client interceptor that swaps the response marshaller for one built by
+    /// <see cref="Serialization.Protobuf.CreateMarshaller{T}"/>, which parses responses with an
+    /// increased protobuf recursion limit. This is needed because Pulumi resource property values
+    /// can be deeply nested (large maps/lists of maps), exceeding protobuf's default recursion
+    /// limit of 100 and causing deserialization to fail.
+    /// </summary>
+    internal class ProtobufRecursionLimitInterceptor : Interceptor
+    {
+        public override TResponse BlockingUnaryCall<TRequest, TResponse>(
+            TRequest request,
+            ClientInterceptorContext<TRequest, TResponse> context,
+            BlockingUnaryCallContinuation<TRequest, TResponse> continuation)
+        {
+            return continuation(request, WithRecursionLimit(context));
+        }
+
+        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(
+            TRequest request,
+            ClientInterceptorContext<TRequest, TResponse> context,
+            AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+        {
+            return continuation(request, WithRecursionLimit(context));
+        }
+
+        private static ClientInterceptorContext<TRequest, TResponse> WithRecursionLimit<TRequest, TResponse>(
+            ClientInterceptorContext<TRequest, TResponse> context)
+            where TRequest : class
+            where TResponse : class
+        {
+            var method = new Method<TRequest, TResponse>(
+                context.Method.Type,
+                context.Method.ServiceName,
+                context.Method.Name,
+                context.Method.RequestMarshaller,
+                Serialization.Protobuf.CreateMarshaller(context.Method.ResponseMarshaller));
+
+            return new ClientInterceptorContext<TRequest, TResponse>(method, context.Host, context.Options);
+        }
+    }
+
     internal static class Instrumentation
     {
         internal static readonly ActivitySource ActivitySource = new("pulumi-sdk-dotnet");

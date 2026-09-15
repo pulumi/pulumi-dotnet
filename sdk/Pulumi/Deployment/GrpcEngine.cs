@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
-using Grpc.Core.Interceptors;
 using Pulumirpc;
 
 namespace Pulumi
@@ -24,7 +23,7 @@ namespace Pulumi
             if (_engineChannels.TryGetValue(engineAddress, out var engineChannel))
             {
                 // A channel already exists for this address
-                this._engine = new Engine.EngineClient(engineChannel.CreateCallInvoker().Intercept(new TracingInterceptor()));
+                this._engine = new Engine.EngineClient(Serialization.Protobuf.CreateCallInvoker(engineChannel));
             }
             else
             {
@@ -33,7 +32,7 @@ namespace Pulumi
                     if (_engineChannels.TryGetValue(engineAddress, out var existingChannel))
                     {
                         // A channel already exists for this address
-                        this._engine = new Engine.EngineClient(existingChannel.CreateCallInvoker().Intercept(new TracingInterceptor()));
+                        this._engine = new Engine.EngineClient(Serialization.Protobuf.CreateCallInvoker(existingChannel));
                     }
                     else
                     {
@@ -46,7 +45,7 @@ namespace Pulumi
                         });
 
                         _engineChannels[engineAddress] = channel;
-                        this._engine = new Engine.EngineClient(channel.CreateCallInvoker().Intercept(new TracingInterceptor()));
+                        this._engine = new Engine.EngineClient(Serialization.Protobuf.CreateCallInvoker(channel));
                     }
                 }
             }

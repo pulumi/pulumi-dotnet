@@ -236,7 +236,7 @@ namespace Pulumi
         {
             var wrapper = new Callback(async (message, token) =>
             {
-                var request = Pulumirpc.TransformRequest.Parser.ParseFrom(message);
+                var request = Serialization.Protobuf.Parse<Pulumirpc.TransformRequest>(message);
 
                 var props = ImmutableDictionary.CreateBuilder<string, object?>();
                 foreach (var kv in request.Properties.Fields)
@@ -412,7 +412,7 @@ namespace Pulumi
         {
             var wrapper = new Callback(async (message, token) =>
             {
-                var request = Pulumirpc.TransformInvokeRequest.Parser.ParseFrom(message);
+                var request = Serialization.Protobuf.Parse<Pulumirpc.TransformInvokeRequest>(message);
 
                 var requestArgs = ImmutableDictionary.CreateBuilder<string, object?>();
                 foreach (var kv in request.Args.Fields)

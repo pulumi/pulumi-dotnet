@@ -1,6 +1,0 @@
-component: sdk
-kind: Improvements
-body: Move to official Google.Protobuf instead of the Pulumi fork
-time: 2026-09-14T13:43:51.785707+01:00
-custom:
-    PR: "1173"

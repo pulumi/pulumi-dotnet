@@ -44,7 +44,10 @@ namespace Pulumi
                 HttpHandler = new SocketsHttpHandler
                 {
                     PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
-                    KeepAlivePingDelay = TimeSpan.FromSeconds(30),
+                    // Must stay above the Pulumi engine's grpc-go server default keepalive
+                    // EnforcementPolicy.MinTime (5 minutes), or the server treats pings as
+                    // abusive and tears down the connection with HTTP/2 ENHANCE_YOUR_CALM.
+                    KeepAlivePingDelay = TimeSpan.FromMinutes(6),
                     KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
                     KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
                 },

@@ -8,6 +8,8 @@ using Pulumirpc;
 using Grpc.Core;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Net.Http;
+using System.Threading;
 
 namespace Pulumi
 {
@@ -38,7 +40,14 @@ namespace Pulumi
             {
                 MaxReceiveMessageSize = maxRpcMessageSize,
                 MaxSendMessageSize = maxRpcMessageSize,
-                Credentials = ChannelCredentials.Insecure
+                Credentials = ChannelCredentials.Insecure,
+                HttpHandler = new SocketsHttpHandler
+                {
+                    PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
+                    KeepAlivePingDelay = TimeSpan.FromSeconds(30),
+                    KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
+                    KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
+                },
             });
             return channel;
         }

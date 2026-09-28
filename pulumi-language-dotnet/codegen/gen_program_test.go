@@ -27,6 +27,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/stretchr/testify/require"
+	"github.com/zclconf/go-cty/cty"
 
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/pulumi/pulumi/pkg/v3/codegen/hcl2/model"
@@ -456,6 +457,74 @@ resource "r" "nested:index:Resource" {
 	require.Contains(t, programText, `{ "COST_AND_USAGE_REPORT", new InputMap<string>`,
 		"nested map literal must be prefixed with an explicit InputMap<T> type annotation "+
 			"immediately before the nested initializer")
+}
+
+// The binder types a literal as a constant. C# has no constant types, so the generator must
+// select C# types and operations from the type of the value.
+func TestGenerateProgramTypesConstantsAsValues(t *testing.T) {
+	t.Parallel()
+
+	source := `
+strMap = { a = "b" }
+condMap = { k = true ? "a" : "b" }
+lit = "abc"
+output "strMap" { value = strMap }
+output "condMap" { value = condMap }
+output "len" { value = length(lit) }
+output "json" { value = toJSON(["a", "b"]) }
+`
+
+	parser := syntax.NewParser()
+	err := parser.ParseFile(strings.NewReader(source), "main.pp")
+	require.NoError(t, err)
+	require.False(t, parser.Diagnostics.HasErrors(), "parse diagnostics: %v", parser.Diagnostics)
+
+	program, diags, err := pcl.BindProgram(parser.Files, &inlineLoader{})
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "bind diagnostics: %v", diags)
+
+	files, diags, err := GenerateProgram(program)
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "codegen diagnostics: %v", diags)
+
+	require.Equal(t, `using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using Pulumi;
+
+return await Deployment.RunAsync(() => 
+{
+    var strMap = new Dictionary<string, string>
+    {
+        ["a"] = "b",
+    };
+
+    var condMap = new Dictionary<string, string>
+    {
+        ["k"] = true ? "a" : "b",
+    };
+
+    var lit = "abc";
+
+    return new Dictionary<string, object?>
+    {
+        ["strMap"] = strMap,
+        ["condMap"] = condMap,
+        ["len"] = new System.Globalization.StringInfo(lit).LengthInTextElements,
+        ["json"] = JsonSerializer.Serialize(new[]
+        {
+            "a",
+            "b",
+        }),
+    };
+});
+
+`, string(files["Program.cs"]))
+
+	a := model.NewConstType(model.StringType, cty.StringVal("a"))
+	b := model.NewConstType(model.StringType, cty.StringVal("b"))
+	require.Equal(t, "Output<string>", componentOutputType(a))
+	require.Equal(t, "Output<string>", componentOutputType(model.NewUnionType(a, b)))
 }
 
 type inlineLoader struct {

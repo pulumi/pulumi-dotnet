@@ -806,7 +806,7 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 		// units. .NET's StringInfo.LengthInTextElements implements UAX #29 grapheme cluster boundaries,
 		// matching PCL semantics for multi-byte Latin, emoji with variation selectors, and ZWJ sequences.
 		argType := model.ResolveOutputs(expr.Args[0].Type())
-		if argType.Equals(model.IDType) || argType.Equals(model.StringType) {
+		if argType.Equals(model.IDType) || model.StringType.AssignableFrom(argType) {
 			if isOutput {
 				g.Fgenf(w, "%.20v.Apply(s => new System.Globalization.StringInfo(s).LengthInTextElements)",
 					expr.Args[0])
@@ -920,6 +920,10 @@ func (g *generator) genDictionary(w io.Writer, expr *model.ObjectConsExpression,
 }
 
 func (g *generator) isListOfDifferentTypes(expr *model.TupleConsExpression) bool {
+	if model.NewListType(model.StringType).AssignableFrom(expr.Type()) {
+		return false
+	}
+
 	var prevType model.Type
 	for _, v := range expr.Expressions {
 		if prevType == nil {

@@ -69,6 +69,7 @@ namespace Pulumi
         private async Task<(Struct Return, ImmutableHashSet<Resource> Dependencies)> CallRawAsync(
             string token, CallArgs args, Resource? self, CallOptions? options, RegisterPackageRequest? registerPackageRequest = null)
         {
+            StateMigrationContext.EnsureNotActive("call");
             var label = $"Calling function: token={token} asynchronously";
             Log.Debug(label);
 

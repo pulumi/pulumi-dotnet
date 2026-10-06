@@ -325,6 +325,7 @@ namespace Pulumi
 
         public void RegisterInvokeTransform(InvokeTransform transform)
         {
+            StateMigrationContext.EnsureNotActive("register invoke transform");
             lock (_registrationLock)
             {
                 _pendingRegistrations++;

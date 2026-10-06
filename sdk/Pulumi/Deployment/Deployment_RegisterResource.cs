@@ -43,10 +43,16 @@ namespace Pulumi
                 throw new InvalidOperationException("The Pulumi CLI does not support the ReplaceWith option. Please update the Pulumi CLI.");
             }
 
+            if (options.StateMigrations.Count > 0 && !await MonitorSupportsFeature("stateMigrations").ConfigureAwait(false))
+            {
+                throw new InvalidOperationException("The Pulumi CLI does not support state migrations. Please update the Pulumi CLI.");
+            }
+
             var request = await this.CreateRegisterResourceRequest(type, name, custom, remote, options);
 
             Log.Debug($"Preparing resource: t={type}, name={name}, custom={custom}, remote={remote}");
-            var prepareResult = await PrepareResourceAsync(label, resource, custom, remote, args, options, registerPackageRequest).ConfigureAwait(false);
+            var prepareResult = await PrepareResourceAsync(
+                label, resource, custom, remote, args, options, read: false, registerPackageRequest).ConfigureAwait(false);
             Log.Debug($"Prepared resource: t={type}, name={name}, custom={custom}, remote={remote}");
 
             PopulateRequest(request, prepareResult);
@@ -90,6 +96,7 @@ namespace Pulumi
             }
 
             request.Transforms.AddRange(prepareResult.Transforms);
+            request.StateMigrations.AddRange(prepareResult.StateMigrations);
             request.Dependencies.AddRange(prepareResult.AllDirectDependencyUrns);
 
             request.Hooks = prepareResult.Hooks;
@@ -185,4 +192,3 @@ namespace Pulumi
         }
     }
 }
-

@@ -27,6 +27,7 @@ namespace Pulumi
                 DeletedWith = options.DeletedWith,
                 ReplaceWith = options.ReplaceWith.Clone(),
                 ResourceTransforms = options.ResourceTransforms.ToList(),
+                StateMigrations = options.StateMigrations.ToList(),
                 Hooks = options.Hooks.Clone(),
                 HideDiffs = options.HideDiffs.ToList(),
                 ReplacementTrigger = options.ReplacementTrigger,

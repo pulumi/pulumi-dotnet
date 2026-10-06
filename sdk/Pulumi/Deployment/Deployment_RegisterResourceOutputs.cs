@@ -11,6 +11,7 @@ namespace Pulumi
     {
         void IDeploymentInternal.RegisterResourceOutputs(Resource resource, Output<IDictionary<string, object?>> outputs)
         {
+            StateMigrationContext.EnsureNotActive("register resource outputs");
             // RegisterResourceOutputs is called in a fire-and-forget manner.  Make sure we keep track of
             // this task so that the application will not quit until this async work completes.
             _runner.RegisterTask(

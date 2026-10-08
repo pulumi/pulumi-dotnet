@@ -123,16 +123,16 @@ namespace Pulumi.FooBar
         public ModuleResourceArgs()
         {
             OptionalBool = true;
-            OptionalConst = "another";
+            OptionalConst = "val";
             OptionalEnum = Pulumi.FooBar.EnumThing.Eight;
             OptionalNumber = 42;
             OptionalString = "buzzer";
             PlainOptionalBool = true;
-            PlainOptionalConst = "another";
+            PlainOptionalConst = "val";
             PlainOptionalNumber = 42;
             PlainOptionalString = "buzzer";
             PlainRequiredBool = true;
-            PlainRequiredConst = "another";
+            PlainRequiredConst = "val";
             PlainRequiredNumber = 42;
             PlainRequiredString = "buzzer";
             RequiredBool = true;

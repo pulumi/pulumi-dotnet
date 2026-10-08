@@ -15,6 +15,10 @@
 package dotnet
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,6 +26,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/blang/semver"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -170,6 +175,300 @@ func TestGenerateTypeNames(t *testing.T) {
 			return root.typeString(t, "", false, false, false)
 		}
 	}, filepath.FromSlash("../../pulumi/tests/testdata/codegen"))
+}
+
+// noopLoader keeps the union tests below independent of the pulumi submodule and of any package
+// that is not defined inline in the test.
+type noopLoader struct{}
+
+func (noopLoader) LoadPackage(string, *semver.Version) (*schema.Package, error) {
+	return nil, errors.New("external packages are not available in this test")
+}
+
+func (noopLoader) LoadPackageV2(context.Context, *schema.PackageDescriptor) (*schema.Package, error) {
+	return nil, errors.New("external packages are not available in this test")
+}
+
+func (noopLoader) LoadPackageReference(string, *semver.Version) (schema.PackageReference, error) {
+	return nil, errors.New("external packages are not available in this test")
+}
+
+func (noopLoader) LoadPackageReferenceV2(
+	context.Context, *schema.PackageDescriptor,
+) (schema.PackageReference, error) {
+	return nil, errors.New("external packages are not available in this test")
+}
+
+func generateTestPackage(t *testing.T, spec schema.PackageSpec) map[string]string {
+	t.Helper()
+
+	pkg, diags, err := schema.BindSpec(spec, noopLoader{}, schema.ValidationOptions{})
+	require.NoError(t, err)
+	require.False(t, diags.HasErrors(), "%v", diags)
+
+	generated, err := GeneratePackage("test", pkg, nil, nil)
+	require.NoError(t, err)
+
+	files := map[string]string{}
+	for name, contents := range generated {
+		files[name] = string(contents)
+	}
+	return files
+}
+
+// unionTestSpec builds a package with a discriminated union over the first variantCount variants,
+// plus, when subsetCount is non-zero, a second resource holding a union over the first subsetCount
+// of the same variants.
+func unionTestSpec(variantCount, subsetCount int, discriminator string) schema.PackageSpec {
+	stringT := schema.TypeSpec{Type: "string"}
+
+	types := map[string]schema.ComplexTypeSpec{}
+	oneOf := make([]schema.TypeSpec, 0, variantCount)
+	mapping := map[string]string{}
+	for i := 1; i <= variantCount; i++ {
+		token := fmt.Sprintf("union:index:Variant%d", i)
+		tag := fmt.Sprintf("variant%d", i)
+		properties := map[string]schema.PropertySpec{
+			"payload": {TypeSpec: stringT},
+		}
+		required := []string{}
+		if discriminator != "" {
+			properties[discriminator] = schema.PropertySpec{TypeSpec: stringT, Const: tag}
+			required = append(required, discriminator)
+		}
+		types[token] = schema.ComplexTypeSpec{ObjectTypeSpec: schema.ObjectTypeSpec{
+			Type:       "object",
+			Properties: properties,
+			Required:   required,
+		}}
+		oneOf = append(oneOf, schema.TypeSpec{Ref: "#/types/" + token})
+		mapping[tag] = "#/types/" + token
+	}
+
+	union := schema.TypeSpec{OneOf: oneOf}
+	if discriminator != "" {
+		union.Discriminator = &schema.DiscriminatorSpec{PropertyName: discriminator, Mapping: mapping}
+	}
+
+	properties := map[string]schema.PropertySpec{
+		"unionOf":        {TypeSpec: union},
+		"arrayOfUnionOf": {TypeSpec: schema.TypeSpec{Type: "array", Items: &union}},
+	}
+	resources := map[string]schema.ResourceSpec{
+		"union:index:Example": {
+			ObjectTypeSpec:  schema.ObjectTypeSpec{Type: "object", Properties: properties},
+			InputProperties: properties,
+		},
+	}
+
+	if subsetCount > 0 {
+		subsetMapping := map[string]string{}
+		for i := 1; i <= subsetCount; i++ {
+			tag := fmt.Sprintf("variant%d", i)
+			subsetMapping[tag] = mapping[tag]
+		}
+		subset := schema.TypeSpec{
+			OneOf: oneOf[:subsetCount],
+			Discriminator: &schema.DiscriminatorSpec{
+				PropertyName: discriminator,
+				Mapping:      subsetMapping,
+			},
+		}
+		subsetProperties := map[string]schema.PropertySpec{"unionOf": {TypeSpec: subset}}
+		resources["union:index:SubsetExample"] = schema.ResourceSpec{
+			ObjectTypeSpec:  schema.ObjectTypeSpec{Type: "object", Properties: subsetProperties},
+			InputProperties: subsetProperties,
+		}
+	}
+
+	return schema.PackageSpec{
+		Name:      "union",
+		Version:   "1.0.0",
+		Types:     types,
+		Resources: resources,
+	}
+}
+
+// withFullyTypedUnions opts the package in to generated union interfaces.
+func withFullyTypedUnions(spec schema.PackageSpec) schema.PackageSpec {
+	spec.Language = map[string]schema.RawMessage{
+		"csharp": schema.RawMessage(`{"fullyTypedUnions": true}`),
+	}
+	return spec
+}
+
+func TestGenerateDiscriminatedUnionInterface(t *testing.T) {
+	t.Parallel()
+
+	files := generateTestPackage(t, withFullyTypedUnions(unionTestSpec(4, 0, "discriminantKind")))
+
+	outputs, ok := files["Outputs/IExampleUnionOf.cs"]
+	require.True(t, ok, "output interface not generated, got %v", slices.Sorted(maps.Keys(files)))
+	assert.Contains(t, outputs, `[DiscriminatedUnionDiscriminator("discriminantKind")]`)
+	assert.Contains(t, outputs, `[DiscriminatedUnionCase("variant1", typeof(Variant1))]`)
+	assert.Contains(t, outputs, `[DiscriminatedUnionCase("variant4", typeof(Variant4))]`)
+	assert.Contains(t, outputs, "public interface IExampleUnionOf\n")
+
+	inputs, ok := files["Inputs/IExampleUnionOfArgs.cs"]
+	require.True(t, ok, "input interface not generated")
+	assert.Contains(t, inputs, `[DiscriminatedUnionDiscriminator("discriminantKind")]`)
+	assert.Contains(t, inputs, `[DiscriminatedUnionCase("variant1", typeof(Variant1Args))]`)
+	assert.Contains(t, inputs, "public interface IExampleUnionOfArgs\n")
+
+	assert.Contains(t, files["Outputs/Variant1.cs"], "public sealed class Variant1 : IExampleUnionOf")
+	assert.Contains(t, files["Inputs/Variant1Args.cs"],
+		"public sealed class Variant1Args : global::Pulumi.ResourceArgs, IExampleUnionOfArgs")
+
+	example := files["Example.cs"]
+	assert.Contains(t, example, "public Output<Outputs.IExampleUnionOf?> UnionOf")
+	assert.Contains(t, example, "public Output<ImmutableArray<Outputs.IExampleUnionOf>> ArrayOfUnionOf")
+	assert.Contains(t, example, "public Input<Inputs.IExampleUnionOfArgs>? UnionOf { get; set; }")
+	assert.Contains(t, example, "public InputList<Inputs.IExampleUnionOfArgs> ArrayOfUnionOf")
+	assert.NotContains(t, example, "object")
+}
+
+func TestGenerateConstValuedProperty(t *testing.T) {
+	t.Parallel()
+
+	files := generateTestPackage(t, unionTestSpec(4, 0, "discriminantKind"))
+
+	// The discriminator tag is a constant, so the generated args class fills it in and the caller
+	// never has to write it by hand. The property stays settable.
+	variant := files["Inputs/Variant1Args.cs"]
+	assert.Contains(t, variant, "public Input<string> DiscriminantKind { get; set; } = null!;")
+	assert.Contains(t, variant, "        public Variant1Args()\n"+
+		"        {\n"+
+		"            DiscriminantKind = \"variant1\";\n"+
+		"        }\n")
+	assert.Contains(t, files["Inputs/Variant4Args.cs"], `DiscriminantKind = "variant4";`)
+}
+
+func TestGenerateDiscriminatedUnionSubsetInterface(t *testing.T) {
+	t.Parallel()
+
+	files := generateTestPackage(t, withFullyTypedUnions(unionTestSpec(4, 3, "discriminantKind")))
+
+	// A value of the narrower union must assign into a slot typed as the wider one.
+	assert.Contains(t, files["Outputs/ISubsetExampleUnionOf.cs"],
+		"public interface ISubsetExampleUnionOf : IExampleUnionOf\n")
+	assert.Contains(t, files["Inputs/ISubsetExampleUnionOfArgs.cs"],
+		"public interface ISubsetExampleUnionOfArgs : IExampleUnionOfArgs\n")
+
+	// Members of both unions name only the narrower interface, which already extends the wider one.
+	assert.Contains(t, files["Outputs/Variant1.cs"], "public sealed class Variant1 : ISubsetExampleUnionOf\n")
+	assert.Contains(t, files["Outputs/Variant4.cs"], "public sealed class Variant4 : IExampleUnionOf\n")
+
+	assert.Contains(t, files["SubsetExample.cs"], "public Output<Outputs.ISubsetExampleUnionOf?> UnionOf")
+	assert.Contains(t, files["SubsetExample.cs"], "public Input<Inputs.ISubsetExampleUnionOfArgs>? UnionOf { get; set; }")
+}
+
+func TestGenerateDiscriminatedUnionRequiresOptIn(t *testing.T) {
+	t.Parallel()
+
+	files := generateTestPackage(t, unionTestSpec(4, 0, "discriminantKind"))
+
+	for name := range files {
+		assert.NotContains(t, name, "IExample", "no interface should be generated without fullyTypedUnions")
+	}
+	assert.Contains(t, files["Example.cs"], "public Output<object?> UnionOf")
+	assert.Contains(t, files["Example.cs"], "public object? UnionOf { get; set; }")
+	assert.NotContains(t, files["Outputs/Variant1.cs"], "public sealed class Variant1 :")
+}
+
+func TestGenerateTwoMemberDiscriminatedUnionIsUnchanged(t *testing.T) {
+	t.Parallel()
+
+	files := generateTestPackage(t, unionTestSpec(2, 0, "discriminantKind"))
+
+	for name := range files {
+		assert.NotContains(t, name, "IExample", "no interface should be generated without fullyTypedUnions")
+	}
+
+	example := files["Example.cs"]
+	assert.Contains(t, example, "public Output<Union<Outputs.Variant1, Outputs.Variant2>?> UnionOf")
+	assert.Contains(t, example, "public InputUnion<Inputs.Variant1Args, Inputs.Variant2Args>? UnionOf { get; set; }")
+	assert.Contains(t, example, "InputList<Union<Inputs.Variant1Args, Inputs.Variant2Args>>")
+	assert.NotContains(t, files["Outputs/Variant1.cs"], "public sealed class Variant1 :")
+}
+
+func TestGenerateTwoMemberDiscriminatedUnionInterface(t *testing.T) {
+	t.Parallel()
+
+	// Member count takes no part in the decision: with the option on, a two-member discriminated
+	// union gets an interface instead of Union<T0, T1>.
+	files := generateTestPackage(t, withFullyTypedUnions(unionTestSpec(2, 0, "discriminantKind")))
+
+	_, ok := files["Outputs/IExampleUnionOf.cs"]
+	require.True(t, ok, "output interface not generated, got %v", slices.Sorted(maps.Keys(files)))
+
+	example := files["Example.cs"]
+	assert.Contains(t, example, "public Output<Outputs.IExampleUnionOf?> UnionOf")
+	assert.Contains(t, example, "public Input<Inputs.IExampleUnionOfArgs>? UnionOf { get; set; }")
+	assert.NotContains(t, example, "Union<")
+}
+
+func TestGenerateTwoMemberDiscriminatedUnionSubsetInterface(t *testing.T) {
+	t.Parallel()
+
+	// A two-member subset of a wider union participates in the subset relation like any other.
+	files := generateTestPackage(t, withFullyTypedUnions(unionTestSpec(4, 2, "discriminantKind")))
+
+	assert.Contains(t, files["Outputs/ISubsetExampleUnionOf.cs"],
+		"public interface ISubsetExampleUnionOf : IExampleUnionOf\n")
+	assert.Contains(t, files["SubsetExample.cs"], "public Output<Outputs.ISubsetExampleUnionOf?> UnionOf")
+	assert.NotContains(t, files["SubsetExample.cs"], "Union<")
+}
+
+func TestGenerateUndiscriminatedUnionIsUnchanged(t *testing.T) {
+	t.Parallel()
+
+	files := generateTestPackage(t, withFullyTypedUnions(unionTestSpec(4, 0, "")))
+
+	for name := range files {
+		assert.NotContains(t, name, "IExample", "no interface should be generated without a discriminator")
+	}
+	assert.Contains(t, files["Example.cs"], "public Output<object?> UnionOf")
+	assert.Contains(t, files["Example.cs"], "public object? UnionOf { get; set; }")
+	assert.Contains(t, files["Example.cs"], "public InputList<object> ArrayOfUnionOf")
+}
+
+func TestGenerateDiscriminatedUnionConfigStaysUntyped(t *testing.T) {
+	t.Parallel()
+
+	// The interface is only emitted into Inputs/Outputs. A config variable typed as the union
+	// must keep the untyped rendering rather than naming a type Config.Types never declares.
+	spec := withFullyTypedUnions(unionTestSpec(4, 0, "discriminantKind"))
+	spec.Config.Variables = map[string]schema.PropertySpec{
+		"creds": {TypeSpec: schema.TypeSpec{
+			OneOf:         spec.Resources["union:index:Example"].InputProperties["unionOf"].OneOf,
+			Discriminator: spec.Resources["union:index:Example"].InputProperties["unionOf"].Discriminator,
+		}},
+	}
+	files := generateTestPackage(t, spec)
+
+	config, ok := files["Config/Config.cs"]
+	require.True(t, ok, "config not generated, got %v", slices.Sorted(maps.Keys(files)))
+	assert.NotContains(t, config, "IExampleUnionOf",
+		"config must not reference the union interface; it is not declared in Config.Types")
+	assert.Contains(t, config, "GetObject<object>(\"creds\")")
+}
+
+func TestGenerateDiscriminatedUnionRejectsUncoveredMember(t *testing.T) {
+	t.Parallel()
+
+	// Two tags naming the same member leaves another member uncovered while keeping the tag and
+	// member counts equal. Such a union must not generate an interface at all, because dispatch
+	// could never reach the uncovered member.
+	spec := withFullyTypedUnions(unionTestSpec(3, 0, "discriminantKind"))
+	union := spec.Resources["union:index:Example"].InputProperties["unionOf"]
+	union.Discriminator.Mapping["variant2"] = "#/types/union:index:Variant1"
+	spec.Resources["union:index:Example"].InputProperties["unionOf"] = union
+
+	files := generateTestPackage(t, spec)
+
+	_, ok := files["Outputs/IExampleUnionOf.cs"]
+	assert.False(t, ok, "a union whose mapping leaves a member uncovered must not generate an interface")
+	assert.Contains(t, files["Example.cs"], "Output<object?>")
 }
 
 func TestGenProjectFilePulumiVersion(t *testing.T) {

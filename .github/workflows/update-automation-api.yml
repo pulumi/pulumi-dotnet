@@ -72,6 +72,7 @@ jobs:
           fi
           pr_url=$(gh pr create --draft \
             --title "Regenerate the automation API" \
+            --label impact/no-changelog-required \
             --body "The pulumi CLI specification no longer matches the generated automation API. This PR updates the pulumi submodule and regenerates the API.")
           echo "url=${pr_url}" >> "$GITHUB_OUTPUT"
       - name: Notify Slack

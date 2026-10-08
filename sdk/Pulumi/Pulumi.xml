@@ -9475,6 +9475,16 @@
             not rely on previously persisted outputs during Check.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.AcceptsOutputsInInvokeFieldNumber">
+            <summary>Field number for the "accepts_outputs_in_invoke" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.AcceptsOutputsInInvoke">
+            <summary>
+            If true the engine can send OutputValues nested in `InvokeRequest.args` and will accept OutputValues in
+            `InvokeResponse.return`. Providers that opt in should set `accepts_outputs_in_invoke` on
+            `ProviderHandshakeResponse`. Older engines never set this field.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>
             `ProviderHandshakeResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Handshake) call.
@@ -9526,6 +9536,16 @@
             True if and only if the provider supports strings containing bytes that are not valid UTF-8, marshaled as
             objects carrying the byte string signature and a base64 encoding of the string's bytes. If true, the
             caller may pass such values to the provider.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeResponse.AcceptsOutputsInInvokeFieldNumber">
+            <summary>Field number for the "accepts_outputs_in_invoke" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeResponse.AcceptsOutputsInInvoke">
+            <summary>
+            True if and only if the provider accepts OutputValues nested in `InvokeRequest.args` and may return
+            OutputValues in `InvokeResponse.return`. Only meaningful when the engine advertised
+            `accepts_outputs_in_invoke` on the handshake request.
             </summary>
         </member>
         <member name="T:Pulumirpc.ParameterizeRequest">
@@ -13439,6 +13459,13 @@
             The monitor accepts state migration callbacks on resource registrations.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceMonitorFeature.InvokeOutputValues">
+            <summary>
+            The monitor accepts OutputValues nested in `ResourceInvokeRequest.args` (and will harvest their
+            dependencies into the invoke's wait-set), and will honour `accept_output_values` on the request to return
+            OutputValues in `ResourceInvokeResponse.return`.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.DeploymentInfo">
             <summary>
             DeploymentInfo returns monitor execution state currently sent to programs
@@ -14377,6 +14404,15 @@
             An optional URN of the resource this invoke is parented to. When `provider` is empty, the invoke is served by
             the provider its parent's `providers` option names for the invoke's package, the same resolution applied to
             resource registrations. Only respected when the monitor advertises `INVOKE_PARENT`.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceInvokeRequest.AcceptOutputValuesFieldNumber">
+            <summary>Field number for the "accept_output_values" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceInvokeRequest.AcceptOutputValues">
+            <summary>
+            When true the SDK accepts OutputValues in `ResourceInvokeResponse.return`. Only meaningful when the monitor
+            advertises `INVOKE_OUTPUT_VALUES`; older monitors will ignore this field.
             </summary>
         </member>
         <member name="F:Pulumirpc.ResourceInvokeResponse.ReturnFieldNumber">

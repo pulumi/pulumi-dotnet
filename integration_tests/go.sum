@@ -368,8 +368,8 @@ github.com/pulumi/inflector v0.2.1 h1:bqyiish3tq//vLeLiEstSFE5K7RNjy/ce47ed4QATu
 github.com/pulumi/inflector v0.2.1/go.mod h1:HUFCjcPTz96YtTuUlwG3i3EZG4WlniBvR9bd+iJxCUY=
 github.com/pulumi/pulumi-cloud-sdk/go v1.20261012.0 h1:8yoYQDT+y2NBHyv6LcpFJ0bQSfgv9SG+tJX3364ptnc=
 github.com/pulumi/pulumi-cloud-sdk/go v1.20261012.0/go.mod h1:NPA79X6Wmyr5zNKd+N+RiVJN8duwIrRmIaed8HCL9EM=
-github.com/pulumi/pulumi/pkg/v3 v3.268.1-0.20261009175711-2255563bcc6b h1:4NVLuhTFEMaE9hO9r+gWBUKtShaCRJUL5FlCXY34VHc=
-github.com/pulumi/pulumi/pkg/v3 v3.268.1-0.20261009175711-2255563bcc6b/go.mod h1:dx502XfNvWUqvSStxoCKA7QeEVh6+Q7jg/p+kHiCyos=
+github.com/pulumi/pulumi/pkg/v3 v3.268.1-0.20261013182223-93d24e00aaa6 h1:0Qpvnskabsu0Y1kW3b5f0INqEuk/LypNi/ERnc5vxeQ=
+github.com/pulumi/pulumi/pkg/v3 v3.268.1-0.20261013182223-93d24e00aaa6/go.mod h1:dx502XfNvWUqvSStxoCKA7QeEVh6+Q7jg/p+kHiCyos=
 github.com/pulumi/pulumi/sdk/v3 v3.268.1-0.20261009175711-2255563bcc6b h1:HXBBWAfBMR4yx9e8kfrKZ8w6Bgf3To7jfbd2mJYwHyk=
 github.com/pulumi/pulumi/sdk/v3 v3.268.1-0.20261009175711-2255563bcc6b/go.mod h1:aUQk7DpZpqUsxLSUUWUCzIapJNb4+Smgh81ONxIdfCo=
 github.com/rivo/uniseg v0.4.7 h1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=

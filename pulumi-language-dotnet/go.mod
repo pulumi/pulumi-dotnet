@@ -13,7 +13,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/pkg/errors v0.9.1
-	github.com/pulumi/pulumi/pkg/v3 v3.268.1-0.20261009175711-2255563bcc6b
+	github.com/pulumi/pulumi/pkg/v3 v3.268.1-0.20261013182223-93d24e00aaa6
 	github.com/pulumi/pulumi/sdk/v3 v3.268.1-0.20261009175711-2255563bcc6b
 	github.com/stretchr/testify v1.12.1
 	github.com/zclconf/go-cty v1.16.3

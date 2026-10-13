@@ -26,6 +26,7 @@ namespace Pulumi.Mypkg
 
         public FuncWithConstInputArgs()
         {
+            PlainInput = "fixed";
         }
         public static new FuncWithConstInputArgs Empty => new FuncWithConstInputArgs();
     }

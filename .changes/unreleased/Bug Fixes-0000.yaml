@@ -1,0 +1,8 @@
+component: sdk
+kind: Bug Fixes
+body: Increase gRPC channel keepalive ping interval to avoid the Pulumi engine's
+    grpc-go server closing connections with HTTP/2 ENHANCE_YOUR_CALM during long-running
+    deployments
+time: 2026-09-21T14:16:00.000000+10:00
+custom:
+    PR: "0000"

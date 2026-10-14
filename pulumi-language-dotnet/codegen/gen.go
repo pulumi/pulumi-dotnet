@@ -107,9 +107,27 @@ func isValueType(t schema.Type) bool {
 	}
 }
 
+func removeHyphens(namespace string) string {
+	if !strings.Contains(namespace, "-") {
+		return namespace
+	}
+
+	segments := strings.Split(namespace, ".")
+	for i, segment := range segments {
+		var rebuilt strings.Builder
+		for _, piece := range strings.Split(segment, "-") {
+			rebuilt.WriteString(cgstrings.UppercaseFirst(piece))
+		}
+		segments[i] = rebuilt.String()
+	}
+	return strings.Join(segments, ".")
+}
+
 func namespaceName(namespaces map[string]string, name string) string {
 	if ns, ok := namespaces[name]; ok {
-		return ns
+		// A schema can supply a namespace built from a Kubernetes API group,
+		// which may contain hyphens.
+		return removeHyphens(ns)
 	}
 
 	// name could be a qualified module name so first split on /

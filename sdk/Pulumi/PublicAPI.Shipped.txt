@@ -398,3 +398,14 @@ static readonly Pulumi.InvokeArgs.Empty -> Pulumi.InvokeArgs
 static readonly Pulumi.ResourceArgs.Empty -> Pulumi.ResourceArgs
 Pulumi.DeploymentInstance.Invoke<T>(string token, Pulumi.InvokeArgs args, Pulumi.InvokeOptions options = null) -> Pulumi.Output<T>
 Pulumi.DeploymentInstance.InvokeSingle<T>(string token, Pulumi.InvokeArgs args, Pulumi.InvokeOptions options = null) -> Pulumi.Output<T>
+Pulumi.ResourceOptions.StateMigrations.get -> System.Collections.Generic.List<Pulumi.StateMigration>
+Pulumi.ResourceOptions.StateMigrations.set -> void
+Pulumi.StateMigration
+Pulumi.StateMigrationArgs
+Pulumi.StateMigrationArgs.StateMigrationArgs(string urn, System.Text.Json.Nodes.JsonArray oldState) -> void
+Pulumi.StateMigrationArgs.Urn.get -> string
+Pulumi.StateMigrationArgs.OldState.get -> System.Text.Json.Nodes.JsonArray
+Pulumi.StateMigrationResult
+Pulumi.StateMigrationResult.StateMigrationResult(System.Text.Json.Nodes.JsonArray newState, System.Collections.Generic.IReadOnlyDictionary<string, string> successors = null) -> void
+Pulumi.StateMigrationResult.NewState.get -> System.Text.Json.Nodes.JsonArray
+Pulumi.StateMigrationResult.Successors.get -> System.Collections.Generic.IReadOnlyDictionary<string, string>

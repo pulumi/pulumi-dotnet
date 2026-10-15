@@ -123,6 +123,22 @@ namespace Pulumi
             set => _replaceOnChanges = value;
         }
 
+        private List<StateMigration>? _stateMigrations;
+
+        /// <summary>
+        /// Optional list of state migrations to apply to this resource's prior state and its descendants.
+        /// The migrations are applied in order, each receiving the state produced by earlier callbacks.
+        /// See <see cref="StateMigration"/> for the callback contract and safety restrictions.
+        /// <para>
+        /// This API is experimental and may change.
+        /// </para>
+        /// </summary>
+        public List<StateMigration> StateMigrations
+        {
+            get => _stateMigrations ??= new List<StateMigration>();
+            set => _stateMigrations = value;
+        }
+
         internal abstract ResourceOptions Clone();
 
         /// <summary>

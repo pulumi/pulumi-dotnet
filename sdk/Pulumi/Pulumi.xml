@@ -9566,6 +9566,27 @@
             `ProviderHandshakeResponse`. Older engines never set this field.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.AcceptsOutputsInCallFieldNumber">
+            <summary>Field number for the "accepts_outputs_in_call" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.AcceptsOutputsInCall">
+            <summary>
+            If true the engine can send OutputValues nested in `ResourceCallRequest.args` and will accept OutputValues in
+            `CallResponse.return`. Providers that opt in should set `accepts_outputs_in_call` on
+            `ProviderHandshakeResponse`. Older engines never set this field.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeRequest.AcceptsOutputsInCheckFieldNumber">
+            <summary>Field number for the "accepts_outputs_in_check" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeRequest.AcceptsOutputsInCheck">
+            <summary>
+            If true the engine can send OutputValues nested in `CheckRequest.olds`, `CheckRequest.news`, and
+            `CheckRequest.old_outputs`, and will accept OutputValues in `CheckResponse.inputs`. Providers that opt
+            in should set `accepts_outputs_in_check` on `ProviderHandshakeResponse`. Older engines never set this
+            field.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.ProviderHandshakeResponse">
             <summary>
             `ProviderHandshakeResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.Handshake) call.
@@ -9627,6 +9648,26 @@
             True if and only if the provider accepts OutputValues nested in `InvokeRequest.args` and may return
             OutputValues in `InvokeResponse.return`. Only meaningful when the engine advertised
             `accepts_outputs_in_invoke` on the handshake request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeResponse.AcceptsOutputsInCallFieldNumber">
+            <summary>Field number for the "accepts_outputs_in_call" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeResponse.AcceptsOutputsInCall">
+            <summary>
+            True if and only if the provider accepts OutputValues nested in `ResourceCallRequest.args` and may return
+            OutputValues in `CallResponse.return`. Only meaningful when the engine advertised
+            `accepts_outputs_in_call` on the handshake request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ProviderHandshakeResponse.AcceptsOutputsInCheckFieldNumber">
+            <summary>Field number for the "accepts_outputs_in_check" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ProviderHandshakeResponse.AcceptsOutputsInCheck">
+            <summary>
+            True if and only if the provider accepts OutputValues nested in `CheckRequest.olds`, `CheckRequest.news`,
+            and `CheckRequest.old_outputs`, and may return OutputValues in `CheckResponse.inputs`. Only meaningful
+            when the engine advertised `accepts_outputs_in_check` on the handshake request.
             </summary>
         </member>
         <member name="T:Pulumirpc.ParameterizeRequest">
@@ -13547,6 +13588,13 @@
             OutputValues in `ResourceInvokeResponse.return`.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceMonitorFeature.CallOutputValues">
+            <summary>
+            The monitor accepts OutputValues nested in `ResourceCallRequest.args` (and will harvest their
+            dependencies into the call's wait-set), and will honour `accept_output_values` on the request to return
+            OutputValues in `CallResponse.return`.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.DeploymentInfo">
             <summary>
             DeploymentInfo returns monitor execution state currently sent to programs
@@ -13824,6 +13872,104 @@
         <member name="P:Pulumirpc.ReadResourceResponse.Unknown">
             <summary>
             true if the result of the read is unknown, e.g. because the read was skipped as part of a --continue-on-error run; result is still SUCCESS and SDKs should resolve outputs as unknown.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ExistsResourceRequest">
+            <summary>
+            ExistsResourceRequest contains enough information to check whether a resource with a given ID exists.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.Type">
+            <summary>
+            the type of the resource object.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.IdFieldNumber">
+            <summary>Field number for the "id" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.Id">
+            <summary>
+            the ID of the resource to check.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.ParentFieldNumber">
+            <summary>Field number for the "parent" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.Parent">
+            <summary>
+            an optional parent URN that this child resource belongs to.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.PropertiesFieldNumber">
+            <summary>Field number for the "properties" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.Properties">
+            <summary>
+            optional state sufficient to uniquely identify the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.ProviderFieldNumber">
+            <summary>Field number for the "provider" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.Provider">
+            <summary>
+            an optional reference to the provider to use for this check.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.Version">
+            <summary>
+            the version of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.PluginDownloadURLFieldNumber">
+            <summary>Field number for the "pluginDownloadURL" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.PluginDownloadURL">
+            <summary>
+            the server url of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.PluginChecksumsFieldNumber">
+            <summary>Field number for the "pluginChecksums" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.PluginChecksums">
+            <summary>
+            a map of checksums of the provider to use when servicing this request.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceRequest.PackageRefFieldNumber">
+            <summary>Field number for the "packageRef" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceRequest.PackageRef">
+            <summary>
+            a reference from RegisterPackageRequest.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.ExistsResourceResponse">
+            <summary>
+            ExistsResourceResponse contains the result of checking whether a resource exists.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceResponse.ExistsFieldNumber">
+            <summary>Field number for the "exists" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceResponse.Exists">
+            <summary>
+            whether the resource exists; only meaningful when unknown is false.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ExistsResourceResponse.UnknownFieldNumber">
+            <summary>Field number for the "unknown" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ExistsResourceResponse.Unknown">
+            <summary>
+            true if existence could not be determined, e.g. because the id is unknown during preview or the provider was configured with unknown values.
             </summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceRequest">
@@ -14616,6 +14762,15 @@
             <summary>
             When true operations may return strings containing bytes that are not valid UTF-8, marshaled as objects
             carrying the byte string signature and a base64 encoding of the string's bytes.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ResourceCallRequest.AcceptOutputValuesFieldNumber">
+            <summary>Field number for the "accept_output_values" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ResourceCallRequest.AcceptOutputValues">
+            <summary>
+            When true the SDK accepts OutputValues in `CallResponse.return`. Only meaningful when the monitor
+            advertises `CALL_OUTPUT_VALUES`; older monitors will ignore this field.
             </summary>
         </member>
         <member name="T:Pulumirpc.ResourceCallRequest.Types">

@@ -11,6 +11,158 @@ using System.Collections.Generic;
 namespace Pulumi.Automation.Commands
 {
     /// <summary>
+    /// Options for the <c>pulumi about</c> command.
+    /// </summary>
+    public sealed class PulumiAboutOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// The name of the stack to get info on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Include transitive dependencies
+        /// </summary>
+        public bool? Transitive { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi about env</c> command.
+    /// </summary>
+    public sealed class PulumiAboutEnvOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON (alias for --output=json)
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Output format. Supported values are: default and json
+        /// </summary>
+        public string? Output { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// The name of the stack to get info on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Include transitive dependencies
+        /// </summary>
+        public bool? Transitive { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
     /// Options for the <c>pulumi cancel</c> command.
     /// </summary>
     public sealed class PulumiCancelOptions : BaseOptions
@@ -59,6 +211,1194 @@ namespace Pulumi.Automation.Commands
         /// The name of the stack to operate on. Defaults to the current stack
         /// </summary>
         public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config</c> command.
+    /// </summary>
+    public sealed class PulumiConfigOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config copy</c> command.
+    /// </summary>
+    public sealed class PulumiConfigCopyOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// The name of the new stack to copy the config to
+        /// </summary>
+        public string? Dest { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// The key contains a path to a property in a map or list to set
+        /// </summary>
+        public bool? Path { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config env add</c> command.
+    /// </summary>
+    public sealed class PulumiConfigEnvAddOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values in plaintext instead of ciphertext
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config env init</c> command.
+    /// </summary>
+    public sealed class PulumiConfigEnvInitOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// The name of the environment to create. Defaults to "&lt;project name&gt;/&lt;stack name&gt;"
+        /// </summary>
+        public string? Env { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Do not remove configuration values from the stack after creating the environment
+        /// </summary>
+        public bool? KeepConfig { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values in plaintext instead of ciphertext
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config env list</c> command.
+    /// </summary>
+    public sealed class PulumiConfigEnvListOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config env remove</c> command.
+    /// </summary>
+    public sealed class PulumiConfigEnvRemoveOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values in plaintext instead of ciphertext
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config get</c> command.
+    /// </summary>
+    public sealed class PulumiConfigGetOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// The key contains a path to a property in a map or list to get
+        /// </summary>
+        public bool? Path { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config refresh</c> command.
+    /// </summary>
+    public sealed class PulumiConfigRefreshOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config remove</c> command.
+    /// </summary>
+    public sealed class PulumiConfigRemoveOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// The key contains a path to a property in a map or list to remove
+        /// </summary>
+        public bool? Path { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config remove-all</c> command.
+    /// </summary>
+    public sealed class PulumiConfigRemoveAllOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Parse the keys as paths in a map or list rather than raw strings
+        /// </summary>
+        public bool? Path { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config set</c> command.
+    /// </summary>
+    public sealed class PulumiConfigSetOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Emit output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// The key contains a path to a property in a map or list to set
+        /// </summary>
+        public bool? Path { get; set; }
+
+        /// <summary>
+        /// Save the value as plaintext (unencrypted)
+        /// </summary>
+        public bool? Plaintext { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// When setting the value through stdin, do not trim trailing newlines from the value
+        /// </summary>
+        public bool? Raw { get; set; }
+
+        /// <summary>
+        /// Encrypt the value instead of storing it in plaintext
+        /// </summary>
+        public bool? Secret { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Save the value as the given type.  Allowed values are string, bool, int, and float
+        /// </summary>
+        public string? Type { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi config set-all</c> command.
+    /// </summary>
+    public sealed class PulumiConfigSetAllOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Read values from a JSON string in the format produced by 'pulumi config --json'
+        /// </summary>
+        public string? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Open and resolve any environments listed in the stack configuration. Defaults to true if --show-secrets is set, false otherwise
+        /// </summary>
+        public bool? Open { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Parse the keys as paths in a map or list rather than raw strings
+        /// </summary>
+        public bool? Path { get; set; }
+
+        /// <summary>
+        /// Marks a value as plaintext (unencrypted)
+        /// </summary>
+        public List<string>? Plaintext { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Marks a value as secret to be encrypted
+        /// </summary>
+        public List<string>? Secret { get; set; }
+
+        /// <summary>
+        /// Show secret values when listing config instead of displaying blinded values
+        /// </summary>
+        public bool? ShowSecrets { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi convert</c> command.
+    /// </summary>
+    public sealed class PulumiConvertOptions : BaseOptions
+    {
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Which converter plugin to use to read the source program
+        /// </summary>
+        public string? From { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// Generate the converted program(s) only; do not install dependencies
+        /// </summary>
+        public bool? GenerateOnly { get; set; }
+
+        /// <summary>
+        /// Which language plugin to use to generate the Pulumi project
+        /// </summary>
+        public string? Language { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Any mapping files to use in the conversion
+        /// </summary>
+        public List<string>? Mappings { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// The name to use for the converted project; defaults to the directory of the source project
+        /// </summary>
+        public string? Name { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// The output directory to write the converted project to
+        /// </summary>
+        public string? Out { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Fail the conversion on errors such as missing variables
+        /// </summary>
+        public bool? Strict { get; set; }
 
         /// <summary>
         /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
@@ -834,6 +2174,231 @@ namespace Pulumi.Automation.Commands
         /// Include the tracing header with the given contents.
         /// </summary>
         public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+        /// </summary>
+        public int? Verbose { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the <c>pulumi refresh</c> command.
+    /// </summary>
+    public sealed class PulumiRefreshOptions : BaseOptions
+    {
+        /// <summary>
+        /// Clear all pending creates, dropping them from the state
+        /// </summary>
+        public bool? ClearPendingCreates { get; set; }
+
+        /// <summary>
+        /// The address of an existing language runtime host to connect to
+        /// </summary>
+        public string? Client { get; set; }
+
+        /// <summary>
+        /// Colorize output. Choices are: always, never, raw, auto
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Config to use during the refresh and save to the stack config file
+        /// </summary>
+        public List<string>? Config { get; set; }
+
+        /// <summary>
+        /// Use the configuration values in the specified file rather than detecting the file name
+        /// </summary>
+        public string? ConfigFile { get; set; }
+
+        /// <summary>
+        /// Config keys contain a path to a property in a map or list to set
+        /// </summary>
+        public bool? ConfigPath { get; set; }
+
+        /// <summary>
+        /// [DEPRECATED] Use --neo instead. Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_COPILOT environment variable)
+        /// </summary>
+        public bool? Copilot { get; set; }
+
+        /// <summary>
+        /// Print detailed debugging output during resource operations
+        /// </summary>
+        public bool? Debug { get; set; }
+
+        /// <summary>
+        /// Display operation as a rich diff showing the overall change
+        /// </summary>
+        public bool? Diff { get; set; }
+
+        /// <summary>
+        /// Disable integrity checking of checkpoint files
+        /// </summary>
+        public bool? DisableIntegrityChecking { get; set; }
+
+        /// <summary>
+        /// Specify a resource URN to ignore. These resources will not be refreshed. Multiple resources can be specified using --exclude urn1 --exclude urn2. Wildcards (*, **) are also supported
+        /// </summary>
+        public List<string>? Exclude { get; set; }
+
+        /// <summary>
+        /// Allows ignoring of dependent targets discovered but not specified in --exclude list
+        /// </summary>
+        public bool? ExcludeDependents { get; set; }
+
+        public string? ExecAgent { get; set; }
+
+        public string? ExecKind { get; set; }
+
+        /// <summary>
+        /// Return an error if any changes occur during this refresh. This check happens after the refresh is applied
+        /// </summary>
+        public bool? ExpectNoChanges { get; set; }
+
+        /// <summary>
+        /// Show fully-qualified stack names
+        /// </summary>
+        public bool? FullyQualifyStackNames { get; set; }
+
+        /// <summary>
+        /// A list of form [[URN ID]...] describing the provider IDs of pending creates
+        /// </summary>
+        public List<string>? ImportPendingCreates { get; set; }
+
+        /// <summary>
+        /// Serialize the refresh diffs, operations, and overall output as JSON
+        /// </summary>
+        public bool? Json { get; set; }
+
+        /// <summary>
+        /// Flow log settings to child processes (like plugins)
+        /// </summary>
+        public bool? Logflow { get; set; }
+
+        /// <summary>
+        /// Log to stderr instead of to files
+        /// </summary>
+        public bool? Logtostderr { get; set; }
+
+        /// <summary>
+        /// Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+        /// </summary>
+        public int? Memprofilerate { get; set; }
+
+        /// <summary>
+        /// Optional message to associate with the update operation
+        /// </summary>
+        public string? Message { get; set; }
+
+        /// <summary>
+        /// Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_NEO environment variable)
+        /// </summary>
+        public bool? Neo { get; set; }
+
+        /// <summary>
+        /// Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+        /// </summary>
+        public string? OtelTraces { get; set; }
+
+        /// <summary>
+        /// Output format. Supported values are: default, json
+        /// </summary>
+        public string? Output { get; set; }
+
+        /// <summary>
+        /// [EXPERIMENTAL] Override an imported environment for this run only, as &lt;env&gt;=&lt;replacement&gt;; repeatable
+        /// </summary>
+        public List<string>? OverrideEnv { get; set; }
+
+        /// <summary>
+        /// Allow P resource operations to run in parallel at once (1 for no parallelism).
+        /// </summary>
+        public int? Parallel { get; set; }
+
+        /// <summary>
+        /// Only show a preview of the refresh, but don't perform the refresh itself
+        /// </summary>
+        public bool? PreviewOnly { get; set; }
+
+        /// <summary>
+        /// Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+        /// </summary>
+        public string? Profiling { get; set; }
+
+        /// <summary>
+        /// Run the program to determine up-to-date state for providers to refresh resources
+        /// </summary>
+        public bool? RunProgram { get; set; }
+
+        /// <summary>
+        /// Show detailed resource replacement creates and deletes instead of a single step
+        /// </summary>
+        public bool? ShowReplacementSteps { get; set; }
+
+        /// <summary>
+        /// Show resources that needn't be updated because they haven't changed, alongside those that do
+        /// </summary>
+        public bool? ShowSames { get; set; }
+
+        /// <summary>
+        /// Skip validation of stack config values against the project config schema. Config validation is skipped automatically when --run-program is not set.
+        /// </summary>
+        public bool? SkipConfigValidation { get; set; }
+
+        /// <summary>
+        /// Skip importing pending creates in interactive mode
+        /// </summary>
+        public bool? SkipPendingCreates { get; set; }
+
+        /// <summary>
+        /// Skip the up-front provider plugin install step; missing plugins are installed lazily by the engine
+        /// </summary>
+        public bool? SkipPluginPreInstall { get; set; }
+
+        /// <summary>
+        /// The name of the stack to operate on. Defaults to the current stack
+        /// </summary>
+        public string? Stack { get; set; }
+
+        /// <summary>
+        /// Suppress display of stack outputs (in case they contain sensitive values)
+        /// </summary>
+        public bool? SuppressOutputs { get; set; }
+
+        /// <summary>
+        /// Suppress display of the state permalink
+        /// </summary>
+        public string? SuppressPermalink { get; set; }
+
+        /// <summary>
+        /// Suppress display of periodic progress dots
+        /// </summary>
+        public bool? SuppressProgress { get; set; }
+
+        /// <summary>
+        /// Specify a single resource URN to refresh. Multiple resource can be specified using: --target urn1 --target urn2
+        /// </summary>
+        public List<string>? Target { get; set; }
+
+        /// <summary>
+        /// Allows updating of dependent targets discovered but not specified in --target list
+        /// </summary>
+        public bool? TargetDependents { get; set; }
+
+        /// <summary>
+        /// Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+        /// </summary>
+        public string? Tracing { get; set; }
+
+        /// <summary>
+        /// Include the tracing header with the given contents.
+        /// </summary>
+        public string? TracingHeader { get; set; }
+
+        /// <summary>
+        /// Display full URNs instead of short resource names
+        /// </summary>
+        public bool? Urns { get; set; }
 
         /// <summary>
         /// Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose

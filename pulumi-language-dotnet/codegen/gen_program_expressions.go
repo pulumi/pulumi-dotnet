@@ -163,6 +163,9 @@ func (g *generator) GetPrecedence(expr model.Expression) int {
 		switch expr.Name {
 		case intrinsicAwait:
 			return 17
+		case pcl.IntrinsicConvert:
+			// A conversion that needs no code renders its argument as is, so it binds no tighter than that argument.
+			return min(20, g.GetPrecedence(expr.Args[0]))
 		default:
 			return 20
 		}

@@ -1,0 +1,4 @@
+component: sdk
+kind: dependencies
+body: Update golang.org/x/net to v0.60.0
+time: 2026-10-17T17:13:20.19292829Z

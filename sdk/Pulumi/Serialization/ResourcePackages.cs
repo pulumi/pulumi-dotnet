@@ -58,7 +58,7 @@ namespace Pulumi
             return type != null;
         }
 
-        internal static ImmutableDictionary<string, ImmutableList<(string?, Type)>> DiscoverResourceTypes()
+        private static ImmutableDictionary<string, ImmutableList<(string?, Type)>> DiscoverResourceTypes()
         {
             var pairs =
                 from a in LoadReferencedAssemblies()

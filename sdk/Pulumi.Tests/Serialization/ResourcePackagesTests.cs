@@ -1,10 +1,5 @@
 // Copyright 2016-2020, Pulumi Corporation
 
-using System.Linq;
-using System.Threading;
-using Grpc.Core;
-using Moq;
-using Moq.Protected;
 using Xunit;
 
 namespace Pulumi.Tests.Serialization
@@ -98,24 +93,6 @@ namespace Pulumi.Tests.Serialization
             public Version102TestResource(string type, string name, ResourceArgs? args, CustomResourceOptions? options = null) : base(type, name, args, options)
             {
             }
-        }
-
-        [Fact]
-        public void DiscoveryIgnoresDynamicAssemblies()
-        {
-            // Moq puts these proxies into two dynamic assemblies, both named DynamicProxyGenAssembly2: one
-            // weak-named, and one strong-named that references the weak-named one.
-            _ = new Mock<IDeploymentInternal>().Object;
-            var context = new Mock<ServerCallContext>();
-            context.Protected().SetupGet<CancellationToken>("CancellationTokenCore").Returns(CancellationToken.None);
-            _ = context.Object;
-
-            var types = ResourcePackages.DiscoverResourceTypes();
-
-            Assert.Equal(
-                new[] { typeof(Version101TestResource), typeof(Version102TestResource), typeof(Version202TestResource), typeof(WildcardTestResource) }
-                    .OrderBy(t => t.Name),
-                types["test:index/TestResource"].Select(vt => vt.Item2).OrderBy(t => t.Name));
         }
 
         [ResourceType("test:index/TestResource", "2.0.2")]

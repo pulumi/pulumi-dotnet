@@ -165,8 +165,6 @@ var expectedFailures = map[string]string{
 	"l2-provider-config-enum":       "Fail after updating to 3.246: run bailed",
 	"l2-config-default-from-invoke": "Fail after updating to 3.246: stack output \"result\" missing",
 
-	"l2-docs": "dotnet codegen does not resolve '{{% ref %}}' doc cross-references in generated comments",
-
 	"l3-range-invoke-output-traversal": "Fail after updating to 3.250: dotnet build failed: CS0021 cannot index Output<ImmutableArray<string>>", //nolint:lll
 
 	"l2-recover-invoke": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll

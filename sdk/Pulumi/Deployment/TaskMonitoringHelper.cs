@@ -76,12 +76,12 @@ namespace Pulumi
                 }
                 else if (task.IsCanceled)
                 {
-                    // Rethrow to recover the original OperationCanceledException so `Flush` can dedupe it.
+                    // Unlike Wait(), GetAwaiter().GetResult() rethrows the original exception unwrapped, so `Flush` can dedupe it.
                     try
                     {
                         task.GetAwaiter().GetResult();
                     }
-                    catch (OperationCanceledException ex)
+                    catch (Exception ex)
                     {
                         _exceptions.Add(ex);
                     }

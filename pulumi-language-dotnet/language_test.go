@@ -169,11 +169,12 @@ var expectedFailures = map[string]string{
 
 	"l3-range-invoke-output-traversal": "Fail after updating to 3.250: dotnet build failed: CS0021 cannot index Output<ImmutableArray<string>>", //nolint:lll
 
-	"l2-failed-create-recover-continue-on-error": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
+	"l2-recover-invoke": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
 
-	"l2-invoke-depends-on-component":     "the .NET SDK does not send dependsOn on invokes: the invoke result is not unknown while its dependencies are pending creation (added in v3.256.0)",            //nolint:lll
-	"l2-target-up-skipped-create-output": "the .NET SDK does not handle RegisterResourceResponse.unknown: outputs of skipped creates resolve as empty instead of unknown (added in v3.256.0)",            //nolint:lll
-	"l3-component-provider-inheritance":  "the .NET SDK does not inherit the providers map into remote components: an extra default provider is created instead of the explicit one (added in v3.256.0)", //nolint:lll
+	"l2-invoke-depends-on-component":     "the .NET SDK does not send dependsOn on invokes: the invoke result is not unknown while its dependencies are pending creation (added in v3.256.0)",                                                   //nolint:lll
+	"l2-invoke-per-value-deps":           "the .NET SDK does not support INVOKE_OUTPUT_VALUES: invoke results union the dependencies of all args instead of tracking them per value, so d depends on {a, b} instead of {b} (added in v3.268.0)", //nolint:lll
+	"l2-target-up-skipped-create-output": "the .NET SDK does not handle RegisterResourceResponse.unknown: outputs of skipped creates resolve as empty instead of unknown (added in v3.256.0)",                                                   //nolint:lll
+	"l3-component-provider-inheritance":  "the .NET SDK does not inherit the providers map into remote components: an extra default provider is created instead of the explicit one (added in v3.256.0)",                                        //nolint:lll
 
 	"l1-for-expression":      "dotnet build failed: programgen emits invalid C# for `for` expressions: CS1525 invalid expression term '.' (added in v3.257.0)",                                           //nolint:lll
 	"l2-nested-collections":  "dotnet build failed: sdkgen emits plain nested dictionaries instead of typed outputs for deeply nested collections: CS1061 no definition for 'Outer' (added in v3.257.0)", //nolint:lll
@@ -185,6 +186,11 @@ var expectedFailures = map[string]string{
 
 	"l2-kebab-names":                    "sdkgen emits kebab-case token members verbatim in C# type and file names: CS1514 '{' expected in Another-resource.cs (kebab member tokens allowed since v3.260.0, pulumi/pulumi#24440)", //nolint:lll
 	"l2-discriminated-union-marked-key": "dotnet build failed: programgen emits CS0029 cannot convert Output<Union<VariantOne, VariantTwo>> to InputUnion<VariantOneArgs, VariantTwoArgs> (added in v3.260.0)",                    //nolint:lll
+
+	"l1-builtin-range":                        "dotnet build failed: programgen does not implement the range built-in and emits a TODO string: CS1010 newline in constant (added in v3.265.0)", //nolint:lll
+	"l2-failed-create-continue-on-error-read": "the .NET SDK does not handle ReadResourceResponse.unknown: outputs of skipped reads resolve as empty instead of unknown (added in v3.265.0)",   //nolint:lll
+
+	"l2-call-per-value-deps": "the .NET SDK does not support CALL_OUTPUT_VALUES: call results do not track dependencies per value, so g depends on {pa, pb} instead of {pa, c} (added in v3.270.0)", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

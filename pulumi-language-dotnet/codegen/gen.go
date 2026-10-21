@@ -107,9 +107,27 @@ func isValueType(t schema.Type) bool {
 	}
 }
 
+func removeHyphens(namespace string) string {
+	if !strings.Contains(namespace, "-") {
+		return namespace
+	}
+
+	segments := strings.Split(namespace, ".")
+	for i, segment := range segments {
+		var rebuilt strings.Builder
+		for _, piece := range strings.Split(segment, "-") {
+			rebuilt.WriteString(cgstrings.UppercaseFirst(piece))
+		}
+		segments[i] = rebuilt.String()
+	}
+	return strings.Join(segments, ".")
+}
+
 func namespaceName(namespaces map[string]string, name string) string {
 	if ns, ok := namespaces[name]; ok {
-		return ns
+		// A schema can supply a namespace built from a Kubernetes API group,
+		// which may contain hyphens.
+		return removeHyphens(ns)
 	}
 
 	// name could be a qualified module name so first split on /
@@ -901,7 +919,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 	switch {
 	case r.IsProvider:
 		baseType = "global::Pulumi.ProviderResource"
-	case mod.isK8sCompatMode() && !r.IsComponent:
+	case mod.isK8sCompatMode() && !r.IsComponent && mod.extensionParameterization == nil:
 		baseType = "KubernetesResource"
 	case r.IsComponent:
 		baseType = "global::Pulumi.ComponentResource"
@@ -2311,6 +2329,25 @@ func genPackageMetadata(pkg *schema.Package,
 			if pkg == referencedPackage.Name() {
 				localPackages[pkg] = path
 			}
+		}
+	}
+
+	// Include a package reference for borrowed types.
+	if packageReferences == nil {
+		packageReferences = map[string]string{}
+	}
+	var packageInfo CSharpPackageInfo
+	for _, dependency := range pkg.Dependencies {
+		if dependency.Version == nil {
+			continue
+		}
+		if _, local := localPackages[dependency.Name]; local {
+			continue
+		}
+		packageName := packageInfo.GetRootNamespace() + "." +
+			namespaceName(packageInfo.Namespaces, dependency.Name)
+		if _, declared := packageReferences[packageName]; !declared {
+			packageReferences[packageName] = dependency.Version.String()
 		}
 	}
 

@@ -751,6 +751,9 @@ func componentInputType(pclType model.Type) string {
 }
 
 func componentOutputElementType(pclType model.Type) string {
+	if model.StringType.AssignableFrom(pclType) {
+		return "string"
+	}
 	switch pclType {
 	case model.BoolType:
 		return "bool"
@@ -758,7 +761,7 @@ func componentOutputElementType(pclType model.Type) string {
 		return "int"
 	case model.NumberType:
 		return "double"
-	case model.IDType, model.StringType:
+	case model.IDType:
 		return "string"
 	default:
 		switch pclType := pclType.(type) {
@@ -2305,6 +2308,9 @@ func (g *generator) genLocalVariable(w io.Writer, localVariable *pcl.LocalVariab
 
 func localVariableTypeName(t model.Type) (string, bool) {
 	t = pcl.UnwrapOption(t)
+	if model.StringType.AssignableFrom(t) {
+		return "string", true
+	}
 	switch t {
 	case model.BoolType:
 		return "bool", true
@@ -2312,7 +2318,7 @@ func localVariableTypeName(t model.Type) (string, bool) {
 		return "int", true
 	case model.NumberType:
 		return "double", true
-	case model.IDType, model.StringType:
+	case model.IDType:
 		return "string", true
 	default:
 		switch t := t.(type) {

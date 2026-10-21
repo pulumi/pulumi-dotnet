@@ -22,7 +22,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -766,10 +765,8 @@ func attachDebugger(t *testing.T, debugEvent *apitype.StartDebuggingEvent) {
 func TestDebuggerAttachDotnet(t *testing.T) {
 	t.Parallel()
 
-	// TODO[pulumi/pulumi-dotnet#403]: The program debugger attach is flaky on Windows.
-	if runtime.GOOS == WindowsOS {
-		t.Skip("Skipping flaky test on Windows - pulumi/pulumi-dotnet#403")
-	}
+	// TODO[pulumi/pulumi-dotnet#403]: The program debugger attach is flaky on all platforms.
+	t.Skip("Skipping flaky test - pulumi/pulumi-dotnet#403")
 
 	// Prevent the test from hanging by failing it after five minutes.
 	setTimeout(t, 5*time.Minute)

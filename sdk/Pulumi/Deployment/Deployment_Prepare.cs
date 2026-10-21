@@ -23,6 +23,7 @@ namespace Pulumi
             string label, Resource res, bool custom, bool remote,
             ResourceArgs args,
             ResourceOptions options,
+            bool read,
             RegisterPackageRequest? registerPackageRequest = null)
         {
             // Before we can proceed, all our dependencies must be finished.
@@ -159,6 +160,17 @@ namespace Pulumi
                 }
             }
 
+            var stateMigrations = new List<Pulumirpc.Callback>();
+            // ReadResource uses the same preparation path, but only registrations send migration callbacks.
+            if (!read && options.StateMigrations.Count > 0)
+            {
+                var callbacks = await this.GetCallbacksAsync(CancellationToken.None).ConfigureAwait(false);
+                foreach (var migration in options.StateMigrations)
+                {
+                    stateMigrations.Add(await AllocateStateMigration(callbacks.Callbacks, migration).ConfigureAwait(false));
+                }
+            }
+
             LogExcessive($"Checking whether hooks must be prepared: t={type}, name={name}");
             var hooks = new Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding();
             if (!options.Hooks.IsEmpty)
@@ -185,6 +197,7 @@ namespace Pulumi
                 aliases,
                 resourceMonitorSupportsAliasSpecs,
                 transforms,
+                stateMigrations,
                 hooks,
                 packageRef);
 
@@ -793,6 +806,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
             public readonly Dictionary<string, HashSet<string>> PropertyToDirectDependencyUrns;
             public readonly List<Pulumirpc.Alias> Aliases;
             public readonly List<Pulumirpc.Callback> Transforms;
+            public readonly List<Pulumirpc.Callback> StateMigrations;
             public readonly Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding? Hooks;
             public readonly string? PackageRef;
             /// <summary>
@@ -813,6 +827,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 List<Pulumirpc.Alias> aliases,
                 bool supportsAliasSpec,
                 List<Pulumirpc.Callback> transforms,
+                List<Pulumirpc.Callback> stateMigrations,
                 Pulumirpc.RegisterResourceRequest.Types.ResourceHooksBinding? hooks = null,
                 string? packageRef = null)
             {
@@ -825,6 +840,7 @@ $"Only specify one of '{nameof(Alias.Parent)}', '{nameof(Alias.ParentUrn)}' or '
                 SupportsAliasSpec = supportsAliasSpec;
                 Aliases = aliases;
                 Transforms = transforms;
+                StateMigrations = stateMigrations;
                 Hooks = hooks;
                 PackageRef = packageRef;
             }

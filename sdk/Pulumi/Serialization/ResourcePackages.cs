@@ -85,7 +85,10 @@ namespace Pulumi
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (MayReferenceResourceTypes(assembly.GetName()))
+                // Dynamic assemblies (such as Moq's DynamicProxyGenAssembly2) can reference other dynamic
+                // assemblies, which Assembly.Load cannot resolve by name. Any static assembly that a dynamic
+                // assembly references is already loaded, so skipping them loses nothing.
+                if (!assembly.IsDynamic && MayReferenceResourceTypes(assembly.GetName()))
                 {
                     assembliesToCheck.Enqueue(assembly!);
                 }

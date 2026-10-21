@@ -12,6 +12,7 @@ namespace Pulumi
     {
         Task IDeploymentInternal.RegisterResourceHook(ResourceHook hook)
         {
+            StateMigrationContext.EnsureNotActive("register resource hook");
             Log.Debug($"RegisterResourceHook: registering task for {hook.Name}");
             var task = RegisterResourceHookAsync(hook);
             _runner.RegisterTask($"RegisterResourceHook: {hook.Name}", task);
@@ -20,6 +21,7 @@ namespace Pulumi
 
         Task IDeploymentInternal.RegisterErrorHook(ErrorHook hook)
         {
+            StateMigrationContext.EnsureNotActive("register error hook");
             Log.Debug($"RegisterErrorHook: registering task for {hook.Name}");
             var task = RegisterErrorHookAsync(hook);
             _runner.RegisterTask($"RegisterErrorHook: {hook.Name}", task);

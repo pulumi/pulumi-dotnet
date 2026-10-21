@@ -1,0 +1,4 @@
+component: sdk
+kind: Improvements
+body: Add experimental state migration callbacks
+time: 2026-10-02T16:30:24+02:00

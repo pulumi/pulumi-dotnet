@@ -110,6 +110,8 @@ namespace Pulumi
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest = null)
         {
+            StateMigrationContext.EnsureNotActive("invoke");
+
             // This method backs all `Fn.Invoke()` calls that generate
             // `Output<T>` and may include `Input<T>` values in the
             // `args`. It needs to decide which control-flow tracking
@@ -321,6 +323,7 @@ namespace Pulumi
             InvokeOptions? options,
             RegisterPackageRequest? registerPackageRequest = null)
         {
+            StateMigrationContext.EnsureNotActive("invoke");
             var keepResources = await this.MonitorSupportsResourceReferences().ConfigureAwait(false);
             var argsSerializationRawResult = await SerializeInvokeArgs(token, args, keepResources);
             var argsSerializationResult = argsSerializationRawResult.ToSerializationResult();

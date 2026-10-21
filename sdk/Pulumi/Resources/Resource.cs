@@ -147,6 +147,8 @@ namespace Pulumi
                 return;
             }
 
+            StateMigrationContext.EnsureNotActive("register or read resource");
+
             if (string.IsNullOrEmpty(type))
                 throw new ArgumentException("'type' cannot be null or empty.", nameof(type));
 

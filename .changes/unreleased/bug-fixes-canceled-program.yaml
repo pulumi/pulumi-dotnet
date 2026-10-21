@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Fail the deployment when the program throws `OperationCanceledException` (for example an `HttpClient` timeout), instead of exiting successfully and deleting resources the program did not register
+time: 2026-10-20T17:30:00.000000-07:00
+custom:
+    PR: "0"

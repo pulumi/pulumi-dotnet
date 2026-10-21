@@ -74,6 +74,18 @@ namespace Pulumi
                 {
                     _exceptions.AddRange(task.Exception.InnerExceptions);
                 }
+                else if (task.IsCanceled)
+                {
+                    // Rethrow to recover the original OperationCanceledException so `Flush` can dedupe it.
+                    try
+                    {
+                        task.GetAwaiter().GetResult();
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        _exceptions.Add(ex);
+                    }
+                }
 
                 if (_activeTasks == 0 && _promise != null)
                 {

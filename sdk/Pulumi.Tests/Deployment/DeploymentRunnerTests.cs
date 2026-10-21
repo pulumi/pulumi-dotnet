@@ -84,6 +84,24 @@ namespace Pulumi.Tests
             Assert.DoesNotContain(nameof(System.Reflection.TargetInvocationException), deployResult.Exception!.Message);
         }
 
+        [Fact]
+        public async Task CanceledProgramFails()
+        {
+            var engine = new MockEngine();
+            var monitor = new MockMonitor(new EmptyMocks());
+            var exitCode = await Deployment.CreateRunnerAndRunAsync(
+                () => new Deployment(engine, monitor, new TestOptions()),
+                runner => runner.RunAsync(async () =>
+                {
+                    await Task.Yield();
+                    throw new TaskCanceledException("simulated HttpClient timeout");
+                }, null));
+
+            Assert.NotEqual(0, exitCode);
+            var error = Assert.Single(engine.Errors);
+            Assert.Contains("simulated HttpClient timeout", error);
+        }
+
         class ThrowsExceptionStack : Stack
         {
             public const string EXPECTED_MESSAGE = "My exception message.";

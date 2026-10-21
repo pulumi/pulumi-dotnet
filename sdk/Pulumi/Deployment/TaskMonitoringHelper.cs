@@ -74,6 +74,18 @@ namespace Pulumi
                 {
                     _exceptions.AddRange(task.Exception.InnerExceptions);
                 }
+                else if (task.IsCanceled)
+                {
+                    // Unlike Wait(), GetAwaiter().GetResult() rethrows the original exception unwrapped, so `Flush` can dedupe it.
+                    try
+                    {
+                        task.GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        _exceptions.Add(ex);
+                    }
+                }
 
                 if (_activeTasks == 0 && _promise != null)
                 {

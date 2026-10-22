@@ -518,6 +518,108 @@ var docCommentEscaper = strings.NewReplacer(
 	`>`, "&gt;",
 )
 
+// docRefResolver returns a resolver for `{{% ref %}}` shortcodes that produces C# names.
+// If selfRef is set, property refs within the same entity are returned unqualified.
+func (mod *modContext) docRefResolver(selfRef schema.DocRef) schema.PulumiRefResolver {
+	// qualify prepends the external package namespace (e.g. "Pulumi.Enum.") when refPkg
+	// belongs to a different package than mod.pkg, so cross-package refs render as
+	// `Pulumi.Enum.Provider` rather than a bare `Provider` that collides with the local one.
+	qualify := func(refPkg schema.PackageReference, name string) string {
+		if refPkg == nil || codegen.PkgEquals(refPkg, mod.pkg) {
+			return name
+		}
+		return mod.RootNamespace() + "." + namespaceName(mod.namespaces, refPkg.Name()) + "." + name
+	}
+	return func(ref schema.DocRef) (string, bool) {
+		var base string
+		switch ref.Kind {
+		case schema.DocRefKindResource, schema.DocRefKindResourceProperty:
+			if rt, ok := ref.Type.(*schema.ResourceType); ok && rt.Resource != nil {
+				base = qualify(rt.Resource.PackageReference, resourceName(rt.Resource))
+			} else {
+				base = tokenToName(ref.ResourceToken())
+			}
+		case schema.DocRefKindResourceInputProperty:
+			if rt, ok := ref.Type.(*schema.ResourceType); ok && rt.Resource != nil {
+				base = qualify(rt.Resource.PackageReference, resourceName(rt.Resource)+"Args")
+			} else {
+				base = tokenToName(ref.ResourceToken()) + "Args"
+			}
+		case schema.DocRefKindProvider, schema.DocRefKindProviderProperty:
+			if rt, ok := ref.Type.(*schema.ResourceType); ok && rt.Resource != nil {
+				base = qualify(rt.Resource.PackageReference, "Provider")
+			} else {
+				base = "Provider"
+			}
+		case schema.DocRefKindProviderInputProperty:
+			if rt, ok := ref.Type.(*schema.ResourceType); ok && rt.Resource != nil {
+				base = qualify(rt.Resource.PackageReference, "ProviderArgs")
+			} else {
+				base = "ProviderArgs"
+			}
+		case schema.DocRefKindFunction:
+			if ref.Function != nil {
+				base = qualify(ref.Function.PackageReference, tokenToFunctionName(ref.Function.Token))
+			}
+		case schema.DocRefKindFunctionInputProperty:
+			if ref.Function != nil {
+				base = qualify(ref.Function.PackageReference, tokenToFunctionName(ref.Function.Token)+"Args")
+			}
+		case schema.DocRefKindFunctionOutputProperty:
+			if ref.Function != nil {
+				base = qualify(ref.Function.PackageReference, tokenToFunctionName(ref.Function.Token)+"Result")
+			}
+		case schema.DocRefKindType, schema.DocRefKindTypeProperty:
+			switch t := ref.Type.(type) {
+			case *schema.ObjectType:
+				base = qualify(t.PackageReference, tokenToName(t.Token))
+			case *schema.EnumType:
+				base = qualify(t.PackageReference, tokenToName(t.Token))
+			default:
+				return "", false
+			}
+		case schema.DocRefKindUnknown:
+			return "", false
+		}
+		if base == "" {
+			return "", false
+		}
+		switch ref.Kind { //nolint:exhaustive
+		case schema.DocRefKindResource, schema.DocRefKindFunction, schema.DocRefKindType, schema.DocRefKindProvider:
+			return base, true
+		}
+		if ref.Property == "" {
+			return "", false
+		}
+		propName := cgstrings.UppercaseFirst(cgstrings.Unhyphenate(ref.Property))
+		if ref.IsWithin(selfRef) {
+			return propName, true
+		}
+		return base + "." + propName, true
+	}
+}
+
+// interpretRefs resolves {{% ref %}} shortcodes in a doc comment, returning the original
+// comment unchanged if resolution fails.
+func (mod *modContext) interpretRefs(comment string) string {
+	if comment == "" {
+		return comment
+	}
+	resolved, err := mod.pkg.InterpretPulumiRefs(comment, mod.docRefResolver(schema.DocRef{}))
+	if err != nil {
+		return comment
+	}
+	return resolved
+}
+
+func (mod *modContext) printComment(w io.Writer, comment, indent string) {
+	printComment(w, mod.interpretRefs(comment), indent)
+}
+
+func (mod *modContext) printCommentWithOptions(w io.Writer, comment, indent string, escape bool) {
+	printCommentWithOptions(w, mod.interpretRefs(comment), indent, escape)
+}
+
 func printComment(w io.Writer, comment, indent string) {
 	printCommentWithOptions(w, comment, indent, true /*escape*/)
 }
@@ -608,7 +710,7 @@ func (pt *plainType) genInputProperty(w io.Writer, prop *schema.Property, indent
 
 		if prop.Comment != "" {
 			fmt.Fprintf(w, "\n")
-			printComment(w, prop.Comment, indent)
+			pt.mod.printComment(w, prop.Comment, indent)
 		}
 		printObsoleteAttribute(w, prop.DeprecationMessage, indent)
 
@@ -655,7 +757,7 @@ func (pt *plainType) genInputProperty(w io.Writer, prop *schema.Property, indent
 			initializer = " = null!;"
 		}
 
-		printComment(w, prop.Comment, indent)
+		pt.mod.printComment(w, prop.Comment, indent)
 
 		if generateInputAttribute {
 			pt.genInputPropertyAttribute(w, indent, prop)
@@ -695,7 +797,7 @@ func (pt *plainType) genInputTypeWithFlags(w io.Writer, level int, generateInput
 	}
 
 	// Open the class.
-	printCommentWithOptions(w, pt.comment, indent, !pt.unescapeComment)
+	pt.mod.printCommentWithOptions(w, pt.comment, indent, !pt.unescapeComment)
 
 	var suffix string
 	if pt.baseClass != "" {
@@ -742,7 +844,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 	fmt.Fprintf(w, "\n")
 
 	// Open the class and attribute it appropriately.
-	printCommentWithOptions(w, pt.comment, indent, !pt.unescapeComment)
+	pt.mod.printCommentWithOptions(w, pt.comment, indent, !pt.unescapeComment)
 	fmt.Fprintf(w, "%s[OutputType]\n", indent)
 
 	visibility := "public"
@@ -761,7 +863,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 			typ = codegen.RequiredType(prop)
 		}
 		fieldType := pt.mod.typeString(typ, pt.propertyTypeQualifier, false, false, false)
-		printComment(w, prop.Comment, indent+"    ")
+		pt.mod.printComment(w, prop.Comment, indent+"    ")
 		fmt.Fprintf(w, "%s    public readonly %s %s;\n", indent, fieldType, fieldName)
 	}
 	if len(pt.properties) > 0 {
@@ -910,7 +1012,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 	fmt.Fprintf(w, "{\n")
 
 	// Write the documentation comment for the resource class
-	printComment(w, codegen.FilterExamples(r.Comment, "csharp"), "    ")
+	mod.printComment(w, codegen.FilterExamples(r.Comment, "csharp"), "    ")
 
 	// Open the class.
 	className := name
@@ -961,7 +1063,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 			secretProps = append(secretProps, prop.Name)
 		}
 
-		printComment(w, prop.Comment, "        ")
+		mod.printComment(w, prop.Comment, "        ")
 		fmt.Fprintf(w, "        [Output(\"%s\")]\n", wireName)
 		fmt.Fprintf(w, "        public Output<%s> %s { get; private set; } = null!;\n", propertyType, propertyName)
 		fmt.Fprintf(w, "\n")
@@ -1222,7 +1324,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 		}
 
 		// Emit the doc comment, if any.
-		printComment(w, fun.Comment, "        ")
+		mod.printComment(w, fun.Comment, "        ")
 
 		if fun.DeprecationMessage != "" {
 			fmt.Fprintf(w, "        [Obsolete(@\"%s\")]\n", strings.ReplaceAll(fun.DeprecationMessage, `"`, `""`))
@@ -1477,7 +1579,7 @@ func (mod *modContext) genFunction(w io.Writer, fun *schema.Function) error {
 	fmt.Fprintf(w, "    {\n")
 
 	// Emit the doc comment, if any.
-	printComment(w, fun.Comment, "        ")
+	mod.printComment(w, fun.Comment, "        ")
 	invokeCall := runtimeInvokeFunction(fun)
 	if !fun.MultiArgumentInputs {
 		// Emit the datasource method.
@@ -1645,7 +1747,7 @@ func (mod *modContext) genFunctionOutputVersion(w io.Writer, fun *schema.Functio
 
 	fmt.Fprintf(w, "\n")
 	// Emit the doc comment, if any.
-	printComment(w, fun.Comment, "        ")
+	mod.printComment(w, fun.Comment, "        ")
 
 	if !fun.MultiArgumentInputs {
 		if outputOptions {
@@ -1778,7 +1880,7 @@ func (mod *modContext) genEnum(w io.Writer, enum *schema.EnumType) error {
 	}
 
 	// Print documentation comment
-	printComment(w, enum.Comment, indent)
+	mod.printComment(w, enum.Comment, indent)
 
 	underlyingType := mod.typeString(enum.ElementType, "", false, false, false)
 	switch enum.ElementType {
@@ -1806,7 +1908,7 @@ func (mod *modContext) genEnum(w io.Writer, enum *schema.EnumType) error {
 
 		// Enum values
 		for _, e := range enum.Elements {
-			printComment(w, e.Comment, indent)
+			mod.printComment(w, e.Comment, indent)
 			printObsoleteAttribute(w, e.DeprecationMessage, indent)
 			fmt.Fprintf(w, "%[1]spublic static %[2]s %[3]s { get; } = new %[2]s(", indent, enumName, e.Name)
 			if enum.ElementType == schema.StringType {
@@ -1864,7 +1966,7 @@ func (mod *modContext) genEnum(w io.Writer, enum *schema.EnumType) error {
 		fmt.Fprintf(w, "%s{\n", indent)
 		for _, e := range enum.Elements {
 			indent := strings.Repeat(indent, 2)
-			printComment(w, e.Comment, indent)
+			mod.printComment(w, e.Comment, indent)
 			printObsoleteAttribute(w, e.DeprecationMessage, indent)
 			fmt.Fprintf(w, "%s%s = %v,\n", indent, e.Name, e.Value)
 		}
@@ -2029,7 +2131,7 @@ func (mod *modContext) genConfig(variables []*schema.Property) (string, error) {
 		}
 
 		fmt.Fprintf(w, "        private static readonly __Value<%[1]s> _%[2]s = new __Value<%[1]s>(() => %[3]s);\n", propertyType, p.Name, initializer)
-		printComment(w, p.Comment, "        ")
+		mod.printComment(w, p.Comment, "        ")
 		fmt.Fprintf(w, "        public static %s %s\n", propertyType, propertyName)
 		fmt.Fprintf(w, "        {\n")
 		fmt.Fprintf(w, "            get => _%s.Get();\n", p.Name)
@@ -2067,7 +2169,7 @@ func (mod *modContext) genConfig(variables []*schema.Property) (string, error) {
 					initializer = " = null!;"
 				}
 
-				printComment(w, prop.Comment, "            ")
+				mod.printComment(w, prop.Comment, "            ")
 				fmt.Fprintf(w, "                public %s %s { get; set; }%s\n", typ, name, initializer)
 			}
 

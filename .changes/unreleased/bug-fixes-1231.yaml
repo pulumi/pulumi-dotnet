@@ -2,4 +2,5 @@ component: runtime
 kind: bug-fixes
 body: Authenticode-sign Windows release binaries with Azure Trusted Signing
 time: 2026-10-22T13:04:05.583424+00:00
-# Add the PR number once the pull request exists.
+custom:
+    PR: "1231"

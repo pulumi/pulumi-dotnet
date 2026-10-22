@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Keep parentheses around operands of implicit conversions in generated programs, so that `a && (b || c)` no longer becomes `a && b || c`
-time: 2026-10-17T13:45:08.774974+02:00
-custom:
-    PR: "1215"

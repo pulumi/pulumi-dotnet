@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
 using Pulumirpc;
+using System.Net.Http;
+using System.Threading;
 
 namespace Pulumi
 {
@@ -42,6 +44,16 @@ namespace Pulumi
                             MaxReceiveMessageSize = maxRpcMessageSize,
                             MaxSendMessageSize = maxRpcMessageSize,
                             Credentials = Grpc.Core.ChannelCredentials.Insecure,
+                            HttpHandler = new SocketsHttpHandler
+                            {
+                                PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
+                                // Must stay above the Pulumi engine's grpc-go server default keepalive
+                                // EnforcementPolicy.MinTime (5 minutes), or the server treats pings as
+                                // abusive and tears down the connection with HTTP/2 ENHANCE_YOUR_CALM.
+                                KeepAlivePingDelay = TimeSpan.FromMinutes(6),
+                                KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
+                                KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
+                            },
                         });
 
                         _engineChannels[engineAddress] = channel;

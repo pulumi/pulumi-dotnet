@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Fix resource type discovery when Moq proxies exist in the process
-time: 2026-10-20T09:41:06.896974+02:00
-custom:
-    PR: "1224"

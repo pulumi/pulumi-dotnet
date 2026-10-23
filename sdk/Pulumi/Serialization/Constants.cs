@@ -52,6 +52,8 @@ namespace Pulumi.Serialization
         public const string ResourceUrnName = "urn";
         public const string ResourceIdName = "id";
         public const string ResourceVersionName = "packageVersion";
+        public const string ResourceTypeName = "type";
+        public const string ResourceNameName = "name";
 
         public const string IdPropertyName = "id";
         public const string UrnPropertyName = "urn";

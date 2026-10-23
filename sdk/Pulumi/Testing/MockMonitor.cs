@@ -145,6 +145,7 @@ namespace Pulumi.Testing
             return new ReadResourceResponse
             {
                 Urn = urn,
+                Id = id ?? request.Id,
                 Properties = Serializer.CreateStruct(serializedState!),
             };
         }

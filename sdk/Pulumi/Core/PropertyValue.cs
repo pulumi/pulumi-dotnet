@@ -31,19 +31,23 @@ namespace Pulumi.Experimental
     public readonly struct ResourceReference : IEquatable<ResourceReference>
     {
         public Urn URN { get; }
+        public string Type { get; }
+        public string Name { get; }
         public PropertyValue? Id { get; }
         public string PackageVersion { get; }
 
-        public ResourceReference(Urn urn, PropertyValue? id, string version)
+        public ResourceReference(Urn urn, string type, string name, PropertyValue? id, string version)
         {
             URN = urn;
+            Type = type;
+            Name = name;
             Id = id;
             PackageVersion = version;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(URN, Id, PackageVersion);
+            return HashCode.Combine(URN, Type, Name, Id, PackageVersion);
         }
 
         public override bool Equals(object? obj)
@@ -57,7 +61,7 @@ namespace Pulumi.Experimental
 
         public bool Equals(ResourceReference other)
         {
-            return URN == other.URN && Equals(Id, other.Id) && PackageVersion == other.PackageVersion;
+            return URN == other.URN && Type == other.Type && Name == other.Name && Equals(Id, other.Id) && PackageVersion == other.PackageVersion;
         }
 
         public static bool operator ==(ResourceReference left, ResourceReference right)
@@ -630,13 +634,23 @@ namespace Pulumi.Experimental
                                             version = "";
                                         }
 
+                                        if (!TryGetStringValue(structValue.Fields, Constants.ResourceTypeName, out var type))
+                                        {
+                                            type = "";
+                                        }
+
+                                        if (!TryGetStringValue(structValue.Fields, Constants.ResourceNameName, out var name))
+                                        {
+                                            name = "";
+                                        }
+
                                         PropertyValue? idProperty = null;
                                         if (structValue.Fields.TryGetValue(Constants.IdPropertyName, out var id))
                                         {
                                             idProperty = Unmarshal(id);
                                         }
 
-                                        return new PropertyValue(new ResourceReference(new Urn(urn), idProperty, version));
+                                        return new PropertyValue(new ResourceReference(new Urn(urn), type, name, idProperty, version));
                                     }
                                 case Constants.SpecialOutputValueSig:
                                     {
@@ -791,6 +805,14 @@ namespace Pulumi.Experimental
                     var result = new Struct();
                     result.Fields[Constants.SpecialSigKey] = Value.ForString(Constants.SpecialResourceSig);
                     result.Fields[Constants.UrnPropertyName] = Value.ForString(resource.URN);
+                    if (resource.Type != "")
+                    {
+                        result.Fields[Constants.ResourceTypeName] = Value.ForString(resource.Type);
+                    }
+                    if (resource.Name != "")
+                    {
+                        result.Fields[Constants.ResourceNameName] = Value.ForString(resource.Name);
+                    }
                     if (resource.Id != null)
                     {
                         result.Fields[Constants.IdPropertyName] = Marshal(resource.Id);

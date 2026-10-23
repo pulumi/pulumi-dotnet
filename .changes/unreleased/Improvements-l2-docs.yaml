@@ -1,4 +1,0 @@
-component: runtime
-kind: Improvements
-body: Resolve `{{% ref %}}` shortcodes in generated SDK doc comments to C# names
-time: 2026-10-21T12:00:00+00:00

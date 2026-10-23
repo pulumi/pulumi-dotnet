@@ -1814,6 +1814,5963 @@ namespace Pulumi.Automation.Commands
         }
 
         /// <summary>
+        /// Runs the <c>pulumi env change-request apply</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestApplyAsync(PulumiEnvChangeRequestApplyOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "apply"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.DryRun is true)
+            {
+                __final.Add("--dry-run");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request approve</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestApproveAsync(PulumiEnvChangeRequestApproveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "approve"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.DryRun is true)
+            {
+                __final.Add("--dry-run");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Message is { } __valueMessage)
+            {
+                __final.Add("--message");
+                __final.Add(__valueMessage);
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request close</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestCloseAsync(PulumiEnvChangeRequestCloseOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "close"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Message is { } __valueMessage)
+            {
+                __final.Add("--message");
+                __final.Add(__valueMessage);
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request comment</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestCommentAsync(PulumiEnvChangeRequestCommentOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "comment"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Message is { } __valueMessage)
+            {
+                __final.Add("--message");
+                __final.Add(__valueMessage);
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request diff</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestDiffAsync(PulumiEnvChangeRequestDiffOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "diff"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request get</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestGetAsync(PulumiEnvChangeRequestGetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "get"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestListAsync(PulumiEnvChangeRequestListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "list"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Status is { } __valueStatus)
+            {
+                __final.Add("--status");
+                __final.Add(__valueStatus);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request log</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestLogAsync(PulumiEnvChangeRequestLogOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "log"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request rebase</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestRebaseAsync(PulumiEnvChangeRequestRebaseOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "rebase"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env change-request unapprove</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvChangeRequestUnapproveAsync(PulumiEnvChangeRequestUnapproveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "change-request",
+                "unapprove"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env clone</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvCloneAsync(PulumiEnvCloneOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "clone"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.PreserveAccess is true)
+            {
+                __final.Add("--preserve-access");
+            }
+
+            if (options?.PreserveEnvTags is true)
+            {
+                __final.Add("--preserve-env-tags");
+            }
+
+            if (options?.PreserveHistory is true)
+            {
+                __final.Add("--preserve-history");
+            }
+
+            if (options?.PreserveRevTags is true)
+            {
+                __final.Add("--preserve-rev-tags");
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env diff</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvDiffAsync(PulumiEnvDiffOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "diff"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.Format is { } __valueFormat)
+            {
+                __final.Add("--format");
+                __final.Add(__valueFormat);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Path is { } __valuePath)
+            {
+                __final.Add("--path");
+                __final.Add(__valuePath);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.ShowSecrets is true)
+            {
+                __final.Add("--show-secrets");
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env edit</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvEditAsync(PulumiEnvEditOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "edit"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Editor is { } __valueEditor)
+            {
+                __final.Add("--editor");
+                __final.Add(__valueEditor);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.File is { } __valueFile)
+            {
+                __final.Add("--file");
+                __final.Add(__valueFile);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.ShowSecrets is true)
+            {
+                __final.Add("--show-secrets");
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env get</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvGetAsync(PulumiEnvGetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "get"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Definition is true)
+            {
+                __final.Add("--definition");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.ShowSecrets is true)
+            {
+                __final.Add("--show-secrets");
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Value is { } __valueValue)
+            {
+                __final.Add("--value");
+                __final.Add(__valueValue);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env init</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvInitAsync(PulumiEnvInitOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "init"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.File is { } __valueFile)
+            {
+                __final.Add("--file");
+                __final.Add(__valueFile);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvListAsync(PulumiEnvListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "list"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Project is { } __valueProject)
+            {
+                __final.Add("--project");
+                __final.Add(__valueProject);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env open</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvOpenAsync(PulumiEnvOpenOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "open"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.Format is { } __valueFormat)
+            {
+                __final.Add("--format");
+                __final.Add(__valueFormat);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Lifetime is { } __valueLifetime)
+            {
+                __final.Add("--lifetime");
+                __final.Add(__valueLifetime);
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env open-request</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvOpenRequestAsync(PulumiEnvOpenRequestOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "open-request"
+            };
+            if (options?.AccessDurationSeconds is { } __valueAccessDurationSeconds)
+            {
+                __final.Add("--access-duration-seconds");
+                __final.Add(__valueAccessDurationSeconds);
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.GrantExpirationSeconds is { } __valueGrantExpirationSeconds)
+            {
+                __final.Add("--grant-expiration-seconds");
+                __final.Add(__valueGrantExpirationSeconds);
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env provider aws-login oidc</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvProviderAwsLoginOidcAsync(PulumiEnvProviderAwsLoginOidcOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "provider",
+                "aws-login",
+                "oidc"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Create is true)
+            {
+                __final.Add("--create");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Duration is { } __valueDuration)
+            {
+                __final.Add("--duration");
+                __final.Add(__valueDuration);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.ExportEnvVars is true)
+            {
+                __final.Add("--export-env-vars");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Path is { } __valuePath)
+            {
+                __final.Add("--path");
+                __final.Add(__valuePath);
+            }
+
+            if (options?.PolicyArn is { } __valuePolicyArn)
+            {
+                foreach (var __item in __valuePolicyArn)
+                {
+                    __final.Add("--policy-arn");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.SubjectAttribute is { } __valueSubjectAttribute)
+            {
+                foreach (var __item in __valueSubjectAttribute)
+                {
+                    __final.Add("--subject-attribute");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env provider aws-login static</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvProviderAwsLoginStaticAsync(PulumiEnvProviderAwsLoginStaticOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "provider",
+                "aws-login",
+                "static"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Create is true)
+            {
+                __final.Add("--create");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.ExportEnvVars is true)
+            {
+                __final.Add("--export-env-vars");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Path is { } __valuePath)
+            {
+                __final.Add("--path");
+                __final.Add(__valuePath);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.SessionToken is { } __valueSessionToken)
+            {
+                __final.Add("--session-token");
+                __final.Add(__valueSessionToken);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env provider azure-login oidc</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvProviderAzureLoginOidcAsync(PulumiEnvProviderAzureLoginOidcOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "provider",
+                "azure-login",
+                "oidc"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Create is true)
+            {
+                __final.Add("--create");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.ExportEnvVars is true)
+            {
+                __final.Add("--export-env-vars");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Path is { } __valuePath)
+            {
+                __final.Add("--path");
+                __final.Add(__valuePath);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.SubjectAttribute is { } __valueSubjectAttribute)
+            {
+                foreach (var __item in __valueSubjectAttribute)
+                {
+                    __final.Add("--subject-attribute");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env provider azure-login static</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvProviderAzureLoginStaticAsync(PulumiEnvProviderAzureLoginStaticOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "provider",
+                "azure-login",
+                "static"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Create is true)
+            {
+                __final.Add("--create");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.ExportEnvVars is true)
+            {
+                __final.Add("--export-env-vars");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Path is { } __valuePath)
+            {
+                __final.Add("--path");
+                __final.Add(__valuePath);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env provider gcp-login oidc</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvProviderGcpLoginOidcAsync(PulumiEnvProviderGcpLoginOidcOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "provider",
+                "gcp-login",
+                "oidc"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Create is true)
+            {
+                __final.Add("--create");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.ExportEnvVars is true)
+            {
+                __final.Add("--export-env-vars");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Path is { } __valuePath)
+            {
+                __final.Add("--path");
+                __final.Add(__valuePath);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.ProviderId is { } __valueProviderId)
+            {
+                __final.Add("--provider-id");
+                __final.Add(__valueProviderId);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.Region is { } __valueRegion)
+            {
+                __final.Add("--region");
+                __final.Add(__valueRegion);
+            }
+
+            if (options?.ServiceAccount is { } __valueServiceAccount)
+            {
+                __final.Add("--service-account");
+                __final.Add(__valueServiceAccount);
+            }
+
+            if (options?.SubjectAttribute is { } __valueSubjectAttribute)
+            {
+                foreach (var __item in __valueSubjectAttribute)
+                {
+                    __final.Add("--subject-attribute");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.TokenLifetime is { } __valueTokenLifetime)
+            {
+                __final.Add("--token-lifetime");
+                __final.Add(__valueTokenLifetime);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.WorkloadPoolId is { } __valueWorkloadPoolId)
+            {
+                __final.Add("--workload-pool-id");
+                __final.Add(__valueWorkloadPoolId);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env provider gcp-login static</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvProviderGcpLoginStaticAsync(PulumiEnvProviderGcpLoginStaticOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "provider",
+                "gcp-login",
+                "static"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Create is true)
+            {
+                __final.Add("--create");
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.ExportEnvVars is true)
+            {
+                __final.Add("--export-env-vars");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Path is { } __valuePath)
+            {
+                __final.Add("--path");
+                __final.Add(__valuePath);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.ServiceAccount is { } __valueServiceAccount)
+            {
+                __final.Add("--service-account");
+                __final.Add(__valueServiceAccount);
+            }
+
+            if (options?.TokenLifetime is { } __valueTokenLifetime)
+            {
+                __final.Add("--token-lifetime");
+                __final.Add(__valueTokenLifetime);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env referrer list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvReferrerListAsync(PulumiEnvReferrerListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "referrer",
+                "list"
+            };
+            if (options?.All is true)
+            {
+                __final.Add("--all");
+            }
+
+            if (options?.AllRevisions is true)
+            {
+                __final.Add("--all-revisions");
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Count is { } __valueCount)
+            {
+                __final.Add("--count");
+                __final.Add(__valueCount.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.LatestStackVersionOnly is true)
+            {
+                __final.Add("--latest-stack-version-only");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env remove</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvRemoveAsync(PulumiEnvRemoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "remove"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env rotate</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvRotateAsync(PulumiEnvRotateOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "rotate"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env run</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvRunAsync(PulumiEnvRunOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "run"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Interactive is true)
+            {
+                __final.Add("--interactive");
+            }
+
+            if (options?.Lifetime is { } __valueLifetime)
+            {
+                __final.Add("--lifetime");
+                __final.Add(__valueLifetime);
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env schedule edit</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvScheduleEditAsync(PulumiEnvScheduleEditOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "schedule",
+                "edit"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Cron is { } __valueCron)
+            {
+                __final.Add("--cron");
+                __final.Add(__valueCron);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Once is { } __valueOnce)
+            {
+                __final.Add("--once");
+                __final.Add(__valueOnce);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env schedule get</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvScheduleGetAsync(PulumiEnvScheduleGetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "schedule",
+                "get"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env schedule history</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvScheduleHistoryAsync(PulumiEnvScheduleHistoryOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "schedule",
+                "history"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Count is { } __valueCount)
+            {
+                __final.Add("--count");
+                __final.Add(__valueCount.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env schedule list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvScheduleListAsync(PulumiEnvScheduleListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "schedule",
+                "list"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Count is { } __valueCount)
+            {
+                __final.Add("--count");
+                __final.Add(__valueCount.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env schedule new</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvScheduleNewAsync(PulumiEnvScheduleNewOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "schedule",
+                "new"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Cron is { } __valueCron)
+            {
+                __final.Add("--cron");
+                __final.Add(__valueCron);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Once is { } __valueOnce)
+            {
+                __final.Add("--once");
+                __final.Add(__valueOnce);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env schedule remove</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvScheduleRemoveAsync(PulumiEnvScheduleRemoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "schedule",
+                "remove"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env set</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvSetAsync(PulumiEnvSetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "set"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.File is { } __valueFile)
+            {
+                __final.Add("--file");
+                __final.Add(__valueFile);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Plaintext is true)
+            {
+                __final.Add("--plaintext");
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.Secret is true)
+            {
+                __final.Add("--secret");
+            }
+
+            if (options?.String is true)
+            {
+                __final.Add("--string");
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env settings get</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvSettingsGetAsync(PulumiEnvSettingsGetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "settings",
+                "get"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env settings set</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvSettingsSetAsync(PulumiEnvSettingsSetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "settings",
+                "set"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env setup aws</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvSetupAwsAsync(PulumiEnvSetupAwsOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "setup",
+                "aws"
+            };
+            __final.Add("--yes");
+            if (options?.Account is { } __valueAccount)
+            {
+                foreach (var __item in __valueAccount)
+                {
+                    __final.Add("--account");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Duration is { } __valueDuration)
+            {
+                __final.Add("--duration");
+                __final.Add(__valueDuration);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Org is { } __valueOrg)
+            {
+                __final.Add("--org");
+                __final.Add(__valueOrg);
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Policy is { } __valuePolicy)
+            {
+                __final.Add("--policy");
+                __final.Add(__valuePolicy);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Project is { } __valueProject)
+            {
+                __final.Add("--project");
+                __final.Add(__valueProject);
+            }
+
+            if (options?.SessionName is { } __valueSessionName)
+            {
+                __final.Add("--session-name");
+                __final.Add(__valueSessionName);
+            }
+
+            if (options?.Sso is true)
+            {
+                __final.Add("--sso");
+            }
+
+            if (options?.SsoRegion is { } __valueSsoRegion)
+            {
+                __final.Add("--sso-region");
+                __final.Add(__valueSsoRegion);
+            }
+
+            if (options?.SsoRole is { } __valueSsoRole)
+            {
+                __final.Add("--sso-role");
+                __final.Add(__valueSsoRole);
+            }
+
+            if (options?.SsoStartUrl is { } __valueSsoStartUrl)
+            {
+                __final.Add("--sso-start-url");
+                __final.Add(__valueSsoStartUrl);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env setup azure</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvSetupAzureAsync(PulumiEnvSetupAzureOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "setup",
+                "azure"
+            };
+            __final.Add("--yes");
+            if (options?.Browser is true)
+            {
+                __final.Add("--browser");
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Org is { } __valueOrg)
+            {
+                __final.Add("--org");
+                __final.Add(__valueOrg);
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Policy is { } __valuePolicy)
+            {
+                __final.Add("--policy");
+                __final.Add(__valuePolicy);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Project is { } __valueProject)
+            {
+                __final.Add("--project");
+                __final.Add(__valueProject);
+            }
+
+            if (options?.Subscription is { } __valueSubscription)
+            {
+                foreach (var __item in __valueSubscription)
+                {
+                    __final.Add("--subscription");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Tenant is { } __valueTenant)
+            {
+                __final.Add("--tenant");
+                __final.Add(__valueTenant);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env setup gcp</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvSetupGcpAsync(PulumiEnvSetupGcpOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "setup",
+                "gcp"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.Org is { } __valueOrg)
+            {
+                __final.Add("--org");
+                __final.Add(__valueOrg);
+            }
+
+            if (options?.Organization is { } __valueOrganization)
+            {
+                __final.Add("--organization");
+                __final.Add(__valueOrganization);
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Policy is { } __valuePolicy)
+            {
+                __final.Add("--policy");
+                __final.Add(__valuePolicy);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Project is { } __valueProject)
+            {
+                __final.Add("--project");
+                __final.Add(__valueProject);
+            }
+
+            if (options?.ProjectId is { } __valueProjectId)
+            {
+                foreach (var __item in __valueProjectId)
+                {
+                    __final.Add("--project-id");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env tag</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvTagAsync(PulumiEnvTagOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "tag"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env tag get</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvTagGetAsync(PulumiEnvTagGetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "tag",
+                "get"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env tag list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvTagListAsync(PulumiEnvTagListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "tag",
+                "list"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Pager is { } __valuePager)
+            {
+                __final.Add("--pager");
+                __final.Add(__valuePager);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env tag move</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvTagMoveAsync(PulumiEnvTagMoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "tag",
+                "move"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env tag remove</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvTagRemoveAsync(PulumiEnvTagRemoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "tag",
+                "remove"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env version</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvVersionAsync(PulumiEnvVersionOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "version"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env version history</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvVersionHistoryAsync(PulumiEnvVersionHistoryOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "version",
+                "history"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Pager is { } __valuePager)
+            {
+                __final.Add("--pager");
+                __final.Add(__valuePager);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env version retract</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvVersionRetractAsync(PulumiEnvVersionRetractOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "version",
+                "retract"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.ReplaceWith is { } __valueReplaceWith)
+            {
+                __final.Add("--replace-with");
+                __final.Add(__valueReplaceWith);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env version rollback</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvVersionRollbackAsync(PulumiEnvVersionRollbackOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "version",
+                "rollback"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Draft is { } __valueDraft)
+            {
+                __final.Add("--draft");
+                __final.Add(__valueDraft);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Reason is { } __valueReason)
+            {
+                __final.Add("--reason");
+                __final.Add(__valueReason);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env version tag</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvVersionTagAsync(PulumiEnvVersionTagOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "version",
+                "tag"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env version tag list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvVersionTagListAsync(PulumiEnvVersionTagListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "version",
+                "tag",
+                "list"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Pager is { } __valuePager)
+            {
+                __final.Add("--pager");
+                __final.Add(__valuePager);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env version tag remove</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvVersionTagRemoveAsync(PulumiEnvVersionTagRemoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "version",
+                "tag",
+                "remove"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env webhook delivery list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvWebhookDeliveryListAsync(PulumiEnvWebhookDeliveryListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "webhook",
+                "delivery",
+                "list"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Count is { } __valueCount)
+            {
+                __final.Add("--count");
+                __final.Add(__valueCount.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Utc is true)
+            {
+                __final.Add("--utc");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env webhook edit</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvWebhookEditAsync(PulumiEnvWebhookEditOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "webhook",
+                "edit"
+            };
+            if (options?.Active is true)
+            {
+                __final.Add("--active");
+            }
+
+            if (options?.AddEvent is { } __valueAddEvent)
+            {
+                foreach (var __item in __valueAddEvent)
+                {
+                    __final.Add("--add-event");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.AddGroup is { } __valueAddGroup)
+            {
+                foreach (var __item in __valueAddGroup)
+                {
+                    __final.Add("--add-group");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.DisplayName is { } __valueDisplayName)
+            {
+                __final.Add("--display-name");
+                __final.Add(__valueDisplayName);
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.Event is { } __valueEvent)
+            {
+                foreach (var __item in __valueEvent)
+                {
+                    __final.Add("--event");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Format is { } __valueFormat)
+            {
+                __final.Add("--format");
+                __final.Add(__valueFormat);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Group is { } __valueGroup)
+            {
+                foreach (var __item in __valueGroup)
+                {
+                    __final.Add("--group");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.RemoveEvent is { } __valueRemoveEvent)
+            {
+                foreach (var __item in __valueRemoveEvent)
+                {
+                    __final.Add("--remove-event");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.RemoveGroup is { } __valueRemoveGroup)
+            {
+                foreach (var __item in __valueRemoveGroup)
+                {
+                    __final.Add("--remove-group");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.RemoveSecret is true)
+            {
+                __final.Add("--remove-secret");
+            }
+
+            if (options?.Secret is { } __valueSecret)
+            {
+                __final.Add("--secret");
+                __final.Add(__valueSecret);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Url is { } __valueUrl)
+            {
+                __final.Add("--url");
+                __final.Add(__valueUrl);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env webhook get</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvWebhookGetAsync(PulumiEnvWebhookGetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "webhook",
+                "get"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env webhook list</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvWebhookListAsync(PulumiEnvWebhookListOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "webhook",
+                "list"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Count is { } __valueCount)
+            {
+                __final.Add("--count");
+                __final.Add(__valueCount.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env webhook new</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvWebhookNewAsync(PulumiEnvWebhookNewOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "webhook",
+                "new"
+            };
+            if (options?.Active is true)
+            {
+                __final.Add("--active");
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.Event is { } __valueEvent)
+            {
+                foreach (var __item in __valueEvent)
+                {
+                    __final.Add("--event");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Format is { } __valueFormat)
+            {
+                __final.Add("--format");
+                __final.Add(__valueFormat);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Group is { } __valueGroup)
+            {
+                foreach (var __item in __valueGroup)
+                {
+                    __final.Add("--group");
+                    __final.Add(__item);
+                }
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Secret is { } __valueSecret)
+            {
+                __final.Add("--secret");
+                __final.Add(__valueSecret);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Url is { } __valueUrl)
+            {
+                __final.Add("--url");
+                __final.Add(__valueUrl);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env webhook ping</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvWebhookPingAsync(PulumiEnvWebhookPingOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "webhook",
+                "ping"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi env webhook remove</c> command.
+        /// </summary>
+        public Task<CommandResult> EnvWebhookRemoveAsync(PulumiEnvWebhookRemoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "env",
+                "webhook",
+                "remove"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Env is { } __valueEnv)
+            {
+                __final.Add("--env");
+                __final.Add(__valueEnv);
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
         /// Runs the <c>pulumi import</c> command.
         /// </summary>
         public Task<CommandResult> ImportAsync(IEnumerable<string>? arg = null, PulumiImportOptions? options = null, CancellationToken cancellationToken = default)
@@ -3037,6 +8994,1158 @@ namespace Pulumi.Automation.Commands
             if (options?.Urns is true)
             {
                 __final.Add("--urns");
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state edit</c> command.
+        /// </summary>
+        public Task<CommandResult> StateEditAsync(PulumiStateEditOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "edit"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state get</c> command.
+        /// </summary>
+        public Task<CommandResult> StateGetAsync(string? resource = null, PulumiStateGetOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "get"
+            };
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Output is { } __valueOutput)
+            {
+                __final.Add("--output");
+                __final.Add(__valueOutput);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.ShowSecrets is true)
+            {
+                __final.Add("--show-secrets");
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (resource != null)
+            {
+                __arguments.Add(resource);
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state move</c> command.
+        /// </summary>
+        public Task<CommandResult> StateMoveAsync(IEnumerable<string> urn, PulumiStateMoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "move"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.Dest is { } __valueDest)
+            {
+                __final.Add("--dest");
+                __final.Add(__valueDest);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.IncludeParents is true)
+            {
+                __final.Add("--include-parents");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Source is { } __valueSource)
+            {
+                __final.Add("--source");
+                __final.Add(__valueSource);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            foreach (var __item in urn)
+            {
+                __arguments.Add(__item);
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state promote</c> command.
+        /// </summary>
+        public Task<CommandResult> StatePromoteAsync(string snippetName, PulumiStatePromoteOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "promote"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            __arguments.Add(snippetName);
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state protect</c> command.
+        /// </summary>
+        public Task<CommandResult> StateProtectAsync(IEnumerable<string>? resourceUrn = null, PulumiStateProtectOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "protect"
+            };
+            __final.Add("--yes");
+            if (options?.All is true)
+            {
+                __final.Add("--all");
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (resourceUrn != null)
+            {
+                foreach (var __item in resourceUrn)
+                {
+                    __arguments.Add(__item);
+                }
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state remove</c> command.
+        /// </summary>
+        public Task<CommandResult> StateRemoveAsync(IEnumerable<string>? resourceUrn = null, PulumiStateRemoveOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "remove"
+            };
+            __final.Add("--yes");
+            if (options?.All is true)
+            {
+                __final.Add("--all");
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.Force is true)
+            {
+                __final.Add("--force");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.TargetDependents is true)
+            {
+                __final.Add("--target-dependents");
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (resourceUrn != null)
+            {
+                foreach (var __item in resourceUrn)
+                {
+                    __arguments.Add(__item);
+                }
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state rename</c> command.
+        /// </summary>
+        public Task<CommandResult> StateRenameAsync(string? resourceUrn = null, string? newName = null, PulumiStateRenameOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "rename"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (resourceUrn != null)
+            {
+                __arguments.Add(resourceUrn);
+            }
+
+            if (newName != null)
+            {
+                __arguments.Add(newName);
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state repair</c> command.
+        /// </summary>
+        public Task<CommandResult> StateRepairAsync(PulumiStateRepairOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "repair"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state taint</c> command.
+        /// </summary>
+        public Task<CommandResult> StateTaintAsync(IEnumerable<string>? resourceUrn = null, PulumiStateTaintOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "taint"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (resourceUrn != null)
+            {
+                foreach (var __item in resourceUrn)
+                {
+                    __arguments.Add(__item);
+                }
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state unprotect</c> command.
+        /// </summary>
+        public Task<CommandResult> StateUnprotectAsync(IEnumerable<string>? resourceUrn = null, PulumiStateUnprotectOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "unprotect"
+            };
+            __final.Add("--yes");
+            if (options?.All is true)
+            {
+                __final.Add("--all");
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (resourceUrn != null)
+            {
+                foreach (var __item in resourceUrn)
+                {
+                    __arguments.Add(__item);
+                }
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state untaint</c> command.
+        /// </summary>
+        public Task<CommandResult> StateUntaintAsync(IEnumerable<string>? resourceUrn = null, PulumiStateUntaintOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "untaint"
+            };
+            __final.Add("--yes");
+            if (options?.All is true)
+            {
+                __final.Add("--all");
+            }
+
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Stack is { } __valueStack)
+            {
+                __final.Add("--stack");
+                __final.Add(__valueStack);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
+            }
+
+            if (options?.Verbose is { } __valueVerbose)
+            {
+                __final.Add("--verbose");
+                __final.Add(__valueVerbose.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var __arguments = new List<string>();
+            if (resourceUrn != null)
+            {
+                foreach (var __item in resourceUrn)
+                {
+                    __arguments.Add(__item);
+                }
+            }
+
+            if (__arguments.Count > 0)
+            {
+                __final.Add("--");
+                __final.AddRange(__arguments);
+            }
+
+            return RunAsync(__final, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Runs the <c>pulumi state upgrade</c> command.
+        /// </summary>
+        public Task<CommandResult> StateUpgradeAsync(PulumiStateUpgradeOptions? options = null, CancellationToken cancellationToken = default)
+        {
+            var __final = new List<string>
+            {
+                "state",
+                "upgrade"
+            };
+            __final.Add("--yes");
+            if (options?.Color is { } __valueColor)
+            {
+                __final.Add("--color");
+                __final.Add(__valueColor);
+            }
+
+            if (options?.DisableIntegrityChecking is true)
+            {
+                __final.Add("--disable-integrity-checking");
+            }
+
+            if (options?.FullyQualifyStackNames is true)
+            {
+                __final.Add("--fully-qualify-stack-names");
+            }
+
+            if (options?.Logflow is true)
+            {
+                __final.Add("--logflow");
+            }
+
+            if (options?.Logtostderr is true)
+            {
+                __final.Add("--logtostderr");
+            }
+
+            if (options?.Memprofilerate is { } __valueMemprofilerate)
+            {
+                __final.Add("--memprofilerate");
+                __final.Add(__valueMemprofilerate.ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (options?.OtelTraces is { } __valueOtelTraces)
+            {
+                __final.Add("--otel-traces");
+                __final.Add(__valueOtelTraces);
+            }
+
+            if (options?.Profiling is { } __valueProfiling)
+            {
+                __final.Add("--profiling");
+                __final.Add(__valueProfiling);
+            }
+
+            if (options?.Tracing is { } __valueTracing)
+            {
+                __final.Add("--tracing");
+                __final.Add(__valueTracing);
+            }
+
+            if (options?.TracingHeader is { } __valueTracingHeader)
+            {
+                __final.Add("--tracing-header");
+                __final.Add(__valueTracingHeader);
             }
 
             if (options?.Verbose is { } __valueVerbose)

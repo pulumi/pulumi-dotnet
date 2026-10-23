@@ -1,6 +1,0 @@
-component: sdk
-kind: bug-fixes
-body: Use the id that the provider's Read resolves, and resolve the outputs of skipped or failed reads as unknown
-time: 2026-10-23T10:07:20.403968+02:00
-custom:
-    PR: "1228"

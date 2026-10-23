@@ -22,5 +22,12 @@ return await Deployment.RunAsync(() =>
         },
     });
 
+    return new Dictionary<string, object?>
+    {
+        ["resourceUrn"] = res.Urn,
+        ["resourceId"] = res.Id,
+        ["lookup"] = res.Lookup,
+        ["value"] = res.Value,
+    };
 });
 

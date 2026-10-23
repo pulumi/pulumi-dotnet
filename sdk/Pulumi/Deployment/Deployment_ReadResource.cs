@@ -48,11 +48,15 @@ namespace Pulumi
             // Now run the operation, serializing the invocation if necessary.
             var response = await this.Monitor.ReadResourceAsync(resource, request).ConfigureAwait(false);
 
-            // If we passed the unknown sentinel to the engine, surface the id back to the caller
-            // as an empty string so its completion source resolves as unknown rather than the
-            // sentinel value.
-            var responseId = id == Constants.UnknownValue ? "" : id;
-            return (response.Urn, responseId, response.Properties, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, Pulumirpc.Result.Success);
+            // Prefer the id that the provider's Read resolved. An empty response id is unknown during
+            // preview. During an update, it comes from an older engine that does not set the field, so
+            // fall back to the request id. An empty string resolves the id as unknown.
+            var responseId = response.Id != "" ? response.Id
+                : _isDryRun || id == Constants.UnknownValue ? "" : id;
+            // The engine reports a skipped read as a successful result with Unknown set. The engine
+            // reports a skipped registration as FAIL, so do the same here to resolve the outputs as unknown.
+            var result = response.Unknown ? Pulumirpc.Result.Fail : response.Result;
+            return (response.Urn, responseId, response.Properties, ImmutableDictionary<string, ImmutableHashSet<Resource>>.Empty, result);
         }
     }
 }

@@ -7805,6 +7805,14 @@
             True if [PCL binding](pcl-binding) should be strict.
             </summary>
         </member>
+        <member name="F:Pulumirpc.GenerateProgramRequest.MapperTargetFieldNumber">
+            <summary>Field number for the "mapper_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProgramRequest.MapperTarget">
+            <summary>
+            The target of a codegen.MapperServer to use for getting mappings from other ecosystems to Pulumi.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.GenerateProgramResponse">
             <summary>
             `GenerateProgramResponse` is the type of responses sent by a [](pulumirpc.LanguageRuntime.GenerateProgram) call.
@@ -7882,6 +7890,14 @@
             For instance, in the case of a NodeJS project, this might be a map of NPM package names to local paths to be
             used, such as `{ "@pulumi/aws": "/some/path/to/aws.tgz" }` if a local tarball is to be used instead of the
             published `@pulumi/aws` package.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.GenerateProjectRequest.MapperTargetFieldNumber">
+            <summary>Field number for the "mapper_target" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.GenerateProjectRequest.MapperTarget">
+            <summary>
+            The target of a codegen.MapperServer to use for getting mappings from other ecosystems to Pulumi.
             </summary>
         </member>
         <member name="T:Pulumirpc.GenerateProjectResponse">
@@ -11716,6 +11732,14 @@
             Indicates that this resource should always be refreshed prior to updates.
             </summary>
         </member>
+        <member name="T:Pulumirpc.ErrorResourceAwaitFailed">
+            <summary>
+            ErrorResourceAwaitFailed is sent as a Detail when `ResourceProvider.{Create, Update}` fail because the provider had
+            to await the operation. Unlike [](pulumirpc.ErrorResourceInitFailed), no resource state was written (Create) or the
+            prior state is preserved unchanged (Update). The engine reports the resource as failed to the SDK and continues the
+            deployment, but the CLI exits with a dedicated non-zero code.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.GetMappingRequest">
             <summary>
             `GetMappingRequest` is the type of requests sent as part of a [](pulumirpc.ResourceProvider.GetMapping) call.
@@ -13872,6 +13896,14 @@
         <member name="P:Pulumirpc.ReadResourceResponse.Unknown">
             <summary>
             true if the result of the read is unknown, e.g. because the read was skipped as part of a --continue-on-error run; result is still SUCCESS and SDKs should resolve outputs as unknown.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.ReadResourceResponse.IdFieldNumber">
+            <summary>Field number for the "id" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.ReadResourceResponse.Id">
+            <summary>
+            the id resolved by the provider's Read. If empty, SDKs should treat the id as unknown during preview, otherwise fall back to the id supplied on the request for back-compat with older engines.
             </summary>
         </member>
         <member name="T:Pulumirpc.ExistsResourceRequest">

@@ -185,10 +185,11 @@ var expectedFailures = map[string]string{
 	"l2-kebab-names":                    "sdkgen emits kebab-case token members verbatim in C# type and file names: CS1514 '{' expected in Another-resource.cs (kebab member tokens allowed since v3.260.0, pulumi/pulumi#24440)", //nolint:lll
 	"l2-discriminated-union-marked-key": "dotnet build failed: programgen emits CS0029 cannot convert Output<Union<VariantOne, VariantTwo>> to InputUnion<VariantOneArgs, VariantTwoArgs> (added in v3.260.0)",                    //nolint:lll
 
-	"l1-builtin-range":                        "dotnet build failed: programgen does not implement the range built-in and emits a TODO string: CS1010 newline in constant (added in v3.265.0)", //nolint:lll
-	"l2-failed-create-continue-on-error-read": "the .NET SDK does not handle ReadResourceResponse.unknown: outputs of skipped reads resolve as empty instead of unknown (added in v3.265.0)",   //nolint:lll
+	"l1-builtin-range": "dotnet build failed: programgen does not implement the range built-in and emits a TODO string: CS1010 newline in constant (added in v3.265.0)", //nolint:lll
 
 	"l2-call-per-value-deps": "the .NET SDK does not support CALL_OUTPUT_VALUES: call results do not track dependencies per value, so g depends on {pa, pb} instead of {pa, c} (added in v3.270.0)", //nolint:lll
+
+	"l2-failed-create-component-continue-on-error": "the .NET SDK does not set SupportsPartialValues on RegisterResource, so the engine strips the unknown output of a remote component with a failed child and the dependent resource is not skipped (added in v3.272.0)", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

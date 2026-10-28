@@ -1,6 +1,6 @@
 module github.com/pulumi-dotnet/integration_tests
 
-go 1.26.6
+go 1.26.10
 
 replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.8.3
 

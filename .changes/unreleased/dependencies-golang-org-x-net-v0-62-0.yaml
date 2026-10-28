@@ -1,0 +1,4 @@
+component: runtime
+kind: dependencies
+body: Update golang.org/x/net to v0.62.0
+time: 2026-10-28T18:16:51.007729674Z

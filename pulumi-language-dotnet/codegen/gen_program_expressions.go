@@ -243,19 +243,46 @@ func (g *generator) GenConditionalExpression(w io.Writer, expr *model.Conditiona
 }
 
 func (g *generator) GenForExpression(w io.Writer, expr *model.ForExpression) {
+	hasKey := expr.KeyVariable != nil
 	switch expr.Collection.Type().(type) {
 	case *model.ListType, *model.TupleType:
-		if expr.KeyVariable == nil {
+		if !hasKey {
 			g.Fgenf(w, "%.20v", expr.Collection)
 		} else {
-			g.Fgenf(w, "%.20v.Select((value, i) => new { Key = i.ToString(), Value = pair.Value })",
+			g.Fgenf(w, "%.20v.Select((value, i) => new { Key = i.ToString(), Value = value })",
 				expr.Collection)
 		}
 	case *model.MapType:
-		if expr.KeyVariable == nil {
+		if !hasKey {
 			g.Fgenf(w, "(%.v).Values", expr.Collection)
 		} else {
 			g.Fgenf(w, "%.20v.Select(pair => new { pair.Key, pair.Value })", expr.Collection)
+		}
+	}
+
+	// When hasKey, the lambda param is an anonymous `{Key, Value}` object; destructure into the
+	// user-named key/value locals. Otherwise the lambda param is the value directly.
+	genDestructuredLambda := func(body func()) {
+		if hasKey {
+			g.Fgen(w, "item => {\n")
+			g.Indented(func() {
+				if pcl.VariableAccessed(expr.KeyVariable.Name, expr.Value) ||
+					(expr.Condition != nil && pcl.VariableAccessed(expr.KeyVariable.Name, expr.Condition)) {
+					g.Fgenf(w, "%svar %s = item.Key;\n", g.Indent, expr.KeyVariable.Name)
+				}
+				if pcl.VariableAccessed(expr.ValueVariable.Name, expr.Value) ||
+					(expr.Condition != nil && pcl.VariableAccessed(expr.ValueVariable.Name, expr.Condition)) {
+					g.Fgenf(w, "%svar %s = item.Value;\n", g.Indent, expr.ValueVariable.Name)
+				}
+				body()
+			})
+			g.Fgenf(w, "%s}", g.Indent)
+		} else {
+			g.Fgenf(w, "%s => {\n", expr.ValueVariable.Name)
+			g.Indented(func() {
+				body()
+			})
+			g.Fgenf(w, "%s}", g.Indent)
 		}
 	}
 
@@ -263,48 +290,56 @@ func (g *generator) GenForExpression(w io.Writer, expr *model.ForExpression) {
 	case *model.ListType:
 		// the result of the expression is a list
 		if expr.Condition != nil {
-			g.Fgenf(w, ".Where(%s => %.v)", expr.ValueVariable.Name, expr.Condition)
+			g.Fgen(w, ".Where(")
+			genDestructuredLambda(func() {
+				g.Fgenf(w, "%sreturn %.v;\n", g.Indent, expr.Condition)
+			})
+			g.Fgen(w, ")")
 		}
 
-		g.Fgenf(w, ".Select(%s => \n", expr.ValueVariable.Name)
-
-		g.Fgenf(w, "%s{\n", g.Indent)
-		g.Indented(func() {
-			g.Fgenf(w, "%sreturn %v;", g.Indent, expr.Value)
-		})
-		g.Fgen(w, "\n")
-		// .ToList() is added so that the expressions returns `List<T>
-		// which can be implicitly converted to InputList<T>
-		g.Fgenf(w, "%s}).ToList()", g.Indent)
-	case *model.MapType:
-		// the result of the expression is a dictionary
-		g.Fgen(w, ".ToDictionary(item => {\n")
-		g.Indented(func() {
-			if expr.KeyVariable != nil && pcl.VariableAccessed(expr.KeyVariable.Name, expr.Key) {
-				g.Fgenf(w, "%svar %s = item.Key;\n", g.Indent, expr.KeyVariable.Name)
-			}
-
-			if expr.ValueVariable != nil && pcl.VariableAccessed(expr.ValueVariable.Name, expr.Key) {
-				g.Fgenf(w, "%svar %s = item.Value;\n", g.Indent, expr.ValueVariable.Name)
-			}
-
-			g.Fgenf(w, "%sreturn %s;\n", g.Indent, expr.Key)
-		})
-
-		g.Fgenf(w, "%s}, item => {\n", g.Indent)
-		g.Indented(func() {
-			if expr.KeyVariable != nil && pcl.VariableAccessed(expr.KeyVariable.Name, expr.Value) {
-				g.Fgenf(w, "%svar %s = item.Key;\n", g.Indent, expr.KeyVariable.Name)
-			}
-
-			if expr.ValueVariable != nil && pcl.VariableAccessed(expr.ValueVariable.Name, expr.Value) {
-				g.Fgenf(w, "%svar %s = item.Value;\n", g.Indent, expr.ValueVariable.Name)
-			}
-
+		g.Fgen(w, ".Select(")
+		genDestructuredLambda(func() {
 			g.Fgenf(w, "%sreturn %v;\n", g.Indent, expr.Value)
 		})
+		// .ToList() is added so that the expressions returns `List<T>
+		// which can be implicitly converted to InputList<T>
+		g.Fgen(w, ").ToList()")
+	case *model.MapType:
+		// the result of the expression is a dictionary
+		if expr.Condition != nil {
+			g.Fgen(w, ".Where(")
+			genDestructuredLambda(func() {
+				g.Fgenf(w, "%sreturn %.v;\n", g.Indent, expr.Condition)
+			})
+			g.Fgen(w, ")")
+		}
 
-		g.Fgenf(w, "%s})", g.Indent)
+		g.Fgen(w, ".ToDictionary(")
+		genMapLambda := func(body model.Expression) {
+			if hasKey {
+				g.Fgen(w, "item => {\n")
+				g.Indented(func() {
+					if pcl.VariableAccessed(expr.KeyVariable.Name, body) {
+						g.Fgenf(w, "%svar %s = item.Key;\n", g.Indent, expr.KeyVariable.Name)
+					}
+					if pcl.VariableAccessed(expr.ValueVariable.Name, body) {
+						g.Fgenf(w, "%svar %s = item.Value;\n", g.Indent, expr.ValueVariable.Name)
+					}
+					g.Fgenf(w, "%sreturn %v;\n", g.Indent, body)
+				})
+				g.Fgenf(w, "%s}", g.Indent)
+			} else {
+				g.Fgenf(w, "%s => {\n", expr.ValueVariable.Name)
+				g.Indented(func() {
+					g.Fgenf(w, "%sreturn %v;\n", g.Indent, body)
+				})
+				g.Fgenf(w, "%s}", g.Indent)
+			}
+		}
+		genMapLambda(expr.Key)
+		g.Fgen(w, ", ")
+		genMapLambda(expr.Value)
+		g.Fgen(w, ")")
 	}
 }
 

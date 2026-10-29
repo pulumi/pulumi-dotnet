@@ -24,7 +24,29 @@ env:
   PINNED_MISE_VERSION: 2026.6.9
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          # Every pattern must match so the changelog exclusions take effect.
+          predicate-quantifier: 'every'
+          filters: |
+            code:
+              - '**'
+              - '!CHANGELOG.md'
+              - '!.changes/**'
+
   setup_matrix:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -49,6 +71,8 @@ jobs:
           echo "matrix={\"os\": $(echo $os | jq -cR 'split(" ")')}" >> $GITHUB_OUTPUT
 
   format:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate with Pulumi Cloud
@@ -77,6 +101,8 @@ jobs:
         run: make format_check
 
   lint:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     name: Lint Go
     runs-on: ubuntu-22.04
     steps:
@@ -148,7 +174,8 @@ jobs:
           fi
 
   build:
-    needs: setup_matrix
+    needs: [changes, setup_matrix]
+    if: needs.changes.outputs.code == 'true'
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup_matrix.outputs.matrix).os }}
@@ -211,6 +238,8 @@ jobs:
           verbose: true
           token: ${{ steps.esc-secrets.outputs.CODECOV_TOKEN }}
   integration-tests:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -256,6 +285,8 @@ jobs:
       - name: Integration tests
         run: make test_integration
   conformance-tests:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -299,6 +330,8 @@ jobs:
         run: make test_conformance
 
   codegen-tests:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -342,6 +375,8 @@ jobs:
         run: make test_codegen
 
   info:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     name: gather
     runs-on: ubuntu-latest
     outputs:
@@ -382,9 +417,9 @@ jobs:
 
   release-dev-sdk:
     name: release-dev-sdk
-    needs: [build, integration-tests, conformance-tests, codegen-tests, info]
+    needs: [changes, build, integration-tests, conformance-tests, codegen-tests, info]
     uses: ./.github/workflows/release-sdk.yml
-    if: ${{ github.event_name == 'merge_group' }}
+    if: ${{ github.event_name == 'merge_group' && needs.changes.outputs.code == 'true' }}
     with:
       ref: ${{ github.event.release.tag_name }}
       version: ${{ needs.info.outputs.version }}
@@ -392,7 +427,7 @@ jobs:
     secrets: inherit
 
   check-pr:
-    needs: ["build", "integration-tests", "format", "conformance-tests", "codegen-tests"]
+    needs: ["changes", "build", "integration-tests", "format", "conformance-tests", "codegen-tests"]
     runs-on: ubuntu-latest
     if: always() # always report a status
     steps:
@@ -410,20 +445,23 @@ jobs:
         uses: pulumi/esc-action@eec71a90d9989af7ff14bd700b83fc72fae36119 # v4
         with:
           pulumi-access-token: ${{ steps.pulumi-auth.outputs.pulumi-access-token }}
+      - name: Change detection failed
+        if: ${{ needs.changes.result != 'success' }}
+        run: exit 1
       - name: Build failed
-        if: ${{ needs.build.result != 'success' }}
+        if: ${{ needs.changes.outputs.code == 'true' && needs.build.result != 'success' }}
         run: exit 1
       - name: Integration tests failed
-        if: ${{ needs.integration-tests.result != 'success' }}
+        if: ${{ needs.changes.outputs.code == 'true' && needs.integration-tests.result != 'success' }}
         run: exit 1
       - name: Format failed
-        if: ${{ needs.format.result != 'success' }}
+        if: ${{ needs.changes.outputs.code == 'true' && needs.format.result != 'success' }}
         run: exit 1
       - name: Conformance tests failed
-        if: ${{ needs.conformance-tests.result != 'success' }}
+        if: ${{ needs.changes.outputs.code == 'true' && needs.conformance-tests.result != 'success' }}
         run: exit 1
       - name: Codegen tests failed
-        if: ${{ needs.codegen-tests.result != 'success' }}
+        if: ${{ needs.changes.outputs.code == 'true' && needs.codegen-tests.result != 'success' }}
         run: exit 1
       - name: CI succeeded
         run: exit 0

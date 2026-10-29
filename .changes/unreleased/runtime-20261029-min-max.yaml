@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Implement codegen for the `min` and `max` PCL builtins
+time: 2026-10-29T00:00:00Z
+custom:
+  PR: 1259

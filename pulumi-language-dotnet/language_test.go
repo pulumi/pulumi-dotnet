@@ -152,7 +152,6 @@ var expectedFailures = map[string]string{
 	"l2-provider-call-explicit": "provider method calls fail in preview: engine rejects provider ref 'urn::' built from empty __self__.id", //nolint:lll
 
 	"l3-component-nested":                "Fail after updating to 3.232",
-	"l1-builtin-min-max":                 "Fail after updating to 3.232",
 	"l3-component-primitive-conversions": "Fail after updating to 3.232",
 
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",

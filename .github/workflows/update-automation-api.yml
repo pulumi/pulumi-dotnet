@@ -13,6 +13,9 @@ on:
 env:
   ESC_ACTION_ENVIRONMENT: pulumi/github-secrets/pulumi-pulumi-dotnet
   ESC_ACTION_EXPORT_ENVIRONMENT_VARIABLES: PULUMI_BOT_TOKEN
+  # `go` in the pulumi submodule installs tools from its mise.lock. In the default "generate" mode, mise also locks
+  # every other platform, and fails because java has no linux-arm64-musl build. "merge" locks only this platform.
+  MISE_LOCKFILE_MODE: merge
 
 concurrency:
   group: ${{ github.workflow }}

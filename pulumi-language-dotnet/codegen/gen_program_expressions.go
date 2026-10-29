@@ -865,6 +865,38 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 	case "sha1":
 		// Assuming the existence of the following helper method located earlier in the preamble
 		g.Fgenf(w, "ComputeSHA1(%v)", expr.Args[0])
+	case "min", "max":
+		method := "Min"
+		if expr.Name == "max" {
+			method = "Max"
+		}
+		anyOutput := false
+		for _, arg := range expr.Args {
+			co, cp := model.ContainsEventuals(arg.Type())
+			if co || (!g.asyncInit && cp) {
+				anyOutput = true
+				break
+			}
+		}
+		if anyOutput {
+			g.Fgen(w, "Output.All(")
+			for i, arg := range expr.Args {
+				if i > 0 {
+					g.Fgen(w, ", ")
+				}
+				g.Fgenf(w, "%.v", arg)
+			}
+			g.Fgenf(w, ").Apply(args => args.%s())", method)
+		} else {
+			g.Fgen(w, "new[] { ")
+			for i, arg := range expr.Args {
+				if i > 0 {
+					g.Fgen(w, ", ")
+				}
+				g.Fgenf(w, "%.v", arg)
+			}
+			g.Fgenf(w, " }.%s()", method)
+		}
 	case "stack":
 		g.Fgen(w, "Deployment.Instance.StackName")
 	case "project":

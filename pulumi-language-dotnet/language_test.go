@@ -189,6 +189,8 @@ var expectedFailures = map[string]string{
 	"l2-call-per-value-deps": "the .NET SDK does not support CALL_OUTPUT_VALUES: call results do not track dependencies per value, so g depends on {pa, pb} instead of {pa, c} (added in v3.270.0)", //nolint:lll
 
 	"l2-failed-create-component-continue-on-error": "the .NET SDK does not set SupportsPartialValues on RegisterResource, so the engine strips the unknown output of a remote component with a failed child and the dependent resource is not skipped (added in v3.272.0)", //nolint:lll
+
+	"l2-resource-exists": "programgen does not implement the resourceExists built-in and emits a TODO string: outputs are \"TODO: call resourceExists\" instead of booleans (added in v3.273.0)", //nolint:lll
 }
 
 // Add program overrides here for programs that can't yet be generated correctly due to programgen bugs.

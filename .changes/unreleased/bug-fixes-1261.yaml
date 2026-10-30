@@ -1,0 +1,6 @@
+component: runtime
+kind: bug-fixes
+body: Keep the parentheses around a conditional that is the condition of another conditional in program generation
+time: 2026-10-30T13:06:26.655731+01:00
+custom:
+    PR: "1261"

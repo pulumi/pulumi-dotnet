@@ -878,24 +878,42 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 				break
 			}
 		}
+		fixedArgs := expr.Args
+		var expandedArg model.Expression
+		if expr.ExpandFinal && len(expr.Args) > 0 {
+			expandedArg = expr.Args[len(expr.Args)-1]
+			fixedArgs = expr.Args[:len(expr.Args)-1]
+		}
 		if anyOutput {
 			g.Fgen(w, "Output.All(")
-			for i, arg := range expr.Args {
+			for i, arg := range fixedArgs {
 				if i > 0 {
 					g.Fgen(w, ", ")
 				}
 				g.Fgenf(w, "%.v", arg)
 			}
-			g.Fgenf(w, ").Apply(args => args.%s())", method)
+			g.Fgen(w, ")")
+			if expandedArg != nil {
+				g.Fgenf(w, ".Apply(args => args.Concat(%.v))", expandedArg)
+			}
+			g.Fgenf(w, ".Apply(args => args.%s())", method)
 		} else {
-			g.Fgen(w, "new[] { ")
-			for i, arg := range expr.Args {
-				if i > 0 {
-					g.Fgen(w, ", ")
+			if len(fixedArgs) == 0 && expandedArg != nil {
+				g.Fgenf(w, "(%.v).%s()", expandedArg, method)
+			} else {
+				g.Fgen(w, "new[] { ")
+				for i, arg := range fixedArgs {
+					if i > 0 {
+						g.Fgen(w, ", ")
+					}
+					g.Fgenf(w, "%.v", arg)
 				}
-				g.Fgenf(w, "%.v", arg)
+				g.Fgen(w, " }")
+				if expandedArg != nil {
+					g.Fgenf(w, ".Concat(%.v)", expandedArg)
+				}
+				g.Fgenf(w, ".%s()", method)
 			}
-			g.Fgenf(w, " }.%s()", method)
 		}
 	case "stack":
 		g.Fgen(w, "Deployment.Instance.StackName")

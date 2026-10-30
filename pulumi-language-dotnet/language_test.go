@@ -156,8 +156,6 @@ var expectedFailures = map[string]string{
 
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
 
-	"l1-expand-final": "Fail after updating to 3.243",
-
 	"l2-primitive-ref-optional":     "Fail after updating to 3.246: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
 	"l2-resource-any":               "Fail after updating to 3.246: dotnet build failed: CS0826 no best type found for implicitly-typed array",                 //nolint:lll
 	"l2-resource-schema-secret":     "Fail after updating to 3.246: dotnet build failed: Pulumi.Output namespace conflict",                                     //nolint:lll

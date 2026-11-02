@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Handle ExpandFinal (splat `...`) for min/max PCL builtins
+time: 2026-10-29T00:00:00Z
+custom:
+  PR: 1260

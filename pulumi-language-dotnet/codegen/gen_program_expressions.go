@@ -1349,6 +1349,7 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 ) {
 	for i, part := range traversal {
 		var key cty.Value
+		isIndex := false
 		switch part := part.(type) {
 		case hcl.TraverseAttr:
 			key = cty.StringVal(part.Name)
@@ -1361,6 +1362,7 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 			}
 		case hcl.TraverseIndex:
 			key = part.Key
+			isIndex = true
 		default:
 			contract.Failf("unexpected traversal part of type %T (%v)", part, part.SourceRange())
 		}
@@ -1368,6 +1370,13 @@ func (g *generator) genRelativeTraversal(w io.Writer,
 		switch key.Type() {
 		case cty.String:
 			if rootIsDictionary && i == 0 {
+				g.Fgenf(w, "[%q]", key.AsString())
+				continue
+			}
+			// Bracket-indexed string access (`m["key"]`) in PCL maps to a C# dictionary indexer;
+			// attribute access (`obj.prop`) on a map type does too.
+			inputType := model.ResolveOutputs(model.GetTraversableType(parts[i]))
+			if _, isMap := inputType.(*model.MapType); isMap || isIndex {
 				g.Fgenf(w, "[%q]", key.AsString())
 				continue
 			}

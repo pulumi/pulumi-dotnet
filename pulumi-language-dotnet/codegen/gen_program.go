@@ -2207,6 +2207,8 @@ func computeConfigTypeParam(configName string, configType model.Type) string {
 		case *model.MapType:
 			elementType := computeConfigTypeParam(configName, complexType.ElementType)
 			return fmt.Sprintf("Dictionary<string, %s>", elementType)
+		case *model.OutputType:
+			return computeConfigTypeParam(configName, complexType.ElementType)
 		default:
 			return "dynamic"
 		}

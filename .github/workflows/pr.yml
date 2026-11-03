@@ -216,7 +216,7 @@ jobs:
       - name: Dotnet version
         run: dotnet --version
       - name: Install Pulumi CLI
-        uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7
+        uses: pulumi/actions@96c7761824268174e0d2a4e8c7d75671eebd24a7 # v7
         with:
           pulumi-version: dev
       - name: Build Pulumi SDK
@@ -321,7 +321,7 @@ jobs:
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
-        uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7
+        uses: pulumi/actions@96c7761824268174e0d2a4e8c7d75671eebd24a7 # v7
         with:
           pulumi-version: dev
       - name: Dotnet version
@@ -366,7 +366,7 @@ jobs:
       - name: Set dotnet version from matrix
         run: mise use vfox:dotnet@${{ matrix.dotnet-version }}
       - name: Install Pulumi CLI
-        uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7
+        uses: pulumi/actions@96c7761824268174e0d2a4e8c7d75671eebd24a7 # v7
         with:
           pulumi-version: dev
       - name: Dotnet version

@@ -125,14 +125,13 @@ var expectedFailures = map[string]string{
 	"l2-resource-name-type":      "Fail after updating to 3.224: TODO: call pulumiResourceName",                                                        //nolint:lll
 	"l2-builtin-object":          "Fail after updating to 3.224: Invalid expression term ')'",
 
-	"l3-range": "Fail after updating to 3.225",
+	"l3-range":        "Fail after updating to 3.225",
+	"l3-for-resource": "Fail after updating to 3.226",
 
 	"l2-resource-optional":        "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
 	"l3-component-config-objects": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll
 
-	"l3-for":              "Fail after updating to 3.226",
 	"l2-snake-names":      "Fail after updating to 3.226",
-	"l3-for-resource":     "Fail after updating to 3.226",
 	"l2-keywords":         "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
 	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
 
@@ -151,7 +150,7 @@ var expectedFailures = map[string]string{
 	// builds the provider ref from __self__.id verbatim, yielding the invalid ref 'urn::'.
 	"l2-provider-call-explicit": "provider method calls fail in preview: engine rejects provider ref 'urn::' built from empty __self__.id", //nolint:lll
 
-	"l3-component-nested":                "Fail after updating to 3.232",
+	"l3-component-nested":                "Fail after updating to 3.232: dotnet build failed: operator '!' cannot be applied to Input<bool>", //nolint:lll
 	"l3-component-primitive-conversions": "Fail after updating to 3.232",
 
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",

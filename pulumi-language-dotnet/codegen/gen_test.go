@@ -52,10 +52,8 @@ func filterTests() []*test.SDKTest {
 	return tests
 }
 
-func TestGeneratePackage(t *testing.T) {
-	t.Parallel()
-
-	test.TestSDKCodegen(t, &test.SDKCodegenOptions{
+func sdkCodegenOptions(inputDir string, testCases []*test.SDKTest) *test.SDKCodegenOptions {
+	return &test.SDKCodegenOptions{
 		Language: "dotnet",
 		GenPackage: func(
 			t string, p *schema.Package, e map[string][]byte, l schema.ReferenceLoader,
@@ -66,11 +64,31 @@ func TestGeneratePackage(t *testing.T) {
 			"dotnet/compile": typeCheckGeneratedPackage,
 			"dotnet/test":    testGeneratedPackage,
 		},
-		TestCases: filterTests(),
+		TestCases: testCases,
 
-		InputDir:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
+		InputDir:  inputDir,
 		ResultDir: "testdata",
-	})
+	}
+}
+
+func TestGeneratePackage(t *testing.T) {
+	t.Parallel()
+
+	test.TestSDKCodegen(t, sdkCodegenOptions(
+		filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"), filterTests()))
+}
+
+// TestGeneratePackageLocal runs SDK codegen tests whose schemas live in this repository
+// instead of in pulumi/pulumi.
+func TestGeneratePackageLocal(t *testing.T) {
+	t.Parallel()
+
+	test.TestSDKCodegen(t, sdkCodegenOptions("testschemas", []*test.SDKTest{
+		{
+			Directory:   "deprecated-properties",
+			Description: "Deprecated properties generate [Obsolete] without CS0618 in the SDK itself",
+		},
+	}))
 }
 
 var buildMutex sync.Mutex
@@ -88,7 +106,8 @@ func typeCheckGeneratedPackage(t *testing.T, pwd string) {
 	// See: https://github.com/pulumi/pulumi/issues/18738
 	buildMutex.Lock()
 	defer buildMutex.Unlock()
-	test.RunCommand(t, "dotnet build", pwd, "dotnet", "build")
+	// The generated SDK must not reference its own [Obsolete] members without suppressing CS0618.
+	test.RunCommand(t, "dotnet build", pwd, "dotnet", "build", "-p:WarningsAsErrors=CS0618")
 }
 
 func testGeneratedPackage(t *testing.T, pwd string) {

@@ -762,6 +762,7 @@ func (pt *plainType) genInputProperty(w io.Writer, prop *schema.Property, indent
 		if generateInputAttribute {
 			pt.genInputPropertyAttribute(w, indent, prop)
 		}
+		printObsoleteAttribute(w, prop.DeprecationMessage, indent)
 
 		fmt.Fprintf(w, "%spublic %s %s { get; set; }%s\n", indent, propertyType, propertyName, initializer)
 	}
@@ -823,7 +824,7 @@ func (pt *plainType) genInputTypeWithFlags(w io.Writer, level int, generateInput
 				return err
 			}
 			propertyName := pt.mod.propertyName(prop)
-			fmt.Fprintf(w, "%s        %s = %s;\n", indent, propertyName, dv)
+			printAssignment(w, indent+"        ", propertyName, dv, prop.DeprecationMessage)
 		}
 	}
 	fmt.Fprintf(w, "%s    }\n", indent)
@@ -864,6 +865,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 		}
 		fieldType := pt.mod.typeString(typ, pt.propertyTypeQualifier, false, false, false)
 		pt.mod.printComment(w, prop.Comment, indent+"    ")
+		printObsoleteAttribute(w, prop.DeprecationMessage, indent+"    ")
 		fmt.Fprintf(w, "%s    public readonly %s %s;\n", indent, fieldType, fieldName)
 	}
 	if len(pt.properties) > 0 {
@@ -905,7 +907,7 @@ func (pt *plainType) genOutputType(w io.Writer, level int) {
 			// Avoid a no-op in case of field and property name collision.
 			fieldName = "this." + fieldName
 		}
-		fmt.Fprintf(w, "%s        %s = %s;\n", indent, fieldName, paramName)
+		printAssignment(w, indent+"        ", fieldName, paramName, prop.DeprecationMessage)
 	}
 	fmt.Fprintf(w, "%s    }\n", indent)
 
@@ -1065,6 +1067,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 
 		mod.printComment(w, prop.Comment, "        ")
 		fmt.Fprintf(w, "        [Output(\"%s\")]\n", wireName)
+		printObsoleteAttribute(w, prop.DeprecationMessage, "        ")
 		fmt.Fprintf(w, "        public Output<%s> %s { get; private set; } = null!;\n", propertyType, propertyName)
 		fmt.Fprintf(w, "\n")
 	}
@@ -1181,7 +1184,7 @@ func (mod *modContext) genResource(w io.Writer, r *schema.Resource) error {
 				if err != nil {
 					return err
 				}
-				fmt.Fprintf(w, "            args.%s = %s;\n", mod.propertyName(prop), v)
+				printAssignment(w, "            ", "args."+mod.propertyName(prop), v, prop.DeprecationMessage)
 			}
 		}
 		fmt.Fprintf(w, "            return args;\n")
@@ -1861,6 +1864,18 @@ func printObsoleteAttribute(w io.Writer, deprecationMessage, indent string) {
 	}
 }
 
+// printAssignment writes `lhs = rhs;`. C# reports CS0618 for a reference to an obsolete member
+// even inside its declaring type, so the assignment to a deprecated member suppresses it.
+func printAssignment(w io.Writer, indent, lhs, rhs, deprecationMessage string) {
+	if deprecationMessage == "" {
+		fmt.Fprintf(w, "%s%s = %s;\n", indent, lhs, rhs)
+		return
+	}
+	fmt.Fprintf(w, "#pragma warning disable CS0618\n")
+	fmt.Fprintf(w, "%s%s = %s;\n", indent, lhs, rhs)
+	fmt.Fprintf(w, "#pragma warning restore CS0618\n")
+}
+
 func (mod *modContext) genEnum(w io.Writer, enum *schema.EnumType) error {
 	indent := "    "
 	enumName := tokenToName(enum.Token)
@@ -2132,6 +2147,7 @@ func (mod *modContext) genConfig(variables []*schema.Property) (string, error) {
 
 		fmt.Fprintf(w, "        private static readonly __Value<%[1]s> _%[2]s = new __Value<%[1]s>(() => %[3]s);\n", propertyType, p.Name, initializer)
 		mod.printComment(w, p.Comment, "        ")
+		printObsoleteAttribute(w, p.DeprecationMessage, "        ")
 		fmt.Fprintf(w, "        public static %s %s\n", propertyType, propertyName)
 		fmt.Fprintf(w, "        {\n")
 		fmt.Fprintf(w, "            get => _%s.Get();\n", p.Name)
@@ -2170,6 +2186,7 @@ func (mod *modContext) genConfig(variables []*schema.Property) (string, error) {
 				}
 
 				mod.printComment(w, prop.Comment, "            ")
+				printObsoleteAttribute(w, prop.DeprecationMessage, "                ")
 				fmt.Fprintf(w, "                public %s %s { get; set; }%s\n", typ, name, initializer)
 			}
 

@@ -1,0 +1,110 @@
+{
+  "name": "example",
+  "version": "0.0.1",
+  "config": {
+    "variables": {
+      "oldRegion": {
+        "type": "string",
+        "deprecationMessage": "Use \"region\" instead."
+      },
+      "region": {
+        "type": "string"
+      },
+      "settings": {
+        "$ref": "#/types/example::Settings"
+      }
+    }
+  },
+  "types": {
+    "example::Settings": {
+      "type": "object",
+      "properties": {
+        "oldName": {
+          "type": "string",
+          "deprecationMessage": "Use name instead."
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "resources": {
+    "example::Widget": {
+      "properties": {
+        "oldSize": {
+          "type": "integer",
+          "deprecationMessage": "Use size instead."
+        },
+        "size": {
+          "type": "integer"
+        },
+        "settings": {
+          "$ref": "#/types/example::Settings"
+        }
+      },
+      "inputProperties": {
+        "oldSize": {
+          "type": "integer",
+          "deprecationMessage": "Use size instead."
+        },
+        "size": {
+          "type": "integer"
+        },
+        "oldColor": {
+          "type": "string",
+          "default": "blue",
+          "deprecationMessage": "Use color instead."
+        },
+        "oldKind": {
+          "type": "string",
+          "const": "widget",
+          "deprecationMessage": "Kind is always widget."
+        },
+        "oldPassword": {
+          "type": "string",
+          "secret": true,
+          "default": "hunter2",
+          "deprecationMessage": "Use password instead."
+        },
+        "oldTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "deprecationMessage": "Use labels instead."
+        },
+        "settings": {
+          "$ref": "#/types/example::Settings"
+        }
+      }
+    }
+  },
+  "functions": {
+    "example::getWidget": {
+      "inputs": {
+        "properties": {
+          "oldId": {
+            "type": "string",
+            "deprecationMessage": "Use id instead."
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "outputs": {
+        "properties": {
+          "oldSize": {
+            "type": "integer",
+            "deprecationMessage": "Use size instead."
+          },
+          "size": {
+            "type": "integer"
+          }
+        },
+        "required": ["size"]
+      }
+    }
+  }
+}

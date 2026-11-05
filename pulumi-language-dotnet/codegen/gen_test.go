@@ -87,6 +87,9 @@ func TestGeneratePackageLocal(t *testing.T) {
 		{
 			Directory:   "deprecated-properties",
 			Description: "Deprecated properties generate [Obsolete] without CS0618 in the SDK itself",
+			Checks: map[string]test.CodegenCheck{
+				"dotnet/compile": typeCheckWithoutObsoleteWarnings,
+			},
 		},
 	}))
 }
@@ -94,6 +97,17 @@ func TestGeneratePackageLocal(t *testing.T) {
 var buildMutex sync.Mutex
 
 func typeCheckGeneratedPackage(t *testing.T, pwd string) {
+	buildGeneratedPackage(t, pwd)
+}
+
+// typeCheckWithoutObsoleteWarnings fails if the generated SDK references its own [Obsolete]
+// members without suppressing CS0618. It only applies to test cases without hand-written
+// extras, because extras may call deprecated members on purpose.
+func typeCheckWithoutObsoleteWarnings(t *testing.T, pwd string) {
+	buildGeneratedPackage(t, pwd, "--no-incremental", "-p:WarningsAsErrors=CS0618")
+}
+
+func buildGeneratedPackage(t *testing.T, pwd string, args ...string) {
 	versionPath := filepath.Join(pwd, "version.txt")
 	if _, err := os.Stat(versionPath); os.IsNotExist(err) {
 		err := os.WriteFile(versionPath, []byte("0.0.0\n"), 0o600)
@@ -106,8 +120,7 @@ func typeCheckGeneratedPackage(t *testing.T, pwd string) {
 	// See: https://github.com/pulumi/pulumi/issues/18738
 	buildMutex.Lock()
 	defer buildMutex.Unlock()
-	// The generated SDK must not reference its own [Obsolete] members without suppressing CS0618.
-	test.RunCommand(t, "dotnet build", pwd, "dotnet", "build", "-p:WarningsAsErrors=CS0618")
+	test.RunCommand(t, "dotnet build", pwd, "dotnet", append([]string{"build"}, args...)...)
 }
 
 func testGeneratedPackage(t *testing.T, pwd string) {

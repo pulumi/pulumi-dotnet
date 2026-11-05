@@ -52,10 +52,8 @@ func filterTests() []*test.SDKTest {
 	return tests
 }
 
-func TestGeneratePackage(t *testing.T) {
-	t.Parallel()
-
-	test.TestSDKCodegen(t, &test.SDKCodegenOptions{
+func sdkCodegenOptions(inputDir string, testCases []*test.SDKTest) *test.SDKCodegenOptions {
+	return &test.SDKCodegenOptions{
 		Language: "dotnet",
 		GenPackage: func(
 			t string, p *schema.Package, e map[string][]byte, l schema.ReferenceLoader,
@@ -66,16 +64,50 @@ func TestGeneratePackage(t *testing.T) {
 			"dotnet/compile": typeCheckGeneratedPackage,
 			"dotnet/test":    testGeneratedPackage,
 		},
-		TestCases: filterTests(),
+		TestCases: testCases,
 
-		InputDir:  filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"),
+		InputDir:  inputDir,
 		ResultDir: "testdata",
-	})
+	}
+}
+
+func TestGeneratePackage(t *testing.T) {
+	t.Parallel()
+
+	test.TestSDKCodegen(t, sdkCodegenOptions(
+		filepath.Join("..", "..", "pulumi", "tests", "testdata", "codegen"), filterTests()))
+}
+
+// TestGeneratePackageLocal runs SDK codegen tests whose schemas live in this repository
+// instead of in pulumi/pulumi.
+func TestGeneratePackageLocal(t *testing.T) {
+	t.Parallel()
+
+	test.TestSDKCodegen(t, sdkCodegenOptions("testschemas", []*test.SDKTest{
+		{
+			Directory:   "deprecated-properties",
+			Description: "Deprecated properties generate [Obsolete] without CS0618 in the SDK itself",
+			Checks: map[string]test.CodegenCheck{
+				"dotnet/compile": typeCheckWithoutObsoleteWarnings,
+			},
+		},
+	}))
 }
 
 var buildMutex sync.Mutex
 
 func typeCheckGeneratedPackage(t *testing.T, pwd string) {
+	buildGeneratedPackage(t, pwd)
+}
+
+// typeCheckWithoutObsoleteWarnings fails if the generated SDK references its own [Obsolete]
+// members without suppressing CS0618. It only applies to test cases without hand-written
+// extras, because extras may call deprecated members on purpose.
+func typeCheckWithoutObsoleteWarnings(t *testing.T, pwd string) {
+	buildGeneratedPackage(t, pwd, "--no-incremental", "-p:WarningsAsErrors=CS0618")
+}
+
+func buildGeneratedPackage(t *testing.T, pwd string, args ...string) {
 	versionPath := filepath.Join(pwd, "version.txt")
 	if _, err := os.Stat(versionPath); os.IsNotExist(err) {
 		err := os.WriteFile(versionPath, []byte("0.0.0\n"), 0o600)
@@ -88,7 +120,7 @@ func typeCheckGeneratedPackage(t *testing.T, pwd string) {
 	// See: https://github.com/pulumi/pulumi/issues/18738
 	buildMutex.Lock()
 	defer buildMutex.Unlock()
-	test.RunCommand(t, "dotnet build", pwd, "dotnet", "build")
+	test.RunCommand(t, "dotnet build", pwd, "dotnet", append([]string{"build"}, args...)...)
 }
 
 func testGeneratedPackage(t *testing.T, pwd string) {

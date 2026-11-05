@@ -97,7 +97,7 @@ func runTestingHost(t *testing.T) (string, testingrpc.LanguageTestClient) {
 var expectedFailures = map[string]string{
 	"l1-builtin-can": "#489 codegen not implemented",
 	"l1-builtin-try": "#490 codegen not implemented",
-	"l1-proxy-index": "dotnet build failed",
+	"l1-proxy-index": "dotnet build failed: codegen emits PascalCase property access on anonymous dicts and dynamic lambdas", //nolint:lll
 	"l2-resource-asset-archive": "" +
 		"The namespace 'Pulumi.AssetArchive' conflicts with the type 'AssetArchive' in 'Pulumi, Version=1.0.0.0",
 	"l2-provider-grpc-config":               "dotnet build failed",
@@ -108,7 +108,7 @@ var expectedFailures = map[string]string{
 		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
 	"l2-invoke-scalars": "" +
 		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
-	"l2-map-keys":                            "dotnet build failed",
+	"l2-map-keys":                            "dotnet build failed: bare dict initializer emitted for nested stringMap",
 	"l2-resource-secret":                     "test hanging",
 	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
 	"l2-union":                               "dotnet build failed",
@@ -128,8 +128,7 @@ var expectedFailures = map[string]string{
 	"l3-range":        "Fail after updating to 3.225",
 	"l3-for-resource": "Fail after updating to 3.226",
 
-	"l2-resource-optional":        "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
-	"l3-component-config-objects": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputMap<bool>'", //nolint:lll
+	"l2-resource-optional": "Fail after updating to 3.229: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'", //nolint:lll
 
 	"l2-snake-names":      "Fail after updating to 3.226",
 	"l2-keywords":         "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",

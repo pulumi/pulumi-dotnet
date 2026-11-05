@@ -72,7 +72,8 @@ namespace Pulumi
                 dependencies[key] = urns.ToImmutable();
             }
 
-            return (result.Urn, result.Id, result.Object, dependencies.ToImmutable(), result.Result);
+            var registerResult = result.Unknown ? Pulumirpc.Result.Fail : result.Result;
+            return (result.Urn, result.Id, result.Object, dependencies.ToImmutable(), registerResult);
         }
 
         private static void PopulateRequest(RegisterResourceRequest request, PrepareResult prepareResult)

@@ -111,7 +111,6 @@ var expectedFailures = map[string]string{
 	"l2-map-keys":                            "dotnet build failed: bare dict initializer emitted for nested stringMap",
 	"l2-resource-secret":                     "test hanging",
 	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
-	"l2-union":                               "dotnet build failed",
 	"l2-resource-option-alias":               "aliases not recognized: expected 0 create operations but got 3",
 	"l2-resource-option-replacement-trigger": "dotnet build failed: Pulumi.Output namespace conflict",
 	"l1-config-types-object":                 "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll

@@ -134,8 +134,7 @@ var expectedFailures = map[string]string{
 	"l2-keywords":         "SDK build failed: duplicate Lambda definition and member name conflicts with enclosing type",
 	"l3-deferred-outputs": "dotnet build failed: operator '!' cannot be applied to Input<bool> and undefined names", //nolint:lll
 
-	"l2-resource-config-objects": "dotnet build failed: Cannot implicitly convert type 'Output<dynamic>' to 'InputList<double>'",             //nolint:lll
-	"l3-rewrite-conversions":     "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
+	"l3-rewrite-conversions": "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
 	// l3-range-ref was split by range kind in pulumi/pulumi#23632 (v3.248.0); all three inherit the
 	// original "dotnet build failed: List<Target> missing K1/Name members" range-ref codegen bug.
 	"l3-range-map-ref":                   "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll

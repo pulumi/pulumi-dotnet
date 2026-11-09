@@ -1,6 +1,0 @@
-component: runtime
-kind: Improvements
-body: Fix programgen for `for` expressions with index/key variables
-time: 2026-10-29T00:00:00Z
-custom:
-  PR: 1267

@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Mark deprecated properties `[Obsolete]` in generated C# SDKs
-time: 2026-11-05T00:00:00Z
-custom:
-  PR: 1275

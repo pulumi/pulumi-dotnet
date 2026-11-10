@@ -13619,6 +13619,14 @@
             OutputValues in `CallResponse.return`.
             </summary>
         </member>
+        <member name="F:Pulumirpc.ResourceMonitorFeature.RegisterResourceOutputValues">
+            <summary>
+            The monitor accepts OutputValues nested in `RegisterResourceRequest.object` and will harvest their
+            dependencies into the resource's `propertyDependencies`. Clients that set `uses_output_values` on
+            `RegisterResourceRequest` can omit `propertyDependencies` and let the engine derive it from the
+            OutputValue tree.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.DeploymentInfo">
             <summary>
             DeploymentInfo returns monitor execution state currently sent to programs
@@ -14365,6 +14373,19 @@
         <member name="P:Pulumirpc.RegisterResourceRequest.StateMigrations">
             <summary>
             A list of state migrations to apply to the prior state of this resource and its descendants before diffing.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.RegisterResourceRequest.UsesOutputValuesFieldNumber">
+            <summary>Field number for the "uses_output_values" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.RegisterResourceRequest.UsesOutputValues">
+            <summary>
+            When true the `object` field uses OutputValues to carry per-leaf dependency information. The engine
+            harvests dependencies from the OutputValue tree. `propertyDependencies` must be empty in this case —
+            the engine rejects requests that set this flag together with a non-empty propertyDependencies map.
+            Leaves of `object` that are plain values (not OutputValues) are treated as having no dependencies;
+            they do not inherit the top-level `dependencies` list. Clients should only set this when the monitor
+            advertises `RESOURCE_MONITOR_FEATURE_REGISTER_RESOURCE_OUTPUT_VALUES`.
             </summary>
         </member>
         <member name="T:Pulumirpc.RegisterResourceRequest.Types">

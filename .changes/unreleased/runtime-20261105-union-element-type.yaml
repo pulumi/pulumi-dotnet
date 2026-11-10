@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Emit `Pulumi.Union<T0, T1>` for binary union element types instead of `dynamic`
+time: 2026-11-05T00:00:00Z
+custom:
+  PR: 1282

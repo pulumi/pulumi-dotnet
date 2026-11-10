@@ -729,11 +729,49 @@ func componentInputElementType(pclType model.Type) string {
 			} else if len(pclType.ElementTypes) == 2 && pclType.ElementTypes[1] == model.NoneType {
 				return componentInputElementType(pclType.ElementTypes[0])
 			}
+			if len(pclType.ElementTypes) == 2 {
+				return fmt.Sprintf("Pulumi.Union<%s, %s>",
+					plainElementType(pclType.ElementTypes[0]),
+					plainElementType(pclType.ElementTypes[1]))
+			}
 			return dynamicType
 		default:
 			return dynamicType
 		}
 	}
+}
+
+// plainElementType returns the non-Input C# type name for a PCL type, as used
+// inside Union<T0, T1> where neither operand carries an Input wrapper.
+func plainElementType(pclType model.Type) string {
+	switch pclType {
+	case model.BoolType:
+		return "bool"
+	case model.IntType:
+		return "int"
+	case model.NumberType:
+		return "double"
+	case model.IDType, model.StringType:
+		return "string"
+	}
+	switch t := pclType.(type) {
+	case *model.ListType:
+		return fmt.Sprintf("System.Collections.Immutable.ImmutableArray<%s>", plainElementType(t.ElementType))
+	case *model.MapType:
+		return fmt.Sprintf("System.Collections.Immutable.ImmutableDictionary<string, %s>", plainElementType(t.ElementType))
+	case *model.UnionType:
+		if len(t.ElementTypes) == 2 && t.ElementTypes[0] == model.NoneType {
+			return plainElementType(t.ElementTypes[1])
+		} else if len(t.ElementTypes) == 2 && t.ElementTypes[1] == model.NoneType {
+			return plainElementType(t.ElementTypes[0])
+		}
+		if len(t.ElementTypes) == 2 {
+			return fmt.Sprintf("Pulumi.Union<%s, %s>",
+				plainElementType(t.ElementTypes[0]),
+				plainElementType(t.ElementTypes[1]))
+		}
+	}
+	return dynamicType
 }
 
 func componentInputType(pclType model.Type) string {

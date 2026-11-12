@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Generate code for the `customTimeouts` resource option and add a `Read` timeout plus `CustomTimeouts.FromStrings` helper to the SDK
+time: 2026-11-12T00:00:00Z
+custom:
+  PR: "TBD"

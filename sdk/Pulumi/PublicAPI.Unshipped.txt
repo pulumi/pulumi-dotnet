@@ -1,3 +1,0 @@
-Pulumi.CustomTimeouts.Read.get -> System.TimeSpan?
-Pulumi.CustomTimeouts.Read.set -> void
-static Pulumi.CustomTimeouts.FromStrings(string? create = null, string? update = null, string? delete = null, string? read = null) -> Pulumi.CustomTimeouts!

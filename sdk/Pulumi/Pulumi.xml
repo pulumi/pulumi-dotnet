@@ -2422,6 +2422,17 @@
             The optional delete timeout.
             </summary>
         </member>
+        <member name="P:Pulumi.CustomTimeouts.Read">
+            <summary>
+            The optional read timeout.
+            </summary>
+        </member>
+        <member name="M:Pulumi.CustomTimeouts.FromStrings(System.String,System.String,System.String,System.String)">
+            <summary>
+            Construct a <see cref="T:Pulumi.CustomTimeouts"/> from Go-style duration strings
+            such as "5m", "1h30m" or "300ms". Null or empty values leave the field unset.
+            </summary>
+        </member>
         <member name="T:Pulumi.DependencyProviderResource">
             <summary>
             <see cref="T:Pulumi.DependencyProviderResource"/> is a <see cref="T:Pulumi.Resource"/> that is used by the provider SDK as a

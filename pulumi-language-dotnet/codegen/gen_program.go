@@ -1747,6 +1747,27 @@ func (g *generator) genResourceOptions(
 	if opts.EnvVarMappings != nil {
 		appendOption("EnvVarMappings", opts.EnvVarMappings)
 	}
+	if opts.CustomTimeouts != nil {
+		ensureOptionsHeader()
+		g.Fgenf(&result, "\n%sCustomTimeouts = CustomTimeouts.FromStrings(", g.Indent)
+		if obj, ok := opts.CustomTimeouts.(*model.ObjectConsExpression); ok {
+			first := true
+			for _, item := range obj.Items {
+				var key string
+				if lit, ok := item.Key.(*model.LiteralValueExpression); ok && lit.Value.Type() == cty.String {
+					key = lit.Value.AsString()
+				} else {
+					continue
+				}
+				if !first {
+					g.Fgenf(&result, ", ")
+				}
+				first = false
+				g.Fgenf(&result, "%s: %v", key, g.lowerExpression(item.Value, model.StringType))
+			}
+		}
+		g.Fgenf(&result, "),")
+	}
 	if len(hookVars) > 0 {
 		ensureOptionsHeader()
 		g.Fgenf(&result, "\n%sHooks = new ResourceHookBinding\n", g.Indent)

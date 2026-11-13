@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Pin `Microsoft.SourceLink.GitHub` to 8.0.0 in generated SDKs so they build from source in git checkouts with `core.repositoryformatversion=1` (sparse-checkout and SHA-256 setups), which failed with "Unsupported repository version 1" at 1.0.0
+time: 2026-11-13T00:00:00Z
+custom:
+    PR: "1291"

@@ -1,0 +1,4 @@
+component: sdk
+kind: dependencies
+body: Update go.opentelemetry.io/otel/sdk to v1.47.0
+time: 2026-11-14T03:25:47.376087628Z

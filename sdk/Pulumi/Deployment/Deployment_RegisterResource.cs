@@ -131,6 +131,7 @@ namespace Pulumi
                 ImportId = customOpts?.ImportId ?? "",
                 AcceptSecrets = true,
                 AcceptResources = !_disableResourceReferences,
+                SupportsPartialValues = true,
                 DeleteBeforeReplaceDefined = deleteBeforeReplace != null,
                 CustomTimeouts = options.CustomTimeouts?.Serialize(),
                 Remote = remote,

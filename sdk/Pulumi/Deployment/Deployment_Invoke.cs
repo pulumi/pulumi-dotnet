@@ -189,10 +189,21 @@ namespace Pulumi
                     resourceDependencies.UnionWith(resourceList);
                 }
             }
-            // The expanded set of dependencies, including children of components.
+            // Collect direct dependency URNs to send on the invoke request. New engines gate the invoke on
+            // these and return unknown when any are still pending; the engine walks components to find
+            // their children, so direct URNs are enough.
+            var directUrnTasks = resourcesToWaitFor.Select(r => r.Urn.GetValueAsync(whenUnknown: ""));
+            var directUrns = await Task.WhenAll(directUrnTasks).ConfigureAwait(false);
+            var dependsOnUrns = new HashSet<string>(directUrns.Where(urn => !string.IsNullOrEmpty(urn)));
+
+            // The expanded set of dependencies, including children of components. Only used for the local
+            // await on CustomResource IDs below, which supports older engines that don't understand
+            // `dependsOn` on an invoke.
             var expandedResourceList = GetAllTransitivelyReferencedResources(resourcesToWaitFor.ToHashSet());
             resourcesToWaitFor.UnionWith(expandedResourceList);
-            // Ensure that all resource IDs are known before proceeding.
+
+            // Ensure that all resource IDs are known before proceeding. Older engines that don't understand
+            // `dependsOn` on an invoke rely on this local await for CustomResource dependencies.
             foreach (var resource in resourcesToWaitFor)
             {
                 // Check if it's an instance of CustomResource.
@@ -213,7 +224,16 @@ namespace Pulumi
             }
 
             var protoArgs = serializedArgs.ToSerializationResult();
-            var result = await InvokeRawAsync(token, protoArgs, options, registerPackageRequest).ConfigureAwait(false);
+            var (result, isUnknown) = await InvokeRawAsyncWithUnknown(token, protoArgs, options, registerPackageRequest, dependsOnUrns).ConfigureAwait(false);
+            if (isUnknown)
+            {
+                // The monitor gated the invoke on pending dependencies and signalled the result is wholly
+                // unknown; don't try to deserialize the empty `return` struct.
+                return new OutputData<T>(resources: ImmutableHashSet.CreateRange(resourceDependencies),
+                                         value: default!,
+                                         isKnown: false,
+                                         isSecret: false);
+            }
             var data = Pulumi.Serialization.Converter.ConvertValue<T>(err => Log.Warn(err), $"{token} result",
                                                  new Value { StructValue = result.Serialized });
             var resources = ImmutableHashSet.CreateRange(
@@ -247,7 +267,19 @@ namespace Pulumi
             string token,
             SerializationResult argsSerializationResult,
             InvokeOptions? options,
-            RegisterPackageRequest? registerPackageRequest = null)
+            RegisterPackageRequest? registerPackageRequest = null,
+            HashSet<string>? dependsOnUrns = null)
+        {
+            var (result, _) = await InvokeRawAsyncWithUnknown(token, argsSerializationResult, options, registerPackageRequest, dependsOnUrns).ConfigureAwait(false);
+            return result;
+        }
+
+        private async Task<(SerializationResult result, bool isUnknown)> InvokeRawAsyncWithUnknown(
+            string token,
+            SerializationResult argsSerializationResult,
+            InvokeOptions? options,
+            RegisterPackageRequest? registerPackageRequest = null,
+            HashSet<string>? dependsOnUrns = null)
         {
             await AwaitPendingRegistrations();
             var serialized = argsSerializationResult.Serialized;
@@ -266,6 +298,11 @@ namespace Pulumi
                 AcceptResources = !_disableResourceReferences,
                 PluginDownloadURL = options?.PluginDownloadURL ?? "",
             };
+
+            if (dependsOnUrns != null)
+            {
+                invokeRequest.DependsOn.AddRange(dependsOnUrns);
+            }
 
             if (registerPackageRequest != null)
             {
@@ -294,7 +331,7 @@ namespace Pulumi
                 throw new InvokeException($"Invoke of '{token}' failed: {reasons}");
             }
 
-            return new SerializationResult(result.Return, argsSerializationResult.PropertyToDependentResources);
+            return (new SerializationResult(result.Return, argsSerializationResult.PropertyToDependentResources), result.Unknown);
         }
 
         private static async Task<RawSerializationResult> SerializeInvokeArgs(string token, InvokeArgs args, bool keepResources)

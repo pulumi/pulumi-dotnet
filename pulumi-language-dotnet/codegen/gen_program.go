@@ -363,9 +363,28 @@ func generateProjectFile(program *pcl.Program, localDependencies map[string]stri
 
 	csproj.WriteString("	<ItemGroup>\n")
 
-	// Add local package references
+	// Collect the set of packages the program actually references. We only want to emit
+	// PackageReferences for these, not for every entry in localDependencies — test harnesses
+	// (and real projects) may provide packages for providers the program doesn't use, and
+	// listing unused packages in the csproj makes `dotnet list package` report them back to
+	// the engine as required plugins.
+	packages, err := program.CollectNestedPackageSnapshots()
+	if err != nil {
+		return nil, err
+	}
+	referencedPackageNames := map[string]bool{}
+	for _, p := range packages {
+		referencedPackageNames[p.Name] = true
+	}
+	// Pulumi itself is always referenced.
+	referencedPackageNames[pulumiPackage] = true
+
+	// Add local package references for packages the program actually references.
 	pkgs := slices.Sorted(maps.Keys(localDependencies))
 	for _, pkg := range pkgs {
+		if !referencedPackageNames[pkg] {
+			continue
+		}
 		isLocalNugetPackage := strings.HasSuffix(localDependencies[pkg], ".nupkg")
 		if !isLocalNugetPackage {
 			// only local nuget packages are referenced via a PackageReference
@@ -388,10 +407,6 @@ func generateProjectFile(program *pcl.Program, localDependencies map[string]stri
 	}
 
 	// For each package add a PackageReference line
-	packages, err := program.CollectNestedPackageSnapshots()
-	if err != nil {
-		return nil, err
-	}
 	for _, p := range packages {
 		if p.Name == pulumiPackage {
 			continue
@@ -1636,6 +1651,52 @@ func (g *generator) genResourceOptions(
 			} else {
 				g.Fgenf(&result, "\n%s%s = %v,", g.Indent, name, g.lowerExpression(value, value.Type()))
 			}
+		case "Aliases":
+			// Aliases is a List<Input<Alias>>. PCL aliases are either a string URN or an object with
+			// optional { name, type, noParent, parent } fields. Emit each element as a `new Alias { ... }`
+			// so the elements have the right static type for the collection initializer.
+			if aliasList, isTuple := value.(*model.TupleConsExpression); isTuple {
+				g.Fgenf(&result, "\n%s%s =", g.Indent, name)
+				g.Fgenf(&result, "\n%s{", g.Indent)
+				g.Indented(func() {
+					for _, elem := range aliasList.Expressions {
+						if obj, isObj := elem.(*model.ObjectConsExpression); isObj {
+							g.Fgenf(&result, "\n%snew Alias", g.Indent)
+							g.Fgenf(&result, "\n%s{", g.Indent)
+							g.Indented(func() {
+								for _, item := range obj.Items {
+									var key string
+									if lit, ok := item.Key.(*model.LiteralValueExpression); ok && lit.Value.Type() == cty.String {
+										key = lit.Value.AsString()
+									} else {
+										continue
+									}
+									var propName string
+									switch key {
+									case "name":
+										propName = "Name"
+									case "type":
+										propName = "Type"
+									case "noParent":
+										propName = "NoParent"
+									case "parent":
+										propName = "Parent"
+									default:
+										continue
+									}
+									g.Fgenf(&result, "\n%s%s = %v,", g.Indent, propName, g.lowerExpression(item.Value, item.Value.Type()))
+								}
+							})
+							g.Fgenf(&result, "\n%s},", g.Indent)
+						} else {
+							g.Fgenf(&result, "\n%snew Alias { Urn = %v },", g.Indent, g.lowerExpression(elem, elem.Type()))
+						}
+					}
+				})
+				g.Fgenf(&result, "\n%s},", g.Indent)
+			} else {
+				g.Fgenf(&result, "\n%s%s = %v,", g.Indent, name, g.lowerExpression(value, value.Type()))
+			}
 		case "DependsOn", "Providers":
 			// The DependsOn and Providers resource options need to be special cased. Both want something List-y (e.g.
 			// InputList for DependsOn, List for Providers), but normal code generation will yield arrays e.g.:
@@ -1709,6 +1770,9 @@ func (g *generator) genResourceOptions(
 	}
 	if opts.IgnoreChanges != nil {
 		appendOption("IgnoreChanges", opts.IgnoreChanges)
+	}
+	if opts.Aliases != nil {
+		appendOption("Aliases", opts.Aliases)
 	}
 	if opts.DeletedWith != nil {
 		appendOption("DeletedWith", opts.DeletedWith)

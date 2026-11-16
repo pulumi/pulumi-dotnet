@@ -136,10 +136,8 @@ var expectedFailures = map[string]string{
 	"l3-rewrite-conversions": "dotnet build failed: multiple type conversion errors (int[] to InputList<double>, string to Input<bool>)", //nolint:lll
 	// l3-range-ref was split by range kind in pulumi/pulumi#23632 (v3.248.0); all three inherit the
 	// original "dotnet build failed: List<Target> missing K1/Name members" range-ref codegen bug.
-	"l3-range-map-ref":                   "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
-	"l3-range-bool-ref":                  "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members", //nolint:lll
-	"l2-resource-option-custom-timeouts": "https://github.com/pulumi/pulumi-dotnet/issues/822",
-
+	"l3-range-map-ref":    "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members",                                                 //nolint:lll
+	"l3-range-bool-ref":   "Fail after updating to 3.248: dotnet build failed: List<Target> missing K1/Name members",                                                 //nolint:lll
 	"l2-raw-string-bytes": "the .NET SDK does not set accepts_byte_string: strings containing non-UTF8 bytes cannot be received from the engine (added in v3.255.0)", //nolint:lll
 	"l3-component-invoke": "dotnet build failed: CS0029 cannot convert Output<string> to Output<dynamic> (added in v3.255.0)",                                        //nolint:lll
 	// Not a v3.255.0 regression: the runner ignored preview errors until pulumi/pulumi#24058. The .NET

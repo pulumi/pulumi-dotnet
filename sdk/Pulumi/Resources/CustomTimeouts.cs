@@ -24,12 +24,32 @@ namespace Pulumi
         /// </summary>
         public TimeSpan? Delete { get; set; }
 
+        /// <summary>
+        /// The optional read timeout.
+        /// </summary>
+        public TimeSpan? Read { get; set; }
+
+        /// <summary>
+        /// Construct a <see cref="CustomTimeouts"/> from Go-style duration strings
+        /// such as "5m", "1h30m" or "300ms". Null or empty values leave the field unset.
+        /// </summary>
+        public static CustomTimeouts FromStrings(
+            string? create = null, string? update = null, string? delete = null, string? read = null)
+            => new CustomTimeouts
+            {
+                Create = ParseTimeoutString(create),
+                Update = ParseTimeoutString(update),
+                Delete = ParseTimeoutString(delete),
+                Read = ParseTimeoutString(read),
+            };
+
         internal static CustomTimeouts? Clone(CustomTimeouts? timeouts)
             => timeouts == null ? null : new CustomTimeouts
             {
                 Create = timeouts.Create,
                 Delete = timeouts.Delete,
                 Update = timeouts.Update,
+                Read = timeouts.Read,
             };
 
 
@@ -57,6 +77,7 @@ namespace Pulumi
                 Create = TimeoutString(Create),
                 Update = TimeoutString(Update),
                 Delete = TimeoutString(Delete),
+                Read = TimeoutString(Read),
             };
         }
 
@@ -67,6 +88,7 @@ namespace Pulumi
                 Create = ParseTimeoutString(customTimeouts.Create),
                 Update = ParseTimeoutString(customTimeouts.Update),
                 Delete = ParseTimeoutString(customTimeouts.Delete),
+                Read = ParseTimeoutString(customTimeouts.Read),
             };
         }
 
@@ -77,6 +99,7 @@ namespace Pulumi
                 Create = ParseTimeoutString(customTimeouts.Create),
                 Update = ParseTimeoutString(customTimeouts.Update),
                 Delete = ParseTimeoutString(customTimeouts.Delete),
+                Read = ParseTimeoutString(customTimeouts.Read),
             };
         }
 
@@ -87,10 +110,11 @@ namespace Pulumi
                 Create = TimeoutString(Create),
                 Update = TimeoutString(Update),
                 Delete = TimeoutString(Delete),
+                Read = TimeoutString(Read),
             };
         }
 
-        private static TimeSpan? ParseTimeoutString(string s)
+        private static TimeSpan? ParseTimeoutString(string? s)
         {
             if (s == null || s == "")
             {

@@ -21,6 +21,9 @@ namespace Pulumi
             Resource resource, bool remote, Func<string, Resource> newDependency, ResourceArgs args,
             ResourceOptions opts,
             RegisterPackageRequest? registerPackageRequest = null);
+
+        Output<bool> ExistsResourceInternal(
+            string type, Input<string> id, IDictionary<string, object?>? state);
         void RegisterResourceOutputs(Resource resource, Output<IDictionary<string, object?>> outputs);
 
         /// <summary>

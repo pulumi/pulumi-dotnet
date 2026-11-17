@@ -11,6 +11,8 @@ namespace Pulumi
 
         Task<ResourceInvokeResponse> InvokeAsync(ResourceInvokeRequest request);
 
+        Task<ExistsResourceResponse> ExistsResourceAsync(ExistsResourceRequest request);
+
         Task RegisterStackInvokeTransform(Pulumirpc.Callback callback);
 
         Task<CallResponse> CallAsync(ResourceCallRequest request);

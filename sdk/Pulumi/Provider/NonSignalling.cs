@@ -62,6 +62,9 @@ namespace Pulumi.Experimental.Provider
         public async Task<Pulumirpc.ResourceInvokeResponse> InvokeAsync(ResourceInvokeRequest request)
             => await Monitor.InvokeAsync(request);
 
+        public async Task<Pulumirpc.ExistsResourceResponse> ExistsResourceAsync(ExistsResourceRequest request)
+            => await Monitor.ExistsResourceAsync(request);
+
         public async Task<Pulumirpc.CallResponse> CallAsync(ResourceCallRequest request)
             => await Monitor.CallAsync(request);
 

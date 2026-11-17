@@ -67,6 +67,12 @@ namespace Pulumi
             return await this._client.InvokeAsync(request);
         }
 
+        public async Task<ExistsResourceResponse> ExistsResourceAsync(ExistsResourceRequest request)
+        {
+            using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/ExistsResource");
+            return await this._client.ExistsResourceAsync(request);
+        }
+
         public async Task<CallResponse> CallAsync(ResourceCallRequest request)
         {
             using var activity = Instrumentation.ActivitySource.StartActivity("pulumi-resource-monitor/Call");

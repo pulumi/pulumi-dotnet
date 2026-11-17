@@ -950,6 +950,15 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 				g.Fgenf(w, ".%s()", method)
 			}
 		}
+	case "resourceExists":
+		g.Fgenf(w, "Deployment.ExistsResource(%v, %v", expr.Args[0], expr.Args[1])
+		if len(expr.Args) > 2 {
+			// The state parameter is typed `IDictionary<string, object?>?` on the SDK helper, but the
+			// generic dict-initializer path emits `{ "k", v }` elements without a `new Dictionary<..>`
+			// header. Emit the header explicitly so the argument stands alone as an expression.
+			g.Fgenf(w, ", new Dictionary<string, object?> %v", expr.Args[2])
+		}
+		g.Fgen(w, ")")
 	case "stack":
 		g.Fgen(w, "Deployment.Instance.StackName")
 	case "project":

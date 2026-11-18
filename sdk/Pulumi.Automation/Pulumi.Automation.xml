@@ -112,6 +112,16 @@
             Runs the <c>pulumi convert</c> command.
             </summary>
         </member>
+        <member name="M:Pulumi.Automation.Commands.API.DeliveryAsync(Pulumi.Automation.Commands.PulumiDeliveryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi delivery</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.DeliveryRegisterAsync(Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi delivery register</c> command.
+            </summary>
+        </member>
         <member name="M:Pulumi.Automation.Commands.API.DeploymentAsync(Pulumi.Automation.Commands.PulumiDeploymentOptions,System.Threading.CancellationToken)">
             <summary>
             Runs the <c>pulumi deployment</c> command.
@@ -160,6 +170,11 @@
         <member name="M:Pulumi.Automation.Commands.API.DeploymentSettingsGetAsync(Pulumi.Automation.Commands.PulumiDeploymentSettingsGetOptions,System.Threading.CancellationToken)">
             <summary>
             Runs the <c>pulumi deployment settings get</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.DestroyAsync(Pulumi.Automation.Commands.PulumiDestroyOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi destroy</c> command.
             </summary>
         </member>
         <member name="M:Pulumi.Automation.Commands.API.DoAsync(Pulumi.Automation.Commands.PulumiDoOptions,System.Threading.CancellationToken)">
@@ -472,6 +487,61 @@
             Runs the <c>pulumi import</c> command.
             </summary>
         </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAsync(Pulumi.Automation.Commands.PulumiInsightsOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAccountAsync(Pulumi.Automation.Commands.PulumiInsightsAccountOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights account</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAccountListAsync(Pulumi.Automation.Commands.PulumiInsightsAccountListOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights account list</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAccountNewAsync(System.String,Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights account new</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAccountScanAsync(Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights account scan</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAccountScanGetAsync(System.String,System.String,Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights account scan get</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAccountScanListAsync(System.String,Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights account scan list</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsAccountScanLogAsync(System.String,System.String,Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights account scan log</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsResourceAsync(Pulumi.Automation.Commands.PulumiInsightsResourceOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights resource</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsResourceGetAsync(System.String,Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights resource get</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.InsightsResourceSearchAsync(Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi insights resource search</c> command.
+            </summary>
+        </member>
         <member name="M:Pulumi.Automation.Commands.API.InstallAsync(Pulumi.Automation.Commands.PulumiInstallOptions,System.Threading.CancellationToken)">
             <summary>
             Runs the <c>pulumi install</c> command.
@@ -605,6 +675,11 @@
         <member name="M:Pulumi.Automation.Commands.API.OrgUsageGetAsync(Pulumi.Automation.Commands.PulumiOrgUsageGetOptions,System.Threading.CancellationToken)">
             <summary>
             Runs the <c>pulumi org usage get</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.PreviewAsync(Pulumi.Automation.Commands.PulumiPreviewOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi preview</c> command.
             </summary>
         </member>
         <member name="M:Pulumi.Automation.Commands.API.ProjectListAsync(Pulumi.Automation.Commands.PulumiProjectListOptions,System.Threading.CancellationToken)">
@@ -2565,6 +2640,361 @@
             Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
             </summary>
         </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiDeliveryOptions">
+            <summary>
+            Options for the <c>pulumi delivery</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions">
+            <summary>
+            Options for the <c>pulumi delivery register</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.AttachDebugger">
+            <summary>
+            Enable the ability to attach a debugger to the program and source based plugins being executed. Can limit debug type to 'program', 'plugins', 'plugin:&lt;name&gt;' or 'all'.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Client">
+            <summary>
+            The address of an existing language runtime host to connect to
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Config">
+            <summary>
+            Config to use during the update and save to the stack config file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ConfigFile">
+            <summary>
+            Use the configuration values in the specified file rather than detecting the file name
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ConfigPath">
+            <summary>
+            Config keys contain a path to a property in a map or list to set
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ContinueOnError">
+            <summary>
+            Continue updating resources even if an error is encountered (can also be set with PULUMI_CONTINUE_ON_ERROR environment variable)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Copilot">
+            <summary>
+            [DEPRECATED] Use --neo instead. Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_COPILOT environment variable)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Debug">
+            <summary>
+            Print detailed debugging output during resource operations
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Diff">
+            <summary>
+            Display operation as a rich diff showing the overall change
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Exclude">
+            <summary>
+            Specify a resource URN to ignore. These resources will not be updated. Multiple resources can be specified using --exclude urn1 --exclude urn2. Wildcards (*, **) are also supported
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ExcludeDependents">
+            <summary>
+            Allows ignoring of dependent targets discovered but not specified in --exclude list
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ExpectNoChanges">
+            <summary>
+            Return an error if any changes occur during this update. This check happens after the update is applied
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.IgnoreProtect">
+            <summary>
+            Ignore the protect resource option for this operation, allowing protected resources to be deleted or replaced. Use with caution: deleted resources cannot be recovered
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Json">
+            <summary>
+            Serialize the update diffs, operations, and overall output as JSON
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Message">
+            <summary>
+            Optional message to associate with the update operation
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Neo">
+            <summary>
+            Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_NEO environment variable)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.NeoTaskOnFailure">
+            <summary>
+            Start a Neo task to help debug errors that occur during the operation
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Output">
+            <summary>
+            Output format. Supported values are: default and json
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.OverrideEnv">
+            <summary>
+            [EXPERIMENTAL] Override an imported environment for this run only, as &lt;env&gt;=&lt;replacement&gt;; repeatable
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Parallel">
+            <summary>
+            Allow P resource operations to run in parallel at once (1 for no parallelism).
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Plan">
+            <summary>
+            [EXPERIMENTAL] Path to a plan file to use for the update. The update will not perform operations that exceed its plan (e.g. replacements instead of updates, or updates insteadof sames).
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.PolicyPack">
+            <summary>
+            Run one or more policy packs as part of this update
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.PolicyPackConfig">
+            <summary>
+            Path to JSON file containing the config for the policy pack of the corresponding "--policy-pack" flag
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Refresh">
+            <summary>
+            Refresh the state of the stack's resources before this update
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Replace">
+            <summary>
+            Specify a single resource URN to replace. Multiple resources can be specified using --replace urn1 --replace urn2. Wildcards (*, **) are also supported
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.RunProgram">
+            <summary>
+            Run the program to determine up-to-date state for providers to refresh resources, this only applies if --refresh is set
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.SecretsProvider">
+            <summary>
+            The type of the provider that should be used to encrypt and decrypt secrets (possible choices: default, passphrase, awskms, azurekeyvault, gcpkms, hashivault). Only used when creating a new stack from an existing template
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowConfig">
+            <summary>
+            Show configuration keys and variables
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowFullOutput">
+            <summary>
+            Display full length of inputs &amp; outputs
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowPolicyExceptions">
+            <summary>
+            Show each exempted policy violation instead of a summary
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowPolicyRemediations">
+            <summary>
+            Show per-resource policy remediation details instead of a summary
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowReads">
+            <summary>
+            Show resources that are being read in, alongside those being managed directly in the stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowReplacementSteps">
+            <summary>
+            Show detailed resource replacement creates and deletes instead of a single step
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowSames">
+            <summary>
+            Show resources that don't need be updated because they haven't changed, alongside those that do
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.ShowSecrets">
+            <summary>
+            Show secret outputs in the CLI output
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.SkipConfigValidation">
+            <summary>
+            Skip validation of stack config values against the project config schema
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.SkipPluginPreInstall">
+            <summary>
+            Skip the up-front provider plugin install step; missing plugins are installed lazily by the engine. When deploying from a template, also skips installing the project's runtime dependencies.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.SkipPreview">
+            <summary>
+            Do not calculate a preview before performing the update
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Stack">
+            <summary>
+            The name of the stack to operate on. Defaults to the current stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Strict">
+            <summary>
+            [EXPERIMENTAL] Enable strict plan behavior: generate a plan during preview and constrain the update to that plan (opt-in). Cannot be used with --skip-preview.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.SuppressOutputs">
+            <summary>
+            Suppress display of stack outputs (in case they contain sensitive values)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.SuppressPermalink">
+            <summary>
+            Suppress display of the state permalink
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.SuppressProgress">
+            <summary>
+            Suppress display of periodic progress dots
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Target">
+            <summary>
+            Specify a single resource URN to update. Other resources will not be updated. Multiple resources can be specified using --target urn1 --target urn2. Wildcards (*, **) are also supported
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.TargetDependents">
+            <summary>
+            Allows updating of dependent targets discovered but not specified in --target list
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.TargetReplace">
+            <summary>
+            Specify a single resource URN to replace. Other resources will not be updated. Shorthand for --target urn --replace urn.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Urns">
+            <summary>
+            Display full URNs instead of short resource names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDeliveryRegisterOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Commands.PulumiDeploymentOptions">
             <summary>
             Options for the <c>pulumi deployment</c> command.
@@ -3606,6 +4036,236 @@
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiDeploymentSettingsGetOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiDestroyOptions">
+            <summary>
+            Options for the <c>pulumi destroy</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Client">
+            <summary>
+            The address of an existing language runtime host to connect to
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Config">
+            <summary>
+            Config to use during the destroy and save to the stack config file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ConfigFile">
+            <summary>
+            Use the configuration values in the specified file rather than detecting the file name
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ConfigPath">
+            <summary>
+            Config keys contain a path to a property in a map or list to set
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ContinueOnError">
+            <summary>
+            Continue to perform the destroy operation despite the occurrence of errors (can also be set with PULUMI_CONTINUE_ON_ERROR env var)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Copilot">
+            <summary>
+            [DEPRECATED] Use --neo instead. Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_COPILOT environment variable)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Debug">
+            <summary>
+            Print detailed debugging output during resource operations
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Diff">
+            <summary>
+            Display operation as a rich diff showing the overall change
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Exclude">
+            <summary>
+            Specify a resource URN to ignore. These resources will not be updated. Multiple resources can be specified using --exclude urn1 --exclude urn2. Wildcards (*, **) are also supported
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ExcludeProtected">
+            <summary>
+            Do not destroy protected resources. Destroy all other resources.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.IgnoreProtect">
+            <summary>
+            Ignore the protect resource option for this operation, allowing protected resources to be destroyed. Use with caution: deleted resources cannot be recovered
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Json">
+            <summary>
+            Serialize the destroy diffs, operations, and overall output as JSON
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Message">
+            <summary>
+            Optional message to associate with the destroy operation
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Neo">
+            <summary>
+            Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_NEO environment variable)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Output">
+            <summary>
+            Output format. Supported values are: default, json
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.OverrideEnv">
+            <summary>
+            [EXPERIMENTAL] Override an imported environment for this run only, as &lt;env&gt;=&lt;replacement&gt;; repeatable
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Parallel">
+            <summary>
+            Allow P resource operations to run in parallel at once (1 for no parallelism).
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.PreviewOnly">
+            <summary>
+            Only show a preview of the destroy, but don't perform the destroy itself
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Refresh">
+            <summary>
+            Refresh the state of the stack's resources before this update
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Remove">
+            <summary>
+            Remove the stack and its config file after all resources in the stack have been deleted
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.RunProgram">
+            <summary>
+            Run the program to determine up-to-date state for providers to destroy resources
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ShowConfig">
+            <summary>
+            Show configuration keys and variables
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ShowFullOutput">
+            <summary>
+            Display full length of inputs &amp; outputs
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ShowReplacementSteps">
+            <summary>
+            Show detailed resource replacement creates and deletes instead of a single step
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.ShowSames">
+            <summary>
+            Show resources that don't need to be updated because they haven't changed, alongside those that do
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.SkipConfigValidation">
+            <summary>
+            Skip validation of stack config values against the project config schema. Config validation is skipped automatically when --run-program is not set.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.SkipPluginPreInstall">
+            <summary>
+            Skip the up-front provider plugin install step; missing plugins are installed lazily by the engine
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Stack">
+            <summary>
+            The name of the stack to operate on. Defaults to the current stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.SuppressOutputs">
+            <summary>
+            Suppress display of stack outputs (in case they contain sensitive values)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.SuppressPermalink">
+            <summary>
+            Suppress display of the state permalink
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.SuppressProgress">
+            <summary>
+            Suppress display of periodic progress dots
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Target">
+            <summary>
+            Specify a single resource URN to destroy. All resources necessary to destroy this target will also be destroyed. Multiple resources can be specified using: --target urn1 --target urn2. Wildcards (*, **) are also supported
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.TargetDependents">
+            <summary>
+            Allows destroying of dependent targets discovered but not specified in --target list
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Urns">
+            <summary>
+            Display full URNs instead of short resource names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiDestroyOptions.Verbose">
             <summary>
             Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
             </summary>
@@ -8725,6 +9385,926 @@
             Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
             </summary>
         </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsOptions">
+            <summary>
+            Options for the <c>pulumi insights</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsAccountOptions">
+            <summary>
+            Options for the <c>pulumi insights account</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions">
+            <summary>
+            Options for the <c>pulumi insights account list</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.All">
+            <summary>
+            Return every matching account
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Count">
+            <summary>
+            Return at most this many accounts (--count 0 is equivalent to --all)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Org">
+            <summary>
+            Organization to list accounts for (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Parent">
+            <summary>
+            Filter to child accounts of the named parent account
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.RoleId">
+            <summary>
+            Filter to accounts accessible by the named role
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountListOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions">
+            <summary>
+            Options for the <c>pulumi insights account new</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.AgentPoolId">
+            <summary>
+            ID of the agent pool to run discovery workflows (defaults to the org's default pool)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Environment">
+            <summary>
+            ESC environment containing provider credentials, in the form project/environment with an optional @version suffix
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Org">
+            <summary>
+            Organization that will own the Insights account (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Provider">
+            <summary>
+            Cloud provider for the account. One of: aws, gcp, azure-native, oci, kubernetes
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.ProviderConfig">
+            <summary>
+            Provider-specific configuration as an inline JSON object (e.g. '{"regions":["us-east-1"]}')
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.ScanSchedule">
+            <summary>
+            Automated scan schedule. One of: none, 12h, daily
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountNewOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions">
+            <summary>
+            Options for the <c>pulumi insights account scan</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.AgentPool">
+            <summary>
+            Agent pool ID to use for the scan (defaults to the account's default pool)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.BatchSize">
+            <summary>
+            Number of resources processed per batch (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.ListConcurrency">
+            <summary>
+            Parallelism for list operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Org">
+            <summary>
+            Organization that owns the Insights account (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.ReadConcurrency">
+            <summary>
+            Parallelism for read operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.ReadTimeout">
+            <summary>
+            Per-read timeout as a Go duration (e.g. '30s', '5m'); server default when empty
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions">
+            <summary>
+            Options for the <c>pulumi insights account scan get</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.AgentPool">
+            <summary>
+            Agent pool ID to use for the scan (defaults to the account's default pool)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.BatchSize">
+            <summary>
+            Number of resources processed per batch (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.ListConcurrency">
+            <summary>
+            Parallelism for list operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Org">
+            <summary>
+            Organization that owns the Insights account (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.ReadConcurrency">
+            <summary>
+            Parallelism for read operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.ReadTimeout">
+            <summary>
+            Per-read timeout as a Go duration (e.g. '30s', '5m'); server default when empty
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanGetOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions">
+            <summary>
+            Options for the <c>pulumi insights account scan list</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.AgentPool">
+            <summary>
+            Agent pool ID to use for the scan (defaults to the account's default pool)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.All">
+            <summary>
+            Return every matching scan
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.BatchSize">
+            <summary>
+            Number of resources processed per batch (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Count">
+            <summary>
+            Return at most this many scans (--count 0 is equivalent to --all)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.ListConcurrency">
+            <summary>
+            Parallelism for list operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Org">
+            <summary>
+            Organization that owns the Insights account (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.ReadConcurrency">
+            <summary>
+            Parallelism for read operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.ReadTimeout">
+            <summary>
+            Per-read timeout as a Go duration (e.g. '30s', '5m'); server default when empty
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanListOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions">
+            <summary>
+            Options for the <c>pulumi insights account scan log</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.AgentPool">
+            <summary>
+            Agent pool ID to use for the scan (defaults to the account's default pool)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.All">
+            <summary>
+            Fetch every entry (mutually exclusive with --count)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.BatchSize">
+            <summary>
+            Number of resources processed per batch (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Count">
+            <summary>
+            Number of log entries to display
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Job">
+            <summary>
+            Switch to step mode and select this job index (combine with --step)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.ListConcurrency">
+            <summary>
+            Parallelism for list operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Org">
+            <summary>
+            Organization that owns the Insights account (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.ReadConcurrency">
+            <summary>
+            Parallelism for read operations during the scan (server default when 0)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.ReadTimeout">
+            <summary>
+            Per-read timeout as a Go duration (e.g. '30s', '5m'); server default when empty
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Step">
+            <summary>
+            Step index within --job whose log output to fetch
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsAccountScanLogOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsResourceOptions">
+            <summary>
+            Options for the <c>pulumi insights resource</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions">
+            <summary>
+            Options for the <c>pulumi insights resource get</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Account">
+            <summary>
+            Insights account containing the resource
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Org">
+            <summary>
+            Organization that owns the Insights account (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceGetOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions">
+            <summary>
+            Options for the <c>pulumi insights resource search</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Asc">
+            <summary>
+            Sort in ascending order (default: descending)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Collapse">
+            <summary>
+            Consolidate resources that exist in multiple sources into a single result
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Cursor">
+            <summary>
+            Opaque cursor to continue pagination from (Enterprise plans only)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Org">
+            <summary>
+            Organization to search within (defaults to the current default org)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Page">
+            <summary>
+            1-based page of results to return (max 10,000 total results)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.PageSize">
+            <summary>
+            Number of results per page
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Properties">
+            <summary>
+            Include resource input/output values (requires a supported subscription)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Query">
+            <summary>
+            Search query in Pulumi query syntax
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Sort">
+            <summary>
+            Field(s) to sort results by; repeat or comma-separate for multiple. Allowed values: category, created, custom, delete, dependencies, id, managed, modified, module, name, package, parentUrn, project, protected, providerUrn, stack, type, urn
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiInsightsResourceSearchOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Commands.PulumiInstallOptions">
             <summary>
             Options for the <c>pulumi install</c> command.
@@ -10853,6 +12433,276 @@
             Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
             </summary>
         </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiPreviewOptions">
+            <summary>
+            Options for the <c>pulumi preview</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.AttachDebugger">
+            <summary>
+            Enable the ability to attach a debugger to the program and source based plugins being executed. Can limit debug type to 'program', 'plugins', 'plugin:&lt;name&gt;' or 'all'.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Client">
+            <summary>
+            The address of an existing language runtime host to connect to
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Config">
+            <summary>
+            Config to use during the preview and save to the stack config file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ConfigFile">
+            <summary>
+            Use the configuration values in the specified file rather than detecting the file name
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ConfigPath">
+            <summary>
+            Config keys contain a path to a property in a map or list to set
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Copilot">
+            <summary>
+            [DEPRECATED] Use --neo instead. Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_COPILOT environment variable)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Debug">
+            <summary>
+            Print detailed debugging output during resource operations
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Diff">
+            <summary>
+            Display operation as a rich diff showing the overall change
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Exclude">
+            <summary>
+            Specify a resource URN to ignore. These resources will not be updated. Multiple resources can be specified using --exclude urn1 --exclude urn2. Wildcards (*, **) are also supported
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ExcludeDependents">
+            <summary>
+            Allow ignoring of dependent targets discovered but not specified in --exclude list
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ExpectNoChanges">
+            <summary>
+            Return an error if any changes are proposed by this preview
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.IgnoreProtect">
+            <summary>
+            Ignore the protect resource option for this operation, previewing the deletion or replacement of protected resources instead of failing
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ImportFile">
+            <summary>
+            Save any creates seen during the preview into an import file to use with 'pulumi import'
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Message">
+            <summary>
+            Optional message to associate with the preview operation
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Neo">
+            <summary>
+            Enable Pulumi Neo's assistance for improved CLI experience and insights (can also be set with PULUMI_NEO environment variable)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.NeoTaskOnFailure">
+            <summary>
+            Start a Neo task to help debug errors that occur during the operation
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.OverrideEnv">
+            <summary>
+            [EXPERIMENTAL] Override an imported environment for this run only, as &lt;env&gt;=&lt;replacement&gt;; repeatable
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Parallel">
+            <summary>
+            Allow P resource operations to run in parallel at once (1 for no parallelism).
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.PolicyPack">
+            <summary>
+            Run one or more policy packs as part of this update
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.PolicyPackConfig">
+            <summary>
+            Path to JSON file containing the config for the policy pack of the corresponding "--policy-pack" flag
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Refresh">
+            <summary>
+            Refresh the state of the stack's resources before this update
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Replace">
+            <summary>
+            Specify resources to replace. Multiple resources can be specified using --replace urn1 --replace urn2
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.RunProgram">
+            <summary>
+            Run the program to determine up-to-date state for providers to refresh resources, this only applies if --refresh is set
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.SavePlan">
+            <summary>
+            [PREVIEW] Save the operations proposed by the preview to a plan file at the given path
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowConfig">
+            <summary>
+            Show configuration keys and variables
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowFullOutput">
+            <summary>
+            Display full length of inputs &amp; outputs
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowPolicyExceptions">
+            <summary>
+            Show each exempted policy violation instead of a summary
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowPolicyRemediations">
+            <summary>
+            Show per-resource policy remediation details instead of a summary
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowReads">
+            <summary>
+            Show resources that are being read in, alongside those being managed directly in the stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowReplacementSteps">
+            <summary>
+            Show detailed resource replacement creates and deletes instead of a single step
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowSames">
+            <summary>
+            Show resources that needn't be updated because they haven't changed, alongside those that do
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.ShowSecrets">
+            <summary>
+            Show secrets in plaintext in the CLI output, if used with --save-plan the secrets will also be shown in the plan file. Defaults to `false`
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.SkipConfigValidation">
+            <summary>
+            Skip validation of stack config values against the project config schema
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.SkipPluginPreInstall">
+            <summary>
+            Skip the up-front provider plugin install step; missing plugins are installed lazily by the engine
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Stack">
+            <summary>
+            The name of the stack to operate on. Defaults to the current stack
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.SuppressOutputs">
+            <summary>
+            Suppress display of stack outputs (in case they contain sensitive values)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.SuppressPermalink">
+            <summary>
+            Suppress display of the state permalink
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.SuppressProgress">
+            <summary>
+            Suppress display of periodic progress dots
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Target">
+            <summary>
+            Specify a single resource URN to update. Other resources will not be updated. Multiple resources can be specified using --target urn1 --target urn2
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.TargetDependents">
+            <summary>
+            Allow updating of dependent targets discovered but not specified in --target list
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.TargetReplace">
+            <summary>
+            Specify a single resource URN to replace. Other resources will not be updated. Shorthand for --target urn --replace urn.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Urns">
+            <summary>
+            Display full URNs instead of short resource names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiPreviewOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
         <member name="T:Pulumi.Automation.Commands.PulumiProjectListOptions">
             <summary>
             Options for the <c>pulumi project list</c> command.
@@ -11541,6 +13391,11 @@
         <member name="P:Pulumi.Automation.Commands.PulumiStateMoveOptions.OtelTraces">
             <summary>
             Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiStateMoveOptions.Parent">
+            <summary>
+            URN of a resource in the destination stack to parent moved resources under. Mutually exclusive with --include-parents
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiStateMoveOptions.Profiling">

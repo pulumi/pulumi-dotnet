@@ -10455,6 +10455,116 @@
             The reason that the named property failed validation.
             </summary>
         </member>
+        <member name="T:Pulumirpc.CheckConfigRequest">
+            <summary>
+            `CheckConfigRequest` is the type of requests sent as part of [](pulumirpc.ResourceProvider.CheckConfig2) calls.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigRequest.UrnFieldNumber">
+            <summary>Field number for the "urn" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigRequest.Urn">
+            <summary>
+            The URN of the provider resource whose configuration is being checked, which may or may not be a [default
+            provider](default-providers).
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigRequest.NameFieldNumber">
+            <summary>Field number for the "name" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigRequest.Name">
+            <summary>
+            The name of the provider resource being checked. This must match the name specified by the `urn` field, and is
+            passed so that providers do not have to implement URN parsing in order to extract the name of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigRequest.TypeFieldNumber">
+            <summary>Field number for the "type" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigRequest.Type">
+            <summary>
+            The type of the provider resource being checked. This must match the type specified by the `urn` field, and is
+            passed so that providers do not have to implement URN parsing in order to extract the type of the resource.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigRequest.OldInputsFieldNumber">
+            <summary>Field number for the "old_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigRequest.OldInputs">
+            <summary>
+            The old input configuration for the provider, if any.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigRequest.NewInputsFieldNumber">
+            <summary>Field number for the "new_inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigRequest.NewInputs">
+            <summary>
+            The new input configuration for the provider.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigRequest.OldOutputsFieldNumber">
+            <summary>Field number for the "old_outputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigRequest.OldOutputs">
+            <summary>
+            The previously persisted output properties of the provider resource, if any. Providers must not assume this is
+            populated.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigRequest.RandomSeedFieldNumber">
+            <summary>Field number for the "random_seed" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigRequest.RandomSeed">
+            <summary>
+            A random but deterministically computed hash, intended to be used for generating globally unique names.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.CheckConfigResponse">
+            <summary>
+            `CheckConfigResponse` is the type of responses sent by a [](pulumirpc.ResourceProvider.CheckConfig2) call. It
+            contains either checked `inputs`, which may subsequently be passed to [](pulumirpc.ResourceProvider.DiffConfig)
+            and [](pulumirpc.ResourceProvider.Configure), or a set of `failures` detailing invalid inputs.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigResponse.InputsFieldNumber">
+            <summary>Field number for the "inputs" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigResponse.Inputs">
+            <summary>
+            A valid, checked set of inputs. May contain defaults.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigResponse.FailuresFieldNumber">
+            <summary>Field number for the "failures" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigResponse.Failures">
+            <summary>
+            Any validation failures that occurred.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.CheckConfigFailure">
+            <summary>
+            A `CheckConfigFailure` describes a single validation error that arose as part of a
+            [](pulumirpc.ResourceProvider.CheckConfig2) call.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigFailure.PropertyFieldNumber">
+            <summary>Field number for the "property" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigFailure.Property">
+            <summary>
+            The provider configuration property that failed validation.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigFailure.ReasonFieldNumber">
+            <summary>Field number for the "reason" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigFailure.Reason">
+            <summary>
+            The reason that the named property failed validation.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.DiffRequest">
              <summary>
              `DiffRequest` is the type of requests sent as part of [](pulumirpc.ResourceProvider.DiffConfig) and
@@ -11973,6 +12083,19 @@
              <param name="context">The context of the server-side call handler being invoked.</param>
              <returns>The response to send back to the client (wrapped by a task).</returns>
         </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.CheckConfig2(Pulumirpc.CheckConfigRequest,Grpc.Core.ServerCallContext)">
+             <summary>
+             `CheckConfig2` is the successor to [](pulumirpc.ResourceProvider.CheckConfig). It has the same semantics, but
+             uses request and response types of its own rather than sharing them with [](pulumirpc.ResourceProvider.Check).
+            
+             Callers (typically the Pulumi engine) should call `CheckConfig2` first, and fall back to `CheckConfig` if the
+             provider reports that `CheckConfig2` is unimplemented. Providers that implement `CheckConfig2` should continue
+             to implement `CheckConfig` for as long as they support callers that only know about the latter.
+             </summary>
+             <param name="request">The request received from the client.</param>
+             <param name="context">The context of the server-side call handler being invoked.</param>
+             <returns>The response to send back to the client (wrapped by a task).</returns>
+        </member>
         <member name="M:Pulumirpc.ResourceProvider.ResourceProviderBase.DiffConfig(Pulumirpc.DiffRequest,Grpc.Core.ServerCallContext)">
              <summary>
              `DiffConfig` compares an existing ("old") provider configuration with a new configuration and computes the
@@ -12558,6 +12681,62 @@
              the properties as present in the program inputs. Though this rule is not required for correctness, violations
              thereof can negatively impact the end-user experience, as the provider inputs are used for detecting and
              rendering diffs.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.CheckConfig2(Pulumirpc.CheckConfigRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             `CheckConfig2` is the successor to [](pulumirpc.ResourceProvider.CheckConfig). It has the same semantics, but
+             uses request and response types of its own rather than sharing them with [](pulumirpc.ResourceProvider.Check).
+            
+             Callers (typically the Pulumi engine) should call `CheckConfig2` first, and fall back to `CheckConfig` if the
+             provider reports that `CheckConfig2` is unimplemented. Providers that implement `CheckConfig2` should continue
+             to implement `CheckConfig` for as long as they support callers that only know about the latter.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.CheckConfig2(Pulumirpc.CheckConfigRequest,Grpc.Core.CallOptions)">
+             <summary>
+             `CheckConfig2` is the successor to [](pulumirpc.ResourceProvider.CheckConfig). It has the same semantics, but
+             uses request and response types of its own rather than sharing them with [](pulumirpc.ResourceProvider.Check).
+            
+             Callers (typically the Pulumi engine) should call `CheckConfig2` first, and fall back to `CheckConfig` if the
+             provider reports that `CheckConfig2` is unimplemented. Providers that implement `CheckConfig2` should continue
+             to implement `CheckConfig` for as long as they support callers that only know about the latter.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="options">The options for the call.</param>
+             <returns>The response received from the server.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.CheckConfig2Async(Pulumirpc.CheckConfigRequest,Grpc.Core.Metadata,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+             <summary>
+             `CheckConfig2` is the successor to [](pulumirpc.ResourceProvider.CheckConfig). It has the same semantics, but
+             uses request and response types of its own rather than sharing them with [](pulumirpc.ResourceProvider.Check).
+            
+             Callers (typically the Pulumi engine) should call `CheckConfig2` first, and fall back to `CheckConfig` if the
+             provider reports that `CheckConfig2` is unimplemented. Providers that implement `CheckConfig2` should continue
+             to implement `CheckConfig` for as long as they support callers that only know about the latter.
+             </summary>
+             <param name="request">The request to send to the server.</param>
+             <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+             <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+             <param name="cancellationToken">An optional token for canceling the call.</param>
+             <returns>The call object.</returns>
+        </member>
+        <member name="M:Pulumirpc.ResourceProvider.ResourceProviderClient.CheckConfig2Async(Pulumirpc.CheckConfigRequest,Grpc.Core.CallOptions)">
+             <summary>
+             `CheckConfig2` is the successor to [](pulumirpc.ResourceProvider.CheckConfig). It has the same semantics, but
+             uses request and response types of its own rather than sharing them with [](pulumirpc.ResourceProvider.Check).
+            
+             Callers (typically the Pulumi engine) should call `CheckConfig2` first, and fall back to `CheckConfig` if the
+             provider reports that `CheckConfig2` is unimplemented. Providers that implement `CheckConfig2` should continue
+             to implement `CheckConfig` for as long as they support callers that only know about the latter.
              </summary>
              <param name="request">The request to send to the server.</param>
              <param name="options">The options for the call.</param>

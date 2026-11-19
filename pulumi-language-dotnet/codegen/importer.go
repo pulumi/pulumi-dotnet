@@ -55,12 +55,32 @@ func (info *CSharpPackageInfo) GetRootNamespace() string {
 	return "Pulumi"
 }
 
+// pulumiRootNamespaceConflicts is the set of normalized (PascalCased) package names
+// that would produce a `namespace Pulumi.<Name>` colliding with a type of the same
+// name exported from the Pulumi SDK's root `Pulumi` namespace (C# error CS0434).
+// When the root namespace is `Pulumi` and a package normalizes to one of these,
+// we append a trailing underscore to the module namespace so the generated
+// `namespace Pulumi.<Name>_` doesn't clash.
+var pulumiRootNamespaceConflicts = map[string]bool{
+	"Config":       true,
+	"AssetArchive": true,
+	"Output":       true,
+}
+
 func normalizePackageInfo(info *CSharpPackageInfo, pkgName, pkgNamespace string) {
 	if info.RootNamespace == "" && pkgNamespace != "" {
 		info.RootNamespace = namespaceName(nil, pkgNamespace)
 	}
 
-	if info.GetRootNamespace() != "Pulumi" || pkgName != "config" {
+	if info.GetRootNamespace() != "Pulumi" {
+		return
+	}
+
+	// Normalize the package name the same way namespaceName would, then compare
+	// against the set of SDK-root types. This catches variants like "asset-archive",
+	// "asset_archive", or "AssetArchive" that all normalize to the same identifier.
+	normalized := namespaceName(nil, pkgName)
+	if !pulumiRootNamespaceConflicts[normalized] {
 		return
 	}
 
@@ -68,7 +88,7 @@ func normalizePackageInfo(info *CSharpPackageInfo, pkgName, pkgNamespace string)
 		info.Namespaces = map[string]string{}
 	}
 	if _, ok := info.Namespaces[pkgName]; !ok {
-		info.Namespaces[pkgName] = "Config_"
+		info.Namespaces[pkgName] = normalized + "_"
 	}
 }
 

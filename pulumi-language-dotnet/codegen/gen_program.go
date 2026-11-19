@@ -560,8 +560,10 @@ type programUsings struct {
 }
 
 // setupNamespaceAlias sets up a namespace alias for the given package if it doesn't already exist.
-// It extracts CSharpPackageInfo, creates a safe alias using makeSafePulumiNamespace, stores it,
-// and adds the appropriate using statement to pulumiUsings.
+// It extracts CSharpPackageInfo, records the alias in g.namespaceAliases so later references can
+// use the short form, and adds the appropriate using statement to pulumiUsings. Names that would
+// collide with a type in `Pulumi` (e.g. `Output`, `AssetArchive`, `Config`) are handled upstream
+// in normalizePackageInfo, which rewrites the module namespace to `<Name>_`.
 func (g *generator) setupNamespaceAlias(
 	pkg string,
 	pkgRef schema.PackageReference,
@@ -612,16 +614,10 @@ func (g *generator) setupNamespaceAlias(
 		rootNamespace = "Pulumi"
 	}
 
-	var safeAlias string
-	if existingAlias, exists := g.namespaceAliases[pkgNamespace]; exists {
-		safeAlias = existingAlias
-	} else {
-		safeAlias = makeSafePulumiNamespace(pkgNamespace)
-		g.namespaceAliases[pkgNamespace] = safeAlias
-	}
+	g.namespaceAliases[pkgNamespace] = pkgNamespace
 
 	pkgFullNamespace := fmt.Sprintf("%s.%s", rootNamespace, pkgNamespace)
-	pulumiUsings.Add(fmt.Sprintf("%s = %s", safeAlias, pkgFullNamespace))
+	pulumiUsings.Add(fmt.Sprintf("%s = %s", pkgNamespace, pkgFullNamespace))
 }
 
 func (g *generator) usingStatements(program *pcl.Program) programUsings {

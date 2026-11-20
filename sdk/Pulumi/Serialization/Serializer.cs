@@ -222,7 +222,19 @@ $"Tasks are not allowed inside ResourceArgs. Please wrap your Task in an Output:
                 }
 
                 if (!isKnown)
+                {
+                    if (isSecret)
+                    {
+                        // Preserve the secret marker when wrapping an unknown. Dropping it here
+                        // would cause the engine to see a plain unknown and forget the value was
+                        // meant to be secret once it resolves.
+                        var builder = ImmutableDictionary.CreateBuilder<string, object?>();
+                        builder.Add(Constants.SpecialSigKey, Constants.SpecialSecretSig);
+                        builder.Add(Constants.ValueName, Constants.UnknownValue);
+                        return builder.ToImmutable();
+                    }
                     return Constants.UnknownValue;
+                }
 
                 if (isSecret)
                 {

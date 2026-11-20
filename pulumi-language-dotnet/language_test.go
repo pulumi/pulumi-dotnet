@@ -117,10 +117,9 @@ var expectedFailures = map[string]string{
 	// TODO: This is a codegen bug, we're translating {} to null
 	"l2-plain": "System.ArgumentNullException: [Input] Pulumi.Plain.Inputs.DataArgs._stringMap is required but was not given a value (Parameter '_stringMap')", //nolint:lll
 
-	"l1-builtin-object":          "Fail after updating to 3.224: KeyNotFoundException: The given key 'keyMissing' was not present in the dictionary. ",                          //nolint:lll
-	"l2-resource-elide-unknowns": "Fail after updating to 3.224: conflict in Output type name",                                                                                  //nolint:lll
-	"l2-secret-unknown":          "SDK runtime: wrapping an unknown with secret() does not preserve both the secret marker and the unknown/computed marker on the stack output", //nolint:lll
-	"l2-resource-name-type":      "Fail after updating to 3.224: TODO: call pulumiResourceName",                                                                                 //nolint:lll
+	"l1-builtin-object":          "Fail after updating to 3.224: KeyNotFoundException: The given key 'keyMissing' was not present in the dictionary. ", //nolint:lll
+	"l2-resource-elide-unknowns": "Fail after updating to 3.224: conflict in Output type name",                                                         //nolint:lll
+	"l2-resource-name-type":      "Fail after updating to 3.224: TODO: call pulumiResourceName",                                                        //nolint:lll
 	"l2-builtin-object":          "Fail after updating to 3.224: Invalid expression term ')'",
 
 	"l3-range":        "Fail after updating to 3.225",
@@ -149,9 +148,9 @@ var expectedFailures = map[string]string{
 
 	"l2-component-call-plain": "Fail after updating to 3.234: plain method call codegen not implemented",
 
-	"l2-primitive-ref-optional":     "Fail after updating to 3.246: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",                     //nolint:lll
-	"l2-resource-any":               "Fail after updating to 3.246: dotnet build failed: CS0826 no best type found for implicitly-typed array",                                     //nolint:lll
-	"l2-resource-schema-secret":     "SDK runtime: wrapping an unknown with secret() does not preserve both the secret marker and the unknown/computed marker on the stack output", //nolint:lll
+	"l2-primitive-ref-optional":     "Fail after updating to 3.246: dotnet build failed: Cannot implicitly convert type 'int[]' to 'Pulumi.InputList<double>'",                                     //nolint:lll
+	"l2-resource-any":               "Fail after updating to 3.246: dotnet build failed: CS0826 no best type found for implicitly-typed array",                                                     //nolint:lll
+	"l2-resource-schema-secret":     "engine omits schema-secret resource outputs from the preview response, so the SDK sees a plain unknown instead of a secret unknown; fix belongs engine-side", //nolint:lll
 	"l2-provider-config-enum":       "Fail after updating to 3.246: run bailed",
 	"l2-config-default-from-invoke": "Fail after updating to 3.246: stack output \"result\" missing",
 

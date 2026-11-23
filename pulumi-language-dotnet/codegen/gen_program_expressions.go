@@ -950,6 +950,10 @@ func (g *generator) GenFunctionCallExpression(w io.Writer, expr *model.FunctionC
 				g.Fgenf(w, ".%s()", method)
 			}
 		}
+	case "pulumiResourceName":
+		g.Fgenf(w, "%.v.GetResourceName()", expr.Args[0])
+	case "pulumiResourceType":
+		g.Fgenf(w, "%.v.GetResourceType()", expr.Args[0])
 	case "stack":
 		g.Fgen(w, "Deployment.Instance.StackName")
 	case "project":

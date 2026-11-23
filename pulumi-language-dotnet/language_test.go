@@ -158,7 +158,6 @@ var expectedFailures = map[string]string{
 
 	"l2-recover-invoke": "Fail after updating to 3.252: CS0029: Cannot implicitly convert type 'string' to 'Pulumi.Input<bool>'", //nolint:lll
 
-	"l2-invoke-depends-on-component":    "the .NET SDK does not send dependsOn on invokes: the invoke result is not unknown while its dependencies are pending creation (added in v3.256.0)",                                                   //nolint:lll
 	"l2-invoke-per-value-deps":          "the .NET SDK does not support INVOKE_OUTPUT_VALUES: invoke results union the dependencies of all args instead of tracking them per value, so d depends on {a, b} instead of {b} (added in v3.268.0)", //nolint:lll
 	"l3-component-provider-inheritance": "the .NET SDK does not inherit the providers map into remote components: an extra default provider is created instead of the explicit one (added in v3.256.0)",                                        //nolint:lll
 

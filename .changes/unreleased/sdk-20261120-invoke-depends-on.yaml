@@ -1,0 +1,6 @@
+component: sdk
+kind: bug-fixes
+body: Send direct dependency URNs on `ResourceInvokeRequest` so output-form invokes depending on a remote component don't resolve during preview while the component's children are still pending
+time: 2026-11-20T00:00:00Z
+custom:
+  PR: "1299"

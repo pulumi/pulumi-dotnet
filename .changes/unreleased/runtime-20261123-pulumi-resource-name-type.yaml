@@ -1,0 +1,6 @@
+component: runtime
+kind: Improvements
+body: Translate the PCL `pulumiResourceName` and `pulumiResourceType` builtins to `Resource.GetResourceName()` and `Resource.GetResourceType()` calls in generated C#
+time: 2026-11-23T00:00:00Z
+custom:
+  PR: "1303"

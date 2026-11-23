@@ -108,10 +108,10 @@ var expectedFailures = map[string]string{
 		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
 	"l2-invoke-scalars": "" +
 		"result contains invalid type Dictionary: only ImmutableArray and ImmutableDictionary allowed",
-	"l2-map-keys":                            "dotnet build failed: bare dict initializer emitted for nested stringMap",
-	"l2-resource-secret":                     "test hanging",
-	"l2-namespaced-provider":                 "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'", //nolint:lll
-	"l1-config-types-object":                 "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
+	"l2-map-keys":            "dotnet build failed: bare dict initializer emitted for nested stringMap",
+	"l2-resource-secret":     "test hanging",
+	"l2-namespaced-provider": "error CS0117: 'ResourceArgs' does not contain a definition for 'ResourceRef'",       //nolint:lll
+	"l1-config-types-object": "dotnet build failed: Cannot initialize type 'object' with a collection initializer", //nolint:lll
 
 	// TODO: This is a codegen bug, we're translating {} to null
 	"l2-plain": "System.ArgumentNullException: [Input] Pulumi.Plain.Inputs.DataArgs._stringMap is required but was not given a value (Parameter '_stringMap')", //nolint:lll

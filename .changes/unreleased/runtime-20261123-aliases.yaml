@@ -1,6 +1,0 @@
-component: runtime
-kind: bug-fixes
-body: Generate the `Aliases` resource option from PCL `aliases = [...]` blocks and scope generated csproj `PackageReference`s to packages the program actually uses
-time: 2026-11-23T00:00:00Z
-custom:
-  PR: "1301"

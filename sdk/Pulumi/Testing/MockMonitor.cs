@@ -60,6 +60,12 @@ namespace Pulumi.Testing
             return Task.FromResult(new SupportsFeatureResponse { HasSupport = hasSupport });
         }
 
+        public Task<ExistsResourceResponse> ExistsResourceAsync(ExistsResourceRequest request)
+        {
+            // Mocks don't expose resource-existence checks; report a known non-existent resource.
+            return Task.FromResult(new ExistsResourceResponse { Exists = false });
+        }
+
         public async Task<ResourceInvokeResponse> InvokeAsync(ResourceInvokeRequest request)
         {
             var args = ToDictionary(request.Args);

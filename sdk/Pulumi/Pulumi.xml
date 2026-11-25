@@ -1377,6 +1377,17 @@
             remove this function.
             </summary>
         </member>
+        <member name="M:Pulumi.Deployment.ExistsResource(System.String,Pulumi.Input{System.String},System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Checks with the engine whether a resource with the given type and ID exists.
+            </summary>
+            <param name="type">The resource type token (e.g. <c>"aws:s3/bucket:Bucket"</c>).</param>
+            <param name="id">The provider-assigned ID of the resource to check.</param>
+            <param name="state">Optional state sufficient to uniquely identify the resource for providers that need it.</param>
+            <returns>An <see cref="T:Pulumi.Output`1"/> that resolves to <c>true</c> when the resource exists, <c>false</c> when it
+            does not, and unknown when the engine could not determine existence (e.g. during a preview whose dependencies
+            are still pending).</returns>
+        </member>
         <member name="M:Pulumi.Deployment.PrepareHooks(Pulumi.Callbacks,Pulumi.ResourceHookBinding)">
             <summary>
             Prepares a set of <see cref="T:Pulumi.ResourceHookBinding"/>s for transmission as part of a resource registration by

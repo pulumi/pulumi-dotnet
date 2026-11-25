@@ -118,7 +118,6 @@ var expectedFailures = map[string]string{
 
 	"l1-builtin-object":          "Fail after updating to 3.224: KeyNotFoundException: The given key 'keyMissing' was not present in the dictionary. ", //nolint:lll
 	"l2-resource-elide-unknowns": "Fail after updating to 3.224: conflict in Output type name",                                                         //nolint:lll
-	"l2-resource-name-type":      "Fail after updating to 3.224: TODO: call pulumiResourceName",                                                        //nolint:lll
 	"l2-builtin-object":          "Fail after updating to 3.224: Invalid expression term ')'",
 
 	"l3-range":        "Fail after updating to 3.225",

@@ -28,8 +28,6 @@ namespace Pulumi
         {
             async Task<OutputData<bool>> RunAsync()
             {
-                await AwaitPendingRegistrations().ConfigureAwait(false);
-
                 var idData = await id.ToOutput().DataTask.ConfigureAwait(false);
                 if (!idData.IsKnown)
                 {

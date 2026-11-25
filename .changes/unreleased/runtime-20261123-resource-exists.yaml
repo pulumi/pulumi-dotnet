@@ -1,6 +1,0 @@
-component: runtime
-kind: Improvements
-body: Implement the `resourceExists` PCL builtin, exposed on the SDK as `Deployment.ExistsResource(type, id, state?)` and wired through a new `ExistsResource` monitor RPC
-time: 2026-11-23T00:00:00Z
-custom:
-  PR: "1302"

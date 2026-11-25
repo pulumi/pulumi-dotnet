@@ -187,6 +187,56 @@
             Runs the <c>pulumi do show-resources</c> command.
             </summary>
         </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalApplyAsync(Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval apply</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalApproveAsync(Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval approve</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalCloseAsync(Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval close</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalCommentAsync(Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval comment</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalDiffAsync(Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval diff</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalGetAsync(Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval get</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalListAsync(Pulumi.Automation.Commands.PulumiEnvApprovalListOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval list</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalLogAsync(Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval log</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalRebaseAsync(Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval rebase</c> command.
+            </summary>
+        </member>
+        <member name="M:Pulumi.Automation.Commands.API.EnvApprovalUnapproveAsync(Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions,System.Threading.CancellationToken)">
+            <summary>
+            Runs the <c>pulumi env approval unapprove</c> command.
+            </summary>
+        </member>
         <member name="M:Pulumi.Automation.Commands.API.EnvChangeRequestApplyAsync(Pulumi.Automation.Commands.PulumiEnvChangeRequestApplyOptions,System.Threading.CancellationToken)">
             <summary>
             Runs the <c>pulumi env change-request apply</c> command.
@@ -4436,6 +4486,761 @@
             </summary>
         </member>
         <member name="P:Pulumi.Automation.Commands.PulumiDoShowResourcesOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions">
+            <summary>
+            Options for the <c>pulumi env approval apply</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.DryRun">
+            <summary>
+            show the proposed change without applying it
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Output">
+            <summary>
+            output format: "text" (default) or "json"
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApplyOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions">
+            <summary>
+            Options for the <c>pulumi env approval approve</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.DryRun">
+            <summary>
+            show the proposed change without approving it
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Message">
+            <summary>
+            a comment to add with the approval
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalApproveOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions">
+            <summary>
+            Options for the <c>pulumi env approval close</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Message">
+            <summary>
+            a comment explaining why the change request was closed
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCloseOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions">
+            <summary>
+            Options for the <c>pulumi env approval comment</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Message">
+            <summary>
+            the comment
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalCommentOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions">
+            <summary>
+            Options for the <c>pulumi env approval diff</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalDiffOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions">
+            <summary>
+            Options for the <c>pulumi env approval get</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Output">
+            <summary>
+            output format: "text" (default) or "json"
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalGetOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions">
+            <summary>
+            Options for the <c>pulumi env approval list</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Output">
+            <summary>
+            output format: "text" (default) or "json"
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Status">
+            <summary>
+            only list change requests with this status: open (draft, pending, or ready), applied, closed, or all
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalListOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions">
+            <summary>
+            Options for the <c>pulumi env approval log</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Output">
+            <summary>
+            output format: "text" (default) or "json"
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalLogOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions">
+            <summary>
+            Options for the <c>pulumi env approval rebase</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Output">
+            <summary>
+            output format: "text" (default) or "json"
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalRebaseOptions.Verbose">
+            <summary>
+            Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
+            </summary>
+        </member>
+        <member name="T:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions">
+            <summary>
+            Options for the <c>pulumi env approval unapprove</c> command.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Color">
+            <summary>
+            Colorize output. Choices are: always, never, raw, auto
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.DisableIntegrityChecking">
+            <summary>
+            Disable integrity checking of checkpoint files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Env">
+            <summary>
+            The name of the environment to operate on.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.FullyQualifyStackNames">
+            <summary>
+            Show fully-qualified stack names
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Logflow">
+            <summary>
+            Flow log settings to child processes (like plugins)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Logtostderr">
+            <summary>
+            Log to stderr instead of to files
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Memprofilerate">
+            <summary>
+            Enable more precise (and expensive) memory allocation profiles by setting runtime.MemProfileRate
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Organization">
+            <summary>
+            the organization that owns the change request (defaults to your default organization)
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.OtelTraces">
+            <summary>
+            Export OpenTelemetry traces to the specified endpoint. Use file:// for local JSON files, grpc:// or https:// for remote collectors
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Profiling">
+            <summary>
+            Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Tracing">
+            <summary>
+            Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.TracingHeader">
+            <summary>
+            Include the tracing header with the given contents.
+            </summary>
+        </member>
+        <member name="P:Pulumi.Automation.Commands.PulumiEnvApprovalUnapproveOptions.Verbose">
             <summary>
             Enable verbose logging (e.g., v=3); anything &gt;3 is very verbose
             </summary>

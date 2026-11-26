@@ -10576,6 +10576,101 @@
             The reason that the named property failed validation.
             </summary>
         </member>
+        <member name="F:Pulumirpc.CheckConfigFailure.RemediationsFieldNumber">
+            <summary>Field number for the "remediations" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigFailure.Remediations">
+            <summary>
+            Commands the user can run to resolve the failure.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CheckConfigFailure.HintFieldNumber">
+            <summary>Field number for the "hint" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CheckConfigFailure.Hint">
+            <summary>
+            A product hint relevant to this failure, if any.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.CommandRemediation">
+             <summary>
+             A `CommandRemediation` describes a command that the user can run to resolve a problem a provider reported, such as
+             missing or expired credentials. Providers return it in a [](pulumirpc.CheckConfigFailure) from
+             [](pulumirpc.ResourceProvider.CheckConfig2).
+            
+             The engine must not run a remediation without showing its command to the user and getting their consent. Providers
+             should only offer a remediation that can run on the current machine, and should keep describing the fix in the
+             failure or error message itself for engines that do not support remediations.
+             </summary>
+        </member>
+        <member name="F:Pulumirpc.CommandRemediation.DescriptionFieldNumber">
+            <summary>Field number for the "description" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CommandRemediation.Description">
+            <summary>
+            A short, imperative summary of what the command does, such as "Sign in to AWS".
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CommandRemediation.CommandFieldNumber">
+            <summary>Field number for the "command" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CommandRemediation.Command">
+            <summary>
+            The command to run, as an argument vector. The first element is the program, which is looked up on `PATH`. The
+            command is run directly, without a shell, attached to the user's terminal so that it can prompt.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.CommandRemediation.EnvFieldNumber">
+            <summary>Field number for the "env" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.CommandRemediation.Env">
+            <summary>
+            Environment variables to set for the command, in addition to the engine's own environment.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Hint">
+            <summary>
+            A `Hint` points the user to a Pulumi feature that helps with a failure. A provider sets it on a
+            [](pulumirpc.CheckConfigFailure), and the engine decides whether to show it.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Hint.KindFieldNumber">
+            <summary>Field number for the "kind" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Hint.Kind">
+            <summary>
+            Which product hint this is.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Hint.MessageFieldNumber">
+            <summary>Field number for the "message" field.</summary>
+        </member>
+        <member name="P:Pulumirpc.Hint.Message">
+            <summary>
+            The text that the engine shows if it decides to show the hint. It may span several lines, for example to put a
+            "Learn more" link on a line of its own.
+            </summary>
+        </member>
+        <member name="T:Pulumirpc.Hint.Types">
+            <summary>Container for nested types declared in the Hint message type.</summary>
+        </member>
+        <member name="T:Pulumirpc.Hint.Types.Kind">
+            <summary>
+            The kinds of product hint.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Hint.Types.Kind.Unspecified">
+            <summary>
+            No product hint is relevant.
+            </summary>
+        </member>
+        <member name="F:Pulumirpc.Hint.Types.Kind.DynamicCredentials">
+            <summary>
+            The failure comes from missing, rejected or expired credentials, so short-lived credentials from an identity
+            provider, for example through OIDC, may help. Don't use it for configuration mistakes such as an unknown
+            profile.
+            </summary>
+        </member>
         <member name="T:Pulumirpc.DiffRequest">
              <summary>
              `DiffRequest` is the type of requests sent as part of [](pulumirpc.ResourceProvider.DiffConfig) and
